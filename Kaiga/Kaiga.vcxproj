@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{94E9F28B-76BA-4B3C-A992-EACC04003D73}</ProjectGuid>
+    <RootNamespace>Kaiga</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>$(ProjectDir)src\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\GLFW\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <IncludePath>$(ProjectDir)src\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\GLFW\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src\;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>ENABLE_TRACE;GLM_FORCE_PURE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>ENABLE_TRACE;GLM_FORCE_PURE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>GLM_FORCE_PURE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>GLM_FORCE_PURE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\kaiga.h" />
+    <ClInclude Include="src\Kaiga\Components\Geom\AbstractGeometry.h" />
+    <ClInclude Include="src\Kaiga\Components\Geom\PlaneGeometry.h" />
+    <ClInclude Include="src\Kaiga\Components\Geom\ScreenQuadGeometry.h" />
+    <ClInclude Include="src\Kaiga\Components\ILens.h" />
+    <ClInclude Include="src\Kaiga\Components\Materials\StandardMaterial.h" />
+    <ClInclude Include="src\Kaiga\Components\PerspectiveLens.h" />
+    <ClInclude Include="src\Kaiga\Components\Transform.h" />
+    <ClInclude Include="src\Kaiga\Core\RenderParams.h" />
+    <ClInclude Include="src\Kaiga\RenderPasses\AbstractNodeGroupRenderPass.h" />
+    <ClInclude Include="src\Kaiga\RenderPasses\TestRenderPass.h" />
+    <ClInclude Include="src\Kaiga\RenderTargets\AbstractRenderTarget.h" />
+    <ClInclude Include="src\Kaiga\Shaders\Core\AbstractShader.h" />
+    <ClInclude Include="src\Kaiga\Shaders\Core\AbstractShaderStage.h" />
+    <ClInclude Include="src\Kaiga\Shaders\Fragment\TestFragmentShader.h" />
+    <ClInclude Include="src\Kaiga\Shaders\TestShader.h" />
+    <ClInclude Include="src\Kaiga\Shaders\Vertex\ScreenQuadVertexShader.h" />
+    <ClInclude Include="src\Kaiga\Textures\AbstractTexture.h" />
+    <ClInclude Include="src\Kaiga\Core\IGeometry.h" />
+    <ClInclude Include="src\Kaiga\Core\IRenderer.h" />
+    <ClInclude Include="src\Kaiga\Core\IRenderPass.h" />
+    <ClInclude Include="src\Kaiga\Core\IRenderTarget.h" />
+    <ClInclude Include="src\Kaiga\Core\ITexture.h" />
+    <ClInclude Include="src\Kaiga\Core\ITextureRect.h" />
+    <ClInclude Include="src\Kaiga\Core\ITextureSquare.h" />
+    <ClInclude Include="src\Kaiga\Core\RenderPhase.h" />
+    <ClInclude Include="src\Kaiga\Renderers\DefaultRenderer.h" />
+    <ClInclude Include="src\Kaiga\Textures\TextureSquare.h" />
+    <ClInclude Include="src\Kaiga\Util\GLErrorUtil.h" />
+    <ClInclude Include="src\Kaiga\Util\TextureUtil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Kaiga\Components\Geom\AbstractGeometry.cpp" />
+    <ClCompile Include="src\Kaiga\Components\Geom\PlaneGeometry.cpp" />
+    <ClCompile Include="src\Kaiga\Components\Geom\ScreenQuadGeometry.cpp" />
+    <ClCompile Include="src\Kaiga\Components\Materials\StandardMaterial.cpp" />
+    <ClCompile Include="src\Kaiga\Components\PerspectiveLens.cpp" />
+    <ClCompile Include="src\Kaiga\Core\RenderParams.cpp" />
+    <ClCompile Include="src\Kaiga\RenderPasses\TestRenderPass.cpp" />
+    <ClCompile Include="src\Kaiga\RenderTargets\AbstractRenderTarget.cpp" />
+    <ClCompile Include="src\Kaiga\Shaders\Core\AbstractShaderStage.cpp" />
+    <ClCompile Include="src\Kaiga\Textures\AbstractTexture.cpp" />
+    <ClCompile Include="src\Kaiga\Renderers\DefaultRenderer.cpp" />
+    <ClCompile Include="src\Kaiga\Textures\TextureSquare.cpp" />
+    <ClCompile Include="src\Kaiga\Util\GLErrorUtil.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

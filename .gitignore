@@ -1,0 +1,11 @@
+*.sdf
+*.exe
+*.filters
+*.user
+*/bin/
+*/Debug/
+.vs/
+
+GLEW/
+GLFW/
+GLM/
