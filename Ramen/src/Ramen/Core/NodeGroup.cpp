@@ -78,9 +78,8 @@ void Ramen::NodeGroup<T>::AddIfMatch(Entity entity)
 	auto nodeInfo = T::GetReflectionInfo();
 	for (size_t i = 0; i < nodeInfo.GetMembersCount(); i++)
 	{
-		const std::type_info& typeInfo = nodeInfo.GetMembers()[i].m_typeInfo;
-
-		if (m_scene->EntityHasComponentOfType(entity, typeInfo) == false)
+		auto nodeMemberInfo = nodeInfo.GetMembers()[i];
+		if (m_scene->EntityHasComponentOfType(entity, nodeMemberInfo.m_typeInfo) == false)
 		{
 			return;
 		}
@@ -104,7 +103,7 @@ void Ramen::NodeGroup<T>::AddIfMatch(Entity entity)
 				ComponentPtr* ptr = (ComponentPtr*)nodePtr + member.m_offset;
 
 				// Assign the smart pointer to this location in memory
-				*ptr = component;
+				**ptr = *component;
 			}
 		}
 	}
