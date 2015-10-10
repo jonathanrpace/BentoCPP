@@ -1,5 +1,11 @@
 #include "AbstractValidatable.h"
 
+Ramen::AbstractValidatable::AbstractValidatable() :
+	m_isInvalid(true)
+{
+	
+}
+
 void Ramen::AbstractValidatable::Invalidate()
 {
 	if (m_isInvalid)
