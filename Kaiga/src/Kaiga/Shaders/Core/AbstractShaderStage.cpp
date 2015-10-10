@@ -3,7 +3,7 @@
 #include <iostream>
 #include <assert.h>
 
-// STATIC ////////////////////////////////////////////////////////////////
+// STATIC
 unsigned long Kaiga::AbstractShaderStage::GetFileLength
 (
 	std::ifstream& _file
@@ -59,14 +59,20 @@ int Kaiga::AbstractShaderStage::LoadShader
 	return 0; // No Error
 }
 
-void Kaiga::AbstractShaderStage::UnloadShader(GLubyte** _shaderSource)
+void Kaiga::AbstractShaderStage::UnloadShader(GLchar** _shaderSource)
 {
 	if (*_shaderSource != 0)
 		delete[] * _shaderSource;
 	*_shaderSource = 0;
 }
-//////////////////////////////////////////////////////////////////////////
+// ~STATIC
 
+
+//************************************
+// Method:    ctor
+// Parameter: char * _filename
+// Parameter: int _shaderType
+//************************************
 Kaiga::AbstractShaderStage::AbstractShaderStage
 (
 	char * _filename, 
@@ -75,14 +81,23 @@ Kaiga::AbstractShaderStage::AbstractShaderStage
 	m_filename(_filename),
 	m_shaderType(_shaderType)
 {
-	Invalidate();
+	
 }
 
+
+//************************************
+// Method:    dtor
+//************************************
 Kaiga::AbstractShaderStage::~AbstractShaderStage()
 {
 
 }
 
+//************************************
+// Method:    GetProgramName
+// Access:    public 
+// Returns:   GLuint
+//************************************
 GLuint Kaiga::AbstractShaderStage::GetProgramName()
 {
 	ValidateNow();
@@ -93,21 +108,16 @@ void Kaiga::AbstractShaderStage::Validate()
 {
 	assert(glIsProgram(m_programName) == false);
 
-	assert( m_shaderType == GL_VERTEX_SHADER || 
+	assert(	m_shaderType == GL_VERTEX_SHADER || 
 			m_shaderType == GL_FRAGMENT_SHADER );
 
 	GLchar* shaderSourcePtr;
 	unsigned long shaderSourceLength;
 	LoadShader(m_filename, &shaderSourcePtr, &shaderSourceLength);
-
 	GL_CHECK(m_programName = glCreateShaderProgramEXT(m_shaderType, shaderSourcePtr));
+	UnloadShader(&shaderSourcePtr);
 
-	GLint infoLogLength;												
-	glGetProgramiv((m_programName), GL_INFO_LOG_LENGTH, &infoLogLength);		
-	GLchar* infoLog = new GLchar[infoLogLength];						
-	glGetProgramInfoLog((m_programName), infoLogLength, nullptr, infoLog);
-	std::cout << infoLog; 
-	delete infoLog; 
+	CHECK_SHADER_COMPILATION(m_programName);
 }
 
 void Kaiga::AbstractShaderStage::OnInvalidate()

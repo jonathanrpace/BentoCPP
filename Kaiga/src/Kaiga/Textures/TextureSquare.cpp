@@ -41,7 +41,7 @@ void Kaiga::TextureSquare::OnInvalidate()
 {
 	if (glIsTexture(m_name))
 	{
-		glDeleteTextures(1, &m_name);
+		GL_CHECK(glDeleteTextures(1, &m_name));
 		m_name = -1;
 	}
 }

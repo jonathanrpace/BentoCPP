@@ -17,8 +17,7 @@ namespace Kaiga
 
 	class TestRenderPass :
 		public Ramen::SharedObject<TestRenderPass>,
-		public AbstractNodeGroupRenderPass<TestRenderPassNode>,
-		public IRenderPass
+		public AbstractNodeGroupRenderPass<TestRenderPassNode>
 	{
 	public:
 		TestRenderPass();
@@ -26,9 +25,6 @@ namespace Kaiga
 	private:
 		TestShader m_shader;
 
-		// Inherited via IRenderPass
-		virtual void BindToScene(Ramen::Scene & scene) override;
-		virtual void UnbindFromScene(Ramen::Scene & scene) override;
 		virtual RenderPhase GetRenderPhase() override;
 	};
 }

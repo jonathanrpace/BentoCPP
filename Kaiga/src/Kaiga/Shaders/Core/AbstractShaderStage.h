@@ -11,13 +11,13 @@ namespace Kaiga
 	class AbstractShaderStage :
 		public Ramen::AbstractValidatable
 	{
-
+		// STATIC 
 	private:
-		// STATIC ////////////////////////////////////////////////////////////////
 		static unsigned long GetFileLength(std::ifstream& _file);
-		static int LoadShader(char* _filename, GLchar** o_ShaderSource, unsigned long* o_len);
-		static void UnloadShader(GLubyte** ShaderSource);
-		//////////////////////////////////////////////////////////////////////////
+		static int LoadShader(char* _filename, GLchar** o_ShaderSource, 
+			unsigned long* o_len);
+		static void UnloadShader(GLchar** ShaderSource);
+		// ~STATIC
 	public:
 		AbstractShaderStage( char* _filename, int _shaderType );
 		~AbstractShaderStage();

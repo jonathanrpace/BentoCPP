@@ -1,7 +1,6 @@
 #include "GLErrorUtil.h"
 
-#ifdef ENABLE_GL_CHECKS
-const char * Kaiga::GetOpenGLErrorString(GLenum _error)
+const char * GetOpenGLErrorString(GLenum _error)
 {
 	switch (_error)
 	{
@@ -24,13 +23,13 @@ const char * Kaiga::GetOpenGLErrorString(GLenum _error)
 	return "Unknown error";
 }
 
-void Kaiga::CheckOpenGLError(const char * stmt, const char * fname, int line)
+void CheckOpenGLError(const char * stmt, const char * fname, int line)
 {
 	GLenum err = glGetError();
 	bool foundError = false;
 	while (err != GL_NO_ERROR)
 	{
-		printf("OpenGL error %s, at %s:%i - for %s\n",
+		PRINTF("OpenGL error %s, at %s:%i - for %s\n",
 			GetOpenGLErrorString(err), fname, line, stmt);
 		foundError = true;
 		err = glGetError();
@@ -38,7 +37,6 @@ void Kaiga::CheckOpenGLError(const char * stmt, const char * fname, int line)
 
 	if (foundError)
 	{
-		abort();
+		__debugbreak();
 	}
 }
-#endif

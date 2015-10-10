@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Ramen\Components\ComponentBase.h>
-
-#include <Kaiga/Components/Geom/AbstractGeometry.h>
+#include <ramen.h>
+#include <kaiga.h>
 
 namespace Kaiga
 {
@@ -10,10 +9,6 @@ namespace Kaiga
 		public AbstractGeometry,
 		public Ramen::ComponentBase<ScreenQuadGeometry>
 	{
-	public:
-		// From IGeometry
-		virtual void Draw() override;
-
 	protected:
 		// From AbstractValidatable
 		virtual void Validate() override;

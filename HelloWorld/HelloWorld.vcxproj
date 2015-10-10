@@ -103,7 +103,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>GLEW_STATIC;GLM_FORCE_PURE;ENABLE_TRACE;GL_DEBUG_CONTEXT;CRTDBG_MAP_ALLOC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;GLM_FORCE_PURE;ENABLE_TRACE;GL_DEBUG_CONTEXT;ENABLE_GL_CHECKS;CRTDBG_MAP_ALLOC</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>GLEW_STATIC;GLM_FORCE_PURE;ENABLE_TRACE;GL_DEBUG_CONTEXT;CRTDBG_MAP_ALLOC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;GLM_FORCE_PURE;ENABLE_TRACE;GL_DEBUG_CONTEXT;ENABLE_GL_CHECKS;CRTDBG_MAP_ALLOC</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>

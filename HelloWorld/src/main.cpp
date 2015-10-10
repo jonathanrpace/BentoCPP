@@ -25,6 +25,7 @@ void mainLoop(GLFWwindow* window)
 
 	int entity = scene.CreateEntity();
 	auto geom = Kaiga::ScreenQuadGeometry::Create();
+
 	auto transform = Kaiga::Transform::Create();
 	scene.AddComponentToEntity(geom, entity);
 	scene.AddComponentToEntity(transform, entity);
@@ -46,6 +47,16 @@ void mainLoop(GLFWwindow* window)
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
+}
+
+#define REQUIRE_CAPABILITY( CAP )	\
+{									\
+	if (!CAP)						\
+	{								\
+		__debugbreak();				\
+		glfwTerminate();			\
+		return -1;					\
+	}								\
 }
 
 int main(int argc, char **argv)
@@ -79,20 +90,13 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	if ( !GLEW_ARB_separate_shader_objects )
-	{
-		__debugbreak();
-		glfwTerminate();
-		return -1;
-	}
+	REQUIRE_CAPABILITY(GLEW_VERSION_4_5);
+	REQUIRE_CAPABILITY(GLEW_ARB_separate_shader_objects);
 
-	if (!GLEW_VERSION_4_5)
-	{
-		__debugbreak();
-		glfwTerminate();
-		return -1;
-	}
-
+	// Clear the GL error state. This is really horrible, but it seems 
+	// glfw is generating some gl errors and not checking for them
+	while (glGetError() != GL_NONE) {}
+	
 	mainLoop(window);
 
 	glfwTerminate();

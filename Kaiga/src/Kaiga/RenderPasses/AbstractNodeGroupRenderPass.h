@@ -1,15 +1,12 @@
 #pragma once
 
-#include <Ramen/Core/INode.h>
-
-#include <Kaiga/Core/IRenderPass.h>
-#include <Ramen/Core/Scene.h>
-#include <Ramen/Core/NodeGroup.h>
+#include <kaiga.h>
 
 namespace Kaiga
 {
 	template<typename T>
-	class AbstractNodeGroupRenderPass
+	class AbstractNodeGroupRenderPass :
+		public IRenderPass
 	{
 	public:
 		AbstractNodeGroupRenderPass() :
@@ -23,11 +20,13 @@ namespace Kaiga
 			m_nodeGroup.Unbind();
 		}
 
+		// From IRenderPass
 		virtual void BindToScene(Ramen::Scene & _scene)
 		{
 			m_nodeGroup.Bind(&_scene);
 		}
 
+		// From IRenderPass
 		virtual void UnbindFromScene(Ramen::Scene & _scene)
 		{
 			m_nodeGroup.Unbind();

@@ -3,6 +3,7 @@
 Kaiga::TestRenderPass::TestRenderPass() :
 	m_shader()
 {
+
 }
 
 void Kaiga::TestRenderPass::Render()
@@ -15,7 +16,7 @@ void Kaiga::TestRenderPass::Render()
 		node->geom.Draw();
 	}
 }
-
+/*
 void Kaiga::TestRenderPass::BindToScene(Ramen::Scene & scene)
 {
 }
@@ -23,7 +24,7 @@ void Kaiga::TestRenderPass::BindToScene(Ramen::Scene & scene)
 void Kaiga::TestRenderPass::UnbindFromScene(Ramen::Scene & scene)
 {
 }
-
+*/
 Kaiga::RenderPhase Kaiga::TestRenderPass::GetRenderPhase()
 {
 	return Kaiga::eRenderPhase_G;

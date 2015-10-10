@@ -29,10 +29,6 @@ void Kaiga::PlaneGeometry::Validate()
 	glGenVertexArrays(1, &m_vertexArrayName);
 	GL_CHECK(glBindVertexArray(m_vertexArrayName));
 
-	m_vertexBuffersSize = 4;
-	m_vertexBuffers = new GLuint[m_vertexBuffersSize];
-	GL_CHECK(glGenBuffers(m_vertexBuffersSize, m_vertexBuffers));
-
 	// Position;
 	SetVertexFormatf(0, 3);
 	
@@ -46,10 +42,6 @@ void Kaiga::PlaneGeometry::Validate()
 	SetVertexFormatf(3, 4);
 
 	glBindVertexArray(0);
-
-	m_indexBuffersSize = 1;
-	m_indexBuffers = new GLuint[m_indexBuffersSize];
-	glGenBuffers(m_indexBuffersSize, m_indexBuffers);
 
 	int numVerticesX = 2 + m_numDivisionsX;
 	int numVerticesY = 2 + m_numDivisionsY;

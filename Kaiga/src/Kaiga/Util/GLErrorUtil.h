@@ -3,18 +3,16 @@
 #include <glew.h>
 #include <ramen.h>
 
-namespace Kaiga
-{
-
 #ifdef ENABLE_GL_CHECKS
-#	define CHECK_SHADER_COMPILATION(ProgName)								\
-		GLint infoLogLength;												\
-		glGetProgramiv((ProgName), GL_INFO_LOG_LENGTH, &infoLogLength);		\
-		GLchar* infoLog = new GLchar[infoLogLength];						\
-		glGetProgramInfoLog((ProgName), infoLogLength, nullptr, infoLog);	\
-		std::cout << infoLog; \
-		delete infoLog; \
-
+#	define CHECK_SHADER_COMPILATION(ProgName)							  \
+	{																	  \
+		GLint infoLogLength;											  \
+		glGetProgramiv((ProgName), GL_INFO_LOG_LENGTH, &infoLogLength);	  \
+		GLchar* infoLog = new GLchar[infoLogLength];					  \
+		glGetProgramInfoLog((ProgName), infoLogLength, nullptr, infoLog); \
+		TRACE(infoLog);													  \
+		delete infoLog;													  \
+	}
 #else
 #	define CHECK_SHADER_COMPILATION(ProgName)
 #endif
@@ -31,5 +29,3 @@ void CheckOpenGLError(const char* stmt, const char* fname, int line);
 #else
 #define GL_CHECK(stmt) stmt
 #endif
-
-}
