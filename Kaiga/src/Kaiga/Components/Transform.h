@@ -1,14 +1,15 @@
 #pragma once
 
-#include <Ramen/Components/ComponentBase.h>
-#include <GLM/glm.hpp>
+#include <ramen.h>
+#include <glm.h>
 
 namespace Kaiga
 {
-	class Transform : public Ramen::ComponentBase<Transform>
+	class Transform : 
+		public Ramen::ComponentBase<Transform>
 	{
 	public:
-		glm::mat4 matrix;
+		mat4 matrix;
 
 		Transform() :
 			matrix()

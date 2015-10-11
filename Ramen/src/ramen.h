@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Ramen/Components/IComponent.h>
-#include <Ramen/Components/ComponentBase.h>
+#include <Ramen/Core/IComponent.h>
+#include <Ramen/Core/ComponentBase.h>
 #include <Ramen/Core/AbstractValidatable.h>
 #include <Ramen/Core/INode.h>
 #include <Ramen/Core/IProcess.h>

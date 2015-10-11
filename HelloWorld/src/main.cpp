@@ -4,24 +4,25 @@
 #include <typeinfo>
 #include <iostream>
 
-#include <ramen.h>
-#include <kaiga.h>
-
 #include <glew.h>
 #include <glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm.h>
+#include <ramen.h>
+#include <kaiga.h>
 
-#include <Ramen/Components/TestComponent.h>
+#include <Ramen/Core/InputManagerImpl.h>
+
 #include <Kaiga/Renderers/DefaultRenderer.h>
 #include <Kaiga/Components/Transform.h>
 #include <Kaiga/Components/Geom/ScreenQuadGeometry.h>
 #include <Kaiga/RenderPasses/TestRenderPass.h>
+#include <Kaiga/Processes/OrbitCamera.h>
 
 void mainLoop(GLFWwindow* window)
 {
-	Ramen::Scene scene;
+	auto inputManager = new Ramen::InputManagerImpl(window);
+	Ramen::Scene scene(inputManager);
 
 	int entity = scene.CreateEntity();
 	auto geom = Kaiga::ScreenQuadGeometry::Create();
@@ -35,6 +36,9 @@ void mainLoop(GLFWwindow* window)
 
 	auto renderPass = Kaiga::TestRenderPass::Create();
 	renderer->AddRenderPass(renderPass);
+
+	auto orbitCamera = Kaiga::OrbitCamera::Create();
+	scene.AddProcess(orbitCamera);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))

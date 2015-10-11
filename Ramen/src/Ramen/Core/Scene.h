@@ -6,12 +6,12 @@
 #include <stack>
 #include <memory>
 
-// ?
-#include <Event.h>
-
-// Ramen
+// ramen
+#include <Ramen/Core/IInputManager.h>
 #include <Ramen/Core/IProcess.h>
-#include <Ramen/Components/IComponent.h>
+#include <Ramen/Core/IComponent.h>
+
+#include <event.h>
 
 namespace Ramen
 {
@@ -25,10 +25,11 @@ namespace Ramen
 	class Scene
 	{
 	public:
-		Scene();
+		Scene(IInputManager* _inputManager);
 		~Scene();
 
 		// Methods
+		IInputManager* GetInputManager();
 		Entity CreateEntity();
 		void DestroyEntity(Entity _entity);
 		void AddComponentToEntity(ComponentPtr _component, Entity _entity);
@@ -68,6 +69,7 @@ namespace Ramen
 		DECLARE_EVENT(void, Entity, ComponentPtr) ComponentRemovedFromEntity;	
 
 	private:
+		IInputManager* m_inputManager;
 		EntityList m_entities;
 		ProcessList m_processes;
 		ComponentList* m_entityToComponentMap[4096];

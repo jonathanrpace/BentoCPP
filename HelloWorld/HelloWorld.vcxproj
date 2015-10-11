@@ -83,7 +83,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\GLFW;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src;$(SolutionDir)Kaiga\src</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\GLFW;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src;$(SolutionDir)Kaiga\src</IncludePath>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -91,7 +91,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\GLFW;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src;$(SolutionDir)Kaiga\src</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\GLFW;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src;$(SolutionDir)Kaiga\src</IncludePath>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

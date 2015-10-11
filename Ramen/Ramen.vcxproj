@@ -70,11 +70,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)Eigen\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(SolutionDir)Eigen\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -137,11 +137,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\event.h" />
+    <ClInclude Include="src\glm.h" />
     <ClInclude Include="src\ramen.h" />
-    <ClInclude Include="src\Ramen\Components\ComponentBase.h" />
-    <ClInclude Include="src\Ramen\Components\IComponent.h" />
-    <ClInclude Include="src\Ramen\Components\TestComponent.h" />
+    <ClInclude Include="src\Ramen\Core\ComponentBase.h" />
+    <ClInclude Include="src\Ramen\Core\IComponent.h" />
     <ClInclude Include="src\Ramen\Core\AbstractValidatable.h" />
+    <ClInclude Include="src\Ramen\Core\IInputManager.h" />
+    <ClInclude Include="src\Ramen\Core\InputManagerImpl.h" />
     <ClInclude Include="src\Ramen\Core\IProcess.h" />
     <ClInclude Include="src\Ramen\Core\INode.h" />
     <ClInclude Include="src\Ramen\Core\Logging.h" />
@@ -152,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Ramen\Core\AbstractValidatable.cpp" />
+    <ClCompile Include="src\Ramen\Core\InputManagerImpl.cpp" />
     <ClCompile Include="src\Ramen\Core\NamedObject.cpp" />
     <ClCompile Include="src\Ramen\Core\Scene.cpp" />
   </ItemGroup>

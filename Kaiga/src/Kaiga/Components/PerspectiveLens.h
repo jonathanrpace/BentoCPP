@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Ramen/Components/ComponentBase.h>
-
-#include <Kaiga/Components/ILens.h>
+#include <ramen.h>
+#include <kaiga.h>
 
 namespace Kaiga
 {
@@ -16,7 +15,7 @@ namespace Kaiga
 		// From ILens
 		virtual float GetAspectRatio() override;
 		virtual void SetAspectRatio(float _value) override;
-		virtual const glm::mat4& GetMatrix() override;
+		virtual const mat4& GetMatrix() override;
 
 		float GetVerticalFOV();
 		void SetVerticalFOV(float _value);
@@ -32,7 +31,7 @@ namespace Kaiga
 		float m_verticalFOV;
 		float m_near;
 		float m_far;
-		glm::mat4 m_matrix;
+		mat4 m_matrix;
 		bool m_matrixIsInvalid;
 	};
 }

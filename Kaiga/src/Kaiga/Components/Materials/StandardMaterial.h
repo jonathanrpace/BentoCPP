@@ -1,8 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
-#include <Ramen\Components\ComponentBase.h>
+#include <glm.h>
+#include <ramen.h>
 
 namespace Kaiga
 {
@@ -21,13 +20,13 @@ namespace Kaiga
 		float Emissive() const;
 		void Emissive(float val);
 
-		glm::vec3 Diffuse() const;
-		void Diffuse(glm::vec3 val);
+		vec3 Diffuse() const;
+		void Diffuse(vec3 val);
 
 	private:
 		float m_reflectivity;
 		float m_roughness;
 		float m_emissive;
-		glm::vec3 m_diffuse;
+		vec3 m_diffuse;
 	};
 }

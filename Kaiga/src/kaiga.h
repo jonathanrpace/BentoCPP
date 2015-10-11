@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <glew.h>
+#include <glfw3.h>
 
 #include <Kaiga/Core/IGeometry.h>
 #include <Kaiga/Core/IRenderer.h>

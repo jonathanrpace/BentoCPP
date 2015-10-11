@@ -3,7 +3,7 @@
 #include <memory>
 #include <typeinfo>
 
-#include <Ramen/Components/IComponent.h>
+#include <Ramen/Core/IComponent.h>
 
 namespace Ramen
 {

@@ -70,11 +70,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(ProjectDir)src\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\GLFW\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src\;$(SolutionDir)GLEW\include;$(SolutionDir)GLFW\include\GLFW\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IncludePath>$(ProjectDir)src\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\GLFW\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)src\;$(SolutionDir)GLEW\include;$(SolutionDir)GLFW\include\GLFW\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -138,6 +138,7 @@
     <ClInclude Include="src\Kaiga\Components\PerspectiveLens.h" />
     <ClInclude Include="src\Kaiga\Components\Transform.h" />
     <ClInclude Include="src\Kaiga\Core\RenderParams.h" />
+    <ClInclude Include="src\Kaiga\Processes\OrbitCamera.h" />
     <ClInclude Include="src\Kaiga\RenderPasses\AbstractNodeGroupRenderPass.h" />
     <ClInclude Include="src\Kaiga\RenderPasses\TestRenderPass.h" />
     <ClInclude Include="src\Kaiga\RenderTargets\AbstractRenderTarget.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="src\Kaiga\Components\Materials\StandardMaterial.cpp" />
     <ClCompile Include="src\Kaiga\Components\PerspectiveLens.cpp" />
     <ClCompile Include="src\Kaiga\Core\RenderParams.cpp" />
+    <ClCompile Include="src\Kaiga\Processes\OrbitCamera.cpp" />
     <ClCompile Include="src\Kaiga\RenderPasses\TestRenderPass.cpp" />
     <ClCompile Include="src\Kaiga\RenderTargets\AbstractRenderTarget.cpp" />
     <ClCompile Include="src\Kaiga\Shaders\Core\AbstractShaderStage.cpp" />

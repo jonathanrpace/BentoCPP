@@ -24,7 +24,7 @@ void Kaiga::PerspectiveLens::SetAspectRatio(float _value)
 	m_matrixIsInvalid = true;
 }
 
-const glm::mat4& Kaiga::PerspectiveLens::GetMatrix()
+const mat4& Kaiga::PerspectiveLens::GetMatrix()
 {
 	if ( m_matrixIsInvalid )
 	{

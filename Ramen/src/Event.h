@@ -1,7 +1,7 @@
 #pragma once
 
-# include "FastDelegate/FastDelegate.h"
-# include <list>
+#include "FastDelegate/FastDelegate.h"
+#include <list>
 
 using namespace fastdelegate;
 
