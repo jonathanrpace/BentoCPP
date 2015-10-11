@@ -5,6 +5,7 @@
 
 using namespace fastdelegate;
 
+
 #define DEFINE_DELEGATE_0(NAME, METHOD) \
 fastdelegate::FastDelegate0<void> NAME = MakeDelegate(this, &METHOD);
 #define DEFINE_DELEGATE_1(NAME, METHOD, ARG0) \
@@ -14,11 +15,19 @@ fastdelegate::FastDelegate2<ARG0, ARG1, void> NAME = MakeDelegate(this, &METHOD)
 #define DEFINE_DELEGATE_3(NAME, METHOD, ARG0, ARG1, ARG2) \
 fastdelegate::FastDelegate3<ARG0, ARG1, ARG2, void> NAME = MakeDelegate(this, &METHOD);
 
+#define DEFINE_EVENT_HANDLER_0(TYPE, FUNCTION_NAME) \
+DEFINE_DELEGATE_0(FUNCTION_NAME##Delegate, TYPE::FUNCTION_NAME) \
+void FUNCTION_NAME();
+#define DEFINE_EVENT_HANDLER_1(TYPE, FUNCTION_NAME, ARG_TYPE0, ARG_NAME0) \
+DEFINE_DELEGATE_1(FUNCTION_NAME##Delegate, TYPE::FUNCTION_NAME, ARG_TYPE0) \
+void FUNCTION_NAME(ARG_TYPE0 ARG_NAME0);
+#define DEFINE_EVENT_HANDLER_2(TYPE, FUNCTION_NAME, ARG_TYPE0, ARG_NAME0, ARG_TYPE1, ARG_NAME1) \
+DEFINE_DELEGATE_2(FUNCTION_NAME##Delegate, TYPE::FUNCTION_NAME, ARG_TYPE0, ARG_TYPE1) \
+void FUNCTION_NAME(ARG_TYPE0 ARG_NAME0, ARG_TYPE1 ARG_NAME1);
+
 // The Angel3D namespace
 namespace A3D
 {
-
-
 	/// Defines a generic delegate list type.
 	typedef std::list< DelegateMemento > DelegateList;
 
