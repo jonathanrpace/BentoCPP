@@ -25,14 +25,10 @@ namespace Ramen
 		std::map<Entity, T*> m_entityToNodeMap;
 
 		// Events / Delegates
-		DEFINE_DELEGATE_1(D_OnEntityAdded, NodeGroup<T>::OnEntityAdded, Entity)
-		void OnEntityAdded(Entity entity);
-		DEFINE_DELEGATE_1(D_OnEntityRemoved, NodeGroup<T>::OnEntityRemoved, Entity)
-		void OnEntityRemoved(Entity entity);
-		DEFINE_DELEGATE_2(D_OnComponentAddedToEntity, NodeGroup<T>::OnComponentAddedToEntity, Entity, ComponentPtr)
-		void OnComponentAddedToEntity(Entity entity, ComponentPtr component);
-		DEFINE_DELEGATE_2(D_OnComponentRemovedFromEntity, NodeGroup<T>::OnComponentRemovedFromEntity, Entity, ComponentPtr)
-		void OnComponentRemovedFromEntity(Entity entity, ComponentPtr component);
+		DEFINE_EVENT_HANDLER_1(NodeGroup<T>, OnEntityAdded, Entity, entity);
+		DEFINE_EVENT_HANDLER_1(NodeGroup<T>, OnEntityRemoved, Entity, entity);
+		DEFINE_EVENT_HANDLER_2(NodeGroup<T>, OnComponentAddedToEntity, Entity, entity, ComponentPtr, component);
+		DEFINE_EVENT_HANDLER_2(NodeGroup<T>, OnComponentRemovedFromEntity, Entity, entity, ComponentPtr, component);
 
 		// Functions
 		void AddIfMatch(Entity entity);

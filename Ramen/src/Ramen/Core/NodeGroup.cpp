@@ -34,10 +34,10 @@ void NodeGroup<T>::Bind(Scene* scene)
 		AddIfMatch(entity);
 	}
 
-	m_scene->EntityAdded += D_OnEntityAdded;
-	m_scene->EntityRemoved += D_OnEntityRemoved;
-	m_scene->ComponentAddedToEntity += D_OnComponentAddedToEntity;
-	m_scene->ComponentRemovedFromEntity += D_OnComponentRemovedFromEntity;
+	m_scene->EntityAdded += OnEntityAddedDelegate;
+	m_scene->EntityRemoved += OnEntityRemovedDelegate;
+	m_scene->ComponentAddedToEntity += OnComponentAddedToEntityDelegate;
+	m_scene->ComponentRemovedFromEntity += OnComponentRemovedFromEntityDelegate;
 }
 
 template<typename T>
@@ -48,10 +48,10 @@ void NodeGroup<T>::Unbind()
 		return;
 	}
 
-	m_scene->EntityAdded -= D_OnEntityAdded;
-	m_scene->EntityRemoved -= D_OnEntityRemoved;
-	m_scene->ComponentAddedToEntity -= D_OnComponentAddedToEntity;
-	m_scene->ComponentRemovedFromEntity -= D_OnComponentRemovedFromEntity;
+	m_scene->EntityAdded -= OnEntityAddedDelegate;
+	m_scene->EntityRemoved -= OnEntityRemovedDelegate;
+	m_scene->ComponentAddedToEntity -= OnComponentAddedToEntityDelegate;
+	m_scene->ComponentRemovedFromEntity -= OnComponentRemovedFromEntityDelegate;
 
 	for (T* nodePtr : m_nodes)
 	{
