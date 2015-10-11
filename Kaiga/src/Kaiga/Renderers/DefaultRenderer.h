@@ -5,24 +5,16 @@
 #include <map>
 #include <memory>
 
-// Ramen
-#include <Ramen\Core\Scene.h>
-
-// Kaiga
-#include <Kaiga\Core\IRenderer.h>
-#include <Kaiga\Core\RenderPhase.h>
+#include <ramen.h>
+#include <kaiga.h>
 
 namespace Kaiga
 {
-	class DefaultRenderer : public IRenderer
+	class DefaultRenderer : 
+		public IRenderer,
+		public Ramen::SharedObject<DefaultRenderer>
 	{
 	public:
-
-		static std::shared_ptr<DefaultRenderer> Create()
-		{
-			return std::make_shared<DefaultRenderer>();
-		}
-
 		DefaultRenderer();
 		~DefaultRenderer();
 
