@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Ramen/Core/SharedObject.h>
 #include <Kaiga/RenderPasses/AbstractNodeGroupRenderPass.h>
 #include <Kaiga/Components/Geom/ScreenQuadGeometry.h>
 #include <Kaiga/Components/Transform.h>

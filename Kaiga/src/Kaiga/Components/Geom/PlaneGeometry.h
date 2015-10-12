@@ -1,20 +1,22 @@
 #pragma once
 
+#include <typeinfo>
+
 #include <ramen.h>
 #include <kaiga.h>
 
 namespace Kaiga
 {
-	class PlaneGeometry : 
-		public AbstractGeometry,
-		public Ramen::ComponentBase<PlaneGeometry>
+	class PlaneGeometry
+		: public AbstractGeometry
+		, public Ramen::SharedObject<PlaneGeometry>
 	{
 	public:
 		PlaneGeometry();
 		~PlaneGeometry();
 
-		// From IGeometry
-		virtual void Draw() override;
+		// From ISceneObject
+		virtual const std::type_info & typeInfo() override;
 
 		float GetWidth();
 		void SetWidth(float _value);
@@ -34,5 +36,7 @@ namespace Kaiga
 		float m_height;
 		int m_numDivisionsX;
 		int m_numDivisionsY;
+
+		
 	};
 }

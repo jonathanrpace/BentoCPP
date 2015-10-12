@@ -1,12 +1,12 @@
 #pragma once
 
-#include <typeinfo>
+#include <Ramen/Core/ISceneObject.h>
 
 namespace Ramen
 {
 	class IComponent
+		: public Ramen::ISceneObject
 	{
-	public:
-		virtual const std::type_info& typeInfo() = 0;
+		
 	};
 }

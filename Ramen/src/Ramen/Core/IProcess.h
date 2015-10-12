@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Ramen/Core/ISceneObject.h>
+
 namespace Ramen
 {
 	// Forward declares
 	class Scene;
 
-	class IProcess
+	class IProcess : public Ramen::ISceneObject
 	{
 	public:
 		virtual void BindToScene(Scene * const _scene) = 0;

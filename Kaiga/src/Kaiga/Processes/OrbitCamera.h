@@ -1,6 +1,12 @@
 #pragma once
 
+// std
+#include <typeinfo>
+
+// 3rd party
 #include <GLM/glm.hpp>
+
+// bento
 #include <ramen.h>
 #include <kaiga.h>
 
@@ -12,6 +18,8 @@ namespace Kaiga
 	{
 	public:
 		OrbitCamera();
+
+		virtual const std::type_info& typeInfo() override;
 
 		// from IProcess
 		virtual void BindToScene(Scene * const _scene) override;

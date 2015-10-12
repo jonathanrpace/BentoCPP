@@ -21,6 +21,7 @@ namespace Kaiga
 		virtual void Draw() override;
 
 	protected:
+		// From AbstractValidatable
 		virtual void OnInvalidate() override;
 
 		void BufferVertexData(int _attributeIndex, float* _data, int _size);

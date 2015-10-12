@@ -10,6 +10,11 @@ Kaiga::StandardMaterial::StandardMaterial() :
 
 }
 
+const std::type_info & Kaiga::StandardMaterial::typeInfo()
+{
+	return typeid(Kaiga::StandardMaterial);
+}
+
 float Kaiga::StandardMaterial::Reflectivity() const { return m_reflectivity; }
 void Kaiga::StandardMaterial::Reflectivity(float val) { m_reflectivity = val; }
 
@@ -21,3 +26,4 @@ void Kaiga::StandardMaterial::Emissive(float val) { m_emissive = val; }
 
 glm::vec3 Kaiga::StandardMaterial::Diffuse() const { return m_diffuse; }
 void Kaiga::StandardMaterial::Diffuse(glm::vec3 val) { m_diffuse = val; }
+

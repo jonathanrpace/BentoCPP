@@ -50,4 +50,8 @@ namespace Kaiga
 		BufferIndexData(0, indices, m_numIndices);
 		delete indices;
 	}
+	const std::type_info & ScreenQuadGeometry::typeInfo()
+	{
+		return typeid(ScreenQuadGeometry);
+	}
 }

@@ -4,7 +4,9 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <typeinfo>
 
+// bento
 #include <ramen.h>
 #include <kaiga.h>
 
@@ -25,10 +27,15 @@ namespace Kaiga
 		virtual void AddRenderPass(RenderPassPtr) override;
 		virtual void RemoveRenderPass(RenderPassPtr) override;
 
+		// ISceneObejct
+		virtual const std::type_info & typeInfo() override;
+
+		Ramen::Entity GetCamera() { return m_camera;  }
+
 	private:
 		// Types
-		typedef std::vector<RenderPassPtr> RenderPassList;
-		typedef std::map<RenderPhase, RenderPassList*> RenderPassByPhaseMap;
+		typedef std::vector<RenderPassPtr>				RenderPassList;
+		typedef std::map<RenderPhase, RenderPassList*>	RenderPassByPhaseMap;
 
 		// Methods
 		void AddRenderPhase(RenderPhase _renderPhase);

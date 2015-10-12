@@ -5,15 +5,14 @@
 
 namespace Kaiga
 {
-	class Transform : 
-		public Ramen::ComponentBase<Transform>
+	class Transform
+		: public Ramen::SharedObject<Transform>
+		, public Ramen::IComponent
 	{
 	public:
 		mat4 matrix;
 
-		Transform() :
-			matrix()
-		{
-		}
+		// from IComponent
+		virtual const std::type_info & typeInfo() override;
 	};
 }

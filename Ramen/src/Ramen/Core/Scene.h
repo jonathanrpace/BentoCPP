@@ -6,12 +6,12 @@
 #include <stack>
 #include <memory>
 
+#include <event.h>
+
 // ramen
 #include <Ramen/Core/IInputManager.h>
-#include <Ramen/Core/IProcess.h>
 #include <Ramen/Core/IComponent.h>
-
-#include <event.h>
+#include <Ramen/Core/IProcess.h>
 
 namespace Ramen
 {
@@ -21,7 +21,7 @@ namespace Ramen
 	typedef std::vector<ComponentPtr>	ComponentList;
 	typedef std::vector<Entity>			EntityList;
 	typedef std::vector<ProcessPtr>		ProcessList;
-	
+
 	class Scene
 	{
 	public:
@@ -56,6 +56,24 @@ namespace Ramen
 				if (componentType == wantedType)
 				{
 					return std::static_pointer_cast<T>(componentPtr);
+				}
+			}
+
+			return nullptr;
+		}
+
+		template<typename T>
+		std::shared_ptr<T> GetProcess()
+		{
+			const std::type_info& wantedType = typeid(T);
+
+			for (ProcessPtr processPtr : m_processes)
+			{
+				const std::type_info& processType = processPtr->typeInfo();
+
+				if (processType == wantedType)
+				{
+					return std::static_pointer_cast<T>(processPtr);
 				}
 			}
 

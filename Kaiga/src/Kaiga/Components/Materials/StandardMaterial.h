@@ -1,15 +1,25 @@
 #pragma once
 
+// std
+#include <typeinfo>
+
+// 3rd party
 #include <glm.h>
+
+// bento
 #include <ramen.h>
 
 namespace Kaiga
 {
-	class StandardMaterial :
-		public Ramen::ComponentBase<StandardMaterial>
+	class StandardMaterial 
+		: Ramen::IComponent
+		, public Ramen::SharedObject<StandardMaterial>
 	{
 	public:
 		StandardMaterial();
+
+		// IComponent
+		virtual const std::type_info & typeInfo() override;
 
 		float Reflectivity() const;
 		void Reflectivity(float val);

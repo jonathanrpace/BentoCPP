@@ -8,6 +8,9 @@
 #include <Kaiga/Components/PerspectiveLens.h>
 #include <Kaiga/Components/Transform.h>
 
+//////////////////////////////////////////////////////////////////////////
+// PUBLIC
+//////////////////////////////////////////////////////////////////////////
 Kaiga::DefaultRenderer::DefaultRenderer() :
 	m_scene(NULL),
 	m_renderPassesByPhase()
@@ -20,13 +23,10 @@ Kaiga::DefaultRenderer::DefaultRenderer() :
 
 Kaiga::DefaultRenderer::~DefaultRenderer()
 {
-	for (auto iter : m_renderPassesByPhase)
-	{
+	for (auto iter : m_renderPassesByPhase)	{
 		RenderPassList* list = iter.second;
-		if (m_scene != NULL)
-		{
-			for (RenderPassPtr renderPass : *list)
-			{
+		if (m_scene != NULL) {
+			for (RenderPassPtr renderPass : *list)	{
 				renderPass->UnbindFromScene(*m_scene);
 			}
 		}
@@ -35,6 +35,11 @@ Kaiga::DefaultRenderer::~DefaultRenderer()
 	}
 	m_renderPassesByPhase.clear();
 	m_scene = NULL;
+}
+
+const std::type_info & Kaiga::DefaultRenderer::typeInfo()
+{
+	return typeid(Kaiga::DefaultRenderer);
 }
 
 void Kaiga::DefaultRenderer::BindToScene(Ramen::Scene * const _scene)
@@ -49,11 +54,9 @@ void Kaiga::DefaultRenderer::BindToScene(Ramen::Scene * const _scene)
 	m_scene->AddComponentToEntity(lens, m_camera);
 	m_scene->AddComponentToEntity(transform, m_camera);
 
-	for (auto iter : m_renderPassesByPhase)
-	{
+	for (auto iter : m_renderPassesByPhase)	{
 		RenderPassList* list = iter.second;
-		for (RenderPassPtr renderPass : *list)
-		{
+		for (RenderPassPtr renderPass : *list) {
 			renderPass->BindToScene(*m_scene);
 		}
 	}
@@ -65,11 +68,9 @@ void Kaiga::DefaultRenderer::UnbindFromScene(Ramen::Scene * const _scene)
 
 	m_scene->DestroyEntity(m_camera);
 
-	for (auto iter : m_renderPassesByPhase)
-	{
+	for (auto iter : m_renderPassesByPhase)	{
 		RenderPassList* list = iter.second;
-		for (RenderPassPtr renderPass : *list)
-		{
+		for (RenderPassPtr renderPass : *list) {
 			renderPass->BindToScene(*m_scene);
 		}
 	}
@@ -97,9 +98,7 @@ void Kaiga::DefaultRenderer::AddRenderPass(RenderPassPtr _renderPass)
 	passes->push_back(_renderPass);
 
 	if (m_scene != NULL)
-	{
 		_renderPass->BindToScene(*m_scene);
-	}
 }
 
 void Kaiga::DefaultRenderer::RemoveRenderPass(RenderPassPtr _renderPass)
@@ -108,10 +107,12 @@ void Kaiga::DefaultRenderer::RemoveRenderPass(RenderPassPtr _renderPass)
 	passes->erase(std::find(passes->begin(), passes->end(), _renderPass));
 
 	if (m_scene != NULL)
-	{
 		_renderPass->UnbindFromScene(*m_scene);
-	}
 }
+
+//////////////////////////////////////////////////////////////////////////
+// PRIVATE
+//////////////////////////////////////////////////////////////////////////
 
 void Kaiga::DefaultRenderer::AddRenderPhase(RenderPhase _renderPhase)
 {
@@ -123,8 +124,7 @@ void Kaiga::DefaultRenderer::AddRenderPhase(RenderPhase _renderPhase)
 void Kaiga::DefaultRenderer::RenderPassesInPhase(RenderPhase _renderPhase)
 {
 	RenderPassList passes = *m_renderPassesByPhase[_renderPhase];
-	for(RenderPassPtr renderPass : passes)
-	{
+	for(RenderPassPtr renderPass : passes)	{
 		renderPass->Render();
 	}
 }

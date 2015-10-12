@@ -167,6 +167,7 @@
     <ClCompile Include="src\Kaiga\Components\Geom\ScreenQuadGeometry.cpp" />
     <ClCompile Include="src\Kaiga\Components\Materials\StandardMaterial.cpp" />
     <ClCompile Include="src\Kaiga\Components\PerspectiveLens.cpp" />
+    <ClCompile Include="src\Kaiga\Components\Transform.cpp" />
     <ClCompile Include="src\Kaiga\Core\RenderParams.cpp" />
     <ClCompile Include="src\Kaiga\Processes\OrbitCamera.cpp" />
     <ClCompile Include="src\Kaiga\RenderPasses\TestRenderPass.cpp" />

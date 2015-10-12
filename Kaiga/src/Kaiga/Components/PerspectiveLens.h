@@ -6,11 +6,14 @@
 namespace Kaiga
 {
 	class PerspectiveLens 
-		: public Ramen::ComponentBase<PerspectiveLens>
+		: public Ramen::SharedObject<PerspectiveLens>
 		, public ILens
 	{
 	public:
 		PerspectiveLens();
+
+		// From ISceneObject
+		virtual const std::type_info & typeInfo() override;
 
 		// From ILens
 		virtual float GetAspectRatio() override;
