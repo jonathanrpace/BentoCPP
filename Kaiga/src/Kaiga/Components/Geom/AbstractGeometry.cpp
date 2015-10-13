@@ -28,6 +28,11 @@ void Kaiga::AbstractGeometry::Draw()
 	GL_CHECK(glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr));
 }
 
+const std::type_info & Kaiga::AbstractGeometry::typeInfo()
+{
+	return typeid(AbstractGeometry);
+}
+
 void Kaiga::AbstractGeometry::OnInvalidate()
 {
 	if (glIsVertexArray(m_vertexArrayName))

@@ -1,7 +1,8 @@
 #pragma once
 
+#include <kaiga.h>
+
 #include <Kaiga/RenderPasses/AbstractNodeGroupRenderPass.h>
-#include <Kaiga/Components/Geom/ScreenQuadGeometry.h>
 #include <Kaiga/Components/Transform.h>
 #include <Kaiga/Shaders/TestShader.h>
 
@@ -10,7 +11,7 @@ namespace Kaiga
 	DEFINE_NODE_2
 	(
 		TestRenderPassNode,
-		ScreenQuadGeometry, geom,
+		AbstractGeometry, geom,
 		Transform, transform
 	)
 
@@ -19,7 +20,6 @@ namespace Kaiga
 		public AbstractNodeGroupRenderPass<TestRenderPassNode>
 	{
 	public:
-		TestRenderPass();
 		virtual void Render();
 	private:
 		TestShader m_shader;

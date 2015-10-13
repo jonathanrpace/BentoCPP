@@ -95,15 +95,18 @@ void Ramen::NodeGroup<T>::AddIfMatch(Entity entity)
 		auto member = nodeInfo.GetMembers()[i];
 		const std::type_info& typeInfo = member.m_typeInfo;
 
-		for (ComponentPtr component : componentsForThisEntity)
+		for (ComponentPtr componentPtr : componentsForThisEntity)
 		{
-			if (component->typeInfo() == typeInfo)
+			if (componentPtr->typeInfo() == typeInfo)
 			{
 				// Create a pointer targeting the member of the node.
-				ComponentPtr* ptr = (ComponentPtr*)nodePtr + member.m_offset;
+				void* ptr = (void*)((size_t)nodePtr + member.m_offset);
 
 				// Assign the smart pointer to this location in memory
-				**ptr = *component;
+				Ramen::IComponent* nakedPointer = componentPtr.get();
+				*(Ramen::IComponent**)ptr = nakedPointer;
+
+				break;
 			}
 		}
 	}

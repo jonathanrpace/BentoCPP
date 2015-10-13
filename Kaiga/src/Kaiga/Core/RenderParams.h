@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include <glm.h>
 #include <Kaiga/Components/ILens.h>
 
 namespace Kaiga
@@ -8,54 +8,53 @@ namespace Kaiga
 class RenderParams
 {
 public:
-	glm::mat4 ModelMatrix() const { return s_modelMatrix; }
-	glm::mat3 NormalModelMatrix() const { return s_normalModelMatrix; }
-	glm::mat4 ViewMatrix() const { return s_viewMatrix; }
-	glm::mat3 NormalViewMatrix() const { return s_normalViewMatrix; }
-	glm::mat4 ProjectionMatrix() const { return s_projectionMatrix; }
-	glm::mat4 ModelViewMatrix() const { return s_modelViewMatrix; }
-	glm::mat3 NormalModelViewMatrix() const { return s_normalModelViewMatrix; }
-	glm::mat4 ViewProjetionMatrix() const { return s_viewProjetionMatrix; }
-	glm::mat4 ModelViewProjectionMatrix() const { return s_modelViewProjectionMatrix; }
+	static mat4 ModelMatrix()					{ return s_modelMatrix; }
+	static mat3 NormalModelMatrix()				{ return s_normalModelMatrix; }
+	static mat4 ViewMatrix()					{ return s_viewMatrix; }
+	static mat3 NormalViewMatrix()				{ return s_normalViewMatrix; }
+	static mat4 ProjectionMatrix()				{ return s_projectionMatrix; }
+	static mat4 ModelViewMatrix()				{ return s_modelViewMatrix; }
+	static mat3 NormalModelViewMatrix()			{ return s_normalModelViewMatrix; }
+	static mat4 ViewProjetionMatrix()			{ return s_viewProjetionMatrix; }
+	static mat4 ModelViewProjectionMatrix()		{ return s_modelViewProjectionMatrix; }
 
-	glm::mat4 InvModelMatrix() const { return s_invModelMatrix; }
-	glm::mat4 InvNormalModelMatrix() const { return s_invNormalModelMatrix; }
-	glm::mat4 InvViewMatrix() const { return s_invViewMatrix; }
-	glm::mat3 InvNormalViewMatrix() const { return s_invNormalViewMatrix; }
-	glm::mat4 InvProjectionMatrix() const { return s_invProjectionMatrix; }
-	glm::mat4 InvModelViewMatrix() const { return s_invModelViewMatrix; }
-	glm::mat3 InvNormalModelViewMatrix() const { return s_invNormalModelViewMatrix; }
-	glm::mat4 InvViewProjetionMatrix() const { return s_invViewProjetionMatrix; }
-	glm::mat4 InvModelViewProjectionMatrix() const { return s_invModelViewProjectionMatrix; }
+	static mat4 InvModelMatrix()				{ return s_invModelMatrix; }
+	static mat4 InvNormalModelMatrix()			{ return s_invNormalModelMatrix; }
+	static mat4 InvViewMatrix()					{ return s_invViewMatrix; }
+	static mat3 InvNormalViewMatrix()			{ return s_invNormalViewMatrix; }
+	static mat4 InvProjectionMatrix()			{ return s_invProjectionMatrix; }
+	static mat4 InvModelViewMatrix()			{ return s_invModelViewMatrix; }
+	static mat3 InvNormalModelViewMatrix()		{ return s_invNormalModelViewMatrix; }
+	static mat4 InvViewProjetionMatrix()		{ return s_invViewProjetionMatrix; }
+	static mat4 InvModelViewProjectionMatrix()	{ return s_invModelViewProjectionMatrix; }
 
-	glm::mat4 PrevViewProjectionMatrix() const { return s_prevViewProjectionMatrix; }
-	glm::mat4 PrevInvViewProjectionMatrix() const { return s_prevInvViewProjectionMatrix; }
+	static mat4 PrevViewProjectionMatrix()		{ return s_prevViewProjectionMatrix; }
+	static mat4 PrevInvViewProjectionMatrix()	{ return s_prevInvViewProjectionMatrix; }
 
-
-	static void SetViewMatrices(glm::mat4 _viewMatrix, ILens& _lens)
+	static void SetViewMatrices(mat4 _viewMatrix, ILens& _lens)
 	{
 		s_prevInvViewProjectionMatrix = s_viewProjetionMatrix;
 		s_prevInvViewProjectionMatrix = s_invViewProjetionMatrix;
 
 		s_viewMatrix = _viewMatrix;
-		s_normalViewMatrix = glm::transpose(glm::mat3(_viewMatrix));
+		s_normalViewMatrix = transpose(mat3(_viewMatrix));
 		s_projectionMatrix = _lens.GetMatrix();
 
-		s_invViewMatrix = glm::inverse(s_viewMatrix);
-		s_invNormalViewMatrix = glm::inverse(s_normalViewMatrix);
-		s_invProjectionMatrix = glm::inverse(s_projectionMatrix);
+		s_invViewMatrix = inverse(s_viewMatrix);
+		s_invNormalViewMatrix = inverse(s_normalViewMatrix);
+		s_invProjectionMatrix = inverse(s_projectionMatrix);
 	}
 
-	static void SetModelMatrix(glm::mat4 _modelMatrix)
+	static void SetModelMatrix(mat4 _modelMatrix)
 	{
 		s_modelMatrix = _modelMatrix;
 		s_modelViewMatrix = s_modelMatrix * s_viewMatrix;
 		s_modelViewProjectionMatrix = s_modelViewMatrix * s_projectionMatrix;
 
-		s_normalModelMatrix = glm::transpose(glm::mat3(s_modelMatrix));
-		s_normalModelViewMatrix = glm::transpose(glm::mat3(s_modelViewMatrix));
+		s_normalModelMatrix = transpose(mat3(s_modelMatrix));
+		s_normalModelViewMatrix = transpose(mat3(s_modelViewMatrix));
 
-		s_invNormalModelViewMatrix = glm::inverse(s_normalModelViewMatrix);
+		s_invNormalModelViewMatrix = inverse(s_normalModelViewMatrix);
 	}
 
 private:
@@ -64,27 +63,27 @@ private:
 	static int s_lightTransportBufferWidth;
 	static int s_lightTransportBufferHeight;
 
-	static glm::mat4 s_modelMatrix;
-	static glm::mat3 s_normalModelMatrix;
-	static glm::mat4 s_viewMatrix;
-	static glm::mat3 s_normalViewMatrix;
-	static glm::mat4 s_projectionMatrix;
-	static glm::mat4 s_modelViewMatrix;
-	static glm::mat3 s_normalModelViewMatrix;
-	static glm::mat4 s_viewProjetionMatrix;
-	static glm::mat4 s_modelViewProjectionMatrix;
+	static mat4 s_modelMatrix;
+	static mat3 s_normalModelMatrix;
+	static mat4 s_viewMatrix;
+	static mat3 s_normalViewMatrix;
+	static mat4 s_projectionMatrix;
+	static mat4 s_modelViewMatrix;
+	static mat3 s_normalModelViewMatrix;
+	static mat4 s_viewProjetionMatrix;
+	static mat4 s_modelViewProjectionMatrix;
 		 
-	static glm::mat4 s_invModelMatrix;
-	static glm::mat4 s_invNormalModelMatrix;
-	static glm::mat4 s_invViewMatrix;
-	static glm::mat3 s_invNormalViewMatrix;
-	static glm::mat4 s_invProjectionMatrix;
-	static glm::mat4 s_invModelViewMatrix;
-	static glm::mat3 s_invNormalModelViewMatrix;
-	static glm::mat4 s_invViewProjetionMatrix;
-	static glm::mat4 s_invModelViewProjectionMatrix;
+	static mat4 s_invModelMatrix;
+	static mat4 s_invNormalModelMatrix;
+	static mat4 s_invViewMatrix;
+	static mat3 s_invNormalViewMatrix;
+	static mat4 s_invProjectionMatrix;
+	static mat4 s_invModelViewMatrix;
+	static mat3 s_invNormalModelViewMatrix;
+	static mat4 s_invViewProjetionMatrix;
+	static mat4 s_invModelViewProjectionMatrix;
 		 
-	static glm::mat4 s_prevViewProjectionMatrix;
-	static glm::mat4 s_prevInvViewProjectionMatrix;
+	static mat4 s_prevViewProjectionMatrix;
+	static mat4 s_prevInvViewProjectionMatrix;
 };
 }

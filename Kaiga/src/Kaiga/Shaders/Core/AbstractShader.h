@@ -17,6 +17,9 @@ namespace Kaiga
 			GL_CHECK(glUseProgramStages(m_pipelineName, GL_VERTEX_SHADER_BIT, m_vertexShader.GetProgramName()));
 			GL_CHECK(glUseProgramStages(m_pipelineName, GL_FRAGMENT_SHADER_BIT, m_fragmentShader.GetProgramName()));
 			GL_CHECK(glBindProgramPipeline(GL_NONE));
+
+			m_vertexShader.SetPipelineName(m_pipelineName);
+			m_fragmentShader.SetPipelineName(m_pipelineName);
 		}
 		~AbstractShader()
 		{
@@ -32,11 +35,19 @@ namespace Kaiga
 			m_fragmentShader.BindPerPass();
 		}
 
+		T GetVertexShader()
+		{
+			return m_vertexShader;
+		}
+
+		U GetFragmentShader()
+		{
+			return m_fragmentShader;
+		}
+
 	protected:
 		T m_vertexShader;
 		U m_fragmentShader;
 		GLuint m_pipelineName;
 	};
-
-
 }

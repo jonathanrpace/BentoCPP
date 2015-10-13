@@ -79,7 +79,9 @@ Kaiga::AbstractShaderStage::AbstractShaderStage
 	int _shaderType
 ) :	
 	m_filename(_filename),
-	m_shaderType(_shaderType)
+	m_shaderType(_shaderType),
+	m_pipelineName(-1),
+	m_programName(-1)
 {
 	
 }
@@ -91,6 +93,11 @@ Kaiga::AbstractShaderStage::AbstractShaderStage
 Kaiga::AbstractShaderStage::~AbstractShaderStage()
 {
 
+}
+
+void Kaiga::AbstractShaderStage::SetPipelineName(GLuint _pipelineName)
+{
+	m_pipelineName = _pipelineName;
 }
 
 //************************************
@@ -127,4 +134,34 @@ void Kaiga::AbstractShaderStage::OnInvalidate()
 		GL_CHECK(glDeleteProgram(m_programName));
 		m_programName = GL_NONE;
 	}
+}
+
+
+void Kaiga::AbstractShaderStage::SetUniformMatrix(const char * _name, mat4 & _matrix, bool _transposed)
+{
+	SetAsActiveShader();
+
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name);)
+	GLfloat* data = (GLfloat*)glm::value_ptr(_matrix);
+	GL_CHECK(glUniformMatrix4fv(location, 1, _transposed, data);)
+}
+
+void Kaiga::AbstractShaderStage::SetUniformMatrix(const char * _name, mat3 & _matrix, bool _transposed)
+{
+	SetAsActiveShader();
+
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name);)
+	GL_CHECK(glUniformMatrix3fv(location, 1, _transposed, glm::value_ptr(_matrix));)
+}
+
+void Kaiga::AbstractShaderStage::SetAsActiveShader()
+{
+	GL_CHECK(glActiveShaderProgram(m_pipelineName, m_programName);)
+}
+
+void Kaiga::AbstractShaderStage::BindPerPass()
+{
+	// Intentionally blank
 }

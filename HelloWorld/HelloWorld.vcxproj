@@ -29,6 +29,7 @@
   <ItemGroup>
     <None Include="bin\Win32\Debug\shaders\vertex\ScreenQuadShader.vert" />
     <None Include="bin\Win32\Debug\shaders\fragment\TestShader.frag" />
+    <None Include="bin\Win32\Debug\shaders\vertex\SimpleVertexShader.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B7156BC7-BE9A-48A0-90A0-92B8003B402B}</ProjectGuid>

@@ -15,9 +15,6 @@ namespace Kaiga
 		PlaneGeometry();
 		~PlaneGeometry();
 
-		// From ISceneObject
-		virtual const std::type_info & typeInfo() override;
-
 		float GetWidth();
 		void SetWidth(float _value);
 		float GetHeight();

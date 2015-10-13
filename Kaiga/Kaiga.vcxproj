@@ -147,6 +147,7 @@
     <ClInclude Include="src\Kaiga\Shaders\Fragment\TestFragmentShader.h" />
     <ClInclude Include="src\Kaiga\Shaders\TestShader.h" />
     <ClInclude Include="src\Kaiga\Shaders\Vertex\ScreenQuadVertexShader.h" />
+    <ClInclude Include="src\Kaiga\Shaders\Vertex\SimpleVertexShader.h" />
     <ClInclude Include="src\Kaiga\Textures\AbstractTexture.h" />
     <ClInclude Include="src\Kaiga\Core\IGeometry.h" />
     <ClInclude Include="src\Kaiga\Core\IRenderer.h" />
@@ -173,6 +174,7 @@
     <ClCompile Include="src\Kaiga\RenderPasses\TestRenderPass.cpp" />
     <ClCompile Include="src\Kaiga\RenderTargets\AbstractRenderTarget.cpp" />
     <ClCompile Include="src\Kaiga\Shaders\Core\AbstractShaderStage.cpp" />
+    <ClCompile Include="src\Kaiga\Shaders\Vertex\SimpleVertexShader.cpp" />
     <ClCompile Include="src\Kaiga\Textures\AbstractTexture.cpp" />
     <ClCompile Include="src\Kaiga\Renderers\DefaultRenderer.cpp" />
     <ClCompile Include="src\Kaiga\Textures\TextureSquare.cpp" />

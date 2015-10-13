@@ -16,6 +16,7 @@
 #include <Kaiga/Renderers/DefaultRenderer.h>
 #include <Kaiga/Components/Transform.h>
 #include <Kaiga/Components/Geom/ScreenQuadGeometry.h>
+#include <Kaiga/Components/Geom/PlaneGeometry.h>
 #include <Kaiga/RenderPasses/TestRenderPass.h>
 #include <Kaiga/Processes/OrbitCamera.h>
 
@@ -25,7 +26,7 @@ void mainLoop(GLFWwindow* window)
 	Ramen::Scene scene(inputManager);
 
 	int entity = scene.CreateEntity();
-	auto geom = Kaiga::ScreenQuadGeometry::Create();
+	auto geom = Kaiga::PlaneGeometry::Create();
 
 	auto transform = Kaiga::Transform::Create();
 	scene.AddComponentToEntity(geom, entity);

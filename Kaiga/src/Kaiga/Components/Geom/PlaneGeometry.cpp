@@ -153,9 +153,4 @@ namespace Kaiga
 		m_numDivisionsY = _value;
 		Invalidate();
 	}
-
-	const std::type_info & PlaneGeometry::typeInfo()
-	{
-		return typeid(PlaneGeometry);
-	}
 }

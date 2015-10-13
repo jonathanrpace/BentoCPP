@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <typeinfo>
 
 #include <glew.h>
 #include <kaiga.h>
@@ -19,6 +20,9 @@ namespace Kaiga
 		// From IGeometry
 		virtual void Bind() override;
 		virtual void Draw() override;
+
+		// ISceneObject
+		virtual const std::type_info& typeInfo() override;
 
 	protected:
 		// From AbstractValidatable

@@ -8,17 +8,9 @@ namespace Kaiga
 		public AbstractShaderStage
 	{
 	public:
-		TestFragmentShader() :
-			AbstractShaderStage(
-				"shaders/fragment/TestShader.frag",
-				GL_FRAGMENT_SHADER)
+		TestFragmentShader() 
+			: AbstractShaderStage("shaders/fragment/TestShader.frag", GL_FRAGMENT_SHADER)
 		{
 		}
-
-		virtual void BindPerPass() override
-		{
-			
-		}
-
 	};
 }
