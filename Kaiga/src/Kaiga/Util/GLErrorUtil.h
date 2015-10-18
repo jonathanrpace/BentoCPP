@@ -4,14 +4,18 @@
 #include <ramen.h>
 
 #ifdef ENABLE_GL_CHECKS
-#	define CHECK_SHADER_COMPILATION(ProgName)							  \
-	{																	  \
-		GLint infoLogLength;											  \
-		glGetProgramiv((ProgName), GL_INFO_LOG_LENGTH, &infoLogLength);	  \
-		GLchar* infoLog = new GLchar[infoLogLength];					  \
-		glGetProgramInfoLog((ProgName), infoLogLength, nullptr, infoLog); \
-		TRACE(infoLog);													  \
-		delete infoLog;													  \
+#	define CHECK_SHADER_COMPILATION(ProgName)								\
+	{																		\
+		GLint infoLogLength;												\
+		glGetProgramiv((ProgName), GL_INFO_LOG_LENGTH, &infoLogLength);		\
+		GLchar* infoLog = new GLchar[infoLogLength];						\
+		glGetProgramInfoLog((ProgName), infoLogLength, nullptr, infoLog);	\
+		if ( infoLogLength > 1 )											\
+		{																	\
+			TRACE(infoLog);													\
+			__debugbreak();													\
+		} 																	\
+		delete infoLog;														\
 	}
 #else
 #	define CHECK_SHADER_COMPILATION(ProgName)

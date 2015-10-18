@@ -121,6 +121,9 @@ void Kaiga::AbstractShaderStage::Validate()
 	GLchar* shaderSourcePtr;
 	unsigned long shaderSourceLength;
 	LoadShader(m_filename, &shaderSourcePtr, &shaderSourceLength);
+	TRACE("Compiling Shader : ");
+	TRACE(m_filename);
+	TRACE("\n");
 	GL_CHECK(m_programName = glCreateShaderProgramEXT(m_shaderType, shaderSourcePtr));
 	UnloadShader(&shaderSourcePtr);
 
