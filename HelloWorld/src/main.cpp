@@ -12,6 +12,7 @@
 #include <kaiga.h>
 
 #include <Ramen/Core/InputManagerImpl.h>
+#include <Ramen/Core/WindowImpl.h>
 
 #include <Kaiga/Renderers/DefaultRenderer.h>
 #include <Kaiga/Components/Transform.h>
@@ -23,7 +24,8 @@
 void mainLoop(GLFWwindow* window)
 {
 	auto inputManager = new Ramen::InputManagerImpl(window);
-	Ramen::Scene scene(inputManager);
+	auto ramenWindow = new Ramen::WindowImpl(window);
+	Ramen::Scene scene(inputManager, ramenWindow);
 
 	int entity = scene.CreateEntity();
 	auto geom = Kaiga::PlaneGeometry::Create();

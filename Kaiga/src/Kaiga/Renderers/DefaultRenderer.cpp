@@ -80,6 +80,8 @@ void Kaiga::DefaultRenderer::UnbindFromScene(Ramen::Scene * const _scene)
 void Kaiga::DefaultRenderer::Update(double dt)
 {
 	auto lens = m_scene->GetComponentForEntity<PerspectiveLens>(m_camera);
+	lens->SetAspectRatio(m_scene->GetWindow()->GetWindowSize().x / m_scene->GetWindow()->GetWindowSize().y);
+
 	auto cameraTransform = m_scene->GetComponentForEntity<Transform>(m_camera);
 
 	Kaiga::RenderParams::SetViewMatrices(cameraTransform->matrix, *lens);

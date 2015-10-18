@@ -2,8 +2,13 @@
 
 namespace Ramen
 {
-	Scene::Scene(IInputManager* _inputManager) :
+	Scene::Scene
+	(
+		IInputManager* _inputManager,
+		IWindow* _window
+	) :
 		m_inputManager(_inputManager),
+		m_window(_window),
 		m_entities(),
 		m_processes(),
 		m_entityPool(),
@@ -20,11 +25,17 @@ namespace Ramen
 		}
 
 		delete m_inputManager;
+		delete m_window;
 	}
 
 	IInputManager* Scene::GetInputManager()
 	{
 		return m_inputManager;
+	}
+
+	IWindow* Scene::GetWindow()
+	{
+		return m_window;
 	}
 
 	Entity Scene::CreateEntity()

@@ -10,6 +10,7 @@
 
 // ramen
 #include <Ramen/Core/IInputManager.h>
+#include <Ramen/Core/IWindow.h>
 #include <Ramen/Core/IComponent.h>
 #include <Ramen/Core/IProcess.h>
 
@@ -25,11 +26,12 @@ namespace Ramen
 	class Scene
 	{
 	public:
-		Scene(IInputManager* _inputManager);
+		Scene(IInputManager* _inputManager, IWindow* _window);
 		~Scene();
 
 		// Methods
 		IInputManager* GetInputManager();
+		IWindow* GetWindow();
 		Entity CreateEntity();
 		void DestroyEntity(Entity _entity);
 		void AddComponentToEntity(ComponentPtr _component, Entity _entity);
@@ -88,6 +90,7 @@ namespace Ramen
 
 	private:
 		IInputManager* m_inputManager;
+		IWindow* m_window;
 		EntityList m_entities;
 		ProcessList m_processes;
 		ComponentList* m_entityToComponentMap[4096];
