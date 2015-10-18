@@ -1,6 +1,6 @@
-#include "AbstractTexture.h"
+#include "TextureBase.h"
 
-Kaiga::AbstractTexture::AbstractTexture() :
+Kaiga::TextureBase::TextureBase() :
 	m_minFilter(GL_LINEAR),
 	m_magFilter(GL_LINEAR),
 	m_wrapModeR(GL_REPEAT),
@@ -9,21 +9,21 @@ Kaiga::AbstractTexture::AbstractTexture() :
 {
 }
 
-Kaiga::AbstractTexture::~AbstractTexture()
+Kaiga::TextureBase::~TextureBase()
 {
 }
 
-GLuint Kaiga::AbstractTexture::GetName()
+GLuint Kaiga::TextureBase::GetName()
 {
 	return m_name;
 }
 
-GLenum Kaiga::AbstractTexture::GetMinFilter()
+GLenum Kaiga::TextureBase::GetMinFilter()
 {
 	return m_minFilter;
 }
 
-void Kaiga::AbstractTexture::SetMinFilter(GLenum _value)
+void Kaiga::TextureBase::SetMinFilter(GLenum _value)
 {
 	if (m_minFilter == _value)
 		return;
@@ -31,12 +31,12 @@ void Kaiga::AbstractTexture::SetMinFilter(GLenum _value)
 	Invalidate();
 }
 
-GLenum Kaiga::AbstractTexture::GetMagFilter()
+GLenum Kaiga::TextureBase::GetMagFilter()
 {
 	return m_magFilter;
 }
 
-void Kaiga::AbstractTexture::SetMagFilter(GLenum _value)
+void Kaiga::TextureBase::SetMagFilter(GLenum _value)
 {
 	if (m_magFilter == _value)
 		return;
@@ -44,12 +44,12 @@ void Kaiga::AbstractTexture::SetMagFilter(GLenum _value)
 	Invalidate();
 }
 
-GLenum Kaiga::AbstractTexture::GetWrapModeS()
+GLenum Kaiga::TextureBase::GetWrapModeS()
 {
 	return m_wrapModeS;
 }
 
-void Kaiga::AbstractTexture::SetWrapModeS(GLenum _value)
+void Kaiga::TextureBase::SetWrapModeS(GLenum _value)
 {
 	if (m_wrapModeS == _value)
 		return;
@@ -57,12 +57,12 @@ void Kaiga::AbstractTexture::SetWrapModeS(GLenum _value)
 	Invalidate();
 }
 
-GLenum Kaiga::AbstractTexture::GetWrapModeR()
+GLenum Kaiga::TextureBase::GetWrapModeR()
 {
 	return m_wrapModeR;
 }
 
-void Kaiga::AbstractTexture::SetWrapModeR(GLenum _value)
+void Kaiga::TextureBase::SetWrapModeR(GLenum _value)
 {
 	if (m_wrapModeR == _value)
 		return;
@@ -70,12 +70,12 @@ void Kaiga::AbstractTexture::SetWrapModeR(GLenum _value)
 	Invalidate();
 }
 
-GLenum Kaiga::AbstractTexture::GetPixelInternalFormat()
+GLenum Kaiga::TextureBase::GetPixelInternalFormat()
 {
 	return m_pixelInternalFormat;
 }
 
-void Kaiga::AbstractTexture::SetPixelInternalFormat(GLenum _value)
+void Kaiga::TextureBase::SetPixelInternalFormat(GLenum _value)
 {
 	if (m_pixelInternalFormat == _value)
 		return;

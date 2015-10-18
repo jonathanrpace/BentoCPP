@@ -8,7 +8,7 @@
 namespace Kaiga
 {
 	class ScreenQuadGeometry : 
-		public AbstractGeometry,
+		public GeometryBase,
 		public Ramen::SharedObject<ScreenQuadGeometry>
 	{
 	protected:

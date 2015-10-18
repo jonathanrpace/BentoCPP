@@ -5,17 +5,17 @@
 namespace Kaiga
 {
 	template<typename T>
-	class AbstractNodeGroupRenderPass :
+	class NodeGroupRenderPassBase :
 		public IRenderPass
 	{
 	public:
-		AbstractNodeGroupRenderPass() :
+		NodeGroupRenderPassBase() :
 			m_nodeGroup()
 		{
 			
 		}
 
-		~AbstractNodeGroupRenderPass()
+		~NodeGroupRenderPassBase()
 		{
 			m_nodeGroup.Unbind();
 		}

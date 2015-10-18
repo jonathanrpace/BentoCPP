@@ -27,9 +27,11 @@
     <ClInclude Include="Dependencies\GLEW\include\wglew.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="bin\Win32\Debug\shaders\vertex\ScreenQuadShader.vert" />
-    <None Include="bin\Win32\Debug\shaders\fragment\TestShader.frag" />
-    <None Include="bin\Win32\Debug\shaders\vertex\SimpleVertexShader.vert" />
+    <None Include="bin\Win32\Debug\shaders\G.frag" />
+    <None Include="bin\Win32\Debug\shaders\G.vert" />
+    <None Include="bin\Win32\Debug\shaders\ScreenQuad.vert" />
+    <None Include="bin\Win32\Debug\shaders\Test.frag" />
+    <None Include="bin\Win32\Debug\shaders\Simple.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B7156BC7-BE9A-48A0-90A0-92B8003B402B}</ProjectGuid>
@@ -71,15 +73,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

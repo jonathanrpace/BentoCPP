@@ -11,7 +11,7 @@
 
 namespace Kaiga
 {
-	class AbstractShaderStage :
+	class ShaderStageBase :
 		public Ramen::AbstractValidatable
 	{
 		// STATIC 
@@ -22,8 +22,8 @@ namespace Kaiga
 		static void UnloadShader(GLchar** ShaderSource);
 		// ~STATIC
 	public:
-		AbstractShaderStage( char* _filename, int _shaderType );
-		~AbstractShaderStage();
+		ShaderStageBase( char* _filename );
+		~ShaderStageBase();
 
 		void SetPipelineName(GLuint _pipelineName);
 		GLuint GetProgramName();
@@ -40,7 +40,7 @@ namespace Kaiga
 		char* m_filename;
 		GLuint m_pipelineName;
 		GLuint m_programName;
-		GLenum const m_shaderType;
+		GLenum m_shaderType;
 
 	private:
 		void SetAsActiveShader();

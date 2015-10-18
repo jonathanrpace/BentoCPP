@@ -1,12 +1,10 @@
 #pragma once
 
-#include <Kaiga\Core\ITextureSquare.h>
-#include <Kaiga\Textures\AbstractTexture.h>
-#include <Kaiga\Util\TextureUtil.h>
+#include <kaiga.h>
 
 namespace Kaiga
 {
-	class TextureSquare : public ITextureSquare, public AbstractTexture
+	class TextureSquare : public ITextureSquare, public TextureBase
 	{
 	public:
 		TextureSquare();

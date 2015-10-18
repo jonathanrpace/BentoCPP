@@ -1,9 +1,9 @@
-#include "AbstractRenderTarget.h"
+#include "RenderTargetBase.h"
 
 #include <kaiga.h>
 #include <assert.h>
 
-Kaiga::AbstractRenderTarget::AbstractRenderTarget
+Kaiga::RenderTargetBase::RenderTargetBase
 (
 	int _width,
 	int _height,
@@ -22,11 +22,11 @@ Kaiga::AbstractRenderTarget::AbstractRenderTarget
 
 }
 
-Kaiga::AbstractRenderTarget::~AbstractRenderTarget()
+Kaiga::RenderTargetBase::~RenderTargetBase()
 {
 }
 
-void Kaiga::AbstractRenderTarget::SetSize(int _width, int _height)
+void Kaiga::RenderTargetBase::SetSize(int _width, int _height)
 {
 	if (_width == m_width && _height == m_height)
 		return;
@@ -38,13 +38,13 @@ void Kaiga::AbstractRenderTarget::SetSize(int _width, int _height)
 	Invalidate();
 }
 
-void Kaiga::AbstractRenderTarget::Bind()
+void Kaiga::RenderTargetBase::Bind()
 {
 	Validate();
 	GL_CHECK(glBindFramebuffer(m_frameBuffer, GL_FRAMEBUFFER));
 }
 
-void Kaiga::AbstractRenderTarget::Validate()
+void Kaiga::RenderTargetBase::Validate()
 {
 	assert(glIsFramebuffer(m_frameBuffer) == false);
 
@@ -55,7 +55,7 @@ void Kaiga::AbstractRenderTarget::Validate()
 
 }
 
-void Kaiga::AbstractRenderTarget::OnInvalidate()
+void Kaiga::RenderTargetBase::OnInvalidate()
 {
 	if (glIsFramebuffer(m_frameBuffer))
 	{

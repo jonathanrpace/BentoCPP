@@ -155,6 +155,7 @@
     <ClInclude Include="src\Ramen\Core\WindowImpl.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ramen.cpp" />
     <ClCompile Include="src\Ramen\Core\AbstractValidatable.cpp" />
     <ClCompile Include="src\Ramen\Core\InputManagerImpl.cpp" />
     <ClCompile Include="src\Ramen\Core\NamedObject.cpp" />

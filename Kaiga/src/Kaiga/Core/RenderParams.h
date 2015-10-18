@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm.h>
-#include <Kaiga/Components/ILens.h>
+#include <Kaiga/Core/ILens.h>
 
 namespace Kaiga
 {

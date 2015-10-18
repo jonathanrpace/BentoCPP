@@ -12,3 +12,9 @@
 #include <Ramen/Core/Scene.h>
 #include <Ramen/Core/Logging.h>
 #include <Ramen/Core/SharedObject.h>
+
+namespace Ramen
+{
+	char* ResourcePath();
+	void ResourcePath(char* _resourcePath);
+}

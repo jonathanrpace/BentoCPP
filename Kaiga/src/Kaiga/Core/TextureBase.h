@@ -6,11 +6,11 @@
 
 namespace Kaiga
 {
-	class AbstractTexture : public ITexture, public Ramen::AbstractValidatable
+	class TextureBase : public ITexture, public Ramen::AbstractValidatable
 	{
 	public:
-		AbstractTexture();
-		~AbstractTexture();
+		TextureBase();
+		~TextureBase();
 
 		// Inherited via ITexture
 		virtual GLuint GetName() override;

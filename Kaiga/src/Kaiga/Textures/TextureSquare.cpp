@@ -1,7 +1,7 @@
 #include "TextureSquare.h"
 
-#include <kaiga.h>
 #include <assert.h>
+#include <Kaiga\Util\TextureUtil.h>
 
 Kaiga::TextureSquare::TextureSquare()
 {

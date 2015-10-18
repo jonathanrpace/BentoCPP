@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Kaiga", "Kaiga\Kaiga.vcxpro
 		{96545C22-E144-432C-A5D3-F8B684D35159} = {96545C22-E144-432C-A5D3-F8B684D35159}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Resources", "Resources\Resources.vcxproj", "{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -59,6 +61,14 @@ Global
 		{94E9F28B-76BA-4B3C-A992-EACC04003D73}.Release|x64.Build.0 = Release|x64
 		{94E9F28B-76BA-4B3C-A992-EACC04003D73}.Release|x86.ActiveCfg = Release|Win32
 		{94E9F28B-76BA-4B3C-A992-EACC04003D73}.Release|x86.Build.0 = Release|Win32
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x64.ActiveCfg = Debug|x64
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x64.Build.0 = Debug|x64
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x86.ActiveCfg = Debug|Win32
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x86.Build.0 = Debug|Win32
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x64.ActiveCfg = Release|x64
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x64.Build.0 = Release|x64
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x86.ActiveCfg = Release|Win32
+		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -16,8 +16,8 @@
 
 #include <Kaiga/Renderers/DefaultRenderer.h>
 #include <Kaiga/Components/Transform.h>
-#include <Kaiga/Components/Geom/ScreenQuadGeometry.h>
-#include <Kaiga/Components/Geom/PlaneGeometry.h>
+#include <Kaiga/Geometry/ScreenQuadGeometry.h>
+#include <Kaiga/Geometry/PlaneGeometry.h>
 #include <Kaiga/RenderPasses/TestRenderPass.h>
 #include <Kaiga/Processes/OrbitCamera.h>
 
@@ -73,8 +73,8 @@ int main(int argc, char **argv)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef GL_DEBUG_CONTEXT
@@ -103,6 +103,8 @@ int main(int argc, char **argv)
 	// Clear the GL error state. This is really horrible, but it seems 
 	// glfw is generating some gl errors and not checking for them
 	while (glGetError() != GL_NONE) {}
+
+	Ramen::ResourcePath("../../../../Resources/");
 	
 	mainLoop(window);
 

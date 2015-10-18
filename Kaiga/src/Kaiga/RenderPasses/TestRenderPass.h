@@ -2,22 +2,26 @@
 
 #include <kaiga.h>
 
-#include <Kaiga/RenderPasses/AbstractNodeGroupRenderPass.h>
 #include <Kaiga/Components/Transform.h>
-#include <Kaiga/Shaders/TestShader.h>
+
+#include <Kaiga/Shaders/SimpleVert.h>
+#include <Kaiga/Shaders/TestFrag.h>
 
 namespace Kaiga
 {
+	class TestShader : public ShaderBase<SimpleVert, TestFrag>
+	{};
+
 	DEFINE_NODE_2
 	(
 		TestRenderPassNode,
-		AbstractGeometry, geom,
+		GeometryBase, geom,
 		Transform, transform
 	)
 
 	class TestRenderPass :
 		public Ramen::SharedObject<TestRenderPass>,
-		public AbstractNodeGroupRenderPass<TestRenderPassNode>
+		public NodeGroupRenderPassBase<TestRenderPassNode>
 	{
 	public:
 		virtual void Render();

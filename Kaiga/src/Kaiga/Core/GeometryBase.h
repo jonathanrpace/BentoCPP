@@ -9,13 +9,13 @@
 
 namespace Kaiga
 {
-	class AbstractGeometry : 
+	class GeometryBase : 
 		public IGeometry, 
 		public Ramen::AbstractValidatable
 	{
 	public:
-		AbstractGeometry();
-		~AbstractGeometry();
+		GeometryBase();
+		~GeometryBase();
 		
 		// From IGeometry
 		virtual void Bind() override;

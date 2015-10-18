@@ -1,10 +1,13 @@
-#include "AbstractShaderStage.h"
+#include "ShaderStageBase.h"
 
 #include <iostream>
 #include <assert.h>
+#include <string.h>
+#include <stdlib.h>
+#include <assert.h>
 
 // STATIC
-unsigned long Kaiga::AbstractShaderStage::GetFileLength
+unsigned long Kaiga::ShaderStageBase::GetFileLength
 (
 	std::ifstream& _file
 )
@@ -19,7 +22,7 @@ unsigned long Kaiga::AbstractShaderStage::GetFileLength
 	return (unsigned long)len;
 }
 
-int Kaiga::AbstractShaderStage::LoadShader
+int Kaiga::ShaderStageBase::LoadShader
 (
 	char* _filename, 
 	GLchar** o_shaderSourceHandle, 
@@ -27,7 +30,13 @@ int Kaiga::AbstractShaderStage::LoadShader
 )
 {
 	std::ifstream file;
-	file.open(_filename, std::ios::in); // opens as ASCII!
+
+	size_t resolvedFilenameSize = strlen(_filename) + strlen(Ramen::ResourcePath()) + 1;
+	char* resolvedFilename = new char[resolvedFilenameSize];
+	strcpy_s(resolvedFilename, resolvedFilenameSize, Ramen::ResourcePath());
+	strcat_s(resolvedFilename, resolvedFilenameSize, _filename);
+	file.open(resolvedFilename, std::ios::in); // opens as ASCII!
+	delete resolvedFilename;
 	if (!file) return -1;
 
 	*o_len = GetFileLength(file);
@@ -59,7 +68,7 @@ int Kaiga::AbstractShaderStage::LoadShader
 	return 0; // No Error
 }
 
-void Kaiga::AbstractShaderStage::UnloadShader(GLchar** _shaderSource)
+void Kaiga::ShaderStageBase::UnloadShader(GLchar** _shaderSource)
 {
 	if (*_shaderSource != 0)
 		delete[] * _shaderSource;
@@ -73,29 +82,30 @@ void Kaiga::AbstractShaderStage::UnloadShader(GLchar** _shaderSource)
 // Parameter: char * _filename
 // Parameter: int _shaderType
 //************************************
-Kaiga::AbstractShaderStage::AbstractShaderStage
+Kaiga::ShaderStageBase::ShaderStageBase
 (
-	char * _filename, 
-	int _shaderType
-) :	
+	char * _filename
+) :
 	m_filename(_filename),
-	m_shaderType(_shaderType),
 	m_pipelineName(-1),
 	m_programName(-1)
 {
-	
+	bool isVertex = std::strstr(m_filename, ".vert") != nullptr;
+	bool isFragment = std::strstr(m_filename, ".frag") != nullptr;
+	assert(isVertex || isFragment);
+	m_shaderType = isVertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
 }
 
 
 //************************************
 // Method:    dtor
 //************************************
-Kaiga::AbstractShaderStage::~AbstractShaderStage()
+Kaiga::ShaderStageBase::~ShaderStageBase()
 {
 
 }
 
-void Kaiga::AbstractShaderStage::SetPipelineName(GLuint _pipelineName)
+void Kaiga::ShaderStageBase::SetPipelineName(GLuint _pipelineName)
 {
 	m_pipelineName = _pipelineName;
 }
@@ -105,13 +115,13 @@ void Kaiga::AbstractShaderStage::SetPipelineName(GLuint _pipelineName)
 // Access:    public 
 // Returns:   GLuint
 //************************************
-GLuint Kaiga::AbstractShaderStage::GetProgramName()
+GLuint Kaiga::ShaderStageBase::GetProgramName()
 {
 	ValidateNow();
 	return m_programName;
 }
 
-void Kaiga::AbstractShaderStage::Validate()
+void Kaiga::ShaderStageBase::Validate()
 {
 	assert(glIsProgram(m_programName) == false);
 
@@ -130,7 +140,7 @@ void Kaiga::AbstractShaderStage::Validate()
 	CHECK_SHADER_COMPILATION(m_programName);
 }
 
-void Kaiga::AbstractShaderStage::OnInvalidate()
+void Kaiga::ShaderStageBase::OnInvalidate()
 {
 	if ( glIsProgram(m_programName) )
 	{
@@ -140,7 +150,7 @@ void Kaiga::AbstractShaderStage::OnInvalidate()
 }
 
 
-void Kaiga::AbstractShaderStage::SetUniformMatrix(const char * _name, mat4 & _matrix, bool _transposed)
+void Kaiga::ShaderStageBase::SetUniformMatrix(const char * _name, mat4 & _matrix, bool _transposed)
 {
 	SetAsActiveShader();
 
@@ -150,7 +160,7 @@ void Kaiga::AbstractShaderStage::SetUniformMatrix(const char * _name, mat4 & _ma
 	GL_CHECK(glUniformMatrix4fv(location, 1, _transposed, data);)
 }
 
-void Kaiga::AbstractShaderStage::SetUniformMatrix(const char * _name, mat3 & _matrix, bool _transposed)
+void Kaiga::ShaderStageBase::SetUniformMatrix(const char * _name, mat3 & _matrix, bool _transposed)
 {
 	SetAsActiveShader();
 
@@ -159,12 +169,12 @@ void Kaiga::AbstractShaderStage::SetUniformMatrix(const char * _name, mat3 & _ma
 	GL_CHECK(glUniformMatrix3fv(location, 1, _transposed, glm::value_ptr(_matrix));)
 }
 
-void Kaiga::AbstractShaderStage::SetAsActiveShader()
+void Kaiga::ShaderStageBase::SetAsActiveShader()
 {
 	GL_CHECK(glActiveShaderProgram(m_pipelineName, m_programName);)
 }
 
-void Kaiga::AbstractShaderStage::BindPerPass()
+void Kaiga::ShaderStageBase::BindPerPass()
 {
 	// Intentionally blank
 }

@@ -130,25 +130,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\kaiga.h" />
-    <ClInclude Include="src\Kaiga\Components\Geom\AbstractGeometry.h" />
-    <ClInclude Include="src\Kaiga\Components\Geom\PlaneGeometry.h" />
-    <ClInclude Include="src\Kaiga\Components\Geom\ScreenQuadGeometry.h" />
-    <ClInclude Include="src\Kaiga\Components\ILens.h" />
-    <ClInclude Include="src\Kaiga\Components\Materials\StandardMaterial.h" />
+    <ClInclude Include="src\Kaiga\Core\GeometryBase.h" />
+    <ClInclude Include="src\Kaiga\Geometry\PlaneGeometry.h" />
+    <ClInclude Include="src\Kaiga\Geometry\ScreenQuadGeometry.h" />
+    <ClInclude Include="src\Kaiga\Core\ILens.h" />
+    <ClInclude Include="src\Kaiga\Materials\StandardMaterial.h" />
     <ClInclude Include="src\Kaiga\Components\PerspectiveLens.h" />
     <ClInclude Include="src\Kaiga\Components\Transform.h" />
     <ClInclude Include="src\Kaiga\Core\RenderParams.h" />
     <ClInclude Include="src\Kaiga\Processes\OrbitCamera.h" />
-    <ClInclude Include="src\Kaiga\RenderPasses\AbstractNodeGroupRenderPass.h" />
+    <ClInclude Include="src\Kaiga\Core\NodeGroupRenderPassBase.h" />
     <ClInclude Include="src\Kaiga\RenderPasses\TestRenderPass.h" />
-    <ClInclude Include="src\Kaiga\RenderTargets\AbstractRenderTarget.h" />
-    <ClInclude Include="src\Kaiga\Shaders\Core\AbstractShader.h" />
-    <ClInclude Include="src\Kaiga\Shaders\Core\AbstractShaderStage.h" />
-    <ClInclude Include="src\Kaiga\Shaders\Fragment\TestFragmentShader.h" />
-    <ClInclude Include="src\Kaiga\Shaders\TestShader.h" />
-    <ClInclude Include="src\Kaiga\Shaders\Vertex\ScreenQuadVertexShader.h" />
-    <ClInclude Include="src\Kaiga\Shaders\Vertex\SimpleVertexShader.h" />
-    <ClInclude Include="src\Kaiga\Textures\AbstractTexture.h" />
+    <ClInclude Include="src\Kaiga\Core\RenderTargetBase.h" />
+    <ClInclude Include="src\Kaiga\Core\ShaderBase.h" />
+    <ClInclude Include="src\Kaiga\Core\ShaderStageBase.h" />
+    <ClInclude Include="src\Kaiga\Shaders\TestFrag.h" />
+    <ClInclude Include="src\Kaiga\Shaders\ScreenQuadVert.h" />
+    <ClInclude Include="src\Kaiga\Shaders\SimpleVert.h" />
+    <ClInclude Include="src\Kaiga\Core\TextureBase.h" />
     <ClInclude Include="src\Kaiga\Core\IGeometry.h" />
     <ClInclude Include="src\Kaiga\Core\IRenderer.h" />
     <ClInclude Include="src\Kaiga\Core\IRenderPass.h" />
@@ -163,19 +162,18 @@
     <ClInclude Include="src\Kaiga\Util\TextureUtil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Kaiga\Components\Geom\AbstractGeometry.cpp" />
-    <ClCompile Include="src\Kaiga\Components\Geom\PlaneGeometry.cpp" />
-    <ClCompile Include="src\Kaiga\Components\Geom\ScreenQuadGeometry.cpp" />
-    <ClCompile Include="src\Kaiga\Components\Materials\StandardMaterial.cpp" />
+    <ClCompile Include="src\Kaiga\Core\GeometryBase.cpp" />
+    <ClCompile Include="src\Kaiga\Geometry\PlaneGeometry.cpp" />
+    <ClCompile Include="src\Kaiga\Geometry\ScreenQuadGeometry.cpp" />
+    <ClCompile Include="src\Kaiga\Materials\StandardMaterial.cpp" />
     <ClCompile Include="src\Kaiga\Components\PerspectiveLens.cpp" />
     <ClCompile Include="src\Kaiga\Components\Transform.cpp" />
     <ClCompile Include="src\Kaiga\Core\RenderParams.cpp" />
     <ClCompile Include="src\Kaiga\Processes\OrbitCamera.cpp" />
     <ClCompile Include="src\Kaiga\RenderPasses\TestRenderPass.cpp" />
-    <ClCompile Include="src\Kaiga\RenderTargets\AbstractRenderTarget.cpp" />
-    <ClCompile Include="src\Kaiga\Shaders\Core\AbstractShaderStage.cpp" />
-    <ClCompile Include="src\Kaiga\Shaders\Vertex\SimpleVertexShader.cpp" />
-    <ClCompile Include="src\Kaiga\Textures\AbstractTexture.cpp" />
+    <ClCompile Include="src\Kaiga\Core\RenderTargetBase.cpp" />
+    <ClCompile Include="src\Kaiga\Core\ShaderStageBase.cpp" />
+    <ClCompile Include="src\Kaiga\Core\TextureBase.cpp" />
     <ClCompile Include="src\Kaiga\Renderers\DefaultRenderer.cpp" />
     <ClCompile Include="src\Kaiga\Textures\TextureSquare.cpp" />
     <ClCompile Include="src\Kaiga\Util\GLErrorUtil.cpp" />

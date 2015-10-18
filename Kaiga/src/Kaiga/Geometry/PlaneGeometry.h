@@ -8,7 +8,7 @@
 namespace Kaiga
 {
 	class PlaneGeometry
-		: public AbstractGeometry
+		: public GeometryBase
 		, public Ramen::SharedObject<PlaneGeometry>
 	{
 	public:

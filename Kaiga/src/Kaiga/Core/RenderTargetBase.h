@@ -6,10 +6,10 @@
 
 namespace Kaiga
 {
-	class AbstractRenderTarget : Ramen::AbstractValidatable, IRenderTarget
+	class RenderTargetBase : Ramen::AbstractValidatable, IRenderTarget
 	{
 	public:
-		AbstractRenderTarget(
+		RenderTargetBase(
 			int _width,
 			int _height,
 			bool _isRectangular,
@@ -17,7 +17,7 @@ namespace Kaiga
 			GLenum _internalFormat,
 			GLenum _depthStencilFormat
 			);
-		~AbstractRenderTarget();
+		~RenderTargetBase();
 
 		void SetSize(int _width, int _height);
 		virtual void Bind() override;

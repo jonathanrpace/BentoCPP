@@ -5,10 +5,10 @@
 namespace Kaiga
 {
 	template<typename T, typename U>
-	class AbstractShader
+	class ShaderBase
 	{
 	public:
-		AbstractShader() :
+		ShaderBase() :
 			m_pipelineName(0),
 			m_vertexShader(),
 			m_fragmentShader()
@@ -21,7 +21,7 @@ namespace Kaiga
 			m_vertexShader.SetPipelineName(m_pipelineName);
 			m_fragmentShader.SetPipelineName(m_pipelineName);
 		}
-		~AbstractShader()
+		~ShaderBase()
 		{
 			GL_CHECK(glDeleteProgramPipelines(1, &m_pipelineName));
 		}

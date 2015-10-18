@@ -1,6 +1,6 @@
-#include "AbstractGeometry.h"
+#include "GeometryBase.h"
 
-Kaiga::AbstractGeometry::AbstractGeometry()
+Kaiga::GeometryBase::GeometryBase()
 {
 	m_vertexBuffers = new GLuint[s_maxVertexBuffers];
 	glGenBuffers(s_maxVertexBuffers, m_vertexBuffers);
@@ -9,13 +9,13 @@ Kaiga::AbstractGeometry::AbstractGeometry()
 	glGenBuffers(s_maxIndexBuffers, m_indexBuffers);
 }
 
-Kaiga::AbstractGeometry::~AbstractGeometry()
+Kaiga::GeometryBase::~GeometryBase()
 {
 	delete m_vertexBuffers;
 	delete m_indexBuffers;
 }
 
-void Kaiga::AbstractGeometry::Bind()
+void Kaiga::GeometryBase::Bind()
 {
 	ValidateNow();
 
@@ -23,17 +23,17 @@ void Kaiga::AbstractGeometry::Bind()
 	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[0]));
 }
 
-void Kaiga::AbstractGeometry::Draw()
+void Kaiga::GeometryBase::Draw()
 {
 	GL_CHECK(glDrawElements(GL_TRIANGLES, m_numIndices, GL_UNSIGNED_INT, nullptr));
 }
 
-const std::type_info & Kaiga::AbstractGeometry::typeInfo()
+const std::type_info & Kaiga::GeometryBase::typeInfo()
 {
-	return typeid(AbstractGeometry);
+	return typeid(GeometryBase);
 }
 
-void Kaiga::AbstractGeometry::OnInvalidate()
+void Kaiga::GeometryBase::OnInvalidate()
 {
 	if (glIsVertexArray(m_vertexArrayName))
 	{
@@ -41,28 +41,28 @@ void Kaiga::AbstractGeometry::OnInvalidate()
 	}
 }
 
-void Kaiga::AbstractGeometry::BufferVertexData(int _attributeIndex, float* _data, int _size)
+void Kaiga::GeometryBase::BufferVertexData(int _attributeIndex, float* _data, int _size)
 {
 	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffers[_attributeIndex]));
 	GL_CHECK(glBufferData(GL_ARRAY_BUFFER, _size * sizeof(float), _data, GL_STATIC_DRAW));
 	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
 }
 
-void Kaiga::AbstractGeometry::BufferIndexData(int _index, int* _data, int _size)
+void Kaiga::GeometryBase::BufferIndexData(int _index, int* _data, int _size)
 {
 	GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[_index]));
 	GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, _size * sizeof(int), _data, GL_STATIC_DRAW));
 	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
 }
 
-void Kaiga::AbstractGeometry::SetVertexFormatf(int _attributeIndex, int _numComponents)
+void Kaiga::GeometryBase::SetVertexFormatf(int _attributeIndex, int _numComponents)
 {
 	GL_CHECK(glEnableVertexAttribArray(_attributeIndex));
 	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffers[_attributeIndex]));
 	GL_CHECK(glVertexAttribPointer(_attributeIndex, _numComponents, GL_FLOAT, false, sizeof(float) * _numComponents, nullptr));
 }
 
-void Kaiga::AbstractGeometry::SetVertexFormati(int _attributeIndex, int _numComponents)
+void Kaiga::GeometryBase::SetVertexFormati(int _attributeIndex, int _numComponents)
 {
 	GL_CHECK(glEnableVertexAttribArray(_attributeIndex));
 	GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffers[_attributeIndex]));
