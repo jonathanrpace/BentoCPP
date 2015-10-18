@@ -48,8 +48,8 @@ public:
 	static void SetModelMatrix(mat4 _modelMatrix)
 	{
 		s_modelMatrix = _modelMatrix;
-		s_modelViewMatrix = s_modelMatrix * s_viewMatrix;
-		s_modelViewProjectionMatrix = s_modelViewMatrix * s_projectionMatrix;
+		s_modelViewMatrix = s_viewMatrix * s_modelMatrix;
+		s_modelViewProjectionMatrix = s_projectionMatrix * s_modelViewMatrix;
 
 		s_normalModelMatrix = transpose(mat3(s_modelMatrix));
 		s_normalModelViewMatrix = transpose(mat3(s_modelViewMatrix));

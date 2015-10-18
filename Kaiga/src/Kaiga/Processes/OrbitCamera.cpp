@@ -3,7 +3,8 @@
 #include <Kaiga/Components/Transform.h>
 #include <Kaiga/Renderers/DefaultRenderer.h>
 #include <Ramen/Core/IInputManager.h>
-#include <glm/gtc/matrix_transform.hpp>
+
+#include <glm.h>
 
 namespace Kaiga
 {
@@ -88,12 +89,12 @@ namespace Kaiga
 	void OrbitCamera::UpdateMatrix()
 	{
 		m_matrix = mat4();
-
+		
 		m_matrix = glm::translate(m_matrix, vec3(0.0f, 0.0f, -m_dolly));
 		m_matrix = glm::rotate(m_matrix, m_rotation.y, vec3(1.0f, 0.0f, 0.0f));
 		m_matrix = glm::rotate(m_matrix, m_rotation.x, vec3(0.0f, 1.0f, 0.0f));
 		m_matrix = glm::translate(m_matrix, m_position);
-
+		
 		auto renderer = m_scene->GetProcess<DefaultRenderer>();
 		Ramen::Entity camera = renderer->GetCamera();
 		auto cameraTransform = m_scene->GetComponentForEntity<Transform>(camera);
@@ -105,6 +106,8 @@ namespace Kaiga
 		if (_button == 0)
 		{
 			m_mouseIsDown = true;
+			m_mouseDownPos = m_scene->GetInputManager()->GetMousePosition();
+			m_storedRotation = m_rotationTarget;
 		}
 	}
 

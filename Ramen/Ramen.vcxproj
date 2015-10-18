@@ -146,17 +146,20 @@
     <ClInclude Include="src\Ramen\Core\InputManagerImpl.h" />
     <ClInclude Include="src\Ramen\Core\IProcess.h" />
     <ClInclude Include="src\Ramen\Core\INode.h" />
+    <ClInclude Include="src\Ramen\Core\IWindow.h" />
     <ClInclude Include="src\Ramen\Core\Logging.h" />
     <ClInclude Include="src\Ramen\Core\NamedObject.h" />
     <ClInclude Include="src\Ramen\Core\NodeGroup.h" />
     <ClInclude Include="src\Ramen\Core\Scene.h" />
     <ClInclude Include="src\Ramen\Core\ISceneObject.h" />
+    <ClInclude Include="src\Ramen\Core\WindowImpl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Ramen\Core\AbstractValidatable.cpp" />
     <ClCompile Include="src\Ramen\Core\InputManagerImpl.cpp" />
     <ClCompile Include="src\Ramen\Core\NamedObject.cpp" />
     <ClCompile Include="src\Ramen\Core\Scene.cpp" />
+    <ClCompile Include="src\Ramen\Core\WindowImpl.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

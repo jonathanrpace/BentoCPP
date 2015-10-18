@@ -1,5 +1,7 @@
 #include "PerspectiveLens.h"
 
+#include <cmath>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Kaiga
@@ -10,7 +12,7 @@ namespace Kaiga
 		m_far(10.0f),
 		m_verticalFOV(45.0f * 0.0174f),
 		m_matrix(),
-		m_matrixIsInvalid(false)
+		m_matrixIsInvalid(true)
 	{
 
 	}
@@ -22,6 +24,8 @@ namespace Kaiga
 
 	void PerspectiveLens::SetAspectRatio(float _value)
 	{
+		_value = std::isnan(_value) ? 1.0f : _value;
+
 		m_aspectRatio = _value;
 		m_matrixIsInvalid = true;
 	}
