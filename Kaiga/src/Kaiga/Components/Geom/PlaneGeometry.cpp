@@ -1,5 +1,6 @@
 #include "PlaneGeometry.h"
 
+#include <vector>
 #include <glew.h>
 #include <assert.h>
 
@@ -46,11 +47,11 @@ namespace Kaiga
 		int numTriangles = (numVerticesX - 1) * (numVerticesY - 1) * 2;
 		m_numIndices = numTriangles * 3;
 
-		float* positions = new float[m_numVertices * 3];
-		float* normals = new float[m_numVertices * 3];
-		float* uvs = new float[m_numVertices * 2];
-		float* colors = new float[m_numVertices * 4];
-		int* indices = new int[m_numIndices];
+		std::vector<float> positions(m_numVertices * 3);
+		std::vector<float> normals(m_numVertices * 3);
+		std::vector<float> uvs(m_numVertices * 2);
+		std::vector<float> colors(m_numVertices * 4);
+		std::vector<int> indices(m_numIndices);
 
 		int indicesIndex = 0;
 		int vertexIndex = 0;
@@ -97,17 +98,11 @@ namespace Kaiga
 			}
 		}
 
-		BufferVertexData(0, positions, m_numVertices * 3);
-		BufferVertexData(1, normals, m_numVertices * 3);
-		BufferVertexData(2, uvs, m_numVertices * 2);
-		BufferVertexData(3, colors, m_numVertices * 4);
-		BufferIndexData(0, indices, m_numIndices);
-
-		delete positions;
-		delete normals;
-		delete uvs;
-		delete colors;
-		delete indices;
+		BufferVertexData(0, &positions[0], m_numVertices * 3);
+		BufferVertexData(1, &normals[0], m_numVertices * 3);
+		BufferVertexData(2, &uvs[0], m_numVertices * 2);
+		BufferVertexData(3, &colors[0], m_numVertices * 4);
+		BufferIndexData(0, &indices[0], m_numIndices);
 	}
 
 	float PlaneGeometry::GetWidth()
