@@ -11,9 +11,10 @@
 //////////////////////////////////////////////////////////////////////////
 // PUBLIC
 //////////////////////////////////////////////////////////////////////////
-Kaiga::DefaultRenderer::DefaultRenderer() :
-	m_scene(NULL),
-	m_renderPassesByPhase()
+Kaiga::DefaultRenderer::DefaultRenderer() 
+	: m_scene(NULL)
+	, m_renderPassesByPhase()
+	, m_deferredRenderTarget()
 {
 	AddRenderPhase(eRenderPhase_G);
 	AddRenderPhase(eRenderPhase_DirectLight);
@@ -85,6 +86,8 @@ void Kaiga::DefaultRenderer::Update(double dt)
 	auto cameraTransform = m_scene->GetComponentForEntity<Transform>(m_camera);
 
 	Kaiga::RenderParams::SetViewMatrices(cameraTransform->matrix, *lens);
+
+	Kaiga::RenderParams::DeferedRenderTarget = &m_deferredRenderTarget;
 
 	glEnable(GL_DEPTH_TEST);
 

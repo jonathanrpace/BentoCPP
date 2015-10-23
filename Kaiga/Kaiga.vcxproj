@@ -144,6 +144,7 @@
     <ClInclude Include="src\Kaiga\Core\RenderTargetBase.h" />
     <ClInclude Include="src\Kaiga\Core\ShaderBase.h" />
     <ClInclude Include="src\Kaiga\Core\ShaderStageBase.h" />
+    <ClInclude Include="src\Kaiga\RenderTargets\DeferredRenderTarget.h" />
     <ClInclude Include="src\Kaiga\Shaders\TestFrag.h" />
     <ClInclude Include="src\Kaiga\Shaders\ScreenQuadVert.h" />
     <ClInclude Include="src\Kaiga\Shaders\SimpleVert.h" />
@@ -152,11 +153,12 @@
     <ClInclude Include="src\Kaiga\Core\IRenderer.h" />
     <ClInclude Include="src\Kaiga\Core\IRenderPass.h" />
     <ClInclude Include="src\Kaiga\Core\IRenderTarget.h" />
-    <ClInclude Include="src\Kaiga\Core\ITexture.h" />
+    <ClInclude Include="src\Kaiga\Core\ITexture2D.h" />
     <ClInclude Include="src\Kaiga\Core\ITextureRect.h" />
     <ClInclude Include="src\Kaiga\Core\ITextureSquare.h" />
     <ClInclude Include="src\Kaiga\Core\RenderPhase.h" />
     <ClInclude Include="src\Kaiga\Renderers\DefaultRenderer.h" />
+    <ClInclude Include="src\Kaiga\Textures\RectangleTexture.h" />
     <ClInclude Include="src\Kaiga\Textures\TextureSquare.h" />
     <ClInclude Include="src\Kaiga\Util\GLErrorUtil.h" />
     <ClInclude Include="src\Kaiga\Util\TextureUtil.h" />
@@ -175,6 +177,8 @@
     <ClCompile Include="src\Kaiga\Core\ShaderStageBase.cpp" />
     <ClCompile Include="src\Kaiga\Core\TextureBase.cpp" />
     <ClCompile Include="src\Kaiga\Renderers\DefaultRenderer.cpp" />
+    <ClCompile Include="src\Kaiga\RenderTargets\DeferredRenderTarget.cpp" />
+    <ClCompile Include="src\Kaiga\Textures\RectangleTexture.cpp" />
     <ClCompile Include="src\Kaiga\Textures\TextureSquare.cpp" />
     <ClCompile Include="src\Kaiga\Util\GLErrorUtil.cpp" />
   </ItemGroup>

@@ -11,19 +11,6 @@ Kaiga::TextureSquare::~TextureSquare()
 {
 }
 
-void Kaiga::TextureSquare::SetSize(int _size)
-{
-	if (m_size == _size)
-		return;
-	m_size = _size;
-	Invalidate();
-}
-
-int Kaiga::TextureSquare::GetSize()
-{
-	return 0;
-}
-
 int Kaiga::TextureSquare::GetNumMipMaps()
 {
 	if (m_minFilter == GL_NEAREST_MIPMAP_LINEAR || 
@@ -31,7 +18,7 @@ int Kaiga::TextureSquare::GetNumMipMaps()
 		m_minFilter == GL_LINEAR_MIPMAP_NEAREST ||
 		m_minFilter == GL_LINEAR_MIPMAP_LINEAR)
 	{
-		return TextureUtil::GetNumMipMaps(m_size);
+		return Kaiga::TextureUtil::GetNumMipMaps(m_width);
 	}
 
 	return 1;
@@ -53,12 +40,12 @@ void Kaiga::TextureSquare::Validate()
 	glGenTextures(1, &m_name);
 
 	int numMipMaps = GetNumMipMaps();
-	int d = m_size;
+	int d = m_width;
 	for (int i = 0; i < numMipMaps; i++)
 	{
 		GL_CHECK(glTexImage2D
 		(
-			GL_TEXTURE_2D, i, m_pixelInternalFormat,
+			GL_TEXTURE_2D, i, m_format,
 			d, d, 0, GL_RGBA, GL_FLOAT, NULL
 		));
 		d >>= 1;
@@ -66,8 +53,8 @@ void Kaiga::TextureSquare::Validate()
 
 	GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_name));
 	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_magFilter));
-	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_minFilter));
-	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, m_wrapModeR));
-	GL_CHECK( glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrapModeS));
-	GL_CHECK( glBindTexture(GL_TEXTURE_2D, GL_NONE));
+	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_minFilter));
+	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, m_wrapModeR));
+	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrapModeS));
+	GL_CHECK(glBindTexture(GL_TEXTURE_2D, GL_NONE));
 }

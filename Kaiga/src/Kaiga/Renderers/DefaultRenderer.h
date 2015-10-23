@@ -9,6 +9,7 @@
 // bento
 #include <ramen.h>
 #include <kaiga.h>
+#include <Kaiga/RenderTargets/DeferredRenderTarget.h>
 
 namespace Kaiga
 {
@@ -45,5 +46,6 @@ namespace Kaiga
 		Ramen::Scene * m_scene;
 		RenderPassByPhaseMap m_renderPassesByPhase;
 		Ramen::Entity m_camera;
+		DeferredRenderTarget m_deferredRenderTarget;
 	};
 }

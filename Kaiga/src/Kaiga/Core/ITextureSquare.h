@@ -1,14 +1,11 @@
 #pragma once
 
-#include <Kaiga/Core/ITexture.h>
+#include <Kaiga/Core/ITexture2D.h>
 
 namespace Kaiga
 {
-	class ITextureSquare : public ITexture
+	struct ITextureSquare : ITexture2D
 	{
-	public:
 		virtual ~ITextureSquare() = 0;
-		virtual void SetSize(int _size) = 0;
-		virtual int GetSize() = 0;
 	};
 }

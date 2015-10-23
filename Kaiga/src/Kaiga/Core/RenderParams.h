@@ -3,6 +3,8 @@
 #include <glm.h>
 #include <Kaiga/Core/ILens.h>
 
+#include <Kaiga/RenderTargets/DeferredRenderTarget.h>
+
 namespace Kaiga
 {
 class RenderParams
@@ -30,6 +32,8 @@ public:
 
 	static mat4 PrevViewProjectionMatrix()		{ return s_prevViewProjectionMatrix; }
 	static mat4 PrevInvViewProjectionMatrix()	{ return s_prevInvViewProjectionMatrix; }
+
+	static DeferredRenderTarget* DeferedRenderTarget;
 
 	static void SetViewMatrices(mat4 _viewMatrix, ILens& _lens)
 	{
