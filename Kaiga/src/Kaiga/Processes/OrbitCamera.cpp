@@ -96,9 +96,12 @@ namespace Kaiga
 		m_matrix = glm::translate(m_matrix, m_position);
 		
 		auto renderer = m_scene->GetProcess<DefaultRenderer>();
-		Ramen::Entity camera = renderer->GetCamera();
-		auto cameraTransform = m_scene->GetComponentForEntity<Transform>(camera);
-		cameraTransform->matrix = m_matrix;
+		if (renderer)
+		{
+			Ramen::Entity camera = renderer->GetCamera();
+			auto cameraTransform = m_scene->GetComponentForEntity<Transform>(camera);
+			cameraTransform->matrix = m_matrix;
+		}
 	}
 
 	void OrbitCamera::OnMouseButtonPress(int _button)
