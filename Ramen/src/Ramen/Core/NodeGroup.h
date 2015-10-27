@@ -42,7 +42,7 @@ namespace Ramen
 		void Bind(Scene* scene);
 		void Unbind();
 
-		inline const NodeList& GetNodes() { return m_nodes; }
+		inline const NodeList& Nodes() { return m_nodes; }
 
 		DECLARE_EVENT(void, const T&) NodeAdded;
 		DECLARE_EVENT(void, const T&) NodeRemoved;

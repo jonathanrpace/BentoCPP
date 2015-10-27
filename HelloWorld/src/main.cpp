@@ -1,3 +1,5 @@
+#include <windows.h>
+
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <memory>
@@ -6,19 +8,19 @@
 
 #include <glew.h>
 #include <glfw3.h>
-
 #include <glm.h>
-#include <ramen.h>
-#include <kaiga.h>
 
+// Ramen
 #include <Ramen/Core/InputManagerImpl.h>
 #include <Ramen/Core/WindowImpl.h>
 
+// Kaiga
 #include <Kaiga/Renderers/DefaultRenderer.h>
 #include <Kaiga/Components/Transform.h>
+#include <Kaiga/Materials/StandardMaterial.h>
 #include <Kaiga/Geometry/ScreenQuadGeometry.h>
 #include <Kaiga/Geometry/PlaneGeometry.h>
-#include <Kaiga/RenderPasses/TestRenderPass.h>
+#include <Kaiga/RenderPasses/GPass.h>
 #include <Kaiga/Processes/OrbitCamera.h>
 
 void mainLoop(GLFWwindow* window)
@@ -26,20 +28,21 @@ void mainLoop(GLFWwindow* window)
 	auto inputManager = new Ramen::InputManagerImpl(window);
 	auto ramenWindow = new Ramen::WindowImpl(window);
 	Ramen::Scene scene(inputManager, ramenWindow);
-
-	int entity = scene.CreateEntity();
-	auto geom = Kaiga::PlaneGeometry::Create();
-
-	auto transform = Kaiga::Transform::Create();
-	scene.AddComponentToEntity(geom, entity);
-	scene.AddComponentToEntity(transform, entity);
-
+	
+	{
+		int entity = scene.CreateEntity();
+		auto geom = Kaiga::PlaneGeometry::Create();
+		scene.AddComponentToEntity(geom, entity);
+		auto transform = Kaiga::Transform::Create();
+		scene.AddComponentToEntity(transform, entity);
+		auto material = Kaiga::StandardMaterial::Create();
+		scene.AddComponentToEntity(material, entity);
+	}
+	
 	auto renderer = Kaiga::DefaultRenderer::Create();
 	scene.AddProcess(renderer);
-
-	auto renderPass = Kaiga::TestRenderPass::Create();
-	renderer->AddRenderPass(renderPass);
-
+	renderer->AddRenderPass(Kaiga::GPass::Create());
+	
 	auto orbitCamera = Kaiga::OrbitCamera::Create();
 	scene.AddProcess(orbitCamera);
 

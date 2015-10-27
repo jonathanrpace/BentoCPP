@@ -6,11 +6,11 @@ namespace Kaiga
 	{
 		m_shader.BindPerPass();
 
-		for (auto node : m_nodeGroup.GetNodes())
+		for (auto node : m_nodeGroup.Nodes())
 		{
 			RenderParams::SetModelMatrix(node->transform->matrix);
 			
-			m_shader.GetVertexShader().BindPerModel();
+			m_shader.VertexShader().BindPerModel();
 			node->geom->Bind();
 			node->geom->Draw();
 		}

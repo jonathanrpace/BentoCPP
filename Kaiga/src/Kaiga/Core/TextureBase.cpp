@@ -122,3 +122,9 @@ void Kaiga::TextureBase::SetSize(int _width, int _height)
 	Width(_width);
 	Height(_height);
 }
+
+GLuint Kaiga::TextureBase::TextureName()
+{
+	ValidateNow();
+	return m_texture;
+}

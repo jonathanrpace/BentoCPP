@@ -1,9 +1,13 @@
 #pragma once
 
+// std
 #include <typeinfo>
 
-#include <ramen.h>
-#include <kaiga.h>
+// ramen
+#include <Ramen/Core/SharedObject.h>
+
+// kaiga
+#include <Kaiga/Core/GeometryBase.h>
 
 namespace Kaiga
 {

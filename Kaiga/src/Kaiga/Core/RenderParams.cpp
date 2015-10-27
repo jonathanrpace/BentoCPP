@@ -3,9 +3,11 @@
 namespace Kaiga
 {
 	int RenderParams::s_backBufferWidth;
-	int RenderParams::s_backBufferHeigth;
+	int RenderParams::s_backBufferHeight;
 	int RenderParams::s_lightTransportBufferWidth;
 	int RenderParams::s_lightTransportBufferHeight;
+	float RenderParams::s_lightTransportScalar = 0.5f;
+	DeferredRenderTarget* RenderParams::DeferedRenderTarget;
 	glm::mat4 RenderParams::s_modelMatrix;
 	glm::mat3 RenderParams::s_normalModelMatrix;
 	glm::mat4 RenderParams::s_viewMatrix;

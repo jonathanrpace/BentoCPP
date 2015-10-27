@@ -6,10 +6,15 @@
 #include <memory>
 #include <typeinfo>
 
-// bento
-#include <ramen.h>
-#include <kaiga.h>
+// ramen
+#include <Ramen/Core/SharedObject.h>
+
+// kaiga
+#include <Kaiga/Core/IRenderer.h>
+#include <Kaiga/Core/IRenderPass.h>
+#include <Kaiga/Core/RenderPhase.h>
 #include <Kaiga/RenderTargets/DeferredRenderTarget.h>
+#include <Kaiga/Shaders/RectTextureToScreenShader.h>
 
 namespace Kaiga
 {
@@ -47,5 +52,6 @@ namespace Kaiga
 		RenderPassByPhaseMap m_renderPassesByPhase;
 		Ramen::Entity m_camera;
 		DeferredRenderTarget m_deferredRenderTarget;
+		RectTextureToScreenShader m_rectTextureToScreenShader;
 	};
 }

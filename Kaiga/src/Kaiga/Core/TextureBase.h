@@ -24,7 +24,10 @@ namespace Kaiga
 		virtual void OnInvalidate() override;
 		virtual void Validate() = 0;
 
-		// Inherited via ITexture
+		// ITexture
+		virtual GLuint TextureName() override;
+
+		// ITexture2D
 		virtual void SetSize(int _width, int _height);
 		virtual int Width() override;
 		virtual void Width(int) override;

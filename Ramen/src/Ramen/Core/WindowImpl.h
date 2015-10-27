@@ -13,7 +13,7 @@ namespace Ramen
 		WindowImpl(GLFWwindow* _window);
 
 		// Inherited via IWindow
-		virtual vec2 GetWindowSize() override;
+		virtual ivec2 GetWindowSize() override;
 
 	private:
 		GLFWwindow* m_window;

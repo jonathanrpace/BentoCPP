@@ -3,11 +3,13 @@
 #include <fstream>
 
 #include <glew.h>
-#include <ramen.h>
-#include <kaiga.h>
-#include <glew.h>
-
+#include <glm.h>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <Ramen/Core/AbstractValidatable.h>
+
+#include <Kaiga/Textures/RectangleTexture.h>
+#include <Kaiga/Textures/TextureSquare.h>
 
 namespace Kaiga
 {
@@ -17,8 +19,7 @@ namespace Kaiga
 		// STATIC 
 	private:
 		static unsigned long GetFileLength(std::ifstream& _file);
-		static int LoadShader(char* _filename, GLchar** o_ShaderSource, 
-			unsigned long* o_len);
+		static int LoadShader(char* _filename, GLchar** o_ShaderSource, unsigned long* o_len);
 		static void UnloadShader(GLchar** ShaderSource);
 		// ~STATIC
 	public:
@@ -34,15 +35,24 @@ namespace Kaiga
 		void Validate();
 		void OnInvalidate();
 
-		void SetUniformMatrix(const char* name, mat4& matrix, bool transposed = false);
-		void SetUniformMatrix(const char* name, mat3& matrix, bool transposed = false);
+		void SetUniform(const char* _name, mat4& _value, bool _transposed = false);
+		void SetUniform(const char* _name, mat3& _value, bool _transposed = false);
+		void SetUniform(const char* _name, float _value);
+		void SetUniform(const char* _name, vec2& _value);
+		void SetUniform(const char* _name, vec3& _value);
+		void SetUniform(const char* _name, vec4& _value);
+		void SetUniform(const char* _name, int _value);
+
+		void SetTexture(const char* _name, RectangleTexture* _texture);
+		void SetTexture(const char* _name, TextureSquare* _texture);
 
 		char* m_filename;
 		GLuint m_pipelineName;
 		GLuint m_programName;
 		GLenum m_shaderType;
+		int m_textureUnit;
 
-	private:
+	protected:
 		void SetAsActiveShader();
 	};
 }

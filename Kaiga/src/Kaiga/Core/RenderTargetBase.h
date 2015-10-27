@@ -1,11 +1,13 @@
 #pragma once
 
-#include <vector>
+#include <map>
 #include <assert.h>
 
 #include <glew.h>
-#include <ramen.h>
-#include <kaiga.h>
+
+#include <Ramen/Core/AbstractValidatable.h>
+
+#include <Kaiga/Core/IRenderTarget.h>
 #include <kaiga/Textures/RectangleTexture.h>
 
 namespace Kaiga
@@ -37,14 +39,15 @@ namespace Kaiga
 		GLenum m_internalFormat;
 		GLenum m_depthStencilFormat;
 		GLuint m_frameBuffer;
+		GLuint m_depthBuffer;
 		int m_width;
 		int m_height;
 
-		std::vector<ITexture2D*> m_texturesByAttachment;
-		std::vector<int> m_levelsByAttachment;
+		std::map<GLenum, ITexture2D*> m_texturesByAttachment;
+		std::map<GLenum, int> m_levelsByAttachment;
 
 		virtual void Validate() override;
 		virtual void OnInvalidate() override;
-		void AttachTexture(int _index, RectangleTexture* _texture, int _level = 0);
+		void AttachTexture(GLenum _attachment, RectangleTexture* _texture, int _level = 0);
 	};
 }

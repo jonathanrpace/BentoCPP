@@ -2,8 +2,9 @@
 
 #include <typeinfo>
 
-#include <ramen.h>
-#include <kaiga.h>
+#include <Ramen/Core/SharedObject.h>
+
+#include <Kaiga/Core/GeometryBase.h>
 
 namespace Kaiga
 {

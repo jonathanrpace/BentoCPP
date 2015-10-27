@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kaiga.h>
+#include <Kaiga/Core/ShaderStageBase.h>
 
 namespace Kaiga
 {
@@ -10,7 +10,7 @@ namespace Kaiga
 
 		void BindPerModel()
 		{
-			SetUniformMatrix("mvpMatrix", RenderParams::ModelViewProjectionMatrix());
+			SetUniform("mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		}
 	};
 }

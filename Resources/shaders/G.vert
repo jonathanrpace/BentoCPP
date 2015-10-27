@@ -1,15 +1,15 @@
 #version 330 core
 
-// Uniforms
-uniform mat4 MVPMatrix;
-uniform mat4 ModelViewMatrix;
-uniform mat3 NormalModelViewMatrix;
-
 // Inputs
-layout(location = 0) in vec3 in_Position;
-layout(location = 1) in vec3 in_Normal;
-layout(location = 2) in vec4 in_Uv;
-layout(location = 3) in vec4 in_Color;
+layout(location = 0) in vec3 in_position;
+layout(location = 1) in vec3 in_normal;
+layout(location = 2) in vec4 in_uv;
+layout(location = 3) in vec4 in_color;
+
+// Uniforms
+uniform mat4 u_mvpMatrix;
+uniform mat4 u_modelViewMatrix;
+uniform mat3 u_normalModelViewMatrix;
 
 // Outputs
 out gl_PerVertex 
@@ -19,16 +19,16 @@ out gl_PerVertex
 
 out Varying
 {
-	vec3 out_ViewNormal;
-	vec4 out_ViewPosition;
-	vec4 out_Color;
+	vec3 out_viewNormal;
+	vec4 out_viewPosition;
+	vec4 out_color;
 };
 
 void main(void)
 {
-	out_ViewNormal = normalize(in_Normal * NormalModelViewMatrix);
-	out_ViewPosition = ModelViewMatrix * vec4(in_Position, 1);
-	out_Color = in_Color;
+	out_viewNormal = normalize(in_normal * u_normalModelViewMatrix);
+	out_viewPosition = u_modelViewMatrix * vec4(in_position, 1);
+	out_color = in_color;
 
-	gl_Position = MVPMatrix * vec4(in_Position, 1);
+	gl_Position = u_mvpMatrix * vec4(in_position, 1);
 } 

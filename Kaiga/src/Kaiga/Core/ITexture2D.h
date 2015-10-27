@@ -1,12 +1,12 @@
 #pragma once
 
 #include <glew.h>
+#include <Kaiga/Core/ITexture.h>
 
 namespace Kaiga
 {
-	struct ITexture2D
+	struct ITexture2D : ITexture
 	{
-		virtual ~ITexture2D() = 0;
 		virtual void SetSize(int _width, int _height) = 0;
 		virtual int Width() = 0;
 		virtual void Width(int) = 0;

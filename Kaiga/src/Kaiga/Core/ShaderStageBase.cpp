@@ -150,23 +150,80 @@ void Kaiga::ShaderStageBase::OnInvalidate()
 }
 
 
-void Kaiga::ShaderStageBase::SetUniformMatrix(const char * _name, mat4 & _matrix, bool _transposed)
+void Kaiga::ShaderStageBase::SetUniform(const char * _name, mat4 & _value, bool _transposed)
 {
 	SetAsActiveShader();
-
 	GLint location = -1;
-	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name);)
-	GLfloat* data = (GLfloat*)glm::value_ptr(_matrix);
-	GL_CHECK(glUniformMatrix4fv(location, 1, _transposed, data);)
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	GLfloat* data = (GLfloat*)glm::value_ptr(_value);
+	GL_CHECK(glUniformMatrix4fv(location, 1, _transposed, data));
 }
 
-void Kaiga::ShaderStageBase::SetUniformMatrix(const char * _name, mat3 & _matrix, bool _transposed)
+void Kaiga::ShaderStageBase::SetUniform(const char * _name, mat3 & _value, bool _transposed)
 {
 	SetAsActiveShader();
-
 	GLint location = -1;
-	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name);)
-	GL_CHECK(glUniformMatrix3fv(location, 1, _transposed, glm::value_ptr(_matrix));)
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	GLfloat* data = (GLfloat*)glm::value_ptr(_value);
+	GL_CHECK(glUniformMatrix3fv(location, 1, _transposed, data));
+}
+
+void Kaiga::ShaderStageBase::SetUniform(const char * _name, float _value)
+{
+	SetAsActiveShader();
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	GL_CHECK(glUniform1f(location, _value));
+}
+
+void Kaiga::ShaderStageBase::SetUniform(const char * _name, vec2& _value)
+{
+	SetAsActiveShader();
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	GL_CHECK(glUniform2f(location, _value.x, _value.y));
+}
+
+void Kaiga::ShaderStageBase::SetUniform(const char * _name, vec3& _value)
+{
+	SetAsActiveShader();
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	GL_CHECK(glUniform3f(location, _value.x, _value.y, _value.z));
+}
+
+void Kaiga::ShaderStageBase::SetUniform(const char * _name, vec4& _value)
+{
+	SetAsActiveShader();
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	GL_CHECK(glUniform4f(location, _value.x, _value.y, _value.z, _value.w));
+}
+
+void Kaiga::ShaderStageBase::SetUniform(const char * _name, int _value)
+{
+	SetAsActiveShader();
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	GL_CHECK(glUniform1i(location, _value));
+}
+
+void Kaiga::ShaderStageBase::SetTexture(const char * _name, TextureSquare * _texture)
+{
+	SetAsActiveShader();
+	SetUniform(_name, m_textureUnit);
+	glActiveTexture(GL_TEXTURE0 + m_textureUnit);
+	glBindTexture(GL_TEXTURE_2D, _texture->TextureName());
+	m_textureUnit++;
+}
+
+void Kaiga::ShaderStageBase::SetTexture(const char * _name, RectangleTexture * _texture)
+{
+	SetAsActiveShader();
+	SetUniform(_name, m_textureUnit);
+	glActiveTexture(GL_TEXTURE0 + m_textureUnit);
+	glBindTexture(GL_TEXTURE_RECTANGLE, _texture->TextureName());
+	m_textureUnit++;
 }
 
 void Kaiga::ShaderStageBase::SetAsActiveShader()
@@ -176,5 +233,5 @@ void Kaiga::ShaderStageBase::SetAsActiveShader()
 
 void Kaiga::ShaderStageBase::BindPerPass()
 {
-	// Intentionally blank
+	m_textureUnit = 0;
 }

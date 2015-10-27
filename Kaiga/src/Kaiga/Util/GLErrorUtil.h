@@ -15,6 +15,10 @@
 			TRACE(infoLog);													\
 			__debugbreak();													\
 		} 																	\
+		else																\
+		{																	\
+			TRACE("Compilation successful\n");								\
+		}																	\
 		delete infoLog;														\
 	}
 #else

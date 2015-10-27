@@ -16,12 +16,12 @@ Ramen::WindowImpl::WindowImpl(GLFWwindow* _window) :
 
 }
 
-vec2 Ramen::WindowImpl::GetWindowSize()
+ivec2 Ramen::WindowImpl::GetWindowSize()
 {
 	int width;
 	int height;
 	glfwGetWindowSize(m_window, &width, &height);
-	return vec2((float)width, (float)height);
+	return ivec2(width, height);
 }
 
 //////////////////////////////////////////////////////////////////////////

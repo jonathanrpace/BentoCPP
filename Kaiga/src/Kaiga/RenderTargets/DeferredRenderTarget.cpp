@@ -1,6 +1,10 @@
 #include "DeferredRenderTarget.h"
+
+#include <Kaiga/Util/GLErrorUtil.h>
+
 namespace Kaiga
 {
+	
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_POSITION = GL_COLOR_ATTACHMENT0;
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_NORMAL = GL_COLOR_ATTACHMENT1;
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_ALBEDO = GL_COLOR_ATTACHMENT2;
@@ -16,33 +20,7 @@ namespace Kaiga
 	const GLuint DeferredRenderTarget::DRAW_BUFFER_DIRECT_LIGHT = GL_DRAW_BUFFER4;
 	const GLuint DeferredRenderTarget::DRAW_BUFFER_INDIRECT_LIGHT = GL_DRAW_BUFFER5;
 	const GLuint DeferredRenderTarget::DRAW_BUFFER_OUTPUT = GL_DRAW_BUFFER6;
-
-	const std::vector<GLenum> DeferredRenderTarget::ALL_DRAW_BUFFERS = {
-		DRAW_BUFFER_POSITION,
-		DRAW_BUFFER_NORMAL,
-		DRAW_BUFFER_ALBEDO,
-		DRAW_BUFFER_MATERIAL,
-		DRAW_BUFFER_DIRECT_LIGHT,
-		DRAW_BUFFER_INDIRECT_LIGHT,
-		DRAW_BUFFER_OUTPUT
-	};
-	const std::vector<GLenum> DeferredRenderTarget::G_PHASE_DRAW_BUFFERS = {
-		DRAW_BUFFER_POSITION,
-		DRAW_BUFFER_NORMAL,
-		DRAW_BUFFER_ALBEDO,
-		DRAW_BUFFER_MATERIAL,
-		DRAW_BUFFER_DIRECT_LIGHT		// TODO - NEED THIS?
-	};
-	const std::vector<GLenum> DeferredRenderTarget::DIRECT_LIGHT_PHASE_DRAW_BUFFERS = {
-		DRAW_BUFFER_DIRECT_LIGHT
-	};
-	const std::vector<GLenum> DeferredRenderTarget::INDIRECT_LIGHT_PHASE_DRAW_BUFFERS = {
-		DRAW_BUFFER_INDIRECT_LIGHT
-	};
-	const std::vector<GLenum> DeferredRenderTarget::RESOLVE_PHASE_DRAW_BUFFERS = {
-		DRAW_BUFFER_OUTPUT
-	};
-
+	
 	DeferredRenderTarget::DeferredRenderTarget
 	(
 		int _width, 
@@ -66,12 +44,28 @@ namespace Kaiga
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT, &m_outputTexture);
 	}
 
+	DeferredRenderTarget::~DeferredRenderTarget()
+	{
+		
+	}
+
 	void DeferredRenderTarget::Clear()
 	{
 		ValidateNow();
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
-		GL_CHECK(glDrawBuffers(ALL_DRAW_BUFFERS.size(), &ALL_DRAW_BUFFERS[0]));
-		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
+
+		static const GLenum drawBuffers[] = {
+			FRAME_BUFFER_ATTACHMENT_POSITION,
+			FRAME_BUFFER_ATTACHMENT_NORMAL,
+			FRAME_BUFFER_ATTACHMENT_ALBEDO,
+			FRAME_BUFFER_ATTACHMENT_MATERIAL,
+			FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT,
+			FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT,
+			FRAME_BUFFER_ATTACHMENT_OUTPUT
+		};
+		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
+
+		GL_CHECK(glClearColor(0.0f, 1.0f, 0.0f, 0.0f));
 		GL_CHECK(glClearDepth(1.0f));
 		GL_CHECK(glClearStencil(0));
 		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
@@ -81,28 +75,48 @@ namespace Kaiga
 	{
 		ValidateNow();
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
-		GL_CHECK(glDrawBuffers(G_PHASE_DRAW_BUFFERS.size(), &G_PHASE_DRAW_BUFFERS[0]));
+
+		static const GLenum drawBuffers[] = {
+			FRAME_BUFFER_ATTACHMENT_POSITION,
+			FRAME_BUFFER_ATTACHMENT_NORMAL,
+			FRAME_BUFFER_ATTACHMENT_ALBEDO,
+			FRAME_BUFFER_ATTACHMENT_MATERIAL,
+			FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT // TODO - NEED THIS?
+		};
+		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 	}
 
 	void DeferredRenderTarget::BindForDirectLightPhase()
 	{
 		ValidateNow();
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
-		GL_CHECK(glDrawBuffers(DIRECT_LIGHT_PHASE_DRAW_BUFFERS.size(), &DIRECT_LIGHT_PHASE_DRAW_BUFFERS[0]));
+
+		static const GLenum drawBuffers[] = {
+			FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT
+		};
+		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 	}
 
 	void DeferredRenderTarget::BindForIndirectLightPhase()
 	{
 		ValidateNow();
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
-		GL_CHECK(glDrawBuffers(INDIRECT_LIGHT_PHASE_DRAW_BUFFERS.size(), &INDIRECT_LIGHT_PHASE_DRAW_BUFFERS[0]));
+
+		static const GLenum drawBuffers[] = {
+			FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT
+		};
+		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 	}
 
 	void DeferredRenderTarget::BindForResolvePhase()
 	{
 		ValidateNow();
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
-		GL_CHECK(glDrawBuffers(RESOLVE_PHASE_DRAW_BUFFERS.size(), &RESOLVE_PHASE_DRAW_BUFFERS[0]));
+
+		static const GLenum drawBuffers[] = {
+			FRAME_BUFFER_ATTACHMENT_OUTPUT
+		};
+		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 	}
 
 	void DeferredRenderTarget::BindForNoDraw()
@@ -111,7 +125,7 @@ namespace Kaiga
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
 		glDrawBuffer(GL_NONE);
 	}
-
+	
 	RectangleTexture* DeferredRenderTarget::NormalTexture()
 	{
 		return &m_normalTexture;

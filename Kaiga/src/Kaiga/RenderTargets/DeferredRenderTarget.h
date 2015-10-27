@@ -1,8 +1,7 @@
-#include <kaiga.h>
+#pragma once
 
+#include <Kaiga/Core/RenderTargetBase.h>
 #include <Kaiga/Textures/RectangleTexture.h>
-
-#include <vector>
 
 namespace Kaiga
 {
@@ -26,6 +25,7 @@ namespace Kaiga
 		static const GLuint DRAW_BUFFER_OUTPUT;
 		
 		DeferredRenderTarget(int _width = 800, int _height = 600);
+		~DeferredRenderTarget();
 
 		void Clear();
 		void BindForGPhase();
@@ -33,7 +33,7 @@ namespace Kaiga
 		void BindForIndirectLightPhase();
 		void BindForResolvePhase();
 		void BindForNoDraw();
-
+		
 		RectangleTexture* NormalTexture();
 		RectangleTexture* PositionTexture();
 		RectangleTexture* AlbedoTexture();
@@ -41,15 +41,8 @@ namespace Kaiga
 		RectangleTexture* DirectLightTexture();
 		RectangleTexture* IndirectLightTexture();
 		RectangleTexture* OutputTexture();
-
+		
 	private:
-
-		static const std::vector<GLenum> ALL_DRAW_BUFFERS;
-		static const std::vector<GLenum> G_PHASE_DRAW_BUFFERS;
-		static const std::vector<GLenum> DIRECT_LIGHT_PHASE_DRAW_BUFFERS;
-		static const std::vector<GLenum> INDIRECT_LIGHT_PHASE_DRAW_BUFFERS;
-		static const std::vector<GLenum> RESOLVE_PHASE_DRAW_BUFFERS;
-
 		RectangleTexture m_normalTexture;
 		RectangleTexture m_positionTexture;
 		RectangleTexture m_albedoTexture;

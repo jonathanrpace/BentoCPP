@@ -1,11 +1,9 @@
 #pragma once
 
-#include <Kaiga\Core\ITexture2D.h>
-
 namespace Kaiga
 {
-	struct ITextureRect : ITexture2D
+	struct ITextureRect
 	{
-		virtual ~ITextureRect() = 0;
+		
 	};
 }

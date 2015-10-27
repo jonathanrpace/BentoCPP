@@ -33,6 +33,11 @@ public:
 	static mat4 PrevViewProjectionMatrix()		{ return s_prevViewProjectionMatrix; }
 	static mat4 PrevInvViewProjectionMatrix()	{ return s_prevInvViewProjectionMatrix; }
 
+	int BackBufferWidth() const { return s_backBufferWidth; }
+	int BackBufferHeight() const { return s_backBufferHeight; }
+	int LightTransportBufferWidth() const { return s_lightTransportBufferWidth; }
+	int LightTransportBufferHeight() const { return s_lightTransportBufferHeight; }
+
 	static DeferredRenderTarget* DeferedRenderTarget;
 
 	static void SetViewMatrices(mat4 _viewMatrix, ILens& _lens)
@@ -61,11 +66,20 @@ public:
 		s_invNormalModelViewMatrix = inverse(s_normalModelViewMatrix);
 	}
 
+	static void SetBackBufferDimensions(int _width, int _height)
+	{
+		s_backBufferWidth = _width;
+		s_backBufferHeight = _height;
+		s_lightTransportBufferWidth = (int)((float)s_backBufferWidth * s_lightTransportScalar);
+		s_lightTransportBufferHeight = (int)((float)s_backBufferHeight * s_lightTransportScalar);
+	}
+
 private:
 	static int s_backBufferWidth;
-	static int s_backBufferHeigth;
+	static int s_backBufferHeight;
 	static int s_lightTransportBufferWidth;
 	static int s_lightTransportBufferHeight;
+	static float s_lightTransportScalar;
 
 	static mat4 s_modelMatrix;
 	static mat3 s_normalModelMatrix;

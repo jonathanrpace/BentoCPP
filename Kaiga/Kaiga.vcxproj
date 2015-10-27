@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClInclude Include="src\kaiga.h" />
     <ClInclude Include="src\Kaiga\Core\GeometryBase.h" />
+    <ClInclude Include="src\Kaiga\Core\ITexture.h" />
     <ClInclude Include="src\Kaiga\Geometry\PlaneGeometry.h" />
     <ClInclude Include="src\Kaiga\Geometry\ScreenQuadGeometry.h" />
     <ClInclude Include="src\Kaiga\Core\ILens.h" />
@@ -140,14 +141,16 @@
     <ClInclude Include="src\Kaiga\Core\RenderParams.h" />
     <ClInclude Include="src\Kaiga\Processes\OrbitCamera.h" />
     <ClInclude Include="src\Kaiga\Core\NodeGroupRenderPassBase.h" />
+    <ClInclude Include="src\Kaiga\RenderPasses\GPass.h" />
     <ClInclude Include="src\Kaiga\RenderPasses\TestRenderPass.h" />
     <ClInclude Include="src\Kaiga\Core\RenderTargetBase.h" />
     <ClInclude Include="src\Kaiga\Core\ShaderBase.h" />
     <ClInclude Include="src\Kaiga\Core\ShaderStageBase.h" />
     <ClInclude Include="src\Kaiga\RenderTargets\DeferredRenderTarget.h" />
-    <ClInclude Include="src\Kaiga\Shaders\TestFrag.h" />
-    <ClInclude Include="src\Kaiga\Shaders\ScreenQuadVert.h" />
-    <ClInclude Include="src\Kaiga\Shaders\SimpleVert.h" />
+    <ClInclude Include="src\Kaiga\ShaderStages\RectTextureFrag.h" />
+    <ClInclude Include="src\Kaiga\ShaderStages\TestFrag.h" />
+    <ClInclude Include="src\Kaiga\ShaderStages\ScreenQuadVert.h" />
+    <ClInclude Include="src\Kaiga\ShaderStages\SimpleVert.h" />
     <ClInclude Include="src\Kaiga\Core\TextureBase.h" />
     <ClInclude Include="src\Kaiga\Core\IGeometry.h" />
     <ClInclude Include="src\Kaiga\Core\IRenderer.h" />
@@ -158,6 +161,7 @@
     <ClInclude Include="src\Kaiga\Core\ITextureSquare.h" />
     <ClInclude Include="src\Kaiga\Core\RenderPhase.h" />
     <ClInclude Include="src\Kaiga\Renderers\DefaultRenderer.h" />
+    <ClInclude Include="src\Kaiga\Shaders\RectTextureToScreenShader.h" />
     <ClInclude Include="src\Kaiga\Textures\RectangleTexture.h" />
     <ClInclude Include="src\Kaiga\Textures\TextureSquare.h" />
     <ClInclude Include="src\Kaiga\Util\GLErrorUtil.h" />
@@ -172,12 +176,14 @@
     <ClCompile Include="src\Kaiga\Components\Transform.cpp" />
     <ClCompile Include="src\Kaiga\Core\RenderParams.cpp" />
     <ClCompile Include="src\Kaiga\Processes\OrbitCamera.cpp" />
+    <ClCompile Include="src\Kaiga\RenderPasses\GPass.cpp" />
     <ClCompile Include="src\Kaiga\RenderPasses\TestRenderPass.cpp" />
     <ClCompile Include="src\Kaiga\Core\RenderTargetBase.cpp" />
     <ClCompile Include="src\Kaiga\Core\ShaderStageBase.cpp" />
     <ClCompile Include="src\Kaiga\Core\TextureBase.cpp" />
     <ClCompile Include="src\Kaiga\Renderers\DefaultRenderer.cpp" />
     <ClCompile Include="src\Kaiga\RenderTargets\DeferredRenderTarget.cpp" />
+    <ClCompile Include="src\Kaiga\Shaders\RectTextureToScreenShader.cpp" />
     <ClCompile Include="src\Kaiga\Textures\RectangleTexture.cpp" />
     <ClCompile Include="src\Kaiga\Textures\TextureSquare.cpp" />
     <ClCompile Include="src\Kaiga\Util\GLErrorUtil.cpp" />

@@ -12,7 +12,7 @@
 namespace Kaiga
 {
 	class StandardMaterial 
-		: Ramen::IComponent
+		: public Ramen::IComponent
 		, public Ramen::SharedObject<StandardMaterial>
 	{
 	public:

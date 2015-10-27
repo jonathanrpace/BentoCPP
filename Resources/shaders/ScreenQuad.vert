@@ -1,4 +1,4 @@
-#version 150 core
+#version 330 core
 
 // Inputs
 layout(location = 0) in vec2 in_position;

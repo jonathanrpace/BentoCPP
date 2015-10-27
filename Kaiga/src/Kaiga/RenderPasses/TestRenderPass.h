@@ -1,15 +1,15 @@
 #pragma once
 
-#include <kaiga.h>
-
+#include <Kaiga/Core/NodeGroupRenderPassBase.h>
+#include <Kaiga/Core/ShaderBase.h>
+#include <Kaiga/Core/GeometryBase.h>
+#include <Kaiga/ShaderStages/SimpleVert.h>
+#include <Kaiga/ShaderStages/TestFrag.h>
 #include <Kaiga/Components/Transform.h>
-
-#include <Kaiga/Shaders/SimpleVert.h>
-#include <Kaiga/Shaders/TestFrag.h>
 
 namespace Kaiga
 {
-	class TestShader : public ShaderBase<SimpleVert, TestFrag>
+	struct TestShader : ShaderBase<SimpleVert, TestFrag>
 	{};
 
 	DEFINE_NODE_2
