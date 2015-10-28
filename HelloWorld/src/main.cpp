@@ -17,10 +17,12 @@
 // Kaiga
 #include <Kaiga/Renderers/DefaultRenderer.h>
 #include <Kaiga/Components/Transform.h>
-#include <Kaiga/Materials/StandardMaterial.h>
+#include <Kaiga/Materials/TerrainMaterial.h>
 #include <Kaiga/Geometry/ScreenQuadGeometry.h>
+#include <Kaiga/Geometry/TerrainGeometry.h>
 #include <Kaiga/Geometry/PlaneGeometry.h>
 #include <Kaiga/RenderPasses/GPass.h>
+#include <Kaiga/RenderPasses/TerrainGPass.h>
 #include <Kaiga/Processes/OrbitCamera.h>
 
 void mainLoop(GLFWwindow* window)
@@ -31,17 +33,18 @@ void mainLoop(GLFWwindow* window)
 	
 	{
 		int entity = scene.CreateEntity();
-		auto geom = Kaiga::PlaneGeometry::Create();
+		auto geom = Kaiga::TerrainGeometry::Create();
 		scene.AddComponentToEntity(geom, entity);
 		auto transform = Kaiga::Transform::Create();
 		scene.AddComponentToEntity(transform, entity);
-		auto material = Kaiga::StandardMaterial::Create();
+		auto material = Kaiga::TerrainMaterial::Create();
 		scene.AddComponentToEntity(material, entity);
 	}
 	
 	auto renderer = Kaiga::DefaultRenderer::Create();
 	scene.AddProcess(renderer);
 	renderer->AddRenderPass(Kaiga::GPass::Create());
+	renderer->AddRenderPass(Kaiga::TerrainGPass::Create());
 	
 	auto orbitCamera = Kaiga::OrbitCamera::Create();
 	scene.AddProcess(orbitCamera);

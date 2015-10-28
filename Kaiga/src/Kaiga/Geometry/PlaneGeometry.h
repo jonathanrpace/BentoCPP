@@ -17,7 +17,6 @@ namespace Kaiga
 	{
 	public:
 		PlaneGeometry();
-		~PlaneGeometry();
 
 		float GetWidth();
 		void SetWidth(float _value);

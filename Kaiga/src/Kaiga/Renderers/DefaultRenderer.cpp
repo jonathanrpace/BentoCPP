@@ -123,7 +123,7 @@ namespace Kaiga
 
 		//GL.Enable( EnableCap.FramebufferSrgb );
 
-		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.NormalTexture());
+		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.PositionTexture());
 	}
 
 	void DefaultRenderer::AddRenderPass(RenderPassPtr _renderPass)

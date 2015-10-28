@@ -17,11 +17,6 @@ namespace Kaiga
 
 	}
 
-	PlaneGeometry::~PlaneGeometry()
-	{
-		Invalidate();
-	}
-
 	void PlaneGeometry::Validate()
 	{
 		assert(glIsVertexArray(m_vertexArrayName) == false);
