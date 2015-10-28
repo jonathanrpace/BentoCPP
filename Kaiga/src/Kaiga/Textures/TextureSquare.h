@@ -14,7 +14,6 @@ namespace Kaiga
 		int GetNumMipMaps();
 	protected:
 		// Inherited via AbstractValidatable
-		virtual void OnInvalidate() override;
 		virtual void Validate() override;
 	};
 }

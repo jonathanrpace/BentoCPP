@@ -12,13 +12,18 @@ namespace Kaiga
 	{
 	public:
 		TextureBase(
+			GLenum _textureTarget,
 			int _width = 256,
 			int _height = 256,
-			GLuint _format = GL_RGBA,
-			GLuint _magFilter = GL_LINEAR,
-			GLuint _minFilter = GL_LINEAR
+			GLenum _format = GL_RGBA,
+			GLenum _magFilter = GL_LINEAR,
+			GLenum _minFilter = GL_LINEAR,
+			GLenum _wrapModeR = GL_REPEAT,
+			GLenum _wrapModeS = GL_REPEAT
 		);
 		~TextureBase();
+
+		void TexImage2D(int _level, GLenum _format, GLenum _type, const GLvoid* _data);
 
 		// AbstractValidatable
 		virtual void OnInvalidate() override;
@@ -45,10 +50,10 @@ namespace Kaiga
 		virtual void Format(GLenum _value) override;
 
 	protected:
+		GLenum m_textureTarget;
 		GLuint m_texture;
 		int m_width;
 		int m_height;
-		GLuint m_name;
 		GLenum m_minFilter;
 		GLenum m_magFilter;
 		GLenum m_wrapModeS;

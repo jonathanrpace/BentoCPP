@@ -6,6 +6,7 @@
 #include <Kaiga\Util\TextureUtil.h>
 
 Kaiga::TextureSquare::TextureSquare()
+	: TextureBase(GL_TEXTURE_2D)
 {
 }
 
@@ -26,20 +27,13 @@ int Kaiga::TextureSquare::GetNumMipMaps()
 	return 1;
 }
 
-void Kaiga::TextureSquare::OnInvalidate()
-{
-	if (glIsTexture(m_name))
-	{
-		GL_CHECK(glDeleteTextures(1, &m_name));
-		m_name = -1;
-	}
-}
-
 void Kaiga::TextureSquare::Validate()
 {
-	assert(glIsTexture(m_name) == false);
+	assert(glIsTexture(m_texture) == false);
 
-	glGenTextures(1, &m_name);
+	glGenTextures(1, &m_texture);
+
+	GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_texture));
 
 	int numMipMaps = GetNumMipMaps();
 	int d = m_width;
@@ -53,7 +47,6 @@ void Kaiga::TextureSquare::Validate()
 		d >>= 1;
 	}
 
-	GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_name));
 	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_magFilter));
 	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_minFilter));
 	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, m_wrapModeR));

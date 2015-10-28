@@ -10,7 +10,7 @@ Kaiga::RectangleTexture::RectangleTexture(
 	GLuint _magFilter, 
 	GLuint _minFilter
 ) 
-	: TextureBase(_width, _height, _format, _magFilter, _minFilter)
+	: TextureBase(GL_TEXTURE_RECTANGLE, _width, _height, _format, _magFilter, _minFilter)
 {
 
 }

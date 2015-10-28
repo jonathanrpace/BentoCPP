@@ -1,17 +1,25 @@
 #include "TextureBase.h"
 
+#include <Kaiga\Util\GLErrorUtil.h>
+
 Kaiga::TextureBase::TextureBase(
+	GLenum _textureTarget,
 	int _width,
 	int _height,
-	GLuint _format,
-	GLuint _magFilter,
-	GLuint _minFilter
+	GLenum _format,
+	GLenum _magFilter,
+	GLenum _minFilter,
+	GLenum _wrapModeR,
+	GLenum _wrapModeS
 	)
-	: m_width(_width)
+	: m_textureTarget(_textureTarget)
+	, m_width(_width)
 	, m_height(_height)
 	, m_format(_format)
 	, m_magFilter(_magFilter)
 	, m_minFilter(_minFilter)
+	, m_wrapModeR(_wrapModeR)
+	, m_wrapModeS(_wrapModeS)
 	, m_texture(-1)
 {
 
@@ -20,6 +28,13 @@ Kaiga::TextureBase::TextureBase(
 Kaiga::TextureBase::~TextureBase()
 {
 	Invalidate();
+}
+
+void Kaiga::TextureBase::TexImage2D(int _level, GLenum _format, GLenum _type, const GLvoid * _data)
+{
+	ValidateNow();
+	GL_CHECK(glBindTexture(m_textureTarget, m_texture));
+	GL_CHECK(glTexImage2D(m_textureTarget, _level, m_format, m_width, m_height, 0, _format, _type, _data));
 }
 
 void Kaiga::TextureBase::OnInvalidate()
