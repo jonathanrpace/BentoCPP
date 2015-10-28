@@ -13,6 +13,8 @@ Kaiga::GeometryBase::GeometryBase()
 
 Kaiga::GeometryBase::~GeometryBase()
 {
+	Invalidate();
+
 	delete m_vertexBuffers;
 	delete m_indexBuffers;
 }
