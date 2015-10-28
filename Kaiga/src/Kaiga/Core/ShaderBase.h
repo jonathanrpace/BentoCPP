@@ -35,12 +35,12 @@ namespace Kaiga
 			m_fragmentShader.BindPerPass();
 		}
 
-		T VertexShader()
+		T& VertexShader()
 		{
 			return m_vertexShader;
 		}
 
-		U FragmentShader()
+		U& FragmentShader()
 		{
 			return m_fragmentShader;
 		}
