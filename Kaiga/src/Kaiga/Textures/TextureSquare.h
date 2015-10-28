@@ -1,6 +1,7 @@
 #pragma once
 
-#include <kaiga.h>
+#include <Kaiga\Core\ITextureSquare.h>
+#include <Kaiga\Core\TextureBase.h>
 
 namespace Kaiga
 {

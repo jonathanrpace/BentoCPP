@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Kaiga/Core/ShaderStageBase.h>
-#include <Kaiga/Textures/RectangleTexture.h>
 
 namespace Kaiga
 {

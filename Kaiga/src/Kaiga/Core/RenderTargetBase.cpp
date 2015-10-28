@@ -15,6 +15,8 @@ namespace Kaiga
 	)
 		: m_width(_width)
 		, m_height(_height)
+		, m_frameBuffer(-1)
+		, m_depthBuffer(-1)
 		, m_isRectangular(_isRectangular)
 		, m_hasDepthStencil(_hasDepthStencil)
 		, m_internalFormat(_internalFormat)
@@ -32,6 +34,9 @@ namespace Kaiga
 
 	void RenderTargetBase::SetSize(int _width, int _height)
 	{
+		_width = _width < 16 ? 16 : _width;
+		_height = _height < 16 ? 16 : _height;
+
 		if (_width == m_width && _height == m_height)
 			return;
 
@@ -88,7 +93,16 @@ namespace Kaiga
 	void RenderTargetBase::OnInvalidate()
 	{
 		if (glIsFramebuffer(m_frameBuffer))
+		{
 			GL_CHECK(glDeleteFramebuffers(1, &m_frameBuffer));
+			m_frameBuffer = -1;
+		}
+
+		if (glIsRenderbuffer(m_depthBuffer))
+		{
+			GL_CHECK(glDeleteRenderbuffers(1, &m_depthBuffer));
+			m_depthBuffer = -1;
+		}
 	}
 
 	void RenderTargetBase::AttachTexture(GLenum _attachment, RectangleTexture* _texture, int _level)

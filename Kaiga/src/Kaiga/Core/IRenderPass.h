@@ -1,13 +1,10 @@
 #pragma once
 
 #include <memory>
-#include <Kaiga\Core\RenderPhase.h>
 
-// Forward declares
-namespace Ramen
-{
-	class Scene;
-}
+#include <Ramen\Core\Scene.h>
+
+#include <Kaiga\Core\RenderPhase.h>
 
 namespace Kaiga
 {

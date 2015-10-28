@@ -129,7 +129,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\kaiga.h" />
     <ClInclude Include="src\Kaiga\Core\GeometryBase.h" />
     <ClInclude Include="src\Kaiga\Core\ITexture.h" />
     <ClInclude Include="src\Kaiga\Geometry\PlaneGeometry.h" />
@@ -187,6 +186,9 @@
     <ClCompile Include="src\Kaiga\Textures\RectangleTexture.cpp" />
     <ClCompile Include="src\Kaiga\Textures\TextureSquare.cpp" />
     <ClCompile Include="src\Kaiga\Util\GLErrorUtil.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Debug\GPass.i" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

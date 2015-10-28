@@ -1,10 +1,11 @@
 #include "OrbitCamera.h"
 
-#include <Kaiga/Components/Transform.h>
-#include <Kaiga/Renderers/DefaultRenderer.h>
+#include <glm.h>
+
 #include <Ramen/Core/IInputManager.h>
 
-#include <glm.h>
+#include <Kaiga/Components/Transform.h>
+#include <Kaiga/Renderers/DefaultRenderer.h>
 
 namespace Kaiga
 {
@@ -37,7 +38,7 @@ namespace Kaiga
 		return typeid(OrbitCamera);
 	}
 
-	void OrbitCamera::BindToScene(Scene * const _scene)
+	void OrbitCamera::BindToScene(Ramen::Scene * const _scene)
 	{
 		m_scene = _scene;
 
@@ -46,7 +47,7 @@ namespace Kaiga
 		inputManager->OnMouseButtonRelease += OnMouseButtonReleaseDelegate;
 	}
 
-	void OrbitCamera::UnbindFromScene(Scene * const _scene)
+	void OrbitCamera::UnbindFromScene(Ramen::Scene * const _scene)
 	{
 		Ramen::IInputManager* inputManager = m_scene->GetInputManager();
 		inputManager->OnMouseButtonPress -= OnMouseButtonPressDelegate;

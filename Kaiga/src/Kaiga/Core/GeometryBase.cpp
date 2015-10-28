@@ -1,5 +1,7 @@
 #include "GeometryBase.h"
 
+#include <Kaiga\Util\GLErrorUtil.h>
+
 Kaiga::GeometryBase::GeometryBase()
 {
 	m_vertexBuffers = new GLuint[s_maxVertexBuffers];

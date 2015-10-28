@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include <Kaiga\Util\GLErrorUtil.h>
+
 // STATIC
 unsigned long Kaiga::ShaderStageBase::GetFileLength
 (

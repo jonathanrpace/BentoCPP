@@ -1,7 +1,9 @@
 #pragma once
 
-#include <ramen.h>
-#include <kaiga.h>
+#include <typeinfo>
+
+#include <Ramen\Core\SharedObject.h>
+#include <Kaiga\Core\ILens.h>
 
 namespace Kaiga
 {

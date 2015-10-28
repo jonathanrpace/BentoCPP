@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Kaiga/Core/ShaderBase.h>
 #include <Kaiga/ShaderStages/ScreenQuadVert.h>
 #include <Kaiga/ShaderStages/RectTextureFrag.h>
-#include <Kaiga/Core/ShaderBase.h>
 #include <Kaiga/Geometry/ScreenQuadGeometry.h>
 #include <Kaiga/Textures/RectangleTexture.h>
 

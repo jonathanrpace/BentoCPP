@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kaiga.h>
+#include <Kaiga\Util\GLErrorUtil.h>
 
 namespace Kaiga
 {

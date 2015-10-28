@@ -1,11 +1,13 @@
 #pragma once
 
-#include <vector>
 #include <typeinfo>
 
 #include <glew.h>
-#include <kaiga.h>
-#include <ramen.h>
+
+#include <Ramen\Core\AbstractValidatable.h>
+
+#include <Kaiga\Core\IGeometry.h>
+
 
 namespace Kaiga
 {

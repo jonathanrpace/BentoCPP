@@ -5,10 +5,12 @@
 
 // 3rd party
 #include <GLM/glm.hpp>
+#include <event.h>
 
-// bento
-#include <ramen.h>
-#include <kaiga.h>
+// ramen
+#include <Ramen/Core/Scene.h>
+#include <Ramen/Core/IProcess.h>
+#include <Ramen/Core/SharedObject.h>
 
 namespace Kaiga
 {
@@ -22,8 +24,8 @@ namespace Kaiga
 		virtual const std::type_info& typeInfo() override;
 
 		// from IProcess
-		virtual void BindToScene(Scene * const _scene) override;
-		virtual void UnbindFromScene(Scene * const _scene) override;
+		virtual void BindToScene(Ramen::Scene * const _scene) override;
+		virtual void UnbindFromScene(Ramen::Scene * const _scene) override;
 		virtual void Update(double dt) override;
 
 		float Dolly() const { return m_dolly; }
@@ -62,7 +64,7 @@ namespace Kaiga
 		void ApplyEase();
 		void UpdateMatrix();
 
-		Scene* m_scene;
+		Ramen::Scene* m_scene;
 
 		float m_dolly;
 		float m_dollyTarget;

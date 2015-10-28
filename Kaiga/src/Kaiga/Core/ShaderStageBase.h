@@ -10,11 +10,12 @@
 
 #include <Kaiga/Textures/RectangleTexture.h>
 #include <Kaiga/Textures/TextureSquare.h>
+#include <Kaiga/Core/RenderParams.h>
 
 namespace Kaiga
 {
-	class ShaderStageBase :
-		public Ramen::AbstractValidatable
+	class ShaderStageBase 
+		: public Ramen::AbstractValidatable
 	{
 		// STATIC 
 	private:
@@ -22,8 +23,9 @@ namespace Kaiga
 		static int LoadShader(char* _filename, GLchar** o_ShaderSource, unsigned long* o_len);
 		static void UnloadShader(GLchar** ShaderSource);
 		// ~STATIC
+
 	public:
-		ShaderStageBase( char* _filename );
+		ShaderStageBase(char* _filename);
 		~ShaderStageBase();
 
 		void SetPipelineName(GLuint _pipelineName);
@@ -31,7 +33,6 @@ namespace Kaiga
 		void BindPerPass();
 		
 	protected:
-
 		void Validate();
 		void OnInvalidate();
 

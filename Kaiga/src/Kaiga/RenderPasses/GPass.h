@@ -6,8 +6,8 @@
 #include <Kaiga/Core/ShaderBase.h>
 #include <Kaiga/Core/ShaderStageBase.h>
 #include <Kaiga/Core/GeometryBase.h>
-#include <Kaiga/Materials/StandardMaterial.h>
 #include <Kaiga/Components/Transform.h>
+#include <Kaiga/Materials/StandardMaterial.h>
 
 namespace Kaiga
 {

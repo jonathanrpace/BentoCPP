@@ -65,7 +65,7 @@ namespace Kaiga
 		};
 		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 
-		GL_CHECK(glClearColor(0.0f, 1.0f, 0.0f, 0.0f));
+		GL_CHECK(glClearColor(0.0f, 0.0f, 0.0f, 0.0f));
 		GL_CHECK(glClearDepth(1.0f));
 		GL_CHECK(glClearStencil(0));
 		GL_CHECK(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));

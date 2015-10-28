@@ -4,6 +4,8 @@
 #include <glew.h>
 #include <assert.h>
 
+#include <Kaiga\Util\GLErrorUtil.h>
+
 namespace Kaiga
 {
 	PlaneGeometry::PlaneGeometry() :

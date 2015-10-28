@@ -11,6 +11,7 @@ void Ramen::AbstractValidatable::Invalidate()
 	if (m_isInvalid)
 		return;
 	m_isInvalid = true;
+	OnInvalidate();
 }
 
 void Ramen::AbstractValidatable::ValidateNow()
