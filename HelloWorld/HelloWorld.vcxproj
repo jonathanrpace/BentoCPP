@@ -20,11 +20,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\RenderPasses\IMGUIRenderPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\glew.h" />
     <ClInclude Include="Dependencies\GLEW\include\glxew.h" />
     <ClInclude Include="Dependencies\GLEW\include\wglew.h" />
+    <ClInclude Include="src\RenderPasses\IMGUIRenderPass.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bin\Win32\Debug\shaders\G.frag" />

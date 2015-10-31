@@ -20,6 +20,7 @@ namespace Kaiga
 		AddRenderPhase(eRenderPhase_DirectLight);
 		AddRenderPhase(eRenderPhase_IndirectLight);
 		AddRenderPhase(eRenderPhase_PostLight);
+		AddRenderPhase(eRenderPhase_UI);
 	}
 
 	DefaultRenderer::~DefaultRenderer()
@@ -120,10 +121,11 @@ namespace Kaiga
 		glDepthMask(GL_TRUE);
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
-
 		//GL.Enable( EnableCap.FramebufferSrgb );
-
 		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.PositionTexture());
+
+		// UI-Pass
+		RenderPassesInPhase(eRenderPhase_UI);
 	}
 
 	void DefaultRenderer::AddRenderPass(RenderPassPtr _renderPass)
