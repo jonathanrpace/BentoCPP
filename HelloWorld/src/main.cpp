@@ -29,6 +29,7 @@
 
 // Local 
 #include "RenderPasses/IMGUIRenderPass.h"
+#include "Processes/InspectorUIProcess.h"
 
 void mainLoop(GLFWwindow* window)
 {
@@ -42,19 +43,22 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(geom, entity);
 		auto transform = Kaiga::Transform::Create();
 		scene.AddComponentToEntity(transform, entity);
-		auto material = Kaiga::TerrainMaterial::Create();
+		auto material = Kaiga::StandardMaterial::Create();
 		scene.AddComponentToEntity(material, entity);
 	}
+
+	// Processes
+	scene.AddProcess(Kaiga::OrbitCamera::Create());
+	scene.AddProcess(InspectorUIProcess::Create());
 	
 	auto renderer = Kaiga::DefaultRenderer::Create();
+	// Render passes
+	{
+		renderer->AddRenderPass(Kaiga::GPass::Create());
+		renderer->AddRenderPass(Kaiga::TerrainGPass::Create());
+		renderer->AddRenderPass(IMGUIRenderPass::Create());
+	}
 	scene.AddProcess(renderer);
-	renderer->AddRenderPass(Kaiga::GPass::Create());
-	renderer->AddRenderPass(Kaiga::TerrainGPass::Create());
-
-	renderer->AddRenderPass(IMGUIRenderPass::Create());
-	
-	auto orbitCamera = Kaiga::OrbitCamera::Create();
-	scene.AddProcess(orbitCamera);
 
 	/* Loop until the user closes the window */
 	

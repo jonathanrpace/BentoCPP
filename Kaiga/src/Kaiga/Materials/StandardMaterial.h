@@ -6,14 +6,17 @@
 // 3rd party
 #include <glm.h>
 
-// bento
-#include <ramen.h>
+// ramen
+#include <Ramen/Core/IComponent.h>
+#include <Ramen/Core/SharedObject.h>
+#include <Ramen/Reflection.h>
 
 namespace Kaiga
 {
 	class StandardMaterial 
 		: public Ramen::IComponent
 		, public Ramen::SharedObject<StandardMaterial>
+		, public Ramen::Reflectable
 	{
 	public:
 		StandardMaterial();
@@ -38,5 +41,7 @@ namespace Kaiga
 		float m_roughness;
 		float m_emissive;
 		vec3 m_diffuse;
+
+		DEFINE_REFLECTION_INFO_1(StandardMaterial, float, m_reflectivity);
 	};
 }
