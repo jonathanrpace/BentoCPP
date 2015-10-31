@@ -7,8 +7,9 @@
 #include <iostream>
 
 #include <glew.h>
-#include <glfw3.h>
+#include <GLFW/glfw3.h>
 #include <glm.h>
+#include "imgui/imgui_impl_glfw_gl3.cpp"
 
 // Ramen
 #include <Ramen/Core/InputManagerImpl.h>
@@ -24,6 +25,8 @@
 #include <Kaiga/RenderPasses/GPass.h>
 #include <Kaiga/RenderPasses/TerrainGPass.h>
 #include <Kaiga/Processes/OrbitCamera.h>
+
+#include <Kaiga/Util/GLErrorUtil.h>
 
 void mainLoop(GLFWwindow* window)
 {
@@ -50,15 +53,38 @@ void mainLoop(GLFWwindow* window)
 	scene.AddProcess(orbitCamera);
 
 	/* Loop until the user closes the window */
+	bool show_test_window = true;
+	bool show_another_window = false;
+	ImVec4 clear_color = ImColor(114, 144, 154);
 	while (!glfwWindowShouldClose(window))
 	{
-		scene.Update(1.0);
-
-		/* Swap front and back buffers */
-		glfwSwapBuffers(window);
-
 		/* Poll for and process events */
 		glfwPollEvents();
+
+		scene.Update(1.0);
+		
+		ImGui_ImplGlfwGL3_NewFrame();
+		// 1. Show a simple window
+		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+		{
+			static float f = 0.0f;
+			ImGui::Text("Hello, world!");
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+			ImGui::ColorEdit3("clear color", (float*)&clear_color);
+			if (ImGui::Button("Test Window")) show_test_window ^= 1;
+			if (ImGui::Button("Another Window")) show_another_window ^= 1;
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		}
+
+		// UI Render
+		int display_w, display_h;
+		glfwGetFramebufferSize(window, &display_w, &display_h);
+		glViewport(0, 0, display_w, display_h);
+		ImGui::Render();
+		GL_CHECK(;);
+		
+		/* Swap front and back buffers */
+		glfwSwapBuffers(window);
 	}
 }
 
@@ -93,8 +119,11 @@ int main(int argc, char **argv)
 		glfwTerminate();
 		return -1;
 	}
-	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
+
+	// Setup ImGui binding
+	ImGui_ImplGlfwGL3_Init(window, true);
+
 	glewExperimental = GL_TRUE;
 	if ( glewInit() != GLEW_OK )
 	{
@@ -114,6 +143,7 @@ int main(int argc, char **argv)
 	
 	mainLoop(window);
 
+	ImGui_ImplGlfwGL3_Shutdown();
 	glfwTerminate();
 
 	if (_CrtDumpMemoryLeaks() != 0)
