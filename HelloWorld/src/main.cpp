@@ -9,53 +9,50 @@
 #include <glew.h>
 #include <GLFW/glfw3.h>
 #include <glm.h>
-#include "imgui/imgui_impl_glfw_gl3.cpp"
 
-// Ramen
-#include <Ramen/Core/InputManagerImpl.h>
-#include <Ramen/Core/WindowImpl.h>
-
-// Kaiga
-#include <Kaiga/Renderers/DefaultRenderer.h>
-#include <Kaiga/Components/Transform.h>
-#include <Kaiga/Materials/TerrainMaterial.h>
-#include <Kaiga/Geometry/ScreenQuadGeometry.h>
-#include <Kaiga/Geometry/TerrainGeometry.h>
-#include <Kaiga/Geometry/PlaneGeometry.h>
-#include <Kaiga/RenderPasses/GPass.h>
-#include <Kaiga/RenderPasses/TerrainGPass.h>
-#include <Kaiga/Processes/OrbitCamera.h>
-#include <Kaiga/Util/GLErrorUtil.h>
+// Bento
+#include <bento/core/InputManagerImpl.h>
+#include <bento/core/WindowImpl.h>
+#include <bento/renderers/DefaultRenderer.h>
+#include <bento/Components/Transform.h>
+#include <bento/materials/TerrainMaterial.h>
+#include <bento/geom/ScreenQuadGeometry.h>
+#include <bento/geom/TerrainGeometry.h>
+#include <bento/geom/PlaneGeometry.h>
+#include <bento/renderPasses/GPass.h>
+#include <bento/renderPasses/TerrainGPass.h>
+#include <bento/processes/OrbitCamera.h>
+#include <bento/util/GLErrorUtil.h>
 
 // Local 
 #include "RenderPasses/IMGUIRenderPass.h"
 #include "Processes/InspectorUIProcess.h"
+#include "imgui/imgui_impl_glfw_gl3.cpp"
 
 void mainLoop(GLFWwindow* window)
 {
-	auto inputManager = new Ramen::InputManagerImpl(window);
-	auto ramenWindow = new Ramen::WindowImpl(window);
-	Ramen::Scene scene(inputManager, ramenWindow);
-	
+	auto inputManager = new bento::InputManagerImpl(window);
+	auto bentoWindow = new bento::WindowImpl(window);
+	bento::Scene scene(inputManager, bentoWindow);
 	{
 		int entity = scene.CreateEntity();
-		auto geom = Kaiga::TerrainGeometry::Create();
+		auto geom = bento::TerrainGeometry::Create();
 		scene.AddComponentToEntity(geom, entity);
-		auto transform = Kaiga::Transform::Create();
+		auto transform = bento::Transform::Create();
 		scene.AddComponentToEntity(transform, entity);
-		auto material = Kaiga::StandardMaterial::Create();
+		auto material = bento::StandardMaterial::Create();
 		scene.AddComponentToEntity(material, entity);
 	}
 
 	// Processes
-	scene.AddProcess(Kaiga::OrbitCamera::Create());
+	scene.AddProcess(bento::OrbitCamera::Create());
 	scene.AddProcess(InspectorUIProcess::Create());
 	
-	auto renderer = Kaiga::DefaultRenderer::Create();
+	auto renderer = bento::DefaultRenderer::Create();
 	// Render passes
 	{
-		renderer->AddRenderPass(Kaiga::GPass::Create());
-		renderer->AddRenderPass(Kaiga::TerrainGPass::Create());
+		renderer->AddRenderPass(bento::GPass::Create());
+		renderer->AddRenderPass(bento::TerrainGPass::Create());
 		renderer->AddRenderPass(IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);
@@ -124,7 +121,7 @@ int main(int argc, char **argv)
 	// glfw is generating some gl errors and not checking for them
 	while (glGetError() != GL_NONE) {}
 
-	Ramen::ResourcePath("../../../../Resources/");
+	bento::Config::ResourcePath("../../../../Resources/");
 	
 	mainLoop(window);
 

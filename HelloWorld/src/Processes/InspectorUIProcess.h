@@ -4,21 +4,21 @@
 
 #include <imgui.h>
 
-#include <Ramen/Core/Scene.h>
-#include <Ramen/Core/IProcess.h>
-#include <Ramen/Core/SharedObject.h>
+#include <bento/core/Scene.h>
+#include <bento/core/IProcess.h>
+#include <bento/core/SharedObject.h>
 
 class InspectorUIProcess
-	: public Ramen::IProcess
-	, public Ramen::SharedObject<InspectorUIProcess>
+	: public bento::IProcess
+	, public bento::SharedObject<InspectorUIProcess>
 {
 public:
 	// Inherited via IProcess
 	virtual const std::type_info & typeInfo() override;
-	virtual void BindToScene(Ramen::Scene * const _scene) override;
-	virtual void UnbindFromScene(Ramen::Scene * const _scene) override;
+	virtual void BindToScene(bento::Scene * const _scene) override;
+	virtual void UnbindFromScene(bento::Scene * const _scene) override;
 	virtual void Update(double dt) override;
 
 private:
-	Ramen::Scene* m_scene;
+	bento::Scene* m_scene;
 };

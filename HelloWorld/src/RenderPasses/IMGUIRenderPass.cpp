@@ -3,14 +3,14 @@
 #include <glew.h>
 #include <imgui.h>
 
-#include <Kaiga/Util/GLErrorUtil.h>
+#include <bento/util/GLErrorUtil.h>
 
-void IMGUIRenderPass::BindToScene(Ramen::Scene & _scene)
+void IMGUIRenderPass::BindToScene(bento::Scene & _scene)
 {
 	m_scene = &_scene;
 }
 
-void IMGUIRenderPass::UnbindFromScene(Ramen::Scene & _scene)
+void IMGUIRenderPass::UnbindFromScene(bento::Scene & _scene)
 {
 	m_scene = nullptr;
 }
@@ -35,13 +35,13 @@ void IMGUIRenderPass::Render()
 		ImGui::End();
 	}
 	*/
-	vec2 windowSize = m_scene->GetWindow()->GetWindowSize();
+	ivec2 windowSize = m_scene->GetWindow()->GetWindowSize();
 	glViewport(0, 0, windowSize.x, windowSize.y);
 	ImGui::Render();
 	GL_CHECK(;);
 }
 
-Kaiga::RenderPhase IMGUIRenderPass::GetRenderPhase()
+bento::RenderPhase IMGUIRenderPass::GetRenderPhase()
 {
-	return Kaiga::RenderPhase::eRenderPhase_UI;
+	return bento::RenderPhase::eRenderPhase_UI;
 }

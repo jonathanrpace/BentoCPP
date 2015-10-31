@@ -20,12 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Processes\InspectorUIProcess.cpp" />
     <ClCompile Include="src\RenderPasses\IMGUIRenderPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLEW\include\glew.h" />
     <ClInclude Include="Dependencies\GLEW\include\glxew.h" />
     <ClInclude Include="Dependencies\GLEW\include\wglew.h" />
+    <ClInclude Include="src\Processes\InspectorUIProcess.h" />
     <ClInclude Include="src\RenderPasses\IMGUIRenderPass.h" />
   </ItemGroup>
   <ItemGroup>
@@ -76,7 +78,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src;$(SolutionDir)Kaiga\src;$(SolutionDir)IMGUI\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -84,7 +86,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Ramen\src;$(SolutionDir)Kaiga\src;$(SolutionDir)IMGUI\</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -102,9 +104,9 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)GLEW\;$(SolutionDir)GLFW\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Ramen\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Kaiga\bin\$(Platform)\$(Configuration)\;$(SolutionDir)IMGUI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)GLEW\;$(SolutionDir)GLFW\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Bento\bin\$(Platform)\$(Configuration)\;$(SolutionDir)IMGUI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;GLFW.lib;IMGUI.lib;Ramen.lib;Kaiga.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;GLFW.lib;IMGUI.lib;Bento.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -141,9 +143,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)GLEW\;$(SolutionDir)GLFW\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Ramen\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Kaiga\bin\$(Platform)\$(Configuration)\;$(SolutionDir)IMGUI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)GLEW\;$(SolutionDir)GLFW\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Bento\bin\$(Platform)\$(Configuration)\;$(SolutionDir)IMGUI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;GLFW.lib;IMGUI.lib;Ramen.lib;Kaiga.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glew32s.lib;GLFW.lib;IMGUI.lib;Bento.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
