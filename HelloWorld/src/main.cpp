@@ -8,9 +8,10 @@
 
 #include <glew.h>
 #include <GLFW/glfw3.h>
-#include <glm.h>
 
 // Bento
+#include <bento.h>
+#include <bento/Core/Entity.h>
 #include <bento/core/InputManagerImpl.h>
 #include <bento/core/WindowImpl.h>
 #include <bento/renderers/DefaultRenderer.h>
@@ -35,7 +36,9 @@ void mainLoop(GLFWwindow* window)
 	auto bentoWindow = new bento::WindowImpl(window);
 	bento::Scene scene(inputManager, bentoWindow);
 	{
-		int entity = scene.CreateEntity();
+		auto entity = bento::Entity::Create();
+		entity->Name("Terrain");
+		scene.AddEntity(entity);
 		auto geom = bento::TerrainGeometry::Create();
 		scene.AddComponentToEntity(geom, entity);
 		auto transform = bento::Transform::Create();

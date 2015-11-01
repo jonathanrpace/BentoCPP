@@ -6,6 +6,7 @@
 #include <utility>  // make_pair()
 
 #include <bento/core/Scene.h>
+#include <bento/core/Entity.h>
 #include <bento/core/INode.h>
 
 namespace bento
@@ -22,17 +23,17 @@ namespace bento
 		NodeList m_nodes;
 		Scene* m_scene;
 		int m_numNodeMembers;
-		std::map<Entity, T*> m_entityToNodeMap;
+		std::map<int, T*> m_entityToNodeMap;
 
 		// Events / Delegates
-		DEFINE_EVENT_HANDLER_1(NodeGroup<T>, OnEntityAdded, Entity, entity);
-		DEFINE_EVENT_HANDLER_1(NodeGroup<T>, OnEntityRemoved, Entity, entity);
-		DEFINE_EVENT_HANDLER_2(NodeGroup<T>, OnComponentAddedToEntity, Entity, entity, ComponentPtr, component);
-		DEFINE_EVENT_HANDLER_2(NodeGroup<T>, OnComponentRemovedFromEntity, Entity, entity, ComponentPtr, component);
+		DEFINE_EVENT_HANDLER_1(NodeGroup<T>, OnEntityAdded, EntityPtr, entity);
+		DEFINE_EVENT_HANDLER_1(NodeGroup<T>, OnEntityRemoved, EntityPtr, entity);
+		DEFINE_EVENT_HANDLER_2(NodeGroup<T>, OnComponentAddedToEntity, EntityPtr, entity, ComponentPtr, component);
+		DEFINE_EVENT_HANDLER_2(NodeGroup<T>, OnComponentRemovedFromEntity, EntityPtr, entity, ComponentPtr, component);
 
 		// Functions
-		void AddIfMatch(Entity entity);
-		void RemoveIfMatch(Entity entity);
+		void AddIfMatch(EntityPtr entity);
+		void RemoveIfMatch(EntityPtr entity);
 
 	public:
 		

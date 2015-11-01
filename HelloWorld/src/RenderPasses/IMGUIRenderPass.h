@@ -1,11 +1,8 @@
 #pragma once
 
 #include <bento/core/SharedObject.h>
-
 #include <bento/core/IRenderPass.h>
 #include <bento/core/RenderPhase.h.>
-
-#include <glm.h>
 
 class IMGUIRenderPass
 	: public bento::IRenderPass

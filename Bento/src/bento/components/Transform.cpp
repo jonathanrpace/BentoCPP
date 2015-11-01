@@ -2,7 +2,13 @@
 
 namespace bento
 {
-	const std::type_info & Transform::typeInfo()
+	Transform::Transform(std::string _name)
+		: Component(_name)
+	{
+
+	}
+
+	const std::type_info & Transform::TypeInfo()
 	{
 		return typeid(Transform);
 	}

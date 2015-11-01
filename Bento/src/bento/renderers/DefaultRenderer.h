@@ -1,12 +1,10 @@
 #pragma once
 
 // std
-#include <vector>
 #include <map>
-#include <memory>
-#include <typeinfo>
 
 // bento
+#include <bento.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/IRenderer.h>
 #include <bento/core/IRenderPass.h>
@@ -16,12 +14,12 @@
 
 namespace bento
 {
-	class DefaultRenderer : 
-		public IRenderer,
-		public bento::SharedObject<DefaultRenderer>
+	class DefaultRenderer 
+		: public IRenderer
+		, public bento::SharedObject<DefaultRenderer>
 	{
 	public:
-		DefaultRenderer();
+		DefaultRenderer(std::string _name = "DefaultRenderer");
 		~DefaultRenderer();
 
 		// IRenderer
@@ -32,9 +30,9 @@ namespace bento
 		virtual void RemoveRenderPass(RenderPassPtr) override;
 
 		// ISceneObejct
-		virtual const std::type_info & typeInfo() override;
+		virtual const std::type_info & TypeInfo() override;
 
-		bento::Entity GetCamera() { return m_camera;  }
+		EntityPtr GetCamera() { return m_camera; }
 
 	private:
 		// Types
@@ -46,9 +44,9 @@ namespace bento
 		void RenderPassesInPhase(RenderPhase _renderPhase);
 
 		// Member variables
-		bento::Scene * m_scene;
+		Scene * m_scene;
 		RenderPassByPhaseMap m_renderPassesByPhase;
-		bento::Entity m_camera;
+		EntityPtr m_camera;
 		DeferredRenderTarget m_deferredRenderTarget;
 		RectTextureToScreenShader m_rectTextureToScreenShader;
 	};

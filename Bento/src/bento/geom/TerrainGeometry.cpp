@@ -6,8 +6,9 @@
 
 namespace bento
 {
-	TerrainGeometry::TerrainGeometry()
-		: m_size(1.0f)
+	TerrainGeometry::TerrainGeometry(std::string _name)
+		: GeometryBase(_name)
+		, m_size(1.0f)
 		, m_numVerticesPerDimension(64)
 		, m_texture0A()
 		, m_texture0B()
@@ -159,7 +160,7 @@ namespace bento
 		GeometryBase::OnInvalidate();
 	}
 
-	const std::type_info & TerrainGeometry::typeInfo()
+	const std::type_info & TerrainGeometry::TypeInfo()
 	{
 		return typeid(TerrainGeometry);
 	}

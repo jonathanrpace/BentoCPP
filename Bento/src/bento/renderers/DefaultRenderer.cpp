@@ -13,8 +13,9 @@ namespace bento
 	//////////////////////////////////////////////////////////////////////////
 	// PUBLIC
 	//////////////////////////////////////////////////////////////////////////
-	DefaultRenderer::DefaultRenderer()
-		: m_scene(NULL)
+	DefaultRenderer::DefaultRenderer(std::string _name)
+		: IRenderer(_name)
+		, m_scene(NULL)
 	{
 		AddRenderPhase(eRenderPhase_G);
 		AddRenderPhase(eRenderPhase_DirectLight);
@@ -42,7 +43,7 @@ namespace bento
 		m_scene = NULL;
 	}
 
-	const std::type_info & DefaultRenderer::typeInfo()
+	const std::type_info & DefaultRenderer::TypeInfo()
 	{
 		return typeid(DefaultRenderer);
 	}
@@ -53,7 +54,10 @@ namespace bento
 
 		m_scene = _scene;
 
-		m_camera = m_scene->CreateEntity();
+		m_camera = Entity::Create();
+		m_camera->Name("Camera");
+		m_scene->AddEntity(m_camera);
+		
 		auto lens = PerspectiveLens::Create();
 		auto transform = Transform::Create();
 		m_scene->AddComponentToEntity(lens, m_camera);
@@ -73,7 +77,8 @@ namespace bento
 	{
 		assert(m_scene != NULL);
 
-		m_scene->DestroyEntity(m_camera);
+		m_scene->RemoveEntity(m_camera);
+		m_camera.reset();
 
 		for (auto iter : m_renderPassesByPhase)
 		{

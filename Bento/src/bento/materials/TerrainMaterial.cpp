@@ -2,12 +2,13 @@
 
 namespace bento
 {
-	TerrainMaterial::TerrainMaterial()
+	TerrainMaterial::TerrainMaterial(std::string _name)
+		: Component(_name)
 	{
 
 	}
 
-	const std::type_info & TerrainMaterial::typeInfo()
+	const std::type_info & TerrainMaterial::TypeInfo()
 	{
 		return typeid(TerrainMaterial);
 	}

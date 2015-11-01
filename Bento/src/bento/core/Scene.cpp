@@ -6,13 +6,11 @@ namespace bento
 	(
 		IInputManager* _inputManager,
 		IWindow* _window
-	) :
-		m_inputManager(_inputManager),
-		m_window(_window),
-		m_entities(),
-		m_processes(),
-		m_entityPool(),
-		m_maxEntityID(0)
+	) 
+		: m_inputManager(_inputManager)
+		, m_window(_window)
+		, m_entities()
+		, m_processes()
 	{
 		
 	}
@@ -21,7 +19,7 @@ namespace bento
 	{
 		while (m_entities.size() > 0)
 		{
-			DestroyEntity(m_entities[0]);
+			RemoveEntity(m_entities[0]);
 		}
 
 		delete m_inputManager;
@@ -38,51 +36,39 @@ namespace bento
 		return m_window;
 	}
 
-	Entity Scene::CreateEntity()
+	EntityPtr Scene::AddEntity(EntityPtr _entity)
 	{
-		Entity entity;
-		if (m_entityPool.size() > 0)
-		{
-			entity = m_entityPool.top();
-			m_entityPool.pop();
-		}
-		else
-		{
-			entity = m_maxEntityID++;
-		}
-
-		auto components = new ComponentList();
-		m_entityToComponentMap[entity] = components;
-
-		m_entities.push_back(entity);
-
-		TRIGGER_EVENT(EntityAdded, entity);
-
-		return entity;
+		m_entityToComponentMap[_entity->ID()] = new ComponentList();
+		m_entities.push_back(_entity);
+		TRIGGER_EVENT(EntityAdded, _entity);
+		return _entity;
 	}
 
-	void Scene::DestroyEntity(Entity _entity)
+	EntityPtr Scene::RemoveEntity(EntityPtr _entity)
 	{
-		assert(DoesEntityExist(_entity));
+		assert(EntityIsInScene(_entity));
 
 		TRIGGER_EVENT(EntityRemoved, _entity);
 
-		auto components = m_entityToComponentMap[_entity];
+		auto components = m_entityToComponentMap[_entity->ID()];
 		delete components;
-		m_entityToComponentMap[_entity] = nullptr;
+		m_entityToComponentMap[_entity->ID()] = nullptr;
 		
 		m_entities.erase(find(m_entities.begin(), m_entities.end(), _entity));
+
+		return _entity;
 	}
 
-	void Scene::AddComponentToEntity(ComponentPtr _component, Entity _entity)
+	void Scene::AddComponentToEntity(ComponentPtr _component, EntityPtr _entity)
 	{
-		auto components = m_entityToComponentMap[_entity];
+		auto components = m_entityToComponentMap[_entity->ID()];
+		assert(components);
 		components->push_back(_component);
 
 		TRIGGER_EVENT(ComponentAddedToEntity, _entity, _component);
 	}
 
-	void Scene::RemoveComponentFromEntity(ComponentPtr _component, Entity _entity)
+	void Scene::RemoveComponentFromEntity(ComponentPtr _component, EntityPtr _entity)
 	{
 		ComponentList components = GetComponentsForEntity(_entity);
 		auto iter = std::find(components.begin(), components.end(), _component);
@@ -92,18 +78,18 @@ namespace bento
 		TRIGGER_EVENT(ComponentRemovedFromEntity, _entity, _component);
 	}
 
-	bool Scene::DoesEntityExist(Entity _entity)
+	bool Scene::EntityIsInScene(EntityPtr _entity)
 	{
-		return m_entityToComponentMap[_entity] != nullptr;
+		return m_entityToComponentMap[_entity->ID()] != nullptr;
 	}
 
-	bool Scene::EntityHasComponentOfType(Entity _entity, const type_info & _type)
+	bool Scene::EntityHasComponentOfType(EntityPtr _entity, const type_info & _type)
 	{
 		ComponentList componentsForThisEntity =	GetComponentsForEntity(_entity);
 
 		for (ComponentPtr componentPtr : componentsForThisEntity)
 		{
-			const std::type_info& componentType = componentPtr->typeInfo();
+			const std::type_info& componentType = componentPtr->TypeInfo();
 
 			if (componentType == _type)
 			{
@@ -136,9 +122,9 @@ namespace bento
 		}
 	}
 
-	ComponentList const & Scene::GetComponentsForEntity(Entity _entity)
+	ComponentList const & Scene::GetComponentsForEntity(EntityPtr _entity)
 	{
-		return *m_entityToComponentMap[_entity];
+		return *m_entityToComponentMap[_entity->ID()];
 	}
 
 	EntityList const & Scene::Entities()

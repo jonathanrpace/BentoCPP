@@ -1,25 +1,18 @@
 #pragma once
 
-// std
-#include <assert.h>
-#include <vector>
-#include <stack>
-#include <memory>
-
 // bento
+#include <bento.h>
 #include <event.h>
 #include <bento/core/IInputManager.h>
 #include <bento/core/IWindow.h>
-#include <bento/core/IComponent.h>
+#include <bento/core/Component.h>
+#include <bento/core/Entity.h>
 #include <bento/core/IProcess.h>
 
 namespace bento
 {
-	typedef int Entity;
-	typedef std::shared_ptr<IComponent>	ComponentPtr;
-	typedef std::shared_ptr<IProcess>	ProcessPtr;
 	typedef std::vector<ComponentPtr>	ComponentList;
-	typedef std::vector<Entity>			EntityList;
+	typedef std::vector<EntityPtr>		EntityList;
 	typedef std::vector<ProcessPtr>		ProcessList;
 
 	class Scene
@@ -31,20 +24,20 @@ namespace bento
 		// Methods
 		IInputManager* GetInputManager();
 		IWindow* GetWindow();
-		Entity CreateEntity();
-		void DestroyEntity(Entity _entity);
-		void AddComponentToEntity(ComponentPtr _component, Entity _entity);
-		void RemoveComponentFromEntity(ComponentPtr _component, Entity _entity);
-		bool DoesEntityExist(Entity _entity);
-		bool EntityHasComponentOfType(Entity _entity, const type_info& _typeInfo);
+		EntityPtr AddEntity(EntityPtr _entity);
+		EntityPtr RemoveEntity(EntityPtr _entity);
+		void AddComponentToEntity(ComponentPtr _component, EntityPtr _entity);
+		void RemoveComponentFromEntity(ComponentPtr _component, EntityPtr _entity);
+		bool EntityIsInScene(EntityPtr _entity);
+		bool EntityHasComponentOfType(EntityPtr _entity, const type_info& _typeInfo);
 		void AddProcess(ProcessPtr _process);
 		void RemoveProcess(ProcessPtr _process);
 		void Update(double _dt);
-		ComponentList const & GetComponentsForEntity(Entity _entity);
+		ComponentList const & GetComponentsForEntity(EntityPtr _entity);
 		EntityList const & Entities();
 
 		template<typename T>
-		std::shared_ptr<T> GetComponentForEntity(Entity _entity)
+		std::shared_ptr<T> GetComponentForEntity(EntityPtr _entity)
 		{
 			ComponentList componentsForThisEntity = GetComponentsForEntity(_entity);
 
@@ -52,7 +45,7 @@ namespace bento
 
 			for (ComponentPtr componentPtr : componentsForThisEntity)
 			{
-				const std::type_info& componentType = componentPtr->typeInfo();
+				const std::type_info& componentType = componentPtr->TypeInfo();
 
 				if (componentType == wantedType)
 				{
@@ -70,7 +63,7 @@ namespace bento
 
 			for (ProcessPtr processPtr : m_processes)
 			{
-				const std::type_info& processType = processPtr->typeInfo();
+				const std::type_info& processType = processPtr->TypeInfo();
 
 				if (processType == wantedType)
 				{
@@ -82,10 +75,10 @@ namespace bento
 		}
 
 		// Events
-		DECLARE_EVENT(void, Entity) EntityAdded;
-		DECLARE_EVENT(void, Entity) EntityRemoved;
-		DECLARE_EVENT(void, Entity, ComponentPtr) ComponentAddedToEntity;
-		DECLARE_EVENT(void, Entity, ComponentPtr) ComponentRemovedFromEntity;	
+		DECLARE_EVENT(void, EntityPtr) EntityAdded;
+		DECLARE_EVENT(void, EntityPtr) EntityRemoved;
+		DECLARE_EVENT(void, EntityPtr, ComponentPtr) ComponentAddedToEntity;
+		DECLARE_EVENT(void, EntityPtr, ComponentPtr) ComponentRemovedFromEntity;
 
 	private:
 		IInputManager* m_inputManager;
@@ -93,7 +86,5 @@ namespace bento
 		EntityList m_entities;
 		ProcessList m_processes;
 		ComponentList* m_entityToComponentMap[4096];
-		std::stack<Entity> m_entityPool;
-		int m_maxEntityID;
 	};
 }

@@ -6,13 +6,14 @@
 
 namespace bento
 {
-	PerspectiveLens::PerspectiveLens() :
-		m_aspectRatio(1.0f),
-		m_near(0.001f),
-		m_far(10.0f),
-		m_verticalFOV(45.0f * 0.0174f),
-		m_matrix(),
-		m_matrixIsInvalid(true)
+	PerspectiveLens::PerspectiveLens(std::string _name) 
+		: ILens(_name)
+		, m_aspectRatio(1.0f)
+		, m_near(0.001f)
+		, m_far(10.0f)
+		, m_verticalFOV(45.0f * 0.0174f)
+		, m_matrix()
+		, m_matrixIsInvalid(true)
 	{
 
 	}
@@ -85,7 +86,7 @@ namespace bento
 		m_matrixIsInvalid = true;
 	}
 
-	const std::type_info & PerspectiveLens::typeInfo()
+	const std::type_info & PerspectiveLens::TypeInfo()
 	{
 		return typeid(PerspectiveLens);
 	}

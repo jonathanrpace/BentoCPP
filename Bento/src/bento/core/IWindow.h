@@ -1,13 +1,12 @@
 #pragma once
 
 #include <event.h>
-#include <glm.h>
+#include <bento.h>
 
 namespace bento
 {
-	class IWindow
+	struct IWindow
 	{
-	public:
 		virtual ivec2 GetWindowSize() = 0;
 
 		// Events

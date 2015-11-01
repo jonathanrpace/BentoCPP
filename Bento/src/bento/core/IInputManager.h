@@ -1,7 +1,7 @@
 #pragma once
 
 #include <event.h>
-#include <glm.h>
+#include <bento.h>
 
 namespace bento
 {

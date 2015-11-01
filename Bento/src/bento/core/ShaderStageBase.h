@@ -2,9 +2,7 @@
 
 #include <fstream>
 
-#include <glew.h>
-#include <glm.h>
-#include <glm/gtc/type_ptr.hpp>
+#include <bento.h>
 
 #include <bento/core/AbstractValidatable.h>
 #include <bento/core/RenderParams.h>

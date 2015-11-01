@@ -2,7 +2,7 @@
 
 namespace bento
 {
-	class IRenderTarget
+	struct IRenderTarget
 	{
 		virtual void Bind() = 0;
 	};

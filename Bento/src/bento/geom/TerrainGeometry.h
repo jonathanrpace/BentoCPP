@@ -11,7 +11,7 @@ namespace bento
 		, public bento::SharedObject<TerrainGeometry>
 	{
 	public:
-		TerrainGeometry();
+		TerrainGeometry(std::string _name = "TerrainGeometry");
 		~TerrainGeometry();
 
 		TextureSquare& ReadTexture0();
@@ -22,7 +22,7 @@ namespace bento
 		TextureSquare& WriteTexture2();
 
 		// ISceneObject
-		virtual const std::type_info& typeInfo() override;
+		virtual const std::type_info& TypeInfo() override;
 
 	protected:
 		// From AbstractValidatable

@@ -10,10 +10,10 @@ namespace bento
 {
 	class GeometryBase : 
 		public IGeometry, 
-		public bento::AbstractValidatable
+		public AbstractValidatable
 	{
 	public:
-		GeometryBase();
+		GeometryBase(std::string _name = "Geometry");
 		~GeometryBase();
 		
 		// From IGeometry
@@ -21,7 +21,7 @@ namespace bento
 		virtual void Draw() override;
 
 		// ISceneObject
-		virtual const std::type_info& typeInfo() override;
+		virtual const std::type_info& TypeInfo() override;
 
 	protected:
 		// From AbstractValidatable

@@ -1,25 +1,20 @@
 #pragma once
 
-// std
-#include <typeinfo>
-
-// 3rd party
-#include <glm.h>
-
 // bento
-#include <bento/core/IComponent.h>
+#include <bento.h>
+#include <bento/core/Component.h>
 #include <bento/core/SharedObject.h>
 
 namespace bento
 {
 	class TerrainMaterial
-		: public bento::IComponent
-		, public bento::SharedObject<TerrainMaterial>
+		: public Component
+		, public SharedObject<TerrainMaterial>
 	{
 	public:
-		TerrainMaterial();
+		TerrainMaterial(std::string _name = "TerrainMaterial");
 
 		// IComponent
-		virtual const std::type_info & typeInfo() override;
+		virtual const std::type_info & TypeInfo() override;
 	};
 }

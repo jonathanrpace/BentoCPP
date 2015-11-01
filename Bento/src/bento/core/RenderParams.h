@@ -1,7 +1,6 @@
 #pragma once
 
-#include <glm.h>
-
+#include <bento.h>
 #include <bento/core/ILens.h>
 #include <bento/renderTargets/DeferredRenderTarget.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <bento/core\NodeGroup.h>
-#include <bento/core\IRenderPass.h>
+#include <bento/core/NodeGroup.h>
+#include <bento/core/IRenderPass.h>
 
 namespace bento
 {

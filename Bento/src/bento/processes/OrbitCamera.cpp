@@ -1,9 +1,6 @@
 #include "OrbitCamera.h"
 
-#include <glm.h>
-
 #include <bento/core/IInputManager.h>
-
 #include <bento/Components/Transform.h>
 #include <bento/renderers/DefaultRenderer.h>
 
@@ -13,27 +10,28 @@ namespace bento
 	// PUBLIC
 	//////////////////////////////////////////////////////////////////////////
 
-	OrbitCamera::OrbitCamera() :
-		m_mouseIsDown(false),
-		m_scene(nullptr),
-		m_dolly(2.0f),
-		m_dollyTarget(2.0f),
-		m_dollySpeed(0.1f),
-		m_dollyEase(0.1f),
-		m_dollyMin(0.1f),
-		m_dollyMax(5.0f),
-		m_position(0.0f, 0.0f, 0.0f),
-		m_positionTarget(0.0f, 0.0f, 0.0f),
-		m_positionSpeed(0.005f, 0.005f, 0.005f),
-		m_positionEase(0.2f, 0.2f, 0.2f),
-		m_rotation(0.0f, 0.0f),
-		m_rotationEase(0.2f, 0.2f),
-		m_rotationSpeed(3.0f, 3.0f)
+	OrbitCamera::OrbitCamera(std::string _name)
+		: IProcess(_name)
+		, m_mouseIsDown(false)
+		, m_scene(nullptr)
+		, m_dolly(2.0f)
+		, m_dollyTarget(2.0f)
+		, m_dollySpeed(0.1f)
+		, m_dollyEase(0.1f)
+		, m_dollyMin(0.1f)
+		, m_dollyMax(5.0f)
+		, m_position(0.0f, 0.0f, 0.0f)
+		, m_positionTarget(0.0f, 0.0f, 0.0f)
+		, m_positionSpeed(0.005f, 0.005f, 0.005f)
+		, m_positionEase(0.2f, 0.2f, 0.2f)
+		, m_rotation(0.0f, 0.0f)
+		, m_rotationEase(0.2f, 0.2f)
+		, m_rotationSpeed(3.0f, 3.0f)
 	{
 
 	}
 
-	const std::type_info & OrbitCamera::typeInfo()
+	const std::type_info & OrbitCamera::TypeInfo()
 	{
 		return typeid(OrbitCamera);
 	}
@@ -99,7 +97,7 @@ namespace bento
 		auto renderer = m_scene->GetProcess<DefaultRenderer>();
 		if (renderer)
 		{
-			bento::Entity camera = renderer->GetCamera();
+			EntityPtr camera = renderer->GetCamera();
 			auto cameraTransform = m_scene->GetComponentForEntity<Transform>(camera);
 			cameraTransform->matrix = m_matrix;
 		}

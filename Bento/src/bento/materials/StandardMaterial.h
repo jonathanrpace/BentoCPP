@@ -1,28 +1,23 @@
 #pragma once
 
-// std
-#include <typeinfo>
-
-// 3rd party
-#include <glm.h>
-
 // bento
-#include <bento/core/IComponent.h>
+#include <bento.h>
+#include <bento/core/Component.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/Reflection.h>
 
 namespace bento
 {
 	class StandardMaterial 
-		: public bento::IComponent
+		: public bento::Component
 		, public bento::SharedObject<StandardMaterial>
 		, public bento::Reflectable
 	{
 	public:
-		StandardMaterial();
+		StandardMaterial(std::string _name = "StandardMaterial");
 
 		// IComponent
-		virtual const std::type_info & typeInfo() override;
+		virtual const std::type_info & TypeInfo() override;
 
 		float Reflectivity() const;
 		void Reflectivity(float val);

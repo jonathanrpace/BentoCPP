@@ -5,9 +5,10 @@
 
 namespace bento
 {
-	class IRenderer : public bento::IProcess
+	struct IRenderer : IProcess
 	{
-	public:
+		IRenderer(std::string _name = "IRenderer");
+
 		virtual void AddRenderPass(RenderPassPtr _renderPass) = 0;
 		virtual void RemoveRenderPass(RenderPassPtr _renderPass) = 0;
 	};

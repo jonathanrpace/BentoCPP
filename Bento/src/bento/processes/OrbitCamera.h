@@ -1,13 +1,7 @@
 #pragma once
 
-// std
-#include <typeinfo>
-
-// 3rd party
-#include <GLM/glm.hpp>
-#include <event.h>
-
 // bento
+#include <bento.h>
 #include <bento/core/Scene.h>
 #include <bento/core/IProcess.h>
 #include <bento/core/SharedObject.h>
@@ -19,9 +13,9 @@ namespace bento
 		public bento::SharedObject<OrbitCamera>
 	{
 	public:
-		OrbitCamera();
+		OrbitCamera(std::string _name = "OrbitCamera");
 
-		virtual const std::type_info& typeInfo() override;
+		virtual const std::type_info& TypeInfo() override;
 
 		// from IProcess
 		virtual void BindToScene(bento::Scene * const _scene) override;

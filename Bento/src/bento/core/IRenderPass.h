@@ -1,16 +1,13 @@
 #pragma once
 
-#include <memory>
-
-#include <bento/core\Scene.h>
-
-#include <bento/core\RenderPhase.h>
+#include <bento/core/Scene.h>
+#include <bento/core/SceneObject.h>
+#include <bento/core/RenderPhase.h>
 
 namespace bento
 {
-	class IRenderPass
+	struct IRenderPass : SceneObject
 	{
-	public:
 		virtual void BindToScene(bento::Scene & _scene) = 0;
 		virtual void UnbindFromScene(bento::Scene & _scene) = 0;
 		virtual void Render() = 0;

@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="src\bento\components\PerspectiveLens.h" />
     <ClInclude Include="src\bento\components\Transform.h" />
+    <ClInclude Include="src\bento\core\Entity.h" />
     <ClInclude Include="src\bento\core\GeometryBase.h" />
     <ClInclude Include="src\bento\core\IGeometry.h" />
     <ClInclude Include="src\bento\core\ILens.h" />
@@ -184,8 +185,7 @@
     <ClInclude Include="src\event.h" />
     <ClInclude Include="src\fast_delegate\FastDelegate.h" />
     <ClInclude Include="src\fast_delegate\FastDelegateBind.h" />
-    <ClInclude Include="src\glm.h" />
-    <ClInclude Include="src\bento\core\IComponent.h" />
+    <ClInclude Include="src\bento\core\Component.h" />
     <ClInclude Include="src\bento\core\AbstractValidatable.h" />
     <ClInclude Include="src\bento\core\IInputManager.h" />
     <ClInclude Include="src\bento\core\InputManagerImpl.h" />
@@ -193,10 +193,8 @@
     <ClInclude Include="src\bento\core\INode.h" />
     <ClInclude Include="src\bento\core\IWindow.h" />
     <ClInclude Include="src\bento\core\Logging.h" />
-    <ClInclude Include="src\bento\core\NamedObject.h" />
     <ClInclude Include="src\bento\core\NodeGroup.h" />
     <ClInclude Include="src\bento\core\Scene.h" />
-    <ClInclude Include="src\bento\core\ISceneObject.h" />
     <ClInclude Include="src\bento\core\SceneObject.h" />
     <ClInclude Include="src\bento\core\WindowImpl.h" />
     <ClInclude Include="src\bento\Reflection.h" />
@@ -209,9 +207,14 @@
     <ClCompile Include="src\bento\components\PerspectiveLens.cpp" />
     <ClCompile Include="src\bento\components\Transform.cpp" />
     <ClCompile Include="src\bento\core\AbstractValidatable.cpp" />
+    <ClCompile Include="src\bento\core\Component.cpp" />
+    <ClCompile Include="src\bento\core\Entity.cpp" />
     <ClCompile Include="src\bento\core\GeometryBase.cpp" />
+    <ClCompile Include="src\bento\core\IGeometry.cpp" />
+    <ClCompile Include="src\bento\core\ILens.cpp" />
     <ClCompile Include="src\bento\core\InputManagerImpl.cpp" />
-    <ClCompile Include="src\bento\core\NamedObject.cpp" />
+    <ClCompile Include="src\bento\core\IProcess.cpp" />
+    <ClCompile Include="src\bento\core\IRenderer.cpp" />
     <ClCompile Include="src\bento\core\NodeGroup.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -219,6 +222,7 @@
     <ClCompile Include="src\bento\core\RenderParams.cpp" />
     <ClCompile Include="src\bento\core\RenderTargetBase.cpp" />
     <ClCompile Include="src\bento\core\Scene.cpp" />
+    <ClCompile Include="src\bento\core\SceneObject.cpp" />
     <ClCompile Include="src\bento\core\ShaderStageBase.cpp" />
     <ClCompile Include="src\bento\core\TextureBase.cpp" />
     <ClCompile Include="src\bento\core\WindowImpl.cpp" />

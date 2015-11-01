@@ -14,7 +14,7 @@ class InspectorUIProcess
 {
 public:
 	// Inherited via IProcess
-	virtual const std::type_info & typeInfo() override;
+	virtual const std::type_info & TypeInfo() override;
 	virtual void BindToScene(bento::Scene * const _scene) override;
 	virtual void UnbindFromScene(bento::Scene * const _scene) override;
 	virtual void Update(double dt) override;
