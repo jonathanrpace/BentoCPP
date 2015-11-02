@@ -34,6 +34,9 @@ out Varying
 {
 	vec3 out_viewNormal;
 	vec4 out_viewPosition;
+	vec4 out_data0;
+	vec4 out_data1;
+	vec4 out_data2;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -44,6 +47,8 @@ void main(void)
 {
 	// Pluck some values out of the texture data
 	vec4 textureDataSample0 = texture(s_textureData0, in_uv);
+	vec4 textureDataSample1 = texture(s_textureData1, in_uv);
+	vec4 textureDataSample2 = texture(s_textureData2, in_uv);
 	float solidHeight = textureDataSample0.x;
 	float moltenHeight = textureDataSample0.y;
 
@@ -53,6 +58,10 @@ void main(void)
 	
 	out_viewNormal = vec3(0.0f, 1.0f, 0.0f);
 	out_viewPosition = u_modelViewMatrix * position;
+
+	out_data0 = textureDataSample0;
+	out_data1 = textureDataSample1;
+	out_data2 = textureDataSample2;
 
 	gl_Position = u_mvpMatrix * position;
 } 

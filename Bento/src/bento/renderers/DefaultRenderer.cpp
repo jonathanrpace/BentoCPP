@@ -17,6 +17,7 @@ namespace bento
 		: IRenderer(_name)
 		, m_scene(NULL)
 	{
+		AddRenderPhase(eRenderPhase_OffScreen);
 		AddRenderPhase(eRenderPhase_G);
 		AddRenderPhase(eRenderPhase_DirectLight);
 		AddRenderPhase(eRenderPhase_IndirectLight);
@@ -111,6 +112,10 @@ namespace bento
 		glCullFace(GL_BACK);
 		glDisable(GL_BLEND);
 
+		// Off Screen pass
+		RenderPassesInPhase(eRenderPhase_OffScreen);
+
+		glViewport(0, 0, windowSize.x, windowSize.y);
 		// G-Pass
 		//glEnable(GL_DEPTH_TEST);
 		//glClearColor(1.0, 0.0, 0.0, 1.0);
@@ -136,9 +141,10 @@ namespace bento
 	void DefaultRenderer::AddRenderPass(RenderPassPtr _renderPass)
 	{
 		auto passes = m_renderPassesByPhase[_renderPass->GetRenderPhase()];
+		assert(passes);
 		passes->push_back(_renderPass);
 
-		if (m_scene != NULL)
+		if (m_scene)
 			_renderPass->BindToScene(*m_scene);
 	}
 
@@ -147,7 +153,7 @@ namespace bento
 		auto passes = m_renderPassesByPhase[_renderPass->GetRenderPhase()];
 		passes->erase(std::find(passes->begin(), passes->end(), _renderPass));
 
-		if (m_scene != NULL)
+		if (m_scene)
 			_renderPass->UnbindFromScene(*m_scene);
 	}
 

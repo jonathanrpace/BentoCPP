@@ -4,6 +4,7 @@ namespace bento
 {
 	enum RenderPhase
 	{
+		eRenderPhase_OffScreen,
 		eRenderPhase_G,
 		eRenderPhase_DirectLight,
 		eRenderPhase_IndirectLight,

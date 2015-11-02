@@ -16,9 +16,9 @@ namespace bento
 			GLenum _textureTarget,
 			int _width = 256,
 			int _height = 256,
-			GLenum _format = GL_RGBA,
-			GLenum _magFilter = GL_LINEAR,
-			GLenum _minFilter = GL_LINEAR,
+			GLenum _format = GL_RGBA16F,
+			GLenum _magFilter = GL_NEAREST,
+			GLenum _minFilter = GL_NEAREST,
 			GLenum _wrapModeR = GL_REPEAT,
 			GLenum _wrapModeS = GL_REPEAT
 		);

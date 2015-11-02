@@ -12,14 +12,6 @@ namespace bento
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT = GL_COLOR_ATTACHMENT4;
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT = GL_COLOR_ATTACHMENT5;
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_OUTPUT = GL_COLOR_ATTACHMENT6;
-
-	const GLuint DeferredRenderTarget::DRAW_BUFFER_POSITION = GL_DRAW_BUFFER0;
-	const GLuint DeferredRenderTarget::DRAW_BUFFER_NORMAL = GL_DRAW_BUFFER1;
-	const GLuint DeferredRenderTarget::DRAW_BUFFER_ALBEDO = GL_DRAW_BUFFER2;
-	const GLuint DeferredRenderTarget::DRAW_BUFFER_MATERIAL = GL_DRAW_BUFFER3;
-	const GLuint DeferredRenderTarget::DRAW_BUFFER_DIRECT_LIGHT = GL_DRAW_BUFFER4;
-	const GLuint DeferredRenderTarget::DRAW_BUFFER_INDIRECT_LIGHT = GL_DRAW_BUFFER5;
-	const GLuint DeferredRenderTarget::DRAW_BUFFER_OUTPUT = GL_DRAW_BUFFER6;
 	
 	DeferredRenderTarget::DeferredRenderTarget
 	(

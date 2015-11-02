@@ -109,4 +109,18 @@ namespace bento
 		m_texturesByAttachment[_attachment] = _texture;
 		m_levelsByAttachment[_attachment] = _level;
 	}
+
+	void RenderTargetBase::AttachTexture(GLenum _attachment, TextureSquare* _texture, int _level)
+	{
+		assert(!m_isRectangular);
+		m_texturesByAttachment[_attachment] = _texture;
+		m_levelsByAttachment[_attachment] = _level;
+	}
+
+	void RenderTargetBase::SetDrawBuffers(GLenum * _drawBuffers, GLsizei _size)
+	{
+		ValidateNow();
+		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
+		GL_CHECK(glDrawBuffers(_size, _drawBuffers));
+	}
 }

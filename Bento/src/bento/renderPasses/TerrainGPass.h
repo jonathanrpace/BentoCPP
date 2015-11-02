@@ -37,7 +37,7 @@ namespace bento
 	)
 
 	class TerrainGPass
-		: public bento::SharedObject<TerrainGPass>
+		: public SharedObject<TerrainGPass>
 		, public NodeGroupRenderPassBase<TerrainGPassNode>
 	{
 	public:

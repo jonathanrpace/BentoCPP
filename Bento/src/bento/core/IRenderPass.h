@@ -8,6 +8,8 @@ namespace bento
 {
 	struct IRenderPass : SceneObject
 	{
+		IRenderPass(std::string _name = "IRenderPass");
+
 		virtual void BindToScene(bento::Scene & _scene) = 0;
 		virtual void UnbindFromScene(bento::Scene & _scene) = 0;
 		virtual void Render() = 0;

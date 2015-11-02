@@ -16,14 +16,6 @@ namespace bento
 		static const GLuint FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT;
 		static const GLuint FRAME_BUFFER_ATTACHMENT_OUTPUT;
 		
-		static const GLuint DRAW_BUFFER_POSITION;
-		static const GLuint DRAW_BUFFER_NORMAL;
-		static const GLuint DRAW_BUFFER_ALBEDO;
-		static const GLuint DRAW_BUFFER_MATERIAL;
-		static const GLuint DRAW_BUFFER_DIRECT_LIGHT;
-		static const GLuint DRAW_BUFFER_INDIRECT_LIGHT;
-		static const GLuint DRAW_BUFFER_OUTPUT;
-		
 		DeferredRenderTarget(int _width = 800, int _height = 600);
 		~DeferredRenderTarget();
 

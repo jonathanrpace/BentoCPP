@@ -14,15 +14,17 @@ namespace bento
 		TerrainGeometry(std::string _name = "TerrainGeometry");
 		~TerrainGeometry();
 
-		TextureSquare& ReadTexture0();
-		TextureSquare& WriteTexture0();
-		TextureSquare& ReadTexture1();
-		TextureSquare& WriteTexture1();
-		TextureSquare& ReadTexture2();
-		TextureSquare& WriteTexture2();
+		TextureSquare& Texture0A() { return m_texture0A; }
+		TextureSquare& Texture0B() { return m_texture0B; }
+		TextureSquare& Texture1A() { return m_texture1A; }
+		TextureSquare& Texture1B() { return m_texture1B; }
+		TextureSquare& Texture2A() { return m_texture2A; }
+		TextureSquare& Texture2B() { return m_texture2B; }
 
 		// ISceneObject
 		virtual const std::type_info& TypeInfo() override;
+
+		inline int NumVerticesPerDimension() { return m_numVerticesPerDimension;  }
 
 	protected:
 		// From AbstractValidatable
@@ -35,12 +37,9 @@ namespace bento
 
 		TextureSquare m_texture0A;
 		TextureSquare m_texture0B;
-		bool m_texture0AIsWrite;
 		TextureSquare m_texture1A;
 		TextureSquare m_texture1B;
-		bool m_texture1AIsWrite;
 		TextureSquare m_texture2A;
 		TextureSquare m_texture2B;
-		bool m_texture2AIsWrite;
 	};
 }

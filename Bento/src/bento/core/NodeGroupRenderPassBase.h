@@ -10,8 +10,9 @@ namespace bento
 		: public IRenderPass
 	{
 	public:
-		NodeGroupRenderPassBase() 
-			: m_nodeGroup()
+		NodeGroupRenderPassBase(std::string _name = "NodeGroupRenderPassBase") 
+			: IRenderPass(_name)
+			, m_nodeGroup()
 		{
 			
 		}

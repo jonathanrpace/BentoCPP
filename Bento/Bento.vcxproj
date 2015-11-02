@@ -84,7 +84,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessorDefinitions>GLEW_STATIC;GLM_FORCE_PURE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>GLEW_STATIC;GLM_FORCE_PURE;ENABLE_TRACE;ENABLE_GL_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
     </ClCompile>
@@ -171,6 +171,7 @@
     <ClInclude Include="src\bento\renderers\DefaultRenderer.h" />
     <ClInclude Include="src\bento\renderPasses\GPass.h" />
     <ClInclude Include="src\bento\renderPasses\TerrainGPass.h" />
+    <ClInclude Include="src\bento\renderPasses\TerrainSimulationPass.h" />
     <ClInclude Include="src\bento\renderPasses\TestRenderPass.h" />
     <ClInclude Include="src\bento\renderTargets\DeferredRenderTarget.h" />
     <ClInclude Include="src\bento\shaderStages\RectTextureFrag.h" />
@@ -215,6 +216,7 @@
     <ClCompile Include="src\bento\core\InputManagerImpl.cpp" />
     <ClCompile Include="src\bento\core\IProcess.cpp" />
     <ClCompile Include="src\bento\core\IRenderer.cpp" />
+    <ClCompile Include="src\bento\core\IRenderPass.cpp" />
     <ClCompile Include="src\bento\core\NodeGroup.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -235,6 +237,7 @@
     <ClCompile Include="src\bento\renderers\DefaultRenderer.cpp" />
     <ClCompile Include="src\bento\renderPasses\GPass.cpp" />
     <ClCompile Include="src\bento\renderPasses\TerrainGPass.cpp" />
+    <ClCompile Include="src\bento\renderPasses\TerrainSimulationPass.cpp" />
     <ClCompile Include="src\bento\renderPasses\TestRenderPass.cpp" />
     <ClCompile Include="src\bento\renderTargets\DeferredRenderTarget.cpp" />
     <ClCompile Include="src\bento\shaders\RectTextureToScreenShader.cpp" />

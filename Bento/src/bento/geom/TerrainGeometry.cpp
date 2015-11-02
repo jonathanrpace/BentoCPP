@@ -9,51 +9,18 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: GeometryBase(_name)
 		, m_size(1.0f)
-		, m_numVerticesPerDimension(64)
+		, m_numVerticesPerDimension(32)
 		, m_texture0A()
 		, m_texture0B()
 		, m_texture1A()
 		, m_texture1B()
 		, m_texture2A()
 		, m_texture2B()
-		, m_texture0AIsWrite(true)
-		, m_texture1AIsWrite(true)
-		, m_texture2AIsWrite(true)
 	{
 	}
 
 	TerrainGeometry::~TerrainGeometry()
 	{
-	}
-
-	TextureSquare & TerrainGeometry::ReadTexture0()
-	{
-		return m_texture0AIsWrite ? m_texture0B : m_texture0A;
-	}
-
-	TextureSquare & TerrainGeometry::WriteTexture0()
-	{
-		return m_texture0AIsWrite ? m_texture0A : m_texture0B;
-	}
-
-	TextureSquare & TerrainGeometry::ReadTexture1()
-	{
-		return m_texture1AIsWrite ? m_texture0B : m_texture0A;
-	}
-
-	TextureSquare & TerrainGeometry::WriteTexture1()
-	{
-		return m_texture1AIsWrite ? m_texture1A : m_texture1B;
-	}
-
-	TextureSquare & TerrainGeometry::ReadTexture2()
-	{
-		return m_texture2AIsWrite ? m_texture2B : m_texture2A;
-	}
-
-	TextureSquare & TerrainGeometry::WriteTexture2()
-	{
-		return m_texture2AIsWrite ? m_texture2A : m_texture2B;
 	}
 
 	void TerrainGeometry::Validate()
@@ -109,11 +76,11 @@ namespace bento
 				uvs[float2Index + 0] = xRatio;
 				uvs[float2Index + 1] = zRatio;
 
-				texture0Data[float4Index + 0] = static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);	// solidHeight
-				texture0Data[float4Index + 1] = 0.0f;	// moltenHeight
+				texture0Data[float4Index + 0] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);	// solidHeight
+				texture0Data[float4Index + 1] = -0.5f + (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX));	// moltenHeight
 				texture0Data[float4Index + 2] = 0.0f;	// empty
 				texture0Data[float4Index + 3] = 0.0f;	// empty
-
+			
 				texture1Data[float4Index + 0] = 0.0f;	// moltenVelocityU
 				texture1Data[float4Index + 1] = 0.0f;	// moltenVelocityV
 				texture1Data[float4Index + 2] = 0.0f;	// empty

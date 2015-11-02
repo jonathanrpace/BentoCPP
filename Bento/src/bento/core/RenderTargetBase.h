@@ -9,6 +9,7 @@
 #include <bento/core/AbstractValidatable.h>
 #include <bento/core/IRenderTarget.h>
 #include <bento/textures/RectangleTexture.h>
+#include <bento/textures/TextureSquare.h>
 
 namespace bento
 {
@@ -23,13 +24,18 @@ namespace bento
 			int _height,
 			bool _isRectangular,
 			bool _hasDepthStencil = true,
-			GLenum _internalFormat = GL_RGBA16F,
+			GLenum _internalFormat = GL_RGBA32F,
 			GLenum _depthStencilFormat = GL_DEPTH24_STENCIL8
 		);
 		~RenderTargetBase();
 
 		void SetSize(int _width, int _height);
 		virtual void Bind() override;
+
+		void AttachTexture(GLenum _attachment, RectangleTexture* _texture, int _level = 0);
+		void AttachTexture(GLenum _attachment, TextureSquare* _texture, int _level = 0);
+
+		void SetDrawBuffers(GLenum* _drawBuffers, GLsizei _size);
 
 	protected:
 		const int MAX_ATTACHMENTS = 8;
@@ -48,6 +54,5 @@ namespace bento
 
 		virtual void Validate() override;
 		virtual void OnInvalidate() override;
-		void AttachTexture(GLenum _attachment, RectangleTexture* _texture, int _level = 0);
 	};
 }

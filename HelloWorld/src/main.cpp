@@ -22,6 +22,7 @@
 #include <bento/geom/PlaneGeometry.h>
 #include <bento/renderPasses/GPass.h>
 #include <bento/renderPasses/TerrainGPass.h>
+#include <bento/renderPasses/TerrainSimulationPass.h>
 #include <bento/processes/OrbitCamera.h>
 #include <bento/util/GLErrorUtil.h>
 
@@ -43,7 +44,7 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(geom, entity);
 		auto transform = bento::Transform::Create();
 		scene.AddComponentToEntity(transform, entity);
-		auto material = bento::StandardMaterial::Create();
+		auto material = bento::TerrainMaterial::Create();
 		scene.AddComponentToEntity(material, entity);
 	}
 
@@ -57,6 +58,7 @@ void mainLoop(GLFWwindow* window)
 		renderer->AddRenderPass(bento::GPass::Create());
 		renderer->AddRenderPass(bento::TerrainGPass::Create());
 		renderer->AddRenderPass(IMGUIRenderPass::Create());
+		renderer->AddRenderPass(bento::TerrainSimulationPass::Create());
 	}
 	scene.AddProcess(renderer);
 
@@ -97,7 +99,7 @@ int main(int argc, char **argv)
 #ifdef GL_DEBUG_CONTEXT
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
-	GLFWwindow* window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(1280, 720, "Hello World", NULL, NULL);
 	if (!window)
 	{
 		__debugbreak();

@@ -21,7 +21,9 @@ namespace bento
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 		SetUniform("u_normalModelViewMatrix", RenderParams::NormalModelViewMatrix());
 
-		SetTexture("s_textureData0", &(_geometry->ReadTexture0()));
+		SetTexture("s_textureData0", &(_geometry->Texture0B()));
+		SetTexture("s_textureData1", &(_geometry->Texture1B()));
+		SetTexture("s_textureData2", &(_geometry->Texture2B()));
 	}
 
 	////////////////////////////////////////////
