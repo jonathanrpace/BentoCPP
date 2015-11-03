@@ -8,8 +8,8 @@ namespace bento
 {
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: GeometryBase(_name)
-		, m_size(1.0f)
-		, m_numVerticesPerDimension(32)
+		, m_size(2.0f)
+		, m_numVerticesPerDimension(256)
 		, m_texture0A()
 		, m_texture0B()
 		, m_texture1A()
@@ -76,8 +76,8 @@ namespace bento
 				uvs[float2Index + 0] = xRatio;
 				uvs[float2Index + 1] = zRatio;
 
-				texture0Data[float4Index + 0] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);	// solidHeight
-				texture0Data[float4Index + 1] = -0.5f + (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX));	// moltenHeight
+				texture0Data[float4Index + 0] = xRatio * 0.5f;// 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);	// solidHeight
+				texture0Data[float4Index + 1] = 0.1f * (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX));	// moltenHeight
 				texture0Data[float4Index + 2] = 0.0f;	// empty
 				texture0Data[float4Index + 3] = 0.0f;	// empty
 			

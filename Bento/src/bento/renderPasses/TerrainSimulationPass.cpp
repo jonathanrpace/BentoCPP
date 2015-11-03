@@ -4,14 +4,18 @@
 
 namespace bento
 {
-	TerrainSimFrag::TerrainSimFrag() : ShaderStageBase("shaders/TerrainSim.frag") {}
+	UpdateFluidFluxFrag::UpdateFluidFluxFrag() : ShaderStageBase("shaders/UpdateFluidFlux.frag") {}
 
-	void TerrainSimFrag::SetAxis(float _x, float _y)
+	void UpdateFluidFluxFrag::SetDataTextures(TextureSquare * _data0, TextureSquare * _data1, TextureSquare * _data2)
 	{
-		SetUniform("u_axis", vec2(_x, _y));
+		SetTexture("s_data0", _data0);
+		SetTexture("s_data1", _data1);
+		SetTexture("s_data2", _data2);
 	}
 
-	void TerrainSimFrag::SetDataTextures(TextureSquare * _data0, TextureSquare * _data1, TextureSquare * _data2)
+	UpdateFluidHeightFrag::UpdateFluidHeightFrag() : ShaderStageBase("shaders/UpdateFluidHeight.frag") {}
+
+	void UpdateFluidHeightFrag::SetDataTextures(TextureSquare * _data0, TextureSquare * _data1, TextureSquare * _data2)
 	{
 		SetTexture("s_data0", _data0);
 		SetTexture("s_data1", _data1);
@@ -20,7 +24,8 @@ namespace bento
 	
 	TerrainSimulationPass::TerrainSimulationPass(std::string _name)
 		: NodeGroupRenderPassBase(_name)
-		, m_shader()
+		, m_updateFluxShader()
+		, m_updateHeightShader()
 		, m_screenQuadGeom()
 		, m_renderTargetByNodeMap()
 	{
@@ -43,13 +48,11 @@ namespace bento
 
 	void TerrainSimulationPass::Render()
 	{
-		m_shader.BindPerPass();
 		m_screenQuadGeom.Bind();
 
 		for (auto node : m_nodeGroup.Nodes())
 		{
 			RenderTargetBase* renderTarget = m_renderTargetByNodeMap[node];
-
 			AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget);
 		}
 	}
@@ -67,29 +70,33 @@ namespace bento
 	{
 		GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension(), _geom.NumVerticesPerDimension()));
 
-		// Phase A 
+		// Update flux
 		static GLenum phaseADrawBuffers[] = {
-			GL_COLOR_ATTACHMENT0,
-			GL_COLOR_ATTACHMENT1,
-			GL_COLOR_ATTACHMENT2
-		};
-		_renderTarget.SetDrawBuffers(phaseADrawBuffers, sizeof(phaseADrawBuffers) / sizeof(phaseADrawBuffers[0]));
-
-		m_shader.FragmentShader().SetAxis(1.0f, 0.0f);
-		m_shader.FragmentShader().SetDataTextures(&_geom.Texture0B(), &_geom.Texture1B(), &_geom.Texture2B());
-
-		m_screenQuadGeom.Draw();
-
-		// Phase B
-		static GLenum phaseBDrawBuffers[] = {
 			GL_COLOR_ATTACHMENT3,
 			GL_COLOR_ATTACHMENT4,
 			GL_COLOR_ATTACHMENT5
 		};
+		_renderTarget.SetDrawBuffers(phaseADrawBuffers, sizeof(phaseADrawBuffers) / sizeof(phaseADrawBuffers[0]));
+
+		m_updateFluxShader.BindPerPass();
+		m_updateFluxShader.FragmentShader().SetDataTextures(&_geom.Texture0A(), &_geom.Texture1A(), &_geom.Texture2A());
+		m_screenQuadGeom.Draw();
+
+		// Update height
+		static GLenum phaseBDrawBuffers[] = {
+			GL_COLOR_ATTACHMENT0,
+			GL_COLOR_ATTACHMENT1,
+			GL_COLOR_ATTACHMENT2
+		};
 		_renderTarget.SetDrawBuffers(phaseBDrawBuffers, sizeof(phaseBDrawBuffers) / sizeof(phaseBDrawBuffers[0]));
 
-		m_shader.FragmentShader().SetAxis(0.0f, 1.0f);
-		m_shader.FragmentShader().SetDataTextures(&_geom.Texture0A(), &_geom.Texture1A(), &_geom.Texture2A());
+		m_updateHeightShader.BindPerPass();
+		m_updateHeightShader.FragmentShader().SetDataTextures(&_geom.Texture0B(), &_geom.Texture1B(), &_geom.Texture2B());
+		
+		vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
+		normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
+
+		m_updateHeightShader.FragmentShader().SetUniform("u_mousePos", normalisedMousePos);
 
 		m_screenQuadGeom.Draw();
 	}

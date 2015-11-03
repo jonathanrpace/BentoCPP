@@ -29,10 +29,6 @@ namespace bento
 		GLuint GetProgramName();
 		void BindPerPass();
 		
-	protected:
-		void Validate();
-		void OnInvalidate();
-
 		void SetUniform(const char* _name, mat4& _value, bool _transposed = false);
 		void SetUniform(const char* _name, mat3& _value, bool _transposed = false);
 		void SetUniform(const char* _name, float _value);
@@ -43,6 +39,10 @@ namespace bento
 
 		void SetTexture(const char* _name, RectangleTexture* _texture);
 		void SetTexture(const char* _name, TextureSquare* _texture);
+
+	protected:
+		void Validate();
+		void OnInvalidate();
 
 		char* m_filename;
 		GLuint m_pipelineName;

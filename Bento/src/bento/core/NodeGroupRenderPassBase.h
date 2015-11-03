@@ -23,18 +23,21 @@ namespace bento
 		}
 
 		// From IRenderPass
-		virtual void BindToScene(bento::Scene & _scene) override
+		virtual void BindToScene(Scene & _scene) override
 		{
+			m_scene = &_scene;
 			m_nodeGroup.Bind(&_scene);
 		}
 
 		// From IRenderPass
-		virtual void UnbindFromScene(bento::Scene & _scene) override
+		virtual void UnbindFromScene(Scene & _scene) override
 		{
 			m_nodeGroup.Unbind();
+			m_scene = nullptr;
 		}
 
 	protected:
+		Scene* m_scene;
 		NodeGroup<T> m_nodeGroup;
 	};
 }
