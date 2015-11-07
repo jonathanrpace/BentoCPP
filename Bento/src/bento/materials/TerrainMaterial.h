@@ -4,6 +4,7 @@
 #include <bento.h>
 #include <bento/core/Component.h>
 #include <bento/core/SharedObject.h>
+#include <bento/textures/TextureSquare.h>
 
 namespace bento
 {
@@ -13,6 +14,8 @@ namespace bento
 	{
 	public:
 		TerrainMaterial(std::string _name = "TerrainMaterial");
+
+		TextureSquare SomeTexture;
 
 		// IComponent
 		virtual const std::type_info & TypeInfo() override;

@@ -5,8 +5,16 @@
 #include <bento\Util\GLErrorUtil.h>
 #include <bento\Util\TextureUtil.h>
 
-bento::TextureSquare::TextureSquare()
-	: TextureBase(GL_TEXTURE_2D)
+bento::TextureSquare::TextureSquare
+(
+	int _size,
+	GLenum _format,
+	GLenum _magFilter,
+	GLenum _minFilter,
+	GLenum _wrapModeR,
+	GLenum _wrapModeS
+)
+	: TextureBase(GL_TEXTURE_2D, _size, _size, _format, _magFilter, _minFilter, _wrapModeS, _wrapModeR)
 {
 }
 
@@ -29,9 +37,7 @@ int bento::TextureSquare::GetNumMipMaps()
 
 void bento::TextureSquare::Validate()
 {
-	assert(glIsTexture(m_texture) == false);
-
-	glGenTextures(1, &m_texture);
+	TextureBase::Validate();
 
 	GL_CHECK(glBindTexture(GL_TEXTURE_2D, m_texture));
 
@@ -47,9 +53,5 @@ void bento::TextureSquare::Validate()
 		d >>= 1;
 	}
 
-	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, m_magFilter));
-	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, m_minFilter));
-	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, m_wrapModeR));
-	GL_CHECK(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_wrapModeS));
 	GL_CHECK(glBindTexture(GL_TEXTURE_2D, GL_NONE));
 }

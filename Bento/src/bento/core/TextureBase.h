@@ -24,11 +24,14 @@ namespace bento
 		);
 		~TextureBase();
 
-		void TexImage2D(int _level, GLenum _format, GLenum _type, const GLvoid* _data);
+		void TexImage2D(GLenum _format, GLenum _type, const GLvoid* _data, int _level = 0);
+		void TexImage2D(const char* _filename);
+
+		void GetTexImage(GLint _level, GLenum _format, GLenum _type, GLvoid* _pixels);
 
 		// AbstractValidatable
 		virtual void OnInvalidate() override;
-		virtual void Validate() = 0;
+		virtual void Validate();
 
 		// ITexture
 		virtual GLuint TextureName() override;
