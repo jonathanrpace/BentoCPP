@@ -16,6 +16,7 @@ namespace bento
 		~InputManagerImpl();
 
 		virtual vec2 GetMousePosition() override;
+		virtual bool IsMouseDown(int _button);
 		
 	private:
 		GLFWwindow* m_window;

@@ -9,6 +9,7 @@ namespace bento
 	{
 	public:
 		virtual vec2 GetMousePosition() = 0;
+		virtual bool IsMouseDown(int _button) = 0;
 
 		// Events
 		DECLARE_EVENT(void, int _button) OnMouseButtonPress;

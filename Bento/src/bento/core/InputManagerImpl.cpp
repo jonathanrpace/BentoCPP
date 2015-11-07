@@ -33,6 +33,11 @@ vec2 bento::InputManagerImpl::GetMousePosition()
 	return vec2((float)x, (float)y);
 }
 
+bool bento::InputManagerImpl::IsMouseDown(int _button)
+{
+	return glfwGetMouseButton(m_window, _button) == GLFW_PRESS;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // PRIVATE
 //////////////////////////////////////////////////////////////////////////
