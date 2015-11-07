@@ -22,17 +22,21 @@ namespace bento
 	struct UpdateFluidFluxFrag : ShaderStageBase
 	{
 		UpdateFluidFluxFrag();
-		void SetDataTextures(TextureSquare* _data0, TextureSquare* _data1, TextureSquare* _data2);
 	};
 
 	struct UpdateFluidHeightFrag : ShaderStageBase
 	{
 		UpdateFluidHeightFrag();
-		void SetDataTextures(TextureSquare* _data0, TextureSquare* _data1, TextureSquare* _data2);
+	};
+
+	struct UpdateFluidVelocityFrag : ShaderStageBase
+	{
+		UpdateFluidVelocityFrag();
 	};
 
 	struct UpdateFluidFluxShader : ShaderBase<ScreenQuadVert, UpdateFluidFluxFrag> {};
 	struct UpdateFluidHeightShader : ShaderBase<ScreenQuadVert, UpdateFluidHeightFrag> {};
+	struct UpdateFluidVelocityShader : ShaderBase<ScreenQuadVert, UpdateFluidVelocityFrag> {};
 
 	DEFINE_NODE_2
 	(
@@ -53,9 +57,11 @@ namespace bento
 		virtual RenderPhase GetRenderPhase() override;
 
 	private:
+		bool m_switch;
 		ScreenQuadGeometry m_screenQuadGeom;
 		UpdateFluidFluxShader m_updateFluxShader;
 		UpdateFluidHeightShader m_updateHeightShader;
+		UpdateFluidVelocityShader m_updateVelocityShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget);

@@ -199,6 +199,7 @@
     <ClInclude Include="src\bento\core\SceneObject.h" />
     <ClInclude Include="src\bento\core\WindowImpl.h" />
     <ClInclude Include="src\bento\Reflection.h" />
+    <ClInclude Include="src\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\bento.h">

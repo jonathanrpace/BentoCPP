@@ -21,9 +21,16 @@ namespace bento
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 		SetUniform("u_normalModelViewMatrix", RenderParams::NormalModelViewMatrix());
 
-		SetTexture("s_textureData0", &(_geometry->Texture0A()));
-		SetTexture("s_textureData1", &(_geometry->Texture1A()));
-		SetTexture("s_textureData2", &(_geometry->Texture2A()));
+		_geometry->SwapHeightData();
+		_geometry->SwapFluxData();
+
+		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
+		SetTexture("s_fluxData", &(_geometry->FluxDataRead()));
+		SetTexture("s_velocityData", &(_geometry->VelocityData()));
+		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
+
+		_geometry->SwapHeightData();
+		_geometry->SwapFluxData();
 	}
 
 	////////////////////////////////////////////
@@ -48,6 +55,8 @@ namespace bento
 
 			node->geom->Bind();
 			m_shader.VertexShader().BindPerModel(node->geom);
+
+			m_shader.VertexShader().SetTexture("s_diffuseMap", &(node->material->SomeTexture));
 
 			node->geom->Draw();
 		}

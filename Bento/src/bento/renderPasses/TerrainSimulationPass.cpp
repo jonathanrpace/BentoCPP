@@ -4,30 +4,36 @@
 
 namespace bento
 {
+	//////////////////////////////////////////////////////////////////////////
+	// UpdateFluidFluxFrag
+	//////////////////////////////////////////////////////////////////////////
+
 	UpdateFluidFluxFrag::UpdateFluidFluxFrag() : ShaderStageBase("shaders/UpdateFluidFlux.frag") {}
 
-	void UpdateFluidFluxFrag::SetDataTextures(TextureSquare * _data0, TextureSquare * _data1, TextureSquare * _data2)
-	{
-		SetTexture("s_data0", _data0);
-		SetTexture("s_data1", _data1);
-		SetTexture("s_data2", _data2);
-	}
+	//////////////////////////////////////////////////////////////////////////
+	// UpdateFluidHeightFrag
+	//////////////////////////////////////////////////////////////////////////
 
 	UpdateFluidHeightFrag::UpdateFluidHeightFrag() : ShaderStageBase("shaders/UpdateFluidHeight.frag") {}
 
-	void UpdateFluidHeightFrag::SetDataTextures(TextureSquare * _data0, TextureSquare * _data1, TextureSquare * _data2)
-	{
-		SetTexture("s_data0", _data0);
-		SetTexture("s_data1", _data1);
-		SetTexture("s_data2", _data2);
-	}
-	
+	//////////////////////////////////////////////////////////////////////////
+	// UpdateFluidVelocityFrag
+	//////////////////////////////////////////////////////////////////////////
+
+	UpdateFluidVelocityFrag::UpdateFluidVelocityFrag() : ShaderStageBase("shaders/UpdateFluidVelocity.frag") {}
+
+	//////////////////////////////////////////////////////////////////////////
+	// TerrainSimulationPass
+	//////////////////////////////////////////////////////////////////////////
+
 	TerrainSimulationPass::TerrainSimulationPass(std::string _name)
 		: NodeGroupRenderPassBase(_name)
 		, m_updateFluxShader()
 		, m_updateHeightShader()
+		, m_updateVelocityShader()
 		, m_screenQuadGeom()
 		, m_renderTargetByNodeMap()
+		, m_switch(false)
 	{
 		m_nodeGroup.NodeAdded += OnNodeAddedDelegate;
 		m_nodeGroup.NodeRemoved += OnNodeRemovedDelegate;
@@ -66,39 +72,89 @@ namespace bento
 	// PRIVATE
 	//////////////////////////////////////////////////////////////////////////
 
-	void TerrainSimulationPass::AdvanceTerrainSim(TerrainGeometry & _geom, TerrainMaterial & _material, RenderTargetBase & _renderTarget)
+	void TerrainSimulationPass::AdvanceTerrainSim
+	(
+		TerrainGeometry & _geom, 
+		TerrainMaterial & _material, 
+		RenderTargetBase & _renderTarget
+	)
 	{
 		GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension(), _geom.NumVerticesPerDimension()));
 
-		// Update flux
-		static GLenum phaseADrawBuffers[] = {
-			GL_COLOR_ATTACHMENT3,
-			GL_COLOR_ATTACHMENT4,
-			GL_COLOR_ATTACHMENT5
-		};
-		_renderTarget.SetDrawBuffers(phaseADrawBuffers, sizeof(phaseADrawBuffers) / sizeof(phaseADrawBuffers[0]));
-
-		m_updateFluxShader.BindPerPass();
-		m_updateFluxShader.FragmentShader().SetDataTextures(&_geom.Texture0A(), &_geom.Texture1A(), &_geom.Texture2A());
-		m_screenQuadGeom.Draw();
-
-		// Update height
-		static GLenum phaseBDrawBuffers[] = {
-			GL_COLOR_ATTACHMENT0,
-			GL_COLOR_ATTACHMENT1,
-			GL_COLOR_ATTACHMENT2
-		};
-		_renderTarget.SetDrawBuffers(phaseBDrawBuffers, sizeof(phaseBDrawBuffers) / sizeof(phaseBDrawBuffers[0]));
-
-		m_updateHeightShader.BindPerPass();
-		m_updateHeightShader.FragmentShader().SetDataTextures(&_geom.Texture0B(), &_geom.Texture1B(), &_geom.Texture2B());
-		
 		vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
 		normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
+		float mouseStrength = m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f;
+		float mouseRadius = 0.05f;
 
-		m_updateHeightShader.FragmentShader().SetUniform("u_mousePos", normalisedMousePos);
+		// Update flux
+		{
+			static GLenum fluxDrawBufferA[] = { GL_COLOR_ATTACHMENT2 };
+			static GLenum fluxDrawBufferB[] = { GL_COLOR_ATTACHMENT3 };
 
-		m_screenQuadGeom.Draw();
+			if (!m_switch)
+				_renderTarget.SetDrawBuffers(fluxDrawBufferB, sizeof(fluxDrawBufferB) / sizeof(fluxDrawBufferB[0]));
+			else
+				_renderTarget.SetDrawBuffers(fluxDrawBufferA, sizeof(fluxDrawBufferA) / sizeof(fluxDrawBufferA[0]));
+
+			m_updateFluxShader.BindPerPass();
+			auto fragShader = m_updateFluxShader.FragmentShader();
+			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+			fragShader.SetUniform("u_mousePos", normalisedMousePos);
+			fragShader.SetUniform("u_mouseStrength", mouseStrength);
+			fragShader.SetUniform("u_mouseRadius", mouseRadius);
+			m_screenQuadGeom.Draw();
+
+			_geom.SwapFluxData();
+		}
+		
+		// Update velocity
+		{
+			static GLenum velocityDrawBuffersA[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
+			static GLenum velocityDrawBuffersB[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT6 };
+
+			if (!m_switch)
+				_renderTarget.SetDrawBuffers(velocityDrawBuffersA, sizeof(velocityDrawBuffersA) / sizeof(velocityDrawBuffersA[0]));
+			else
+				_renderTarget.SetDrawBuffers(velocityDrawBuffersB, sizeof(velocityDrawBuffersB) / sizeof(velocityDrawBuffersB[0]));
+
+			m_updateVelocityShader.BindPerPass();
+			auto fragShader = m_updateVelocityShader.FragmentShader();
+			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
+			fragShader.SetUniform("u_mousePos", normalisedMousePos);
+			fragShader.SetUniform("u_mouseStrength", mouseStrength);
+			fragShader.SetUniform("u_mouseRadius", mouseRadius);
+			m_screenQuadGeom.Draw();
+
+			_geom.SwapMappingData();
+		}
+
+		// Update height
+		{
+			static GLenum heightDrawBufferA[] = { GL_COLOR_ATTACHMENT0 };
+			static GLenum heightDrawBufferB[] = { GL_COLOR_ATTACHMENT1 };
+
+			if (!m_switch)
+				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
+			else
+				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
+			
+			m_updateHeightShader.BindPerPass();
+			auto fragShader = m_updateHeightShader.FragmentShader();
+			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
+			fragShader.SetUniform("u_mousePos", normalisedMousePos);
+			fragShader.SetUniform("u_mouseStrength", mouseStrength);
+			fragShader.SetUniform("u_mouseRadius", mouseRadius);
+			m_screenQuadGeom.Draw();
+
+			_geom.SwapHeightData();
+		}
+
+		m_switch = !m_switch;
 	}
 
 	void TerrainSimulationPass::OnNodeAdded(const TerrainSimPassNode & _node)
@@ -110,12 +166,13 @@ namespace bento
 			false, false, GL_RGBA16F
 		);
 
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT0, &_node.geom->Texture0A());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT1, &_node.geom->Texture1A());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT2, &_node.geom->Texture2A());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT3, &_node.geom->Texture0B());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT4, &_node.geom->Texture1B());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT5, &_node.geom->Texture2B());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT0, &_node.geom->HeightDataA());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT1, &_node.geom->HeightDataB());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT2, &_node.geom->FluxDataA());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT3, &_node.geom->FluxDataB());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT4, &_node.geom->VelocityData());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT5, &_node.geom->MappingDataA());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT6, &_node.geom->MappingDataB());
 
 		m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
 	}

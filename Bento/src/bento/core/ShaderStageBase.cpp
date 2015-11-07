@@ -4,7 +4,6 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include <bento.h>
 

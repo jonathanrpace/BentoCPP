@@ -9,13 +9,20 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: GeometryBase(_name)
 		, m_size(2.0f)
-		, m_numVerticesPerDimension(256)
-		, m_texture0A()
-		, m_texture0B()
-		, m_texture1A()
-		, m_texture1B()
-		, m_texture2A()
-		, m_texture2B()
+		, m_numVerticesPerDimension(512)
+		, m_heightDataA(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_heightDataB(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_fluxDataA(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_fluxDataB(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_mappingDataB(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_velocityData(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_heightDataRead(&m_heightDataA)
+		, m_heightDataWrite(&m_heightDataB)
+		, m_fluxDataRead(&m_fluxDataA)
+		, m_fluxDataWrite(&m_fluxDataB)
+		, m_mappingDataRead(&m_mappingDataA)
+		, m_mappingDataWrite(&m_mappingDataB)
 	{
 	}
 
@@ -44,16 +51,15 @@ namespace bento
 		std::vector<float> uvs(m_numVertices * 2);
 		std::vector<int> indices(m_numIndices);
 
-		std::vector<float> texture0Data(m_numVertices * 4);
-		std::vector<float> texture1Data(m_numVertices * 4);
-		std::vector<float> texture2Data(m_numVertices * 4);
+		std::vector<float> heightData(m_numVertices * 4);
+		std::vector<float> fluxData(m_numVertices * 4);
+		std::vector<float> velocityData(m_numVertices * 4);
 
-		m_texture0A.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_texture0B.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_texture1A.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_texture1B.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_texture2A.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_texture2B.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_heightDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_heightDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_fluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_fluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_velocityData.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 
 		std::srand(0);
 
@@ -76,20 +82,20 @@ namespace bento
 				uvs[float2Index + 0] = xRatio;
 				uvs[float2Index + 1] = zRatio;
 
-				texture0Data[float4Index + 0] = xRatio * 0.5f;// 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);	// solidHeight
-				texture0Data[float4Index + 1] = 0.1f * (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX));	// moltenHeight
-				texture0Data[float4Index + 2] = 0.0f;	// empty
-				texture0Data[float4Index + 3] = 0.0f;	// empty
+				heightData[float4Index + 0] = 0.0f;// xRatio * 0.5f;// 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);	// solidHeight
+				heightData[float4Index + 1] = 0.001f;// 0.1f * (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX));	// moltenHeight
+				heightData[float4Index + 2] = 0.0f;	// empty
+				heightData[float4Index + 3] = 0.0f;	// empty
 			
-				texture1Data[float4Index + 0] = 0.0f;	// moltenVelocityU
-				texture1Data[float4Index + 1] = 0.0f;	// moltenVelocityV
-				texture1Data[float4Index + 2] = 0.0f;	// empty
-				texture1Data[float4Index + 3] = 0.0f;	// empty
+				fluxData[float4Index + 0] = 0.0f;
+				fluxData[float4Index + 1] = 0.0f;
+				fluxData[float4Index + 2] = 0.0f;
+				fluxData[float4Index + 3] = 0.0f;
 
-				texture2Data[float4Index + 0] = xRatio;	// textureU
-				texture2Data[float4Index + 1] = zRatio;	// textureV
-				texture2Data[float4Index + 2] = 0.0f;	// textureAngle
-				texture2Data[float4Index + 3] = 0.0f;	// textureScale
+				velocityData[float4Index + 0] = xRatio;	
+				velocityData[float4Index + 1] = zRatio;	
+				velocityData[float4Index + 2] = 0.0f;	
+				velocityData[float4Index + 3] = 0.0f;	
 
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
@@ -108,15 +114,17 @@ namespace bento
 			}
 		}
 
-		m_texture0A.TexImage2D(0, GL_RGBA, GL_FLOAT, &texture0Data[0]);
-		m_texture0B.TexImage2D(0, GL_RGBA, GL_FLOAT, &texture0Data[0]);
+		m_heightDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_heightDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
-		m_texture1A.TexImage2D(0, GL_RGBA, GL_FLOAT, &texture1Data[0]);
-		m_texture1B.TexImage2D(0, GL_RGBA, GL_FLOAT, &texture1Data[0]);
+		m_fluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_fluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
 
-		m_texture2A.TexImage2D(0, GL_RGBA, GL_FLOAT, &texture2Data[0]);
-		m_texture2B.TexImage2D(0, GL_RGBA, GL_FLOAT, &texture2Data[0]);
+		m_mappingDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_mappingDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
 
+		m_velocityData.TexImage2D(GL_RGBA, GL_FLOAT, &velocityData[0]);
+		
 		BufferVertexData(0, &positions[0], m_numVertices * 3);
 		BufferVertexData(1, &uvs[0], m_numVertices * 2);
 		BufferIndexData(0, &indices[0], m_numIndices);

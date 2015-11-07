@@ -14,12 +14,39 @@ namespace bento
 		TerrainGeometry(std::string _name = "TerrainGeometry");
 		~TerrainGeometry();
 
-		TextureSquare& Texture0A() { return m_texture0A; }
-		TextureSquare& Texture0B() { return m_texture0B; }
-		TextureSquare& Texture1A() { return m_texture1A; }
-		TextureSquare& Texture1B() { return m_texture1B; }
-		TextureSquare& Texture2A() { return m_texture2A; }
-		TextureSquare& Texture2B() { return m_texture2B; }
+		TextureSquare& HeightDataA() { return m_heightDataA; }
+		TextureSquare& HeightDataB() { return m_heightDataB; }
+		TextureSquare& FluxDataA() { return m_fluxDataA; }
+		TextureSquare& FluxDataB() { return m_fluxDataB; }
+		TextureSquare& MappingDataA() { return m_mappingDataA; }
+		TextureSquare& MappingDataB() { return m_mappingDataB; }
+		TextureSquare& VelocityData() { return m_velocityData; }
+		
+
+		TextureSquare& HeightDataRead() { return *m_heightDataRead; }
+		TextureSquare& FluxDataRead() { return *m_fluxDataRead; }
+		TextureSquare& MappingDataRead() { return *m_mappingDataRead; }
+
+		void SwapHeightData()
+		{
+			TextureSquare* tmp = m_heightDataRead;
+			m_heightDataRead = m_heightDataWrite;
+			m_heightDataWrite = tmp;
+		}
+
+		void SwapFluxData()
+		{
+			TextureSquare* tmp = m_fluxDataRead;
+			m_fluxDataRead = m_fluxDataWrite;
+			m_fluxDataWrite = tmp;
+		}
+
+		void SwapMappingData()
+		{
+			TextureSquare* tmp = m_mappingDataRead;
+			m_mappingDataRead = m_mappingDataWrite;
+			m_mappingDataWrite = tmp;
+		}
 
 		// ISceneObject
 		virtual const std::type_info& TypeInfo() override;
@@ -35,11 +62,22 @@ namespace bento
 		float m_size;
 		int m_numVerticesPerDimension;
 
-		TextureSquare m_texture0A;
-		TextureSquare m_texture0B;
-		TextureSquare m_texture1A;
-		TextureSquare m_texture1B;
-		TextureSquare m_texture2A;
-		TextureSquare m_texture2B;
+		TextureSquare m_heightDataA;
+		TextureSquare m_heightDataB;
+		TextureSquare m_fluxDataA;
+		TextureSquare m_fluxDataB;
+		TextureSquare m_mappingDataA;
+		TextureSquare m_mappingDataB;
+
+		TextureSquare m_velocityData;
+		
+		TextureSquare* m_heightDataRead;
+		TextureSquare* m_heightDataWrite;
+
+		TextureSquare* m_fluxDataRead;
+		TextureSquare* m_fluxDataWrite;
+
+		TextureSquare* m_mappingDataRead;
+		TextureSquare* m_mappingDataWrite;
 	};
 }

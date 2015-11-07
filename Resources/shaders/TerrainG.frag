@@ -12,6 +12,7 @@ in Varying
 	vec4 in_data0;
 	vec4 in_data1;
 	vec4 in_data2;
+	vec4 in_diffuse;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -30,7 +31,7 @@ layout( location = 4 ) out vec4 out_directLight;
 
 void main(void)
 {
-	out_viewPosition = vec4(in_data0.yyyy*10.0f);// in_viewPosition;//in_data1;
+	out_viewPosition = in_diffuse * 0.5 + vec4((in_data2.xy*10.0f+1.0f) * 0.5, 0.0f, 0.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );
 	out_albedo = vec4( 1.0f );
 	out_material = vec4( 1.0f, 1.0f, 0.0f, 1.0f );	// roughness, reflectivity, emissive, nowt
