@@ -1,5 +1,7 @@
 #pragma once
 
+#include <typeinfo>
+
 #include <bento/core/SceneObject.h>
 #include <bento/core/SharedObject.h>
 

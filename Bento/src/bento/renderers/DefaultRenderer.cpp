@@ -14,7 +14,7 @@ namespace bento
 	// PUBLIC
 	//////////////////////////////////////////////////////////////////////////
 	DefaultRenderer::DefaultRenderer(std::string _name)
-		: IRenderer(_name)
+		: Process(_name, typeid(DefaultRenderer))
 		, m_scene(NULL)
 	{
 		AddRenderPhase(eRenderPhase_OffScreen);
@@ -34,7 +34,7 @@ namespace bento
 			{
 				for (RenderPassPtr renderPass : *list)
 				{
-					renderPass->UnbindFromScene(*m_scene);
+					renderPass->UnbindFromScene(m_scene);
 				}
 			}
 			list->clear();
@@ -42,11 +42,6 @@ namespace bento
 		}
 		m_renderPassesByPhase.clear();
 		m_scene = NULL;
-	}
-
-	const std::type_info & DefaultRenderer::TypeInfo()
-	{
-		return typeid(DefaultRenderer);
 	}
 
 	void DefaultRenderer::BindToScene(bento::Scene * const _scene)
@@ -69,7 +64,7 @@ namespace bento
 			RenderPassList* list = iter.second;
 			for (RenderPassPtr renderPass : *list)
 			{
-				renderPass->BindToScene(*m_scene);
+				renderPass->BindToScene(m_scene);
 			}
 		}
 	}
@@ -86,13 +81,13 @@ namespace bento
 			RenderPassList* list = iter.second;
 			for (RenderPassPtr renderPass : *list)
 			{
-				renderPass->BindToScene(*m_scene);
+				renderPass->BindToScene(m_scene);
 			}
 		}
 		m_scene = NULL;
 	}
 
-	void DefaultRenderer::Update(double dt)
+	void DefaultRenderer::Advance(double dt)
 	{
 		// Update RenderParams
 		auto lens = m_scene->GetComponentForEntity<PerspectiveLens>(m_camera);
@@ -113,7 +108,7 @@ namespace bento
 		glDisable(GL_BLEND);
 
 		// Off Screen pass
-		RenderPassesInPhase(eRenderPhase_OffScreen);
+		RenderPassesInPhase(eRenderPhase_OffScreen, dt);
 
 		glViewport(0, 0, windowSize.x, windowSize.y);
 		// G-Pass
@@ -124,7 +119,7 @@ namespace bento
 		m_deferredRenderTarget.BindForGPhase();
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
-		RenderPassesInPhase(eRenderPhase_G);
+		RenderPassesInPhase(eRenderPhase_G, dt);
 
 		// Switch draw target to back buffer
 		glViewport(0, 0, windowSize.x, windowSize.y);
@@ -135,7 +130,7 @@ namespace bento
 		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.PositionTexture());
 
 		// UI-Pass
-		RenderPassesInPhase(eRenderPhase_UI);
+		RenderPassesInPhase(eRenderPhase_UI, dt);
 	}
 
 	void DefaultRenderer::AddRenderPass(RenderPassPtr _renderPass)
@@ -145,7 +140,7 @@ namespace bento
 		passes->push_back(_renderPass);
 
 		if (m_scene)
-			_renderPass->BindToScene(*m_scene);
+			_renderPass->BindToScene(m_scene);
 	}
 
 	void DefaultRenderer::RemoveRenderPass(RenderPassPtr _renderPass)
@@ -154,7 +149,7 @@ namespace bento
 		passes->erase(std::find(passes->begin(), passes->end(), _renderPass));
 
 		if (m_scene)
-			_renderPass->UnbindFromScene(*m_scene);
+			_renderPass->UnbindFromScene(m_scene);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -168,12 +163,12 @@ namespace bento
 		m_renderPassesByPhase.insert(std::make_pair(_renderPhase, list));
 	}
 
-	void DefaultRenderer::RenderPassesInPhase(RenderPhase _renderPhase)
+	void DefaultRenderer::RenderPassesInPhase(RenderPhase _renderPhase, double _dt)
 	{
 		RenderPassList passes = *m_renderPassesByPhase[_renderPhase];
 		for (RenderPassPtr renderPass : passes)
 		{
-			renderPass->Render();
+			renderPass->Advance(_dt);
 		}
 	}
 }

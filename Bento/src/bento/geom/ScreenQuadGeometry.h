@@ -1,15 +1,16 @@
 #pragma once
 
 #include <typeinfo>
+#include <string>
 
 #include <bento/core/SharedObject.h>
-#include <bento/core/GeometryBase.h>
+#include <bento/geom/Geometry.h>
 
 namespace bento
 {
 	class ScreenQuadGeometry : 
-		public GeometryBase,
-		public bento::SharedObject<ScreenQuadGeometry>
+		public Geometry,
+		public SharedObject<ScreenQuadGeometry>
 	{
 
 	public:
@@ -18,8 +19,5 @@ namespace bento
 	protected:
 		// From AbstractValidatable
 		virtual void Validate() override;
-
-		// From ISceneObject
-		virtual const std::type_info & TypeInfo() override;
 	};
 }

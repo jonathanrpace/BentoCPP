@@ -7,7 +7,7 @@
 namespace bento
 {
 	PerspectiveLens::PerspectiveLens(std::string _name) 
-		: ILens(_name)
+		: Component(_name, typeid(PerspectiveLens))
 		, m_aspectRatio(1.0f)
 		, m_near(0.001f)
 		, m_far(10.0f)
@@ -84,10 +84,5 @@ namespace bento
 	{
 		m_far = _value;
 		m_matrixIsInvalid = true;
-	}
-
-	const std::type_info & PerspectiveLens::TypeInfo()
-	{
-		return typeid(PerspectiveLens);
 	}
 }

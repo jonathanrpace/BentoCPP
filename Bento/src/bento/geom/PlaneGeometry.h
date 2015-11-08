@@ -2,19 +2,20 @@
 
 // std
 #include <typeinfo>
+#include <string>
 
 // bento
 #include <bento/core/SharedObject.h>
-#include <bento/core/GeometryBase.h>
+#include <bento/geom/Geometry.h>
 
 namespace bento
 {
 	class PlaneGeometry
-		: public GeometryBase
+		: public Geometry
 		, public bento::SharedObject<PlaneGeometry>
 	{
 	public:
-		PlaneGeometry();
+		PlaneGeometry(std::string _name = "PlaneGeometry");
 
 		float GetWidth();
 		void SetWidth(float _value);

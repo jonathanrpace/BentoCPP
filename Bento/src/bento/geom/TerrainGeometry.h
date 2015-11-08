@@ -1,14 +1,14 @@
 #pragma once
 
 #include <bento/core/SharedObject.h>
-#include <bento/core/GeometryBase.h>
+#include <bento/geom/Geometry.h>
 #include <bento/textures/TextureSquare.h>
 
 namespace bento
 {
 	class TerrainGeometry
-		: public GeometryBase
-		, public bento::SharedObject<TerrainGeometry>
+		: public Geometry
+		, public SharedObject<TerrainGeometry>
 	{
 	public:
 		TerrainGeometry(std::string _name = "TerrainGeometry");
@@ -47,9 +47,6 @@ namespace bento
 			m_mappingDataRead = m_mappingDataWrite;
 			m_mappingDataWrite = tmp;
 		}
-
-		// ISceneObject
-		virtual const std::type_info& TypeInfo() override;
 
 		inline int NumVerticesPerDimension() { return m_numVerticesPerDimension;  }
 

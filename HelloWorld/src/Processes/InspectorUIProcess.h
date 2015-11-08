@@ -1,24 +1,18 @@
 #pragma once
 
-#include <typeinfo>
-
-#include <imgui.h>
-
-#include <bento/core/Scene.h>
-#include <bento/core/IProcess.h>
+#include <bento/core/Process.h>
 #include <bento/core/SharedObject.h>
 
-class InspectorUIProcess
-	: public bento::IProcess
-	, public bento::SharedObject<InspectorUIProcess>
+namespace bento
 {
-public:
-	// Inherited via IProcess
-	virtual const std::type_info & TypeInfo() override;
-	virtual void BindToScene(bento::Scene * const _scene) override;
-	virtual void UnbindFromScene(bento::Scene * const _scene) override;
-	virtual void Update(double dt) override;
+	class InspectorUIProcess
+		: public Process
+		, public SharedObject<InspectorUIProcess>
+	{
+	public:
+		InspectorUIProcess(std::string _name = "InspectorUIProcess");
 
-private:
-	bento::Scene* m_scene;
-};
+		// From Process
+		virtual void Advance(double dt) override;
+	};
+}

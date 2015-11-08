@@ -1,4 +1,4 @@
-#include "TerrainSimulationPass.h"
+#include "TerrainSimulationProcess.h"
 
 #include <utility>
 
@@ -25,9 +25,9 @@ namespace bento
 	//////////////////////////////////////////////////////////////////////////
 	// TerrainSimulationPass
 	//////////////////////////////////////////////////////////////////////////
-
-	TerrainSimulationPass::TerrainSimulationPass(std::string _name)
-		: NodeGroupRenderPassBase(_name)
+	
+	TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
+		: NodeGroupProcess(_name, typeid(TerrainSimulationProcess))
 		, m_updateFluxShader()
 		, m_updateHeightShader()
 		, m_updateVelocityShader()
@@ -39,7 +39,7 @@ namespace bento
 		m_nodeGroup.NodeRemoved += OnNodeRemovedDelegate;
 	}
 
-	TerrainSimulationPass::~TerrainSimulationPass()
+	TerrainSimulationProcess::~TerrainSimulationProcess()
 	{
 		m_nodeGroup.NodeAdded -= OnNodeAddedDelegate;
 		m_nodeGroup.NodeRemoved -= OnNodeRemovedDelegate;
@@ -52,7 +52,7 @@ namespace bento
 		m_renderTargetByNodeMap.clear();
 	}
 
-	void TerrainSimulationPass::Render()
+	void TerrainSimulationProcess::Advance(double _dt)
 	{
 		m_screenQuadGeom.Bind();
 
@@ -63,16 +63,11 @@ namespace bento
 		}
 	}
 
-	RenderPhase TerrainSimulationPass::GetRenderPhase()
-	{
-		return RenderPhase::eRenderPhase_OffScreen;
-	}
-
 	//////////////////////////////////////////////////////////////////////////
 	// PRIVATE
 	//////////////////////////////////////////////////////////////////////////
 
-	void TerrainSimulationPass::AdvanceTerrainSim
+	void TerrainSimulationProcess::AdvanceTerrainSim
 	(
 		TerrainGeometry & _geom, 
 		TerrainMaterial & _material, 
@@ -157,7 +152,7 @@ namespace bento
 		m_switch = !m_switch;
 	}
 
-	void TerrainSimulationPass::OnNodeAdded(const TerrainSimPassNode & _node)
+	void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)
 	{
 		RenderTargetBase* renderTarget = new RenderTargetBase
 		(
@@ -177,7 +172,7 @@ namespace bento
 		m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
 	}
 
-	void TerrainSimulationPass::OnNodeRemoved(const TerrainSimPassNode & _node)
+	void TerrainSimulationProcess::OnNodeRemoved(const TerrainSimPassNode & _node)
 	{
 		RenderTargetBase* renderTarget = m_renderTargetByNodeMap[&_node];
 		delete renderTarget;

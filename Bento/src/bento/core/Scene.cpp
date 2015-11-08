@@ -114,11 +114,11 @@ namespace bento
 		_process->UnbindFromScene(this);
 	}
 
-	void Scene::Update(double _dt)
+	void Scene::Advance(double _dt)
 	{
 		for (ProcessPtr process : m_processes)
 		{
-			process->Update(_dt);
+			process->Advance(_dt);
 		}
 	}
 

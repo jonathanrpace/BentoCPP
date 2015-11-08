@@ -22,13 +22,15 @@ namespace bento
 		SetUniform("u_emissive", _material->Emissive());
 		SetUniform("u_albedo", _material->Diffuse());	// TODO - degamma
 	}
-	
-	RenderPhase GPass::GetRenderPhase()
+
+	GPass::GPass(std::string _name)
+		: NodeGroupProcess<GPassNode>(_name, typeid(GPass))
+		, RenderPass(eRenderPhase_G)
 	{
-		return eRenderPhase_G;
+
 	}
 
-	void GPass::Render()
+	void GPass::Advance(double _dt)
 	{
 		m_shader.BindPerPass();
 		for( auto node : m_nodeGroup.Nodes() )

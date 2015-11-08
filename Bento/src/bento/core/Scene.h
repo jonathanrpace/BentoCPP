@@ -7,7 +7,7 @@
 #include <bento/core/IWindow.h>
 #include <bento/core/Component.h>
 #include <bento/core/Entity.h>
-#include <bento/core/IProcess.h>
+#include <bento/core/Process.h>
 
 namespace bento
 {
@@ -32,7 +32,7 @@ namespace bento
 		bool EntityHasComponentOfType(EntityPtr _entity, const type_info& _typeInfo);
 		void AddProcess(ProcessPtr _process);
 		void RemoveProcess(ProcessPtr _process);
-		void Update(double _dt);
+		void Advance(double _dt);
 		ComponentList const & GetComponentsForEntity(EntityPtr _entity);
 		EntityList const & Entities();
 

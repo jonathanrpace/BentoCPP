@@ -13,8 +13,5 @@ namespace bento
 		Transform(std::string _name = "Transform");
 
 		mat4 matrix;
-
-		// from IComponent
-		virtual const std::type_info & TypeInfo() override;
 	};
 }

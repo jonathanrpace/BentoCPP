@@ -3,7 +3,7 @@
 namespace bento
 {
 	Entity::Entity(std::string _name)
-		: SceneObject(_name)
+		: SceneObject(_name, typeid(Entity))
 	{
 	}
 }

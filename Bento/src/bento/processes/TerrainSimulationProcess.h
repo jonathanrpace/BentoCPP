@@ -6,10 +6,9 @@
 
 #include <bento.h>
 #include <bento/core/SharedObject.h>
-#include <bento/core/NodeGroupRenderPassBase.h>
+#include <bento/core/NodeGroupProcess.h>
 #include <bento/core/ShaderStageBase.h>
 #include <bento/core/ShaderBase.h>
-#include <bento/core/RenderPhase.h>
 #include <bento/core/RenderTargetBase.h>
 #include <bento/shaderStages/ScreenQuadVert.h>
 #include <bento/geom/TerrainGeometry.h>
@@ -45,28 +44,27 @@ namespace bento
 		TerrainMaterial, material
 	)
 
-	struct TerrainSimulationPass
-		: NodeGroupRenderPassBase<TerrainSimPassNode>
-		, SharedObject<TerrainSimulationPass>
+	struct TerrainSimulationProcess
+		: NodeGroupProcess<TerrainSimPassNode>
+		, SharedObject<TerrainSimulationProcess>
 	{
-		TerrainSimulationPass(std::string _name = "TerrainSimulationPass");
-		~TerrainSimulationPass();
+		TerrainSimulationProcess(std::string _name = "TerrainSimulationPass");
+		~TerrainSimulationProcess();
 
-		// From IRenderPass
-		virtual void Render();
-		virtual RenderPhase GetRenderPhase() override;
+		// From Process
+		virtual void Advance(double _dt) override;
 
 	private:
+		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget);
+
+		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
+		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
+
 		bool m_switch;
 		ScreenQuadGeometry m_screenQuadGeom;
 		UpdateFluidFluxShader m_updateFluxShader;
 		UpdateFluidHeightShader m_updateHeightShader;
 		UpdateFluidVelocityShader m_updateVelocityShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
-
-		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget);
-
-		DEFINE_EVENT_HANDLER_1(TerrainSimulationPass, OnNodeAdded, const TerrainSimPassNode&, node);
-		DEFINE_EVENT_HANDLER_1(TerrainSimulationPass, OnNodeRemoved, const TerrainSimPassNode&, node);
 	};
 }

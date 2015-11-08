@@ -22,7 +22,7 @@
 #include <bento/geom/PlaneGeometry.h>
 #include <bento/renderPasses/GPass.h>
 #include <bento/renderPasses/TerrainGPass.h>
-#include <bento/renderPasses/TerrainSimulationPass.h>
+#include <bento/processes/TerrainSimulationProcess.h>
 #include <bento/processes/OrbitCamera.h>
 #include <bento/util/GLErrorUtil.h>
 
@@ -50,15 +50,15 @@ void mainLoop(GLFWwindow* window)
 
 	// Processes
 	scene.AddProcess(bento::OrbitCamera::Create());
-	scene.AddProcess(InspectorUIProcess::Create());
+	scene.AddProcess(bento::InspectorUIProcess::Create());
+	scene.AddProcess(bento::TerrainSimulationProcess::Create());
 	
 	auto renderer = bento::DefaultRenderer::Create();
 	// Render passes
 	{
 		renderer->AddRenderPass(bento::GPass::Create());
 		renderer->AddRenderPass(bento::TerrainGPass::Create());
-		renderer->AddRenderPass(IMGUIRenderPass::Create());
-		renderer->AddRenderPass(bento::TerrainSimulationPass::Create());
+		renderer->AddRenderPass(bento::IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);
 
@@ -69,7 +69,7 @@ void mainLoop(GLFWwindow* window)
 		/* Poll for and process events */
 		glfwPollEvents();
 		ImGui_ImplGlfwGL3_NewFrame();
-		scene.Update(1.0);
+		scene.Advance(1.0);
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 	}

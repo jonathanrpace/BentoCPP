@@ -1,8 +1,11 @@
 #pragma once
 
-#include <bento/core/NodeGroupRenderPassBase.h>
+#include <string>
+
+#include <bento/core/NodeGroupProcess.h>
 #include <bento/core/ShaderBase.h>
-#include <bento/core/GeometryBase.h>
+#include <bento/core/RenderPass.h>
+#include <bento/geom/Geometry.h>
 #include <bento/shaderStages/SimpleVert.h>
 #include <bento/shaderStages/TestFrag.h>
 #include <bento/components/Transform.h>
@@ -15,19 +18,22 @@ namespace bento
 	DEFINE_NODE_2
 	(
 		TestRenderPassNode,
-		GeometryBase, geom,
+		Geometry, geom,
 		Transform, transform
 	)
 
-	class TestRenderPass :
-		public bento::SharedObject<TestRenderPass>,
-		public NodeGroupRenderPassBase<TestRenderPassNode>
+	class TestRenderPass
+		: public NodeGroupProcess<TestRenderPassNode>
+		, public RenderPass
+		, public SharedObject<TestRenderPass>
 	{
 	public:
-		virtual void Render();
+		TestRenderPass(std::string _name = "TestRenderPass");
+
+		// From Process
+		virtual void Advance(double _dt) override;
+
 	private:
 		TestShader m_shader;
-
-		virtual RenderPhase GetRenderPhase() override;
 	};
 }

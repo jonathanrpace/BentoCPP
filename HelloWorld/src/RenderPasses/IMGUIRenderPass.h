@@ -1,19 +1,22 @@
 #pragma once
 
-#include <bento/core/SharedObject.h>
-#include <bento/core/IRenderPass.h>
-#include <bento/core/RenderPhase.h.>
+#include <string>
 
-class IMGUIRenderPass
-	: public bento::IRenderPass
-	, public bento::SharedObject<IMGUIRenderPass>
+#include <bento/core/Process.h>
+#include <bento/core/SharedObject.h>
+#include <bento/core/RenderPass.h>
+#include <bento/core/Scene.h.>
+
+namespace bento
 {
-public:
-	// Inherited via IRenderPass
-	virtual void BindToScene(bento::Scene & _scene) override;
-	virtual void UnbindFromScene(bento::Scene & _scene) override;
-	virtual void Render() override;
-	virtual bento::RenderPhase GetRenderPhase() override;
-private:
-	bento::Scene* m_scene;
-};
+	class IMGUIRenderPass
+		: public RenderPass
+		, public SharedObject<IMGUIRenderPass>
+	{
+	public:
+		IMGUIRenderPass(std::string _name = "IMGUIRenderPass");
+
+		// Inherited via IProcess
+		virtual void Advance(double _dt) override;
+	};
+}

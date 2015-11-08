@@ -46,7 +46,13 @@ namespace bento
 	// Pass
 	////////////////////////////////////////////
 
-	void TerrainGPass::Render()
+	TerrainGPass::TerrainGPass(std::string _name)
+		: NodeGroupProcess(_name, typeid(TerrainGPass))
+		, RenderPass(eRenderPhase_G)
+	{
+	}
+
+	void TerrainGPass::Advance(double _dt)
 	{
 		m_shader.BindPerPass();
 		for (auto node : m_nodeGroup.Nodes())
@@ -60,10 +66,5 @@ namespace bento
 
 			node->geom->Draw();
 		}
-	}
-
-	RenderPhase TerrainGPass::GetRenderPhase()
-	{
-		return eRenderPhase_G;
 	}
 }

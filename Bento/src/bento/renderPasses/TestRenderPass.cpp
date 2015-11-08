@@ -2,7 +2,14 @@
 
 namespace bento
 {
-	void TestRenderPass::Render()
+	TestRenderPass::TestRenderPass(std::string _name)
+		: NodeGroupProcess(_name, typeid(TestRenderPass))
+		, RenderPass(eRenderPhase_G)
+	{
+
+	}
+
+	void TestRenderPass::Advance(double _dt)
 	{
 		m_shader.BindPerPass();
 
@@ -14,10 +21,5 @@ namespace bento
 			node->geom->Bind();
 			node->geom->Draw();
 		}
-	}
-
-	RenderPhase TestRenderPass::GetRenderPhase()
-	{
-		return bento::eRenderPhase_G;
 	}
 }

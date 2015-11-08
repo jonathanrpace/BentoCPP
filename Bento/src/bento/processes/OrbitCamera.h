@@ -3,24 +3,22 @@
 // bento
 #include <bento.h>
 #include <bento/core/Scene.h>
-#include <bento/core/IProcess.h>
+#include <bento/core/Process.h>
 #include <bento/core/SharedObject.h>
 
 namespace bento
 {
-	class OrbitCamera :
-		public bento::IProcess,
-		public bento::SharedObject<OrbitCamera>
+	class OrbitCamera
+		: public Process
+		, public SharedObject<OrbitCamera>
 	{
 	public:
 		OrbitCamera(std::string _name = "OrbitCamera");
 
-		virtual const std::type_info& TypeInfo() override;
-
-		// from IProcess
-		virtual void BindToScene(bento::Scene * const _scene) override;
-		virtual void UnbindFromScene(bento::Scene * const _scene) override;
-		virtual void Update(double dt) override;
+		// from Process
+		virtual void BindToScene(Scene * const _scene) override;
+		virtual void UnbindFromScene(Scene * const _scene) override;
+		virtual void Advance(double dt) override;
 
 		float Dolly() const { return m_dolly; }
 		void Dolly(float val) { m_dolly = val; }
@@ -57,8 +55,6 @@ namespace bento
 		void ProcessInput();
 		void ApplyEase();
 		void UpdateMatrix();
-
-		bento::Scene* m_scene;
 
 		float m_dolly;
 		float m_dollyTarget;

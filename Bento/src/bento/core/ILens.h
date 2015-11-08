@@ -1,13 +1,11 @@
 #pragma once
 
-#include <bento/core/Component.h>
+#include <bento.h>
 
 namespace bento
 {
-	struct ILens : Component
+	struct ILens
 	{
-		ILens(std::string _name = "ILens");
-
 		virtual float GetAspectRatio() = 0;
 		virtual void SetAspectRatio(float _value) = 0;
 		virtual const mat4& GetMatrix() = 0;

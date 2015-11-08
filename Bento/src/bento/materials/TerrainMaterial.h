@@ -16,8 +16,5 @@ namespace bento
 		TerrainMaterial(std::string _name = "TerrainMaterial");
 
 		TextureSquare SomeTexture;
-
-		// IComponent
-		virtual const std::type_info & TypeInfo() override;
 	};
 }

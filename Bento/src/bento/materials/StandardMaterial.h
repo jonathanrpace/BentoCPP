@@ -9,15 +9,12 @@
 namespace bento
 {
 	class StandardMaterial 
-		: public bento::Component
-		, public bento::SharedObject<StandardMaterial>
-		, public bento::Reflectable
+		: public Component
+		, public SharedObject<StandardMaterial>
+		, public Reflectable
 	{
 	public:
 		StandardMaterial(std::string _name = "StandardMaterial");
-
-		// IComponent
-		virtual const std::type_info & TypeInfo() override;
 
 		float Reflectivity() const;
 		void Reflectivity(float val);

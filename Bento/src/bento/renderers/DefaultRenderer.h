@@ -2,35 +2,36 @@
 
 // std
 #include <map>
+#include <string>
 
 // bento
 #include <bento.h>
 #include <bento/core/SharedObject.h>
-#include <bento/core/IRenderer.h>
-#include <bento/core/IRenderPass.h>
+#include <bento/core/SceneObject.h>
+#include <bento/core/Process.h>
+#include <bento/core/RenderPass.h>
 #include <bento/core/RenderPhase.h>
+#include <bento/core/Scene.h>
 #include <bento/renderTargets/DeferredRenderTarget.h>
 #include <bento/shaders/RectTextureToScreenShader.h>
 
 namespace bento
 {
 	class DefaultRenderer 
-		: public IRenderer
-		, public bento::SharedObject<DefaultRenderer>
+		: public Process
+		, public SharedObject<DefaultRenderer>
 	{
 	public:
 		DefaultRenderer(std::string _name = "DefaultRenderer");
 		~DefaultRenderer();
 
-		// IRenderer
+		// From Process
 		virtual void BindToScene(bento::Scene * const _scene) override;
 		virtual void UnbindFromScene(bento::Scene * const _scene) override;
-		virtual void Update(double dt) override;
-		virtual void AddRenderPass(RenderPassPtr) override;
-		virtual void RemoveRenderPass(RenderPassPtr) override;
+		virtual void Advance(double dt) override;
 
-		// ISceneObejct
-		virtual const std::type_info & TypeInfo() override;
+		void AddRenderPass(RenderPassPtr);
+		void RemoveRenderPass(RenderPassPtr);
 
 		EntityPtr GetCamera() { return m_camera; }
 
@@ -41,7 +42,7 @@ namespace bento
 
 		// Methods
 		void AddRenderPhase(RenderPhase _renderPhase);
-		void RenderPassesInPhase(RenderPhase _renderPhase);
+		void RenderPassesInPhase(RenderPhase _renderPhase, double dt);
 
 		// Member variables
 		Scene * m_scene;

@@ -7,7 +7,7 @@
 namespace bento
 {
 	TerrainGeometry::TerrainGeometry(std::string _name)
-		: GeometryBase(_name)
+		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(2.0f)
 		, m_numVerticesPerDimension(512)
 		, m_heightDataA(m_numVerticesPerDimension, GL_RGBA16F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
@@ -132,11 +132,6 @@ namespace bento
 
 	void TerrainGeometry::OnInvalidate()
 	{
-		GeometryBase::OnInvalidate();
-	}
-
-	const std::type_info & TerrainGeometry::TypeInfo()
-	{
-		return typeid(TerrainGeometry);
+		Geometry::OnInvalidate();
 	}
 }

@@ -1,20 +1,19 @@
 #pragma once
 
-#include <bento\core\SharedObject.h>
-#include <bento\core\ILens.h>
+#include <bento/core/Component.h>
+#include <bento/core/SharedObject.h>
+#include <bento/core/ILens.h>
 
 namespace bento
 {
 	class PerspectiveLens 
-		: public SharedObject<PerspectiveLens>
+		: public Component
+		, public SharedObject<PerspectiveLens>
 		, public ILens
 	{
 	public:
 		PerspectiveLens(std::string _name = "PerspectiveLens");
-
-		// From ISceneObject
-		virtual const std::type_info & TypeInfo() override;
-
+		
 		// From ILens
 		virtual float GetAspectRatio() override;
 		virtual void SetAspectRatio(float _value) override;

@@ -3,18 +3,13 @@
 namespace bento
 {
 	StandardMaterial::StandardMaterial(std::string _name)
-		: Component(_name)
+		: Component(_name, typeid(StandardMaterial))
 		, m_roughness(0.5f)
 		, m_reflectivity(0.9f)
 		, m_emissive(0.0f)
 		, m_diffuse(1.0f, 1.0f, 1.0f)
 	{
 
-	}
-
-	const std::type_info & StandardMaterial::TypeInfo()
-	{
-		return typeid(bento::StandardMaterial);
 	}
 
 	float StandardMaterial::Reflectivity() const { return m_reflectivity; }

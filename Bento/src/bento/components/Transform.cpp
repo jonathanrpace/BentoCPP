@@ -3,13 +3,8 @@
 namespace bento
 {
 	Transform::Transform(std::string _name)
-		: Component(_name)
+		: Component(_name, typeid(Transform))
 	{
 
-	}
-
-	const std::type_info & Transform::TypeInfo()
-	{
-		return typeid(Transform);
 	}
 }

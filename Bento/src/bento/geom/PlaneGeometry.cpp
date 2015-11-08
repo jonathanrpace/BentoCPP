@@ -8,11 +8,12 @@
 
 namespace bento
 {
-	PlaneGeometry::PlaneGeometry() :
-		m_width(1.0f),
-		m_height(1.0f),
-		m_numDivisionsX(0),
-		m_numDivisionsY(0)
+	PlaneGeometry::PlaneGeometry(std::string _name)
+		: Geometry(_name, typeid(Geometry))
+		, m_width(1.0f)
+		, m_height(1.0f)
+		, m_numDivisionsX(0)
+		, m_numDivisionsY(0)
 	{
 
 	}

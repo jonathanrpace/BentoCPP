@@ -3,25 +3,22 @@
 #include <typeinfo>
 
 #include <bento.h>
+
+#include <bento/core/Component.h>
 #include <bento/core/AbstractValidatable.h>
-#include <bento/core/IGeometry.h>
 
 namespace bento
 {
-	class GeometryBase : 
-		public IGeometry, 
+	class Geometry : 
+		public Component, 
 		public AbstractValidatable
 	{
 	public:
-		GeometryBase(std::string _name = "Geometry");
-		~GeometryBase();
+		Geometry(std::string _name = "Geometry", const std::type_info& _typeInfo = typeid(Geometry));
+		~Geometry();
 		
-		// From IGeometry
-		virtual void Bind() override;
-		virtual void Draw() override;
-
-		// ISceneObject
-		virtual const std::type_info& TypeInfo() override;
+		void Bind();
+		void Draw();
 
 	protected:
 		// From AbstractValidatable

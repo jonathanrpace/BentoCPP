@@ -9,7 +9,7 @@ namespace bento
 	//////////////////////////////////////////////////////////////////////////
 
 	ScreenQuadGeometry::ScreenQuadGeometry(std::string _name)
-		:GeometryBase(_name)
+		:Geometry(_name, typeid(ScreenQuadGeometry))
 	{
 	}
 
@@ -53,9 +53,5 @@ namespace bento
 		indices[3] = 3; indices[4] = 1; indices[5] = 2;
 		BufferIndexData(0, indices, m_numIndices);
 		delete indices;
-	}
-	const std::type_info & ScreenQuadGeometry::TypeInfo()
-	{
-		return typeid(ScreenQuadGeometry);
 	}
 }

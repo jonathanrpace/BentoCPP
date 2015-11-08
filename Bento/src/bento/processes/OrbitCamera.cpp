@@ -11,9 +11,8 @@ namespace bento
 	//////////////////////////////////////////////////////////////////////////
 
 	OrbitCamera::OrbitCamera(std::string _name)
-		: IProcess(_name)
+		: Process(_name, typeid(OrbitCamera))
 		, m_mouseIsDown(false)
-		, m_scene(nullptr)
 		, m_dolly(2.0f)
 		, m_dollyTarget(2.0f)
 		, m_dollySpeed(0.1f)
@@ -31,30 +30,25 @@ namespace bento
 
 	}
 
-	const std::type_info & OrbitCamera::TypeInfo()
-	{
-		return typeid(OrbitCamera);
-	}
-
 	void OrbitCamera::BindToScene(bento::Scene * const _scene)
 	{
-		m_scene = _scene;
+		Process::BindToScene(_scene);
 
-		bento::IInputManager* inputManager = m_scene->GetInputManager();
+		IInputManager* inputManager = _scene->GetInputManager();
 		inputManager->OnMouseButtonPress += OnMouseButtonPressDelegate;
 		inputManager->OnMouseButtonRelease += OnMouseButtonReleaseDelegate;
 	}
 
 	void OrbitCamera::UnbindFromScene(bento::Scene * const _scene)
 	{
-		bento::IInputManager* inputManager = m_scene->GetInputManager();
+		Process::UnbindFromScene(_scene);
+
+		IInputManager* inputManager = _scene->GetInputManager();
 		inputManager->OnMouseButtonPress -= OnMouseButtonPressDelegate;
 		inputManager->OnMouseButtonRelease -= OnMouseButtonReleaseDelegate;
-
-		m_scene = nullptr;
 	}
 
-	void OrbitCamera::Update(double dt)
+	void OrbitCamera::Advance(double dt)
 	{
 		ProcessInput();
 		ApplyEase();

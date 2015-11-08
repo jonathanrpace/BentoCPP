@@ -1,7 +1,8 @@
 #pragma once
 
+#include <bento/core/NodeGroupProcess.h>
+#include <bento/core/RenderPass.h>
 #include <bento/core/SharedObject.h>
-#include <bento/core/NodeGroupRenderPassBase.h>
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
 #include <bento/geom/TerrainGeometry.h>
@@ -37,12 +38,15 @@ namespace bento
 	)
 
 	class TerrainGPass
-		: public SharedObject<TerrainGPass>
-		, public NodeGroupRenderPassBase<TerrainGPassNode>
+		: public NodeGroupProcess<TerrainGPassNode>
+		, public RenderPass
+		, public SharedObject<TerrainGPass>
 	{
 	public:
-		virtual void Render();
-		virtual RenderPhase GetRenderPhase() override;
+		TerrainGPass(std::string _name = "TerrainGPass");
+
+		// From Process
+		virtual void Advance(double _dt) override;
 
 	private:
 		TerrainGShader m_shader;
