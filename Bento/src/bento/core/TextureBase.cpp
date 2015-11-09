@@ -58,20 +58,6 @@ namespace bento
 		m_height = y;
 		m_format = GL_RGBA8;
 
-		for (int i = 0; i < x; i++)
-		{
-			for (int j = 0; j < y; j++)
-			{
-				int offset = (j*x + i) * 4;
-
-				GLubyte r = data[offset + 0];
-				GLubyte g = data[offset + 1];
-				GLubyte b = data[offset + 2];
-				GLubyte a = data[offset + 3];
-				
-			}
-		}
-
 		TexImage2D(GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);

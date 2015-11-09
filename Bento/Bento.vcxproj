@@ -143,6 +143,7 @@
     <ClInclude Include="src\bento\components\PerspectiveLens.h" />
     <ClInclude Include="src\bento\components\Transform.h" />
     <ClInclude Include="src\bento\core\Entity.h" />
+    <ClInclude Include="src\bento\core\IInspectable.h" />
     <ClInclude Include="src\bento\core\ILens.h" />
     <ClInclude Include="src\bento\core\RenderPass.h" />
     <ClInclude Include="src\bento\core\IRenderTarget.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="src\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bento\util\TextureUtil.cpp" />
     <ClInclude Include="src\bento.h">
       <FileType>CppCode</FileType>
     </ClInclude>

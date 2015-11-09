@@ -2,6 +2,8 @@
 
 #include <utility>
 
+#include <imgui.h>
+
 namespace bento
 {
 	//////////////////////////////////////////////////////////////////////////
@@ -27,7 +29,7 @@ namespace bento
 	//////////////////////////////////////////////////////////////////////////
 	
 	TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
-		: NodeGroupProcess(_name, typeid(TerrainSimulationProcess))
+		: Process(_name, typeid(TerrainSimulationProcess))
 		, m_updateFluxShader()
 		, m_updateHeightShader()
 		, m_updateVelocityShader()
@@ -78,8 +80,7 @@ namespace bento
 
 		vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
 		normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
-		float mouseStrength = m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f;
-		float mouseRadius = 0.05f;
+		float mouseStrength = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseStrength;
 
 		// Update flux
 		{
@@ -95,9 +96,10 @@ namespace bento
 			auto fragShader = m_updateFluxShader.FragmentShader();
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+			fragShader.SetUniform("u_elasticity", m_elasticity);
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
-			fragShader.SetUniform("u_mouseRadius", mouseRadius);
+			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapFluxData();
@@ -120,7 +122,9 @@ namespace bento
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
-			fragShader.SetUniform("u_mouseRadius", mouseRadius);
+			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
+			fragShader.SetUniform("u_viscocity", m_viscosity);
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapMappingData();
@@ -143,13 +147,21 @@ namespace bento
 			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
-			fragShader.SetUniform("u_mouseRadius", mouseRadius);
+			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+			fragShader.SetUniform("u_viscocity", m_viscosity);
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapHeightData();
 		}
 
 		m_switch = !m_switch;
+	}
+
+	void TerrainSimulationProcess::AddUIElements()
+	{
+		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.0f, 0.5f);
+		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
+		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 1.0f);
 	}
 
 	void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

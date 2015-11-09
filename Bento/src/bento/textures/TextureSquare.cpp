@@ -29,7 +29,7 @@ int bento::TextureSquare::GetNumMipMaps()
 		m_minFilter == GL_LINEAR_MIPMAP_NEAREST ||
 		m_minFilter == GL_LINEAR_MIPMAP_LINEAR)
 	{
-		return bento::TextureUtil::GetNumMipMaps(m_width);
+		return bento::textureUtil::GetNumMipMaps(m_width);
 	}
 
 	return 1;

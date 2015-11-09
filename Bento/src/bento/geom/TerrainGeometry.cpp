@@ -3,6 +3,9 @@
 #include <random>
 
 #include <bento.h>
+#include <imgui.h>
+
+#include <bento/util/TextureUtil.h>
 
 namespace bento
 {
@@ -30,6 +33,19 @@ namespace bento
 	{
 	}
 
+	void TerrainGeometry::AddUIElements()
+	{
+		if (ImGui::SliderFloat("Size", &m_size, 0.1f, 10.0f))
+		{
+			Invalidate();
+		}
+		if (ImGui::SliderInt("NumVerticesPerDimension", &m_numVerticesPerDimension, 4, 2048))
+		{
+			m_numVerticesPerDimension = bento::textureUtil::GetBestPowerOfTwo(m_numVerticesPerDimension);
+			Invalidate();
+		}
+	}
+
 	void TerrainGeometry::Validate()
 	{
 		assert(glIsVertexArray(m_vertexArrayName) == false);
@@ -53,7 +69,7 @@ namespace bento
 
 		std::vector<float> heightData(m_numVertices * 4);
 		std::vector<float> fluxData(m_numVertices * 4);
-		std::vector<float> velocityData(m_numVertices * 4);
+		std::vector<float> mappingData(m_numVertices * 4);
 
 		m_heightDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_heightDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
@@ -92,10 +108,10 @@ namespace bento
 				fluxData[float4Index + 2] = 0.0f;
 				fluxData[float4Index + 3] = 0.0f;
 
-				velocityData[float4Index + 0] = xRatio;	
-				velocityData[float4Index + 1] = zRatio;	
-				velocityData[float4Index + 2] = 0.0f;	
-				velocityData[float4Index + 3] = 0.0f;	
+				mappingData[float4Index + 0] = xRatio;	
+				mappingData[float4Index + 1] = zRatio;	
+				mappingData[float4Index + 2] = 0.0f;	
+				mappingData[float4Index + 3] = 0.0f;	
 
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
@@ -123,7 +139,7 @@ namespace bento
 		m_mappingDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
 		m_mappingDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
 
-		m_velocityData.TexImage2D(GL_RGBA, GL_FLOAT, &velocityData[0]);
+		m_velocityData.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
 		
 		BufferVertexData(0, &positions[0], m_numVertices * 3);
 		BufferVertexData(1, &uvs[0], m_numVertices * 2);

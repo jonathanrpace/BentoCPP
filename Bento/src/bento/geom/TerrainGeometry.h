@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bento/core/SharedObject.h>
+#include <bento/core/IInspectable.h>
 #include <bento/geom/Geometry.h>
 #include <bento/textures/TextureSquare.h>
 
@@ -9,6 +10,7 @@ namespace bento
 	class TerrainGeometry
 		: public Geometry
 		, public SharedObject<TerrainGeometry>
+		, public IInspectable
 	{
 	public:
 		TerrainGeometry(std::string _name = "TerrainGeometry");
@@ -49,6 +51,9 @@ namespace bento
 		}
 
 		inline int NumVerticesPerDimension() { return m_numVerticesPerDimension;  }
+
+		// From IInspectable
+		virtual void AddUIElements() override;
 
 	protected:
 		// From AbstractValidatable

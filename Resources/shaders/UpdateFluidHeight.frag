@@ -11,11 +11,10 @@ in Varying
 	vec2 in_uv;
 };
 
-uniform float u_dt = 1.0f / 8.f;
-
+uniform float u_viscocity;
 uniform vec2 u_mousePos;
-uniform float u_mouseRadius = 0.05f;
-uniform float u_mouseStrength = 0.0f;
+uniform float u_mouseRadius;
+uniform float u_mouseStrength;
 
 // Outputs
 layout( location = 0 ) out vec4 out_heightData;
@@ -37,13 +36,13 @@ void main(void)
 	float fluxD = texture(s_fluxData, in_uv + vec2(0.0f,texelSize.y)).z;
 	vec4 nFlux = vec4(fluxL, fluxR, fluxU, fluxD);
 
-	float fluxChange = u_dt * ((nFlux.x+nFlux.y+nFlux.z+nFlux.w)-(flux.x+flux.y+flux.z+flux.w));
+	float fluxChange = ((nFlux.x+nFlux.y+nFlux.z+nFlux.w)-(flux.x+flux.y+flux.z+flux.w)) * u_viscocity;
 	float newFluidHeight = fluidHeight + fluxChange;
 
 	// Add some fluid near the mouse
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
 	mouseRatio = pow(mouseRatio, 0.5f);
-	newFluidHeight += mouseRatio * u_mouseStrength * 0.01f;
+	newFluidHeight += mouseRatio * u_mouseStrength;
 
 	out_heightData = vec4(heightDataSample.x, newFluidHeight, heightDataSample.zw);
 }

@@ -5,6 +5,7 @@
 #include <event.h>
 
 #include <bento.h>
+#include <bento/core/IInspectable.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/NodeGroupProcess.h>
 #include <bento/core/ShaderStageBase.h>
@@ -47,12 +48,16 @@ namespace bento
 	struct TerrainSimulationProcess
 		: NodeGroupProcess<TerrainSimPassNode>
 		, SharedObject<TerrainSimulationProcess>
+		, IInspectable
 	{
 		TerrainSimulationProcess(std::string _name = "TerrainSimulationPass");
 		~TerrainSimulationProcess();
 
 		// From Process
 		virtual void Advance(double _dt) override;
+
+		// From IInspectable
+		virtual void AddUIElements() override;
 
 	private:
 		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget);
@@ -66,5 +71,11 @@ namespace bento
 		UpdateFluidHeightShader m_updateHeightShader;
 		UpdateFluidVelocityShader m_updateVelocityShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
+
+		float m_viscosity = 0.1f;
+		float m_elasticity = 0.25f;
+		float m_mouseRadius = 0.1f;
+		float m_mouseStrength = 0.01f;
+		float m_textureScrollSpeed = 0.75f;
 	};
 }
