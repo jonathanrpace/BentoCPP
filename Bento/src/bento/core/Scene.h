@@ -35,6 +35,7 @@ namespace bento
 		void Advance(double _dt);
 		ComponentList const & GetComponentsForEntity(EntityPtr _entity);
 		EntityList const & Entities();
+		ProcessList const & Processes();
 
 		template<typename T>
 		std::shared_ptr<T> GetComponentForEntity(EntityPtr _entity)

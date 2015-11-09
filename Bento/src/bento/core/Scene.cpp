@@ -131,4 +131,9 @@ namespace bento
 	{
 		return m_entities;
 	}
+
+	ProcessList const & Scene::Processes()
+	{
+		return m_processes;
+	}
 }

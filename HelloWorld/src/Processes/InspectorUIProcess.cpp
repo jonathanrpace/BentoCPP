@@ -4,7 +4,6 @@
 
 #include <imgui.h>
 
-#include <bento/core/Component.h>
 #include <bento/core/Scene.h>
 #include <bento/core/Reflection.h>
 
@@ -18,34 +17,91 @@ namespace bento
 	void InspectorUIProcess::Advance(double dt)
 	{
 		ImGui::Begin("Inspector");
-		auto entities = m_scene->Entities();
+		ImGui::PushItemWidth(-140.0f);
 
-		for (EntityPtr entity : entities)
+		if (ImGui::TreeNode("Entities"))
 		{
-			//ImGui::PushID(int(entity));
-			if (ImGui::TreeNode((void*)entity->ID(), entity->Name().c_str()))
+			auto entities = m_scene->Entities();
+			for (EntityPtr entity : entities)
 			{
-				auto components = m_scene->GetComponentsForEntity(entity);
-				for (ComponentPtr componentPtr : components)
+				if (ImGui::TreeNode((void*)entity->ID(), entity->Name().c_str()))
 				{
-					if (ImGui::TreeNode((void*)componentPtr->ID(), componentPtr->Name().c_str()))
+					auto components = m_scene->GetComponentsForEntity(entity);
+					for (ComponentPtr componentPtr : components)
 					{
-						Reflectable* reflectable = dynamic_cast<Reflectable*>(componentPtr.get());
-						if (reflectable != nullptr)
+						if (ImGui::TreeNode((void*)componentPtr->ID(), componentPtr->Name().c_str()))
 						{
-							for (size_t i = 0; i < reflectable->GetReflectionInfo()->GetMembersCount(); i++)
-							{
-								auto member = reflectable->GetReflectionInfo()->GetMembers()[i];
-								ImGui::Text(member.m_name);
-							}
+							AddControlsIfReflectable(componentPtr);
+
+							ImGui::TreePop();
 						}
-						ImGui::TreePop();
 					}
+					ImGui::TreePop();
 				}
-				ImGui::TreePop();
+			}
+			ImGui::TreePop();
+		}
+
+		if ( ImGui::TreeNode("Processes") )
+		{
+			auto processes = m_scene->Processes();
+			for (ProcessPtr process : processes)
+			{
+				if (ImGui::TreeNode((void*)process->ID(), process->Name().c_str()))
+				{
+					AddControlsIfReflectable(process);
+
+					ImGui::TreePop();
+				}
+			}
+			ImGui::TreePop();
+		}
+
+		ImGui::PopItemWidth();
+		ImGui::End();
+	}
+
+	void InspectorUIProcess::AddControlsIfReflectable(ComponentPtr _component)
+	{
+		Reflectable* reflectable = dynamic_cast<Reflectable*>(_component.get());
+		if (reflectable == nullptr) return;
+		AddControls(reflectable);
+	}
+
+	void InspectorUIProcess::AddControlsIfReflectable(ProcessPtr _process)
+	{
+		Reflectable* reflectable = dynamic_cast<Reflectable*>(_process.get());
+		if (reflectable == nullptr) return;
+		AddControls(reflectable);
+	}
+
+	void InspectorUIProcess::AddControls(Reflectable* _reflectable)
+	{
+		for (size_t i = 0; i < _reflectable->GetReflectionInfo()->GetMembersCount(); i++)
+		{
+			auto member = _reflectable->GetReflectionInfo()->GetMembers()[i];
+
+			if (member.m_typeInfo == typeid(float))
+			{
+				float* valuePtr = (float*)((size_t)_reflectable + member.m_offset);
+				if (ImGui::SliderFloat(member.m_name, valuePtr, 0.0f, 1.0f))
+				{
+					
+				}
+			}
+			else if (member.m_typeInfo == typeid(int))
+			{
+				int* valuePtr = (int*)((size_t)_reflectable + member.m_offset);
+				if (ImGui::SliderInt(member.m_name, valuePtr,0,100))
+				{
+					
+				}
 			}
 
+			else
+			{
+				ImGui::Text(member.m_name);
+			}
 		}
-		ImGui::End();
 	}
 }
