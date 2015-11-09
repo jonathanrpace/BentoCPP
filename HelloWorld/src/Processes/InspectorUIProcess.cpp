@@ -5,7 +5,7 @@
 #include <imgui.h>
 
 #include <bento/core/Scene.h>
-#include <bento/core/Reflection.h>
+#include <bento/core/IInspectable.h>
 
 namespace bento
 {
@@ -31,7 +31,7 @@ namespace bento
 					{
 						if (ImGui::TreeNode((void*)componentPtr->ID(), componentPtr->Name().c_str()))
 						{
-							AddControlsIfReflectable(componentPtr);
+							AddControlsIfInspectable(componentPtr);
 
 							ImGui::TreePop();
 						}
@@ -49,7 +49,7 @@ namespace bento
 			{
 				if (ImGui::TreeNode((void*)process->ID(), process->Name().c_str()))
 				{
-					AddControlsIfReflectable(process);
+					AddControlsIfInspectable(process);
 
 					ImGui::TreePop();
 				}
@@ -61,47 +61,17 @@ namespace bento
 		ImGui::End();
 	}
 
-	void InspectorUIProcess::AddControlsIfReflectable(ComponentPtr _component)
+	void InspectorUIProcess::AddControlsIfInspectable(ComponentPtr _component)
 	{
-		Reflectable* reflectable = dynamic_cast<Reflectable*>(_component.get());
-		if (reflectable == nullptr) return;
-		AddControls(reflectable);
+		IInspectable* inspectable = dynamic_cast<IInspectable*>(_component.get());
+		if (inspectable == nullptr) return;
+		inspectable->AddUIElements();
 	}
 
-	void InspectorUIProcess::AddControlsIfReflectable(ProcessPtr _process)
+	void InspectorUIProcess::AddControlsIfInspectable(ProcessPtr _process)
 	{
-		Reflectable* reflectable = dynamic_cast<Reflectable*>(_process.get());
-		if (reflectable == nullptr) return;
-		AddControls(reflectable);
-	}
-
-	void InspectorUIProcess::AddControls(Reflectable* _reflectable)
-	{
-		for (size_t i = 0; i < _reflectable->GetReflectionInfo()->GetMembersCount(); i++)
-		{
-			auto member = _reflectable->GetReflectionInfo()->GetMembers()[i];
-
-			if (member.m_typeInfo == typeid(float))
-			{
-				float* valuePtr = (float*)((size_t)_reflectable + member.m_offset);
-				if (ImGui::SliderFloat(member.m_name, valuePtr, 0.0f, 1.0f))
-				{
-					
-				}
-			}
-			else if (member.m_typeInfo == typeid(int))
-			{
-				int* valuePtr = (int*)((size_t)_reflectable + member.m_offset);
-				if (ImGui::SliderInt(member.m_name, valuePtr,0,100))
-				{
-					
-				}
-			}
-
-			else
-			{
-				ImGui::Text(member.m_name);
-			}
-		}
+		IInspectable* inspectable = dynamic_cast<IInspectable*>(_process.get());
+		if (inspectable == nullptr) return;
+		inspectable->AddUIElements();
 	}
 }

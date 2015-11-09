@@ -17,8 +17,7 @@ namespace bento
 
 		// From Process
 		virtual void Advance(double dt) override;
-		void AddControlsIfReflectable(ComponentPtr _component);
-		void AddControlsIfReflectable(ProcessPtr _process);
-		void AddControls(Reflectable * _reflectable);
+		void AddControlsIfInspectable(ComponentPtr _component);
+		void AddControlsIfInspectable(ProcessPtr _process);
 	};
 }
