@@ -82,7 +82,7 @@ namespace bento
 		float m_viscosity = 0.1f;
 		float m_elasticity = 0.25f;
 		float m_mouseRadius = 0.1f;
-		float m_mouseStrength = 0.001f;
+		float m_mouseStrength = 0.01f;
 		float m_textureScrollSpeed = 0.75f;
 		float m_smoothingStrength = 0.1f;
 	};

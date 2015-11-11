@@ -80,6 +80,8 @@ namespace bento
 
 		std::srand(0);
 
+		float cellSize = m_size / (float)m_numVerticesPerDimension;
+
 		int indicesIndex = 0;
 		int vertexIndex = 0;
 		for (int i = 0; i < m_numVerticesPerDimension; i++)
@@ -92,7 +94,14 @@ namespace bento
 				int float3Index = (i * m_numVerticesPerDimension + j) * 3;
 				int float4Index = (i * m_numVerticesPerDimension + j) * 4;
 
-				positions[float3Index + 0] = (xRatio * m_size) - m_size * 0.5f;
+				float xPos = (xRatio * m_size) - m_size * 0.5f;
+
+				if (i % 2 != 0)
+				{
+					xPos -= cellSize * 0.5;
+				}
+
+				positions[float3Index + 0] = xPos;
 				positions[float3Index + 1] = 0.0f;
 				positions[float3Index + 2] = (zRatio * m_size) - m_size * 0.5f;
 
@@ -116,15 +125,30 @@ namespace bento
 
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
-					indices[indicesIndex] = vertexIndex;
-					indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-					indices[indicesIndex + 2] = vertexIndex + 1;
-					indicesIndex += 3;
+					if (i % 2 != 0)
+					{
+						indices[indicesIndex] = vertexIndex;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+						indices[indicesIndex + 2] = vertexIndex + 1;
+						indicesIndex += 3;
 
-					indices[indicesIndex] = vertexIndex + 1;
-					indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-					indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
-					indicesIndex += 3;
+						indices[indicesIndex] = vertexIndex + 1;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+						indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
+						indicesIndex += 3;
+					}
+					else
+					{
+						indices[indicesIndex] = vertexIndex;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+						indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
+						indicesIndex += 3;
+
+						indices[indicesIndex] = vertexIndex;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
+						indices[indicesIndex + 2] = vertexIndex + 1;
+						indicesIndex += 3;
+					}
 				}
 
 				vertexIndex++;
