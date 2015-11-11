@@ -13,13 +13,15 @@ namespace bento
 	{
 	}
 
-	void TerrainGVert::BindPerModel(TerrainGeometry* _geometry)
+	void TerrainGVert::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
 		SetAsActiveShader();
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelMatrix", RenderParams::ModelMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 		SetUniform("u_normalModelViewMatrix", RenderParams::NormalModelViewMatrix());
+
+		SetUniform("u_mapHeightOffset", _material->MapHeightOffset);
 
 		_geometry->SwapHeightData();
 		_geometry->SwapFluxData();
@@ -28,6 +30,7 @@ namespace bento
 		SetTexture("s_fluxData", &(_geometry->FluxDataRead()));
 		SetTexture("s_velocityData", &(_geometry->VelocityData()));
 		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
+		SetTexture("s_normalData", &(_geometry->NormalData()));
 
 		_geometry->SwapHeightData();
 		_geometry->SwapFluxData();
@@ -60,7 +63,7 @@ namespace bento
 			RenderParams::SetModelMatrix(node->transform->matrix);
 
 			node->geom->Bind();
-			m_shader.VertexShader().BindPerModel(node->geom);
+			m_shader.VertexShader().BindPerModel(node->geom, node->material);
 
 			m_shader.VertexShader().SetTexture("s_diffuseMap", &(node->material->SomeTexture));
 

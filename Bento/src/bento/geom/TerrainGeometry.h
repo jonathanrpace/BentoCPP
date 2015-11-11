@@ -23,6 +23,7 @@ namespace bento
 		TextureSquare& MappingDataA() { return m_mappingDataA; }
 		TextureSquare& MappingDataB() { return m_mappingDataB; }
 		TextureSquare& VelocityData() { return m_velocityData; }
+		TextureSquare& NormalData() { return m_normalData; }
 		
 
 		TextureSquare& HeightDataRead() { return *m_heightDataRead; }
@@ -50,7 +51,8 @@ namespace bento
 			m_mappingDataWrite = tmp;
 		}
 
-		inline int NumVerticesPerDimension() { return m_numVerticesPerDimension;  }
+		inline int NumVerticesPerDimension() { return m_numVerticesPerDimension; }
+		inline float Size() { return m_size; }
 
 		// From IInspectable
 		virtual void AddUIElements() override;
@@ -72,6 +74,7 @@ namespace bento
 		TextureSquare m_mappingDataB;
 
 		TextureSquare m_velocityData;
+		TextureSquare m_normalData;
 		
 		TextureSquare* m_heightDataRead;
 		TextureSquare* m_heightDataWrite;

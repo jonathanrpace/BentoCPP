@@ -4,6 +4,7 @@
 uniform sampler2D s_heightData;
 uniform sampler2D s_fluxData;
 uniform sampler2D s_mappingData;
+uniform sampler2D s_diffuseMap;
 
 // Inputs
 in Varying
@@ -13,6 +14,8 @@ in Varying
 
 uniform float u_textureScrollSpeed;
 uniform float u_viscocity;
+uniform float u_mapHeightOffset;
+uniform vec2 u_cellSize;
 
 uniform vec2 u_mousePos;
 uniform float u_mouseRadius;
@@ -21,6 +24,7 @@ uniform float u_mouseStrength;
 // Outputs
 layout( location = 0 ) out vec4 out_velocityData;
 layout( location = 1 ) out vec4 out_mappingData;
+layout( location = 2 ) out vec4 out_normal;
 
 void main(void)
 { 
@@ -34,8 +38,32 @@ void main(void)
 	vec4 fluxD = texture(s_fluxData, in_uv + vec2(0.0f,texelSize.y));
 
 	vec4 velocity = vec4(0.0f);
-	velocity.x = ((fluxL.y - flux.x) + (flux.y - fluxR.x)) * 0.5;
-	velocity.y = ((fluxU.w - flux.z) + (flux.w - fluxD.z)) * 0.5;
+	//velocity.x = ((fluxL.y - flux.x) + (flux.y - fluxR.x)) * 0.5;
+	//velocity.y = ((fluxU.w - flux.z) + (flux.w - fluxD.z)) * 0.5;
+	
+	velocity.x = fluxL.y - fluxR.x;
+	velocity.y = fluxU.w - fluxD.z;
+
+	//velocity.xy = max(velocity.xy, -texelSize.xy);
+	//velocity.xy = min(velocity.xy, texelSize.xy);
+
+	vec4 mappingData = texture(s_mappingData, in_uv);
+	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
+	vec4 mappingR = texture(s_mappingData, in_uv + vec2(texelSize.x,0.0f));
+	vec4 mappingU = texture(s_mappingData, in_uv - vec2(0.0f,texelSize.y));
+	vec4 mappingD = texture(s_mappingData, in_uv + vec2(0.0f,texelSize.y));
+
+	mappingData.xy -= velocity.xy * u_textureScrollSpeed * u_viscocity;
+
+	// Reset mapping near mouse
+	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
+	mouseRatio *= u_mouseStrength;
+	if ( mouseRatio > 0.0f )
+	{
+		mappingData.xy = in_uv;
+	}
+
+	//mappingData.xy += (in_uv-mappingData.xy) * 0.01f;
 
 	vec4 height = texture(s_heightData, in_uv);
 	vec4 heightL = texture(s_heightData, in_uv - vec2(texelSize.x,0.0f));
@@ -43,29 +71,25 @@ void main(void)
 	vec4 heightU = texture(s_heightData, in_uv - vec2(0.0f,texelSize.y));
 	vec4 heightD = texture(s_heightData, in_uv + vec2(0.0f,texelSize.y));
 
-	/*
-	velocity.x -= (height.x+height.y)-(heightR.x+heightR.y);
-	velocity.x += (height.x+height.y)-(heightL.x+heightL.y);
-	velocity.y -= (height.x+height.y)-(heightD.x+heightD.y);
-	velocity.y += (height.x+height.y)-(heightU.x+heightU.y);
-	//velocity *= 0.99f;
-	*/
+	vec4 diffuseSample = texture(s_diffuseMap, mappingData.xy);
+	vec4 diffuseSampleL = texture(s_diffuseMap, mappingL.xy);
+	vec4 diffuseSampleR = texture(s_diffuseMap, mappingR.xy);
+	vec4 diffuseSampleU = texture(s_diffuseMap, mappingU.xy);
+	vec4 diffuseSampleD = texture(s_diffuseMap, mappingD.xy);
 
-	vec4 mappingData = texture(s_mappingData, in_uv);
-	mappingData.xy -= velocity.xy * u_textureScrollSpeed * u_viscocity;
+	// Calculate normals
+	vec3 va = normalize(vec3(u_cellSize.x*0.5, 
+	(heightR.x+heightR.y+diffuseSampleR.x*u_mapHeightOffset)-
+	(heightL.x+heightL.y+diffuseSampleL.x*u_mapHeightOffset), 0.0f));
 
-	/*
-	// Reset the mapping on new fluid
-	if ( u_mouseStrength > 0.0f )
-	{
-		float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
-		mouseRatio = pow(mouseRatio, 0.5f);
-		mappingData.xy += (vec2(0.0f)-mappingData.xy) * mouseRatio * 0.2f;
-	}
-	*/
-
+    vec3 vb = normalize(vec3(0.0f, 
+	(heightD.x+heightD.y+diffuseSampleD.x*u_mapHeightOffset)-
+	(heightU.x+heightU.y+diffuseSampleU.x*u_mapHeightOffset), u_cellSize.y*0.5));
+    vec3 normal = -cross(va,vb);
+	
 	out_velocityData = velocity;
 	out_mappingData = mappingData;
+	out_normal = vec4(normal,0.0f);
 }
 
 

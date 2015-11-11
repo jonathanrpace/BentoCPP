@@ -25,6 +25,12 @@ namespace bento
 	UpdateFluidVelocityFrag::UpdateFluidVelocityFrag() : ShaderStageBase("shaders/UpdateFluidVelocity.frag") {}
 
 	//////////////////////////////////////////////////////////////////////////
+	// DiffuseHeightFrag
+	//////////////////////////////////////////////////////////////////////////
+
+	DiffuseHeightFrag::DiffuseHeightFrag() : ShaderStageBase("shaders/DiffuseHeight.frag") {}
+
+	//////////////////////////////////////////////////////////////////////////
 	// TerrainSimulationPass
 	//////////////////////////////////////////////////////////////////////////
 	
@@ -33,6 +39,7 @@ namespace bento
 		, m_updateFluxShader()
 		, m_updateHeightShader()
 		, m_updateVelocityShader()
+		, m_diffuseHeightShader()
 		, m_screenQuadGeom()
 		, m_renderTargetByNodeMap()
 		, m_switch(false)
@@ -82,6 +89,8 @@ namespace bento
 		normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
 		float mouseStrength = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseStrength;
 
+		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
+
 		// Update flux
 		{
 			static GLenum fluxDrawBufferA[] = { GL_COLOR_ATTACHMENT2 };
@@ -107,8 +116,8 @@ namespace bento
 		
 		// Update velocity
 		{
-			static GLenum velocityDrawBuffersA[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
-			static GLenum velocityDrawBuffersB[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT6 };
+			static GLenum velocityDrawBuffersA[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT7 };
+			static GLenum velocityDrawBuffersB[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
 
 			if (!m_switch)
 				_renderTarget.SetDrawBuffers(velocityDrawBuffersA, sizeof(velocityDrawBuffersA) / sizeof(velocityDrawBuffersA[0]));
@@ -120,11 +129,17 @@ namespace bento
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
+			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
+
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+
 			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
 			fragShader.SetUniform("u_viscocity", m_viscosity);
+			fragShader.SetUniform("u_cellSize", cellSize);
+
+			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapMappingData();
@@ -154,6 +169,36 @@ namespace bento
 			_geom.SwapHeightData();
 		}
 
+		// Diffuse height
+		{
+			static GLenum heightDrawBufferA[] = { GL_COLOR_ATTACHMENT0 };
+			static GLenum heightDrawBufferB[] = { GL_COLOR_ATTACHMENT1 };
+
+			m_diffuseHeightShader.BindPerPass();
+			auto fragShader = m_diffuseHeightShader.FragmentShader();
+
+			fragShader.SetUniform("u_strength", m_smoothingStrength);
+
+			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	
+				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
+			else			
+				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
+
+			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetUniform("u_axis", vec2(1.0f, 0.0f));
+			m_screenQuadGeom.Draw();
+			_geom.SwapHeightData();
+
+			if (&_geom.HeightDataRead() == &_geom.HeightDataA())
+				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
+			else
+				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
+			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetUniform("u_axis", vec2(0.0f, 1.0f));
+			m_screenQuadGeom.Draw();
+			_geom.SwapHeightData();
+		}
+
 		m_switch = !m_switch;
 	}
 
@@ -161,7 +206,8 @@ namespace bento
 	{
 		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.0f, 0.5f);
 		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
-		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 1.0f);
+		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 5.0f);
+		ImGui::SliderFloat("SmoothingStrength", &m_smoothingStrength, 0.0f, 0.5f);
 	}
 
 	void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)
@@ -180,6 +226,7 @@ namespace bento
 		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT4, &_node.geom->VelocityData());
 		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT5, &_node.geom->MappingDataA());
 		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT6, &_node.geom->MappingDataB());
+		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT7, &_node.geom->NormalData());
 
 		m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
 	}

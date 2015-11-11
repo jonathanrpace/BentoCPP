@@ -34,9 +34,15 @@ namespace bento
 		UpdateFluidVelocityFrag();
 	};
 
+	struct DiffuseHeightFrag : ShaderStageBase
+	{
+		DiffuseHeightFrag();
+	};
+
 	struct UpdateFluidFluxShader : ShaderBase<ScreenQuadVert, UpdateFluidFluxFrag> {};
 	struct UpdateFluidHeightShader : ShaderBase<ScreenQuadVert, UpdateFluidHeightFrag> {};
 	struct UpdateFluidVelocityShader : ShaderBase<ScreenQuadVert, UpdateFluidVelocityFrag> {};
+	struct DiffuseHeightShader : ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
 
 	DEFINE_NODE_2
 	(
@@ -70,12 +76,14 @@ namespace bento
 		UpdateFluidFluxShader m_updateFluxShader;
 		UpdateFluidHeightShader m_updateHeightShader;
 		UpdateFluidVelocityShader m_updateVelocityShader;
+		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		float m_viscosity = 0.1f;
 		float m_elasticity = 0.25f;
 		float m_mouseRadius = 0.1f;
-		float m_mouseStrength = 0.01f;
+		float m_mouseStrength = 0.001f;
 		float m_textureScrollSpeed = 0.75f;
+		float m_smoothingStrength = 0.1f;
 	};
 }

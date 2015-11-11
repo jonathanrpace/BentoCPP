@@ -26,7 +26,7 @@ void main(void)
 
 	vec4 heightDataSample = texture(s_heightData, in_uv);
 	vec4 flux = texture(s_fluxData, in_uv);
-	vec4 velocityDataSample = texture(s_velocityData, in_uv);
+	//vec4 velocityDataSample = texture(s_velocityData, in_uv);
 
 	float fluidHeight = heightDataSample.y;
 
@@ -41,7 +41,7 @@ void main(void)
 
 	// Add some fluid near the mouse
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
-	mouseRatio = pow(mouseRatio, 0.5f);
+	mouseRatio = pow(mouseRatio, 1.5f);
 	newFluidHeight += mouseRatio * u_mouseStrength;
 
 	out_heightData = vec4(heightDataSample.x, newFluidHeight, heightDataSample.zw);
