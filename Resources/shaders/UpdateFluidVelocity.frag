@@ -1,8 +1,8 @@
 #version 330 core
 
 // Samplers
-uniform sampler2D s_heightData;
-uniform sampler2D s_fluxData;
+uniform sampler2D s_heightDataOld;
+uniform sampler2D s_heightDataNew;
 uniform sampler2D s_mappingData;
 uniform sampler2D s_diffuseMap;
 
@@ -28,24 +28,25 @@ layout( location = 2 ) out vec4 out_normal;
 
 void main(void)
 { 
-	ivec2 dimensions = textureSize(s_fluxData, 0);
+	ivec2 dimensions = textureSize(s_heightDataOld, 0);
 	vec2 texelSize = 1.0f / dimensions;
 
-	vec4 flux = texture(s_fluxData, in_uv);
-	vec4 fluxL = texture(s_fluxData, in_uv - vec2(texelSize.x,0.0f));
-	vec4 fluxR = texture(s_fluxData, in_uv + vec2(texelSize.x,0.0f));
-	vec4 fluxU = texture(s_fluxData, in_uv - vec2(0.0f,texelSize.y));
-	vec4 fluxD = texture(s_fluxData, in_uv + vec2(0.0f,texelSize.y));
+	vec4 height = texture(s_heightDataNew, in_uv);
+	vec4 heightL = texture(s_heightDataNew, in_uv - vec2(texelSize.x,0.0f));
+	vec4 heightR = texture(s_heightDataNew, in_uv + vec2(texelSize.x,0.0f));
+	vec4 heightU = texture(s_heightDataNew, in_uv - vec2(0.0f,texelSize.y));
+	vec4 heightD = texture(s_heightDataNew, in_uv + vec2(0.0f,texelSize.y));
+
+	vec4 heightOld = texture(s_heightDataOld, in_uv);
+	vec4 heightOldL = texture(s_heightDataOld, in_uv - vec2(texelSize.x,0.0f));
+	vec4 heightOldR = texture(s_heightDataOld, in_uv + vec2(texelSize.x,0.0f));
+	vec4 heightOldU = texture(s_heightDataOld, in_uv - vec2(0.0f,texelSize.y));
+	vec4 heightOldD = texture(s_heightDataOld, in_uv + vec2(0.0f,texelSize.y));
 
 	vec4 velocity = vec4(0.0f);
-	//velocity.x = ((fluxL.y - flux.x) + (flux.y - fluxR.x)) * 0.5;
-	//velocity.y = ((fluxU.w - flux.z) + (flux.w - fluxD.z)) * 0.5;
-	
-	velocity.x = fluxL.y - fluxR.x;
-	velocity.y = fluxU.w - fluxD.z;
 
-	//velocity.xy = max(velocity.xy, -texelSize.xy);
-	//velocity.xy = min(velocity.xy, texelSize.xy);
+	velocity.x = ((heightR.x-heightR.y)-(heightOldR.x+heightOldR.y)) - ((heightL.x-heightL.y)-(heightOldL.x+heightOldL.y));
+	velocity.y = ((heightD.x-heightD.y)-(heightOldD.x+heightOldD.y)) - ((heightU.x-heightU.y)-(heightOldU.x+heightOldU.y));
 
 	vec4 mappingData = texture(s_mappingData, in_uv);
 	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
@@ -63,14 +64,6 @@ void main(void)
 		mappingData.xy = in_uv;
 	}
 
-	//mappingData.xy += (in_uv-mappingData.xy) * 0.01f;
-
-	vec4 height = texture(s_heightData, in_uv);
-	vec4 heightL = texture(s_heightData, in_uv - vec2(texelSize.x,0.0f));
-	vec4 heightR = texture(s_heightData, in_uv + vec2(texelSize.x,0.0f));
-	vec4 heightU = texture(s_heightData, in_uv - vec2(0.0f,texelSize.y));
-	vec4 heightD = texture(s_heightData, in_uv + vec2(0.0f,texelSize.y));
-
 	vec4 diffuseSample = texture(s_diffuseMap, mappingData.xy);
 	vec4 diffuseSampleL = texture(s_diffuseMap, mappingL.xy);
 	vec4 diffuseSampleR = texture(s_diffuseMap, mappingR.xy);
@@ -78,13 +71,13 @@ void main(void)
 	vec4 diffuseSampleD = texture(s_diffuseMap, mappingD.xy);
 
 	// Calculate normals
-	vec3 va = normalize(vec3(u_cellSize.x*0.5, 
+	vec3 va = normalize(vec3(u_cellSize.x, 
 	(heightR.x+heightR.y+diffuseSampleR.x*u_mapHeightOffset)-
 	(heightL.x+heightL.y+diffuseSampleL.x*u_mapHeightOffset), 0.0f));
 
     vec3 vb = normalize(vec3(0.0f, 
 	(heightD.x+heightD.y+diffuseSampleD.x*u_mapHeightOffset)-
-	(heightU.x+heightU.y+diffuseSampleU.x*u_mapHeightOffset), u_cellSize.y*0.5));
+	(heightU.x+heightU.y+diffuseSampleU.x*u_mapHeightOffset), u_cellSize.y));
     vec3 normal = -cross(va,vb);
 	
 	out_velocityData = velocity;

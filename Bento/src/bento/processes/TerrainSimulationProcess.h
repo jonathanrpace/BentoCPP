@@ -79,11 +79,11 @@ namespace bento
 		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
-		float m_viscosity = 0.1f;
-		float m_elasticity = 0.25f;
-		float m_mouseRadius = 0.1f;
+		float m_viscosity = 0.05f;
+		float m_elasticity = 0.5f;
+		float m_mouseRadius = 0.05f;
 		float m_mouseStrength = 0.01f;
-		float m_textureScrollSpeed = 0.75f;
-		float m_smoothingStrength = 0.1f;
+		float m_textureScrollSpeed = 1.25f;
+		float m_smoothingStrength = 0.05f;
 	};
 }

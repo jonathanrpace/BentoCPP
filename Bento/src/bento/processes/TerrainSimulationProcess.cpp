@@ -114,37 +114,7 @@ namespace bento
 			_geom.SwapFluxData();
 		}
 		
-		// Update velocity
-		{
-			static GLenum velocityDrawBuffersA[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT7 };
-			static GLenum velocityDrawBuffersB[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
-
-			if (!m_switch)
-				_renderTarget.SetDrawBuffers(velocityDrawBuffersA, sizeof(velocityDrawBuffersA) / sizeof(velocityDrawBuffersA[0]));
-			else
-				_renderTarget.SetDrawBuffers(velocityDrawBuffersB, sizeof(velocityDrawBuffersB) / sizeof(velocityDrawBuffersB[0]));
-
-			m_updateVelocityShader.BindPerPass();
-			auto fragShader = m_updateVelocityShader.FragmentShader();
-			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
-			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
-			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
-
-			fragShader.SetUniform("u_mousePos", normalisedMousePos);
-			fragShader.SetUniform("u_mouseStrength", mouseStrength);
-			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
-
-			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
-			fragShader.SetUniform("u_viscocity", m_viscosity);
-			fragShader.SetUniform("u_cellSize", cellSize);
-
-			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);
-			m_screenQuadGeom.Draw();
-
-			_geom.SwapMappingData();
-		}
-
+		
 		// Update height
 		{
 			static GLenum heightDrawBufferA[] = { GL_COLOR_ATTACHMENT0 };
@@ -167,6 +137,37 @@ namespace bento
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapHeightData();
+		}
+
+		// Update velocity
+		{
+			static GLenum velocityDrawBuffersA[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT7 };
+			static GLenum velocityDrawBuffersB[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
+
+			if (!m_switch)
+				_renderTarget.SetDrawBuffers(velocityDrawBuffersA, sizeof(velocityDrawBuffersA) / sizeof(velocityDrawBuffersA[0]));
+			else
+				_renderTarget.SetDrawBuffers(velocityDrawBuffersB, sizeof(velocityDrawBuffersB) / sizeof(velocityDrawBuffersB[0]));
+
+			m_updateVelocityShader.BindPerPass();
+			auto fragShader = m_updateVelocityShader.FragmentShader();
+			fragShader.SetTexture("s_heightDataOld", &_geom.HeightDataRead());
+			fragShader.SetTexture("s_heightDataNew", &_geom.HeightDataWrite());
+			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
+			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
+
+			fragShader.SetUniform("u_mousePos", normalisedMousePos);
+			fragShader.SetUniform("u_mouseStrength", mouseStrength);
+			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+
+			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
+			fragShader.SetUniform("u_viscocity", m_viscosity);
+			fragShader.SetUniform("u_cellSize", cellSize);
+
+			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);
+			m_screenQuadGeom.Draw();
+
+			_geom.SwapMappingData();
 		}
 
 		// Diffuse height

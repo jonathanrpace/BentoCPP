@@ -27,6 +27,7 @@ namespace bento
 		
 
 		TextureSquare& HeightDataRead() { return *m_heightDataRead; }
+		TextureSquare& HeightDataWrite() { return m_heightDataRead == &m_heightDataA ? m_heightDataB : m_heightDataA; }
 		TextureSquare& FluxDataRead() { return *m_fluxDataRead; }
 		TextureSquare& MappingDataRead() { return *m_mappingDataRead; }
 
