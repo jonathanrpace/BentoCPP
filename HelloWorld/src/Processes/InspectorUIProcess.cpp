@@ -16,9 +16,17 @@ namespace bento
 
 	void InspectorUIProcess::Advance(double dt)
 	{
-		ImGui::Begin("Inspector");
+		ivec2 backBufferSize = m_scene->GetWindow()->GetWindowSize();
+		bool opened = true;
+		ImGui::SetNextWindowSize(ImVec2(400.0f, (float)backBufferSize.y));
+		ImGui::SetNextWindowPos(ImVec2());
+		
+		ImGui::Begin("Inspector", &opened, 
+			ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | 
+			ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoTitleBar );
+		
 		ImGui::PushItemWidth(-140.0f);
-
 		if (ImGui::TreeNode("Entities"))
 		{
 			auto entities = m_scene->Entities();

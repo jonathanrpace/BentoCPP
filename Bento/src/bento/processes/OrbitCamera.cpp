@@ -1,5 +1,7 @@
 #include "OrbitCamera.h"
 
+#include <imgui.h>
+
 #include <bento/core/IInputManager.h>
 #include <bento/Components/Transform.h>
 #include <bento/renderers/DefaultRenderer.h>
@@ -61,6 +63,7 @@ namespace bento
 
 	void OrbitCamera::ProcessInput()
 	{
+		if (ImGui::IsAnyItemActive()) return;
 		if (m_mouseIsDown)
 		{
 			vec2 mousePos = m_scene->GetInputManager()->GetMousePosition();
@@ -99,6 +102,8 @@ namespace bento
 
 	void OrbitCamera::OnMouseButtonPress(int _button)
 	{
+		if (ImGui::IsAnyItemHovered()) return;
+
 		if (_button == 0)
 		{
 			m_mouseIsDown = true;
