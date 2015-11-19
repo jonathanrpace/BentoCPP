@@ -13,8 +13,8 @@ in Varying
 };
 
 uniform float u_textureScrollSpeed;
-uniform float u_viscocity;
 uniform float u_mapHeightOffset;
+uniform float u_velocityScalar;
 uniform vec2 u_cellSize;
 
 uniform vec2 u_mousePos;
@@ -31,22 +31,35 @@ void main(void)
 	ivec2 dimensions = textureSize(s_heightDataOld, 0);
 	vec2 texelSize = 1.0f / dimensions;
 
-	vec4 height = texture(s_heightDataNew, in_uv);
-	vec4 heightL = texture(s_heightDataNew, in_uv - vec2(texelSize.x,0.0f));
-	vec4 heightR = texture(s_heightDataNew, in_uv + vec2(texelSize.x,0.0f));
-	vec4 heightU = texture(s_heightDataNew, in_uv - vec2(0.0f,texelSize.y));
-	vec4 heightD = texture(s_heightDataNew, in_uv + vec2(0.0f,texelSize.y));
+	vec4 heightSample = texture(s_heightDataNew, in_uv);
+	vec4 heightSampleL = texture(s_heightDataNew, in_uv - vec2(texelSize.x,0.0f));
+	vec4 heightSampleR = texture(s_heightDataNew, in_uv + vec2(texelSize.x,0.0f));
+	vec4 heightSampleU = texture(s_heightDataNew, in_uv - vec2(0.0f,texelSize.y));
+	vec4 heightSampleD = texture(s_heightDataNew, in_uv + vec2(0.0f,texelSize.y));
 
-	vec4 heightOld = texture(s_heightDataOld, in_uv);
-	vec4 heightOldL = texture(s_heightDataOld, in_uv - vec2(texelSize.x,0.0f));
-	vec4 heightOldR = texture(s_heightDataOld, in_uv + vec2(texelSize.x,0.0f));
-	vec4 heightOldU = texture(s_heightDataOld, in_uv - vec2(0.0f,texelSize.y));
-	vec4 heightOldD = texture(s_heightDataOld, in_uv + vec2(0.0f,texelSize.y));
+	vec4 heightOldSample = texture(s_heightDataOld, in_uv);
+	vec4 heightOldSampleL = texture(s_heightDataOld, in_uv - vec2(texelSize.x,0.0f));
+	vec4 heightOldSampleR = texture(s_heightDataOld, in_uv + vec2(texelSize.x,0.0f));
+	vec4 heightOldSampleU = texture(s_heightDataOld, in_uv - vec2(0.0f,texelSize.y));
+	vec4 heightOldSampleD = texture(s_heightDataOld, in_uv + vec2(0.0f,texelSize.y));
 
 	vec4 velocity = vec4(0.0f);
 
-	velocity.x = ((heightR.x-heightR.y)-(heightOldR.x+heightOldR.y)) - ((heightL.x-heightL.y)-(heightOldL.x+heightOldL.y));
-	velocity.y = ((heightD.x-heightD.y)-(heightOldD.x+heightOldD.y)) - ((heightU.x-heightU.y)-(heightOldU.x+heightOldU.y));
+	float oldHeightR = heightOldSampleR.x + heightOldSampleR.y;
+	float oldHeightL = heightOldSampleL.x + heightOldSampleL.y;
+	float oldHeightU = heightOldSampleU.x + heightOldSampleU.y;
+	float oldHeightD = heightOldSampleD.x + heightOldSampleD.y;
+	float oldHeight = heightOldSample.x + heightOldSample.y;
+
+	float heightR = heightSampleR.x + heightSampleR.y;
+	float heightL = heightSampleL.x + heightSampleL.y;
+	float heightU = heightSampleU.x + heightSampleU.y;
+	float heightD = heightSampleD.x + heightSampleD.y;
+	float height = heightSample.x + heightSample.y;
+
+	velocity.x = (heightL-oldHeightL) - (oldHeightR-heightR);
+	velocity.y = (heightU-oldHeightU) - (oldHeightD-heightD);
+	velocity.xy *= u_velocityScalar;
 
 	vec4 mappingData = texture(s_mappingData, in_uv);
 	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
@@ -54,7 +67,7 @@ void main(void)
 	vec4 mappingU = texture(s_mappingData, in_uv - vec2(0.0f,texelSize.y));
 	vec4 mappingD = texture(s_mappingData, in_uv + vec2(0.0f,texelSize.y));
 
-	mappingData.xy -= velocity.xy * u_textureScrollSpeed * u_viscocity;
+	mappingData.xy -= velocity.xy * u_textureScrollSpeed;
 
 	// Reset mapping near mouse
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
@@ -72,12 +85,12 @@ void main(void)
 
 	// Calculate normals
 	vec3 va = normalize(vec3(u_cellSize.x, 
-	(heightR.x+heightR.y+diffuseSampleR.x*u_mapHeightOffset)-
-	(heightL.x+heightL.y+diffuseSampleL.x*u_mapHeightOffset), 0.0f));
+	(heightR+diffuseSampleR.x*u_mapHeightOffset)-
+	(heightL+diffuseSampleL.x*u_mapHeightOffset), 0.0f));
 
     vec3 vb = normalize(vec3(0.0f, 
-	(heightD.x+heightD.y+diffuseSampleD.x*u_mapHeightOffset)-
-	(heightU.x+heightU.y+diffuseSampleU.x*u_mapHeightOffset), u_cellSize.y));
+	(heightD+diffuseSampleD.x*u_mapHeightOffset)-
+	(heightU+diffuseSampleU.x*u_mapHeightOffset), u_cellSize.y));
     vec3 normal = -cross(va,vb);
 	
 	out_velocityData = velocity;

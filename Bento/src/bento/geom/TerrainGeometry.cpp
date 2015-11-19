@@ -98,7 +98,7 @@ namespace bento
 
 				if (i % 2 != 0)
 				{
-					xPos -= cellSize * 0.5;
+					xPos -= cellSize * 0.5f;
 				}
 
 				positions[float3Index + 0] = xPos;

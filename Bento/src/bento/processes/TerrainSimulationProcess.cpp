@@ -72,6 +72,19 @@ namespace bento
 		}
 	}
 
+	void TerrainSimulationProcess::AddUIElements()
+	{
+		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.0f, 0.5f);
+		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
+		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
+		ImGui::SliderFloat("SmoothingStrength", &m_smoothingStrength, 0.0f, 0.45f);
+		ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.0f, 2.0f);
+		ImGui::SliderFloat("CoolingSpeed", &m_coolingSpeed, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("HeatViscosity", &m_heatViscosty, 0.0f, 10.0f);
+		ImGui::SliderFloat("HeatDissipation", &m_heatDissipation, 0.0f, 0.45f);
+		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 200.0f);
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// PRIVATE
 	//////////////////////////////////////////////////////////////////////////
@@ -134,6 +147,10 @@ namespace bento
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 			fragShader.SetUniform("u_viscocity", m_viscosity);
+			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
+			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
+			fragShader.SetUniform("u_meltPower", m_meltPower);
+			fragShader.SetUniform("u_condensePower", m_condensePower);
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapHeightData();
@@ -161,7 +178,7 @@ namespace bento
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 
 			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
-			fragShader.SetUniform("u_viscocity", m_viscosity);
+			fragShader.SetUniform("u_velocityScalar", m_velocityScalar);
 			fragShader.SetUniform("u_cellSize", cellSize);
 
 			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);
@@ -179,6 +196,9 @@ namespace bento
 			auto fragShader = m_diffuseHeightShader.FragmentShader();
 
 			fragShader.SetUniform("u_strength", m_smoothingStrength);
+			fragShader.SetUniform("u_heatDissipation", m_heatDissipation);
+			fragShader.SetUniform("u_heatViscosity", m_heatViscosty);
+			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
 
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
@@ -201,14 +221,6 @@ namespace bento
 		}
 
 		m_switch = !m_switch;
-	}
-
-	void TerrainSimulationProcess::AddUIElements()
-	{
-		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.0f, 0.5f);
-		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
-		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 5.0f);
-		ImGui::SliderFloat("SmoothingStrength", &m_smoothingStrength, 0.0f, 0.5f);
 	}
 
 	void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

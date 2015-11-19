@@ -32,9 +32,15 @@ layout( location = 4 ) out vec4 out_directLight;
 
 void main(void)
 {
+	float heat = in_data0.z;
+
 	vec3 outColor = vec3( clamp( dot(in_normal.xyz, normalize(vec3(0.5,1.0f,0.2f))), 0.0f, 1.0f ) );
 	
-	out_viewPosition = vec4(outColor,1.0f);//in_diffuse;// * 0.5 + vec4((in_data2.xy*10.0f+1.0f) * 0.5, 0.0f, 0.0f);
+	outColor *= 0.25f;
+	outColor.x += heat * 0.75;
+	outColor.z += in_data0.x;
+
+	out_viewPosition = vec4(outColor,1.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );
 	out_albedo = vec4( 1.0f );
 	out_material = vec4( 1.0f, 1.0f, 0.0f, 1.0f );	// roughness, reflectivity, emissive, nowt
