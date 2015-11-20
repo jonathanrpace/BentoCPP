@@ -145,7 +145,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)GLEW\;$(SolutionDir)GLFW\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Bento\bin\$(Platform)\$(Configuration)\;$(SolutionDir)IMGUI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)GLEW\lib\$(Platform)\$(Configuration)\;$(SolutionDir)GLFW\bin\$(Platform)\$(Configuration)\;$(SolutionDir)Bento\bin\$(Platform)\$(Configuration)\;$(SolutionDir)IMGUI\bin\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;GLFW.lib;IMGUI.lib;Bento.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
