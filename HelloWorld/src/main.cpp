@@ -6,7 +6,7 @@
 #include <typeinfo>
 #include <iostream>
 
-#include <glew.h>
+#include <gl/glew.h>
 #include <GLFW/glfw3.h>
 
 // Bento

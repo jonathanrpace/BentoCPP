@@ -6,7 +6,7 @@
 #include <memory>
 #include <typeinfo>
 
-#include <glew.h>
+#include <gl/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

@@ -1,6 +1,6 @@
 #include "InputManagerImpl.h"
 
-#include <glew.h>
+#include <gl/glew.h>
 #include <glfw3.h>
 #include <assert.h>
 

@@ -3,7 +3,7 @@
 #include <map>
 #include <assert.h>
 
-#include <glew.h>
+#include <gl/glew.h>
 
 #include <bento.h>
 #include <bento/core/AbstractValidatable.h>

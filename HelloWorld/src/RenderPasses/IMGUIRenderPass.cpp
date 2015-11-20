@@ -1,6 +1,6 @@
 #include "IMGUIRenderPass.h"
 
-#include <glew.h>
+#include <gl/glew.h>
 #include <imgui.h>
 
 #include <bento/core/Scene.h>

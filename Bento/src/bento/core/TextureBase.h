@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glew.h>
+#include <gl/glew.h>
 
 #include <bento/core/ITexture2D.h>
 #include <bento/core/AbstractValidatable.h>

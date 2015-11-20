@@ -1,7 +1,7 @@
 #include "PlaneGeometry.h"
 
 #include <vector>
-#include <glew.h>
+#include <gl/glew.h>
 #include <assert.h>
 
 #include <bento.h>

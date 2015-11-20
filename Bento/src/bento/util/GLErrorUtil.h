@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glew.h>
+#include <gl/glew.h>
 
 #ifdef ENABLE_GL_CHECKS
 #	define CHECK_SHADER_COMPILATION(ProgName)								\

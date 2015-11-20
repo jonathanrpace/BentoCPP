@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glew.h>
+#include <gl/glew.h>
 
 namespace bento
 {

@@ -1,6 +1,6 @@
 #include "DefaultRenderer.h"
 
-#include <glew.h>
+#include <gl/glew.h>
 #include <assert.h>
 #include <utility>
 
