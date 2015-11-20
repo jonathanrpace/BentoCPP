@@ -37,8 +37,8 @@ void main(void)
 	vec3 outColor = vec3( clamp( dot(in_normal.xyz, normalize(vec3(0.5,1.0f,0.2f))), 0.0f, 1.0f ) );
 	
 	outColor *= 0.25f;
-	outColor.x += heat * 0.75;
-	outColor.z += in_data0.x;
+	outColor.x += pow(heat,0.25) * 0.75;
+	//outColor.z += in_data0.x > 0.01f ? 1.0f : 0.0f;
 
 	out_viewPosition = vec4(outColor,1.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );

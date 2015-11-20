@@ -1,10 +1,10 @@
 #version 330 core
 
 // Samplers
-uniform sampler2D s_heightDataOld;
-uniform sampler2D s_heightDataNew;
+uniform sampler2D s_heightData;
 uniform sampler2D s_mappingData;
 uniform sampler2D s_diffuseMap;
+uniform sampler2D s_fluxData;
 
 // Inputs
 in Varying
@@ -16,6 +16,7 @@ uniform float u_textureScrollSpeed;
 uniform float u_mapHeightOffset;
 uniform float u_velocityScalar;
 uniform vec2 u_cellSize;
+uniform float u_heatViscosityPower;
 
 uniform vec2 u_mousePos;
 uniform float u_mouseRadius;
@@ -28,39 +29,31 @@ layout( location = 2 ) out vec4 out_normal;
 
 void main(void)
 { 
-	ivec2 dimensions = textureSize(s_heightDataOld, 0);
+	ivec2 dimensions = textureSize(s_mappingData, 0);
 	vec2 texelSize = 1.0f / dimensions;
 
-	vec4 heightSample = texture(s_heightDataNew, in_uv);
-	vec4 heightSampleL = texture(s_heightDataNew, in_uv - vec2(texelSize.x,0.0f));
-	vec4 heightSampleR = texture(s_heightDataNew, in_uv + vec2(texelSize.x,0.0f));
-	vec4 heightSampleU = texture(s_heightDataNew, in_uv - vec2(0.0f,texelSize.y));
-	vec4 heightSampleD = texture(s_heightDataNew, in_uv + vec2(0.0f,texelSize.y));
+	vec4 heightSample = texture(s_heightData, in_uv);
+	vec4 heightSampleL = texture(s_heightData, in_uv - vec2(texelSize.x,0.0f));
+	vec4 heightSampleR = texture(s_heightData, in_uv + vec2(texelSize.x,0.0f));
+	vec4 heightSampleU = texture(s_heightData, in_uv - vec2(0.0f,texelSize.y));
+	vec4 heightSampleD = texture(s_heightData, in_uv + vec2(0.0f,texelSize.y));
 
-	vec4 heightOldSample = texture(s_heightDataOld, in_uv);
-	vec4 heightOldSampleL = texture(s_heightDataOld, in_uv - vec2(texelSize.x,0.0f));
-	vec4 heightOldSampleR = texture(s_heightDataOld, in_uv + vec2(texelSize.x,0.0f));
-	vec4 heightOldSampleU = texture(s_heightDataOld, in_uv - vec2(0.0f,texelSize.y));
-	vec4 heightOldSampleD = texture(s_heightDataOld, in_uv + vec2(0.0f,texelSize.y));
+	vec4 flux = texture(s_fluxData, in_uv);
+	vec4 fluxL = texture(s_fluxData, in_uv - vec2(texelSize.x,0.0f));
+	vec4 fluxR = texture(s_fluxData, in_uv + vec2(texelSize.x,0.0f));
+	vec4 fluxU = texture(s_fluxData, in_uv - vec2(0.0f,texelSize.y));
+	vec4 fluxD = texture(s_fluxData, in_uv + vec2(0.0f,texelSize.y));
+
+	float heat = heightSample.z;
+	float viscosity = pow(heat, u_heatViscosityPower);
+
 
 	vec4 velocity = vec4(0.0f);
 
-	float oldHeightR = heightOldSampleR.x + heightOldSampleR.y;
-	float oldHeightL = heightOldSampleL.x + heightOldSampleL.y;
-	float oldHeightU = heightOldSampleU.x + heightOldSampleU.y;
-	float oldHeightD = heightOldSampleD.x + heightOldSampleD.y;
-	float oldHeight = heightOldSample.x + heightOldSample.y;
-
-	float heightR = heightSampleR.x + heightSampleR.y;
-	float heightL = heightSampleL.x + heightSampleL.y;
-	float heightU = heightSampleU.x + heightSampleU.y;
-	float heightD = heightSampleD.x + heightSampleD.y;
-	float height = heightSample.x + heightSample.y;
-
-	velocity.x = (heightL-oldHeightL) - (oldHeightR-heightR);
-	velocity.y = (heightU-oldHeightU) - (oldHeightD-heightD);
-	velocity.xy *= u_velocityScalar;
-
+	velocity.x = (flux.x - fluxL.y) - (flux.y - fluxR.x);
+	velocity.y = (flux.z - fluxU.w) - (flux.w - fluxD.z);
+	velocity.xy *= -u_velocityScalar * viscosity;
+	
 	vec4 mappingData = texture(s_mappingData, in_uv);
 	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
 	vec4 mappingR = texture(s_mappingData, in_uv + vec2(texelSize.x,0.0f));
@@ -77,13 +70,19 @@ void main(void)
 		mappingData.xy = in_uv;
 	}
 
+	// Calculate normals
 	vec4 diffuseSample = texture(s_diffuseMap, mappingData.xy);
 	vec4 diffuseSampleL = texture(s_diffuseMap, mappingL.xy);
 	vec4 diffuseSampleR = texture(s_diffuseMap, mappingR.xy);
 	vec4 diffuseSampleU = texture(s_diffuseMap, mappingU.xy);
 	vec4 diffuseSampleD = texture(s_diffuseMap, mappingD.xy);
 
-	// Calculate normals
+	float heightR = heightSampleR.x + heightSampleR.y;
+	float heightL = heightSampleL.x + heightSampleL.y;
+	float heightU = heightSampleU.x + heightSampleU.y;
+	float heightD = heightSampleD.x + heightSampleD.y;
+	float height = heightSample.x + heightSample.y;
+
 	vec3 va = normalize(vec3(u_cellSize.x, 
 	(heightR+diffuseSampleR.x*u_mapHeightOffset)-
 	(heightL+diffuseSampleL.x*u_mapHeightOffset), 0.0f));

@@ -16,6 +16,6 @@ namespace bento
 		TerrainMaterial(std::string _name = "TerrainMaterial");
 
 		TextureSquare SomeTexture;
-		float MapHeightOffset = 0.006f;
+		float MapHeightOffset = 0.003f;
 	};
 }

@@ -80,18 +80,18 @@ namespace bento
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		float m_viscosity = 0.05f;
-		float m_elasticity = 0.25f;
+		float m_elasticity = 0.05f;
 		float m_mouseRadius = 0.05f;
-		float m_mouseStrength = 0.01f;
-		float m_textureScrollSpeed = 0.5f;
-		float m_smoothingStrength = 0.05f;
-		float m_heatViscosityPower = 0.25f;
+		float m_mouseStrength = 0.001f;
+		float m_textureScrollSpeed = 0.25f;
+		float m_smoothingStrength = 0.25f;
+		float m_heatViscosityPower = 0.1f;
 		float m_coolingSpeed = 0.0001f;
-		float m_heatDissipation = 0.45f;
-		float m_heatViscosty = 0.5f;
-		float m_velocityScalar = 2.0f;
+		float m_heatDissipation = 0.1f;
+		float m_heatViscosty = 50.0f;
+		float m_velocityScalar = 0.25f;
 
-		float m_meltPower = 2.0f;
-		float m_condensePower = 2.0f;
+		float m_meltCondensePower = 2.0f;
+		float m_meltCondenseSpeed = 0.01f;
 	};
 }

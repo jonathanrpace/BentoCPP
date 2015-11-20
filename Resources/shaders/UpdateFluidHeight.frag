@@ -17,8 +17,8 @@ uniform float u_mouseRadius;
 uniform float u_mouseStrength;
 uniform float u_heatViscosityPower;
 uniform float u_coolingSpeed;
-uniform float u_meltPower;
-uniform float u_condensePower;
+uniform float u_meltCondensePower;
+uniform float u_meltCondenseSpeed;
 
 // Outputs
 layout( location = 0 ) out vec4 out_heightData;
@@ -52,17 +52,18 @@ void main(void)
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
 	mouseRatio = pow(mouseRatio, 1.5f);
 	newMoltenHeight += mouseRatio * u_mouseStrength;
-	newHeat = min( 1.0f, newHeat + ((mouseRatio*u_mouseStrength) > 0.0 ? 1.00f : 0.0f) );
+	newHeat = min( 1.0f, newHeat + ((mouseRatio*u_mouseStrength) > 0.0 ? 0.10f : 0.0f) );
+	newHeat = clamp( newHeat, 0.0f, 1.0f );
 
 	// Base on heat, melt some rock and turn it molten
-	// or condense molten to rock
-	float meltStrength = pow(heat, u_meltPower);
-	float solidToMolten = min(solidHeight, meltStrength * 0.0001f);
+	float meltStrength = pow(newHeat, u_meltCondensePower);
+	float solidToMolten = min(solidHeight * u_meltCondenseSpeed, meltStrength * u_meltCondenseSpeed);
 	solidHeight -= solidToMolten;
 	newMoltenHeight += solidToMolten;
 
-	float condenseStrength = pow(1.0f-heat, u_condensePower);
-	float moltenToSolid = min(newMoltenHeight, condenseStrength * 0.0001f);
+	// Or condense molten to rock
+	float condenseStrength = pow(1.0f-newHeat, u_meltCondensePower);
+	float moltenToSolid = min(newMoltenHeight * u_meltCondenseSpeed, condenseStrength * u_meltCondenseSpeed);
 	solidHeight += moltenToSolid;
 	newMoltenHeight -= moltenToSolid;
 	
