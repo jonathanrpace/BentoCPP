@@ -47,12 +47,16 @@ void main(void)
 	float heat = heightSample.z;
 	float viscosity = pow(heat, u_heatViscosityPower);
 
-
 	vec4 velocity = vec4(0.0f);
+	//velocity.x = (flux.x - fluxL.y) - (flux.y - fluxR.x);
+	//velocity.y = (flux.z - fluxU.w) - (flux.w - fluxD.z);
+	//velocity.xy *= -u_velocityScalar * viscosity;
 
-	velocity.x = (flux.x - fluxL.y) - (flux.y - fluxR.x);
-	velocity.y = (flux.z - fluxU.w) - (flux.w - fluxD.z);
+	velocity.x = -(fluxL.y - fluxR.x);
+	velocity.y = -(fluxU.w - fluxD.z);
 	velocity.xy *= -u_velocityScalar * viscosity;
+
+	//dot product velocity with normal? (Make slopes go slower than flats?)
 	
 	vec4 mappingData = texture(s_mappingData, in_uv);
 	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));

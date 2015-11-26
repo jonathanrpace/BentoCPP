@@ -74,12 +74,13 @@ namespace bento
 
 	void TerrainSimulationProcess::AddUIElements()
 	{
+		ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
+		ImGui::SliderFloat("MouseStrength", &m_mouseStrength, 0.00f, 0.01f, "%.5f");
 		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.01f, 0.5f);
 		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
 		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
-		ImGui::SliderFloat("SmoothingStrength", &m_smoothingStrength, 0.0f, 1.0f);
 		ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.1f, 2.0f);
-		ImGui::SliderFloat("CoolingSpeed", &m_coolingSpeed, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("CoolingSpeed", &m_coolingSpeed, 0.0f, 0.1f, "%.5f");
 		ImGui::SliderFloat("HeatViscosity", &m_heatViscosty, 0.0f, 100.0f);
 		ImGui::SliderFloat("HeatDissipation", &m_heatDissipation, 0.0f, 0.45f);
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
@@ -202,6 +203,9 @@ namespace bento
 			fragShader.SetUniform("u_heatDissipation", m_heatDissipation);
 			fragShader.SetUniform("u_heatViscosity", m_heatViscosty);
 			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
+			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
+			fragShader.SetUniform("u_meltCondensePower", m_meltCondensePower);
+			fragShader.SetUniform("u_meltCondenseSpeed", m_meltCondenseSpeed);
 
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
