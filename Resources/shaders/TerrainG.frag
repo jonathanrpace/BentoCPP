@@ -37,11 +37,19 @@ void main(void)
 	vec3 outColor = vec3( clamp( dot(in_normal.xyz, normalize(vec3(0.5,1.0f,0.2f))), 0.0f, 1.0f ) );
 	
 	outColor *= 0.25f;
-	//outColor.x += heat * 0.75 * (1.0f-in_diffuse.x);
-	outColor.x += pow(clamp(heat,0.0f,1.0f),0.5f) > (in_diffuse.y) * 0.9 ? 0.75f * 0.5f : 0.0f;
 
-	outColor.x += clamp(heat,0.0f,1.0f) * 0.5;
-	outColor.y += clamp(heat-1.0f,0.0f,1.0f);
+	float heatForColor = pow(heat - pow(in_diffuse.y,2.0f) * 0.25, 0.9f) * 1.0f;
+	outColor.x += clamp( heatForColor, 0.0f, 1.0f );
+	outColor.y += clamp( heatForColor-0.5f, 0.0f, 1.0f );
+
+	
+
+
+	//outColor.x += heat * 0.75 * (1.0f-in_diffuse.x);
+	//outColor.x += pow(clamp(heat,0.0f,1.0f),0.5f) > (in_diffuse.y) * 0.9 ? 0.75f * 0.5f : 0.0f;
+
+	//outColor.x += clamp(heat,0.0f,1.0f) * 0.5;
+	//outColor.y += clamp(heat-1.0f,0.0f,1.0f);
 
 
 	//outColor.z += in_data0.x > 0.01f ? 1.0f : 0.0f;

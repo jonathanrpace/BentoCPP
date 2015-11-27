@@ -57,8 +57,8 @@ void main(void)
 	meltCondense(heat, height.y, height.x, newMoltenHeight, solidHeight);
 
 	// Smooth molten height
-	//newMoltenHeight += clamp((heightA.y-height.y), -heightA.y*0.5, heightA.y*0.5) * u_strength * 0.5f;
-	//newMoltenHeight += clamp((heightB.y-height.y), -heightB.y*0.5, heightB.y*0.5) * u_strength * 0.5f;
+	newMoltenHeight += clamp((heightA.y-height.y), -heightA.y*0.5, heightA.y*0.5) * u_strength * 0.5f;
+	newMoltenHeight += clamp((heightB.y-height.y), -heightB.y*0.5, heightB.y*0.5) * u_strength * 0.5f;
 	
 	// Move heat
 	vec2 velocity = texture(s_velocityData, in_uv).xy;
