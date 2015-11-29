@@ -79,9 +79,9 @@ namespace bento
 		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.01f, 0.5f);
 		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
 		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
-		ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.1f, 2.0f);
+		ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.1f, 10.0f);
 		ImGui::SliderFloat("CoolingSpeed", &m_coolingSpeed, 0.0f, 0.1f, "%.5f");
-		ImGui::SliderFloat("HeatViscosity", &m_heatViscosty, 0.0f, 100.0f);
+		ImGui::SliderFloat("HeatViscosity", &m_heatViscosty, 0.0f, 5.0f);
 		ImGui::SliderFloat("HeatDissipation", &m_heatDissipation, 0.0f, 0.45f);
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
 		ImGui::SliderFloat("MeltCondensePower", &m_meltCondensePower, 0.1f, 10.0f);
@@ -150,6 +150,7 @@ namespace bento
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 			fragShader.SetUniform("u_viscocity", m_viscosity);
+			fragShader.SetUniform("u_heatViscosity", m_heatViscosty);
 			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
 			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
 			fragShader.SetUniform("u_meltCondensePower", m_meltCondensePower);
@@ -212,18 +213,23 @@ namespace bento
 			else			
 				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
 
+			//_geom.HeightDataRead().MagFilter(GL_LINEAR);
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetUniform("u_axis", vec2(1.0f, 0.0f));
 			m_screenQuadGeom.Draw();
+			//_geom.HeightDataRead().MagFilter(GL_NEAREST);
 			_geom.SwapHeightData();
 
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
 			else
 				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
+
+			//_geom.HeightDataRead().MagFilter(GL_LINEAR);
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetUniform("u_axis", vec2(0.0f, 1.0f));
 			m_screenQuadGeom.Draw();
+			//_geom.HeightDataRead().MagFilter(GL_NEAREST);
 			_geom.SwapHeightData();
 		}
 

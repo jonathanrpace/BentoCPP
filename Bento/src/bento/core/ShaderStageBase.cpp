@@ -150,7 +150,6 @@ void bento::ShaderStageBase::OnInvalidate()
 	}
 }
 
-
 void bento::ShaderStageBase::SetUniform(const char * _name, mat4 & _value, bool _transposed)
 {
 	SetAsActiveShader();

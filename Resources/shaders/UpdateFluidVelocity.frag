@@ -48,16 +48,24 @@ void main(void)
 	float viscosity = pow(heat, u_heatViscosityPower);
 
 	vec4 velocity = vec4(0.0f);
-	//velocity.x = (flux.x - fluxL.y) - (flux.y - fluxR.x);
-	//velocity.y = (flux.z - fluxU.w) - (flux.w - fluxD.z);
-	//velocity.xy *= -u_velocityScalar * viscosity;
-
 	velocity.x = -(fluxL.y - fluxR.x);
 	velocity.y = -(fluxU.w - fluxD.z);
 	velocity.xy *= -u_velocityScalar * viscosity;
 
-	//dot product velocity with normal? (Make slopes go slower than flats?)
-	
+	vec4 heightDiffs = vec4(0.0f);
+	heightDiffs.x = (heightSampleL.x+heightSampleL.y) - (heightSample.x+heightSample.y);
+	heightDiffs.y = (heightSampleR.x+heightSampleR.y) - (heightSample.x+heightSample.y);
+	heightDiffs.z = (heightSampleU.x+heightSampleU.y) - (heightSample.x+heightSample.y);
+	heightDiffs.w = (heightSampleD.x+heightSampleD.y) - (heightSample.x+heightSample.y);
+
+	vec4 h = vec4(0.0f);
+	h.x = length( vec2(heightDiffs.x, u_cellSize.x) );
+	h.y = length( vec2(heightDiffs.y, u_cellSize.x) );
+	h.z = length( vec2(heightDiffs.z, u_cellSize.y) );
+	h.w = length( vec2(heightDiffs.w, u_cellSize.y) );
+	velocity.xy /= 1.0f + (h.x+h.y+h.z+h.w);
+
+
 	vec4 mappingData = texture(s_mappingData, in_uv);
 	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
 	vec4 mappingR = texture(s_mappingData, in_uv + vec2(texelSize.x,0.0f));
@@ -87,13 +95,15 @@ void main(void)
 	float heightD = heightSampleD.x + heightSampleD.y;
 	float height = heightSample.x + heightSample.y;
 
+	float mapHeightOffset = u_mapHeightOffset;// * (1.0f+heat*5.0f);
+
 	vec3 va = normalize(vec3(u_cellSize.x, 
-	(heightR+diffuseSampleR.x*u_mapHeightOffset)-
-	(heightL+diffuseSampleL.x*u_mapHeightOffset), 0.0f));
+	(heightR+diffuseSampleR.x*mapHeightOffset)-
+	(heightL+diffuseSampleL.x*mapHeightOffset), 0.0f));
 
     vec3 vb = normalize(vec3(0.0f, 
-	(heightD+diffuseSampleD.x*u_mapHeightOffset)-
-	(heightU+diffuseSampleU.x*u_mapHeightOffset), u_cellSize.y));
+	(heightD+diffuseSampleD.x*mapHeightOffset)-
+	(heightU+diffuseSampleU.x*mapHeightOffset), u_cellSize.y));
     vec3 normal = -cross(va,vb);
 	
 	out_velocityData = velocity;

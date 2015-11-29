@@ -61,6 +61,7 @@ void main(void)
 
 	float solidHeight = heightDataSample.x;
 	float moltenHeight = heightDataSample.y;
+	float heat = heightDataSample.z;
 
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += solidHeight;
@@ -71,7 +72,9 @@ void main(void)
 	vec4 diffuseSample = texture(s_diffuseMap, uv);
 	out_diffuse = diffuseSample;
 
-	position.y += diffuseSample.x * u_mapHeightOffset;
+	float mapHeightOffset = u_mapHeightOffset;// * (1.0f+heat*5.0f);
+
+	position.y += diffuseSample.x * mapHeightOffset;
 
 	out_viewNormal = vec3(0.0f, 1.0f, 0.0f);
 	out_viewPosition = u_modelViewMatrix * position;
