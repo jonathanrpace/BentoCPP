@@ -38,14 +38,11 @@ void main(void)
 	
 	outColor *= 0.2f;
 
-	//float heatForColor = pow(heat - in_diffuse.x, 0.4f) * 1.0f;
-	//outColor.x += clamp( heatForColor, 0.0f, 1.0f );
-	//outColor.y += clamp( heatForColor-0.5f, 0.0f, 1.0f );
+	//outColor.xyz += abs(in_data2.xyz);
 
-	outColor.x += heat * 0.75;
-	outColor.y += max(0.0f, heat-1.0f);
-
-	//outColor.z += in_data0.y < 0.0001f ? 0.2f : 0.0f;
+	float heatForColor = max(0.0f, heat - (1.0f-in_diffuse.y) * 0.5f);
+	outColor.x += heatForColor * 0.75;
+	outColor.y += max(0.0f, heatForColor-1.0f);
 
 	out_viewPosition = vec4(outColor,1.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );

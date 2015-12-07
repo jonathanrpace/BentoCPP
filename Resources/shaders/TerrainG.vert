@@ -81,7 +81,7 @@ void main(void)
 
 	out_data0 = heightDataSample;
 	out_data1 = mappingDataSample;
-	out_data2 = velocityDataSample;
+	out_data2 = fluxDataSample;
 	out_normal = normalDataSample;
 
 	gl_Position = u_mvpMatrix * position;

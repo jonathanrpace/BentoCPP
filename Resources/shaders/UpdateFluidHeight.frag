@@ -15,14 +15,19 @@ uniform vec2 u_mousePos;
 uniform float u_viscocity;
 uniform float u_mouseRadius;
 uniform float u_mouseStrength;
-uniform float u_heatViscosity;
+uniform float u_heatAdvectSpeed;
+uniform float u_viscosity;
 uniform float u_heatViscosityPower;
+uniform float u_heatViscosityBias;
 uniform float u_coolingSpeed;
-uniform float u_meltCondensePower;
-uniform float u_meltCondenseSpeed;
 
 // Outputs
 layout( location = 0 ) out vec4 out_heightData;
+
+float CalcViscosity( float _heat )
+{
+	return pow(clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f), u_heatViscosityPower) * u_viscosity;
+}
 
 void main(void)
 { 
@@ -43,15 +48,8 @@ void main(void)
 	float newHeat = heat;
 	vec2 velocity = velocityDataSample.xy;
 
-	float viscosity = pow(min(1.0f,heat), u_heatViscosityPower) * u_viscocity;
+	float viscosity = CalcViscosity(heat);
 	
-	/* Advect heat (Shitty)
-	vec2 heatUV = in_uv - (velocity.xy * u_heatViscosity * viscosity);
-	float newHeat = texture(s_heightData, heatUV).z;
-	if (newHeat > heat - 0.1f)
-		newHeat = max(0.0f, newHeat - u_coolingSpeed);
-	*/
-
 	vec4 flux = texture(s_fluxData, in_uv);
 	float fluxL = texture(s_fluxData, in_uv - vec2(texelSize.x,0.0f)).y;
 	float fluxR = texture(s_fluxData, in_uv + vec2(texelSize.x,0.0f)).x;
@@ -63,20 +61,25 @@ void main(void)
 	float newMoltenHeight = moltenHeight + fluxChange * viscosity;
 
 	// Send heat to neighbours
-	vec4 heatToNeighbours = (flux / max(moltenHeight,0.01f)) * heat;
-	newHeat -= (heatToNeighbours.x + heatToNeighbours.y + heatToNeighbours.z + heatToNeighbours.w) * u_heatViscosity * viscosity;
+	vec4 epsilon = vec4(0.001f);
+	vec4 heatToNeighbours = (flux / (moltenHeight+epsilon)) * viscosity * heat * u_heatAdvectSpeed;
+	heatToNeighbours = clamp(heatToNeighbours, 0.0f, heat);
+	newHeat -= (heatToNeighbours.x + heatToNeighbours.y + heatToNeighbours.z + heatToNeighbours.w);
 
 	// Gather heat from neighbours
-	vec4 heatFromNeighbours = (nFlux / max( vec4(heightDataSampleL.y, heightDataSampleR.y, heightDataSampleU.y, heightDataSampleD.y), vec4(0.01f))) * vec4(heightDataSampleL.z, heightDataSampleR.z, heightDataSampleU.z, heightDataSampleD.z);
-	newHeat += (heatFromNeighbours.x + heatFromNeighbours.y + heatFromNeighbours.z + heatFromNeighbours.w) * u_heatViscosity * viscosity;
-
+	vec4 neighbourHeat = vec4(heightDataSampleL.z, heightDataSampleR.z, heightDataSampleU.z, heightDataSampleD.z);
+	vec4 neighbourHeight = vec4(heightDataSampleL.y, heightDataSampleR.y, heightDataSampleU.y, heightDataSampleD.y);
+	vec4 neighbourViscosity = vec4( CalcViscosity(neighbourHeat.x), CalcViscosity(neighbourHeat.y), CalcViscosity(neighbourHeat.z), CalcViscosity(neighbourHeat.w) );
+	vec4 heatFromNeighbours = (nFlux / (neighbourHeight+epsilon)) * neighbourViscosity * neighbourHeat * u_heatAdvectSpeed;
+	heatFromNeighbours = clamp( heatFromNeighbours, vec4(0.0f), neighbourHeat );
+	newHeat += (heatFromNeighbours.x + heatFromNeighbours.y + heatFromNeighbours.z + heatFromNeighbours.w);
 
 	newHeat = max(0.0f, newHeat - u_coolingSpeed);
-
+	
 	// Add some lava near the mouse
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
 	newMoltenHeight += pow(mouseRatio, 1.5f) * u_mouseStrength;
-	newHeat += mouseRatio*u_mouseStrength > 0.0 ? 0.06f * mouseRatio : 0.0f;
+	newHeat += mouseRatio*u_mouseStrength > 0.0 ? 0.03f * mouseRatio : 0.0f;
 
 	
 	

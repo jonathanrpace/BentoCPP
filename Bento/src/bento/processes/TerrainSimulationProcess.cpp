@@ -78,14 +78,17 @@ namespace bento
 		ImGui::SliderFloat("MouseStrength", &m_mouseStrength, 0.00f, 0.01f, "%.5f");
 		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.01f, 0.5f);
 		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
-		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
+		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.1f);
 		ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.1f, 10.0f);
-		ImGui::SliderFloat("CoolingSpeed", &m_coolingSpeed, 0.0f, 0.1f, "%.5f");
-		ImGui::SliderFloat("HeatViscosity", &m_heatViscosty, 0.0f, 5.0f);
+		ImGui::SliderFloat("HeatViscosityBias", &m_heatViscosityBias, 0.0f, 2.0f);
+		ImGui::SliderFloat("CoolingSpeed", &m_coolingSpeed, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 5.0f);
 		ImGui::SliderFloat("HeatDissipation", &m_heatDissipation, 0.0f, 0.45f);
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
-		ImGui::SliderFloat("MeltCondensePower", &m_meltCondensePower, 0.1f, 10.0f);
-		ImGui::SliderFloat("MeltCondenseSpeed", &m_meltCondenseSpeed, 0.0f, 0.1f, "%.5f");
+		ImGui::SliderFloat("MeltPower", &m_meltPower, 0.1f, 10.0f);
+		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.1f, "%.5f");
+		ImGui::SliderFloat("CondensePower", &m_condensePower, 0.1f, 10.0f);
+		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -149,12 +152,14 @@ namespace bento
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
-			fragShader.SetUniform("u_viscocity", m_viscosity);
-			fragShader.SetUniform("u_heatViscosity", m_heatViscosty);
+			
+			fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
+
+			fragShader.SetUniform("u_viscosity", m_viscosity);
 			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
+			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
+
 			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
-			fragShader.SetUniform("u_meltCondensePower", m_meltCondensePower);
-			fragShader.SetUniform("u_meltCondenseSpeed", m_meltCondenseSpeed);
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapHeightData();
@@ -180,7 +185,10 @@ namespace bento
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+
+			fragShader.SetUniform("u_viscosity", m_viscosity);
 			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
+			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
 
 			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
 			fragShader.SetUniform("u_velocityScalar", m_velocityScalar);
@@ -202,11 +210,15 @@ namespace bento
 
 			fragShader.SetUniform("u_strength", m_smoothingStrength);
 			fragShader.SetUniform("u_heatDissipation", m_heatDissipation);
-			fragShader.SetUniform("u_heatViscosity", m_heatViscosty);
+			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
 			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
+
 			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
-			fragShader.SetUniform("u_meltCondensePower", m_meltCondensePower);
-			fragShader.SetUniform("u_meltCondenseSpeed", m_meltCondenseSpeed);
+
+			fragShader.SetUniform("u_meltPower", m_meltPower);
+			fragShader.SetUniform("u_meltSpeed", m_meltSpeed);
+			fragShader.SetUniform("u_condensePower", m_condensePower);
+			fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
 
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));

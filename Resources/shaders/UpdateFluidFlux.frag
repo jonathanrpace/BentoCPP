@@ -39,9 +39,9 @@ void main(void)
 
 	vec4 height = terrainHeight + fluidHeight;
 	vec4 nHeight = nTerrainHeight + nFluidHeight;
-	vec4 heightDiff = height - nHeight;
+	vec4 heightDiff = max( height - nHeight, vec4(0.0f) );
 
-	vec4 newFlux = max(vec4(0.0f), flux + u_elasticity * heightDiff);
+	vec4 newFlux = flux + heightDiff * u_elasticity;
 
 	// Need to scale down the new flux so that we can't drain more fluid than we have this step
 	float limit = min(1.0f, fluidHeight.x / (newFlux.x + newFlux.y + newFlux.z + newFlux.w));
