@@ -85,10 +85,9 @@ namespace bento
 		ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 5.0f);
 		ImGui::SliderFloat("HeatDissipation", &m_heatDissipation, 0.0f, 0.45f);
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
-		ImGui::SliderFloat("MeltPower", &m_meltPower, 0.1f, 10.0f);
 		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.1f, "%.5f");
-		ImGui::SliderFloat("CondensePower", &m_condensePower, 0.1f, 10.0f);
 		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
+		ImGui::SliderFloat("SmoothingStrength", &m_smoothingStrength, 0.0f, 0.5f, "%.5f");
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -215,9 +214,7 @@ namespace bento
 
 			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
 
-			fragShader.SetUniform("u_meltPower", m_meltPower);
 			fragShader.SetUniform("u_meltSpeed", m_meltSpeed);
-			fragShader.SetUniform("u_condensePower", m_condensePower);
 			fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
 
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	

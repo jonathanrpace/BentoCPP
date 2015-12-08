@@ -79,7 +79,7 @@ void main(void)
 	// Add some lava near the mouse
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
 	newMoltenHeight += pow(mouseRatio, 1.5f) * u_mouseStrength;
-	newHeat += mouseRatio*u_mouseStrength > 0.0 ? 0.03f * mouseRatio : 0.0f;
+	newHeat += mouseRatio*u_mouseStrength > 0.0 ? min(0.25f,  (u_mouseStrength * mouseRatio * 20.0f) / newHeat) : 0.0f;
 
 	
 	
