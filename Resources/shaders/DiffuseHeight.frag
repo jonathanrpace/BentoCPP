@@ -59,16 +59,16 @@ void main(void)
 	float newMoltenHeight = height.y;
 	
 	// Smooth heat
-	//newHeat += clamp((heightA.z-heat), -heightA.z*0.25, heightA.z*0.25) * u_heatDissipation;
-	//newHeat += clamp((heightB.z-heat), -heightB.z*0.25, heightB.z*0.25) * u_heatDissipation;
+	newHeat += clamp((heightA.z-heat), -heightA.z*0.25, heightA.z*0.25) * u_heatDissipation;
+	newHeat += clamp((heightB.z-heat), -heightB.z*0.25, heightB.z*0.25) * u_heatDissipation;
 
 	
 
 	// Smooth molten height
-	newMoltenHeight += clamp((heightA.y-height.y), -heightA.y*0.5, heightA.y*0.5) * u_strength * 0.5f;
-	newMoltenHeight += clamp((heightB.y-height.y), -heightB.y*0.5, heightB.y*0.5) * u_strength * 0.5f;
+	//newMoltenHeight += clamp((heightA.y-height.y), -heightA.y*0.5, heightA.y*0.5) * u_strength * 0.5f;
+	//newMoltenHeight += clamp((heightB.y-height.y), -heightB.y*0.5, heightB.y*0.5) * u_strength * 0.5f;
 
-	meltCondense(newHeat, newMoltenHeight, height.x, newMoltenHeight, newSolidHeight);
+	newMoltenHeight += (((height.y + heightA.y + heightB.y) / 3.0f) - height.y) * u_strength * 0.5f;
 	
 	out_heightData = vec4(newSolidHeight, newMoltenHeight, newHeat, height.w);
 }

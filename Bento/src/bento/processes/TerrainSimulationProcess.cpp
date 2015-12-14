@@ -76,18 +76,19 @@ namespace bento
 	{
 		ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
 		ImGui::SliderFloat("MouseStrength", &m_mouseStrength, 0.00f, 0.01f, "%.5f");
-		ImGui::SliderFloat("Viscosity", &m_viscosity, 0.01f, 0.5f);
+		ImGui::SliderFloat("ViscosityMin", &m_viscosityMin, 0.01f, 0.5f);
+		ImGui::SliderFloat("ViscosityMax", &m_viscosityMax, 0.01f, 0.5f);
 		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
-		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.1f);
 		ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.1f, 10.0f);
 		ImGui::SliderFloat("HeatViscosityBias", &m_heatViscosityBias, 0.0f, 2.0f);
-		ImGui::SliderFloat("CoolingSpeed", &m_coolingSpeed, 0.0f, 0.01f, "%.5f");
 		ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 5.0f);
-		ImGui::SliderFloat("HeatDissipation", &m_heatDissipation, 0.0f, 0.45f);
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
-		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.1f, "%.5f");
-		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
-		ImGui::SliderFloat("SmoothingStrength", &m_smoothingStrength, 0.0f, 0.5f, "%.5f");
+		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.1f);
+		ImGui::SliderFloat("CoolingSpeedMin", &m_coolingSpeedMin, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("CoolingSpeedMax", &m_coolingSpeedMax, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("HeatSmoothing", &m_heatDissipation, 0.0f, 0.5f, "%.5f");
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -148,17 +149,25 @@ namespace bento
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
 			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
+			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
+			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
+
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 			
 			fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
 
-			fragShader.SetUniform("u_viscosity", m_viscosity);
+			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
+			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
 			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
 			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
 
-			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
+			fragShader.SetUniform("u_coolingSpeedMin", m_coolingSpeedMin);
+			fragShader.SetUniform("u_coolingSpeedMax", m_coolingSpeedMax);
+			fragShader.SetUniform("u_meltSpeed", m_meltSpeed);
+			fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
+
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapHeightData();
@@ -185,7 +194,8 @@ namespace bento
 			fragShader.SetUniform("u_mouseStrength", mouseStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 
-			fragShader.SetUniform("u_viscosity", m_viscosity);
+			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
+			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
 			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
 			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
 
@@ -198,7 +208,7 @@ namespace bento
 
 			_geom.SwapMappingData();
 		}
-
+		
 		// Diffuse height
 		{
 			static GLenum heightDrawBufferA[] = { GL_COLOR_ATTACHMENT0 };
@@ -212,11 +222,6 @@ namespace bento
 			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
 			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
 
-			fragShader.SetUniform("u_coolingSpeed", m_coolingSpeed);
-
-			fragShader.SetUniform("u_meltSpeed", m_meltSpeed);
-			fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
-
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
 			else			
@@ -226,7 +231,6 @@ namespace bento
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetUniform("u_axis", vec2(1.0f, 0.0f));
 			m_screenQuadGeom.Draw();
-			//_geom.HeightDataRead().MagFilter(GL_NEAREST);
 			_geom.SwapHeightData();
 
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())
@@ -234,14 +238,12 @@ namespace bento
 			else
 				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
 
-			//_geom.HeightDataRead().MagFilter(GL_LINEAR);
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetUniform("u_axis", vec2(0.0f, 1.0f));
 			m_screenQuadGeom.Draw();
-			//_geom.HeightDataRead().MagFilter(GL_NEAREST);
 			_geom.SwapHeightData();
 		}
-
+		
 		m_switch = !m_switch;
 	}
 

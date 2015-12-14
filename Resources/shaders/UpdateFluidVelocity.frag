@@ -15,7 +15,8 @@ in Varying
 uniform float u_textureScrollSpeed;
 uniform float u_mapHeightOffset;
 uniform float u_velocityScalar;
-uniform float u_viscosity;
+uniform float u_viscosityMin;
+uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
@@ -29,13 +30,14 @@ layout( location = 0 ) out vec4 out_velocityData;
 layout( location = 1 ) out vec4 out_mappingData;
 layout( location = 2 ) out vec4 out_normal;
 
-float CalcViscosity( float _heat )
+float CalcViscosity( float _heat, float _viscosityScalar )
 {
-	return pow(clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f), u_heatViscosityPower) * u_viscosity;
+	float viscosity = mix( u_viscosityMin, u_viscosityMax, _viscosityScalar );
+	return pow(smoothstep( 0.0f, 1.0f, clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f)), u_heatViscosityPower) * viscosity;
 }
 
 void main(void)
-{ 
+{
 	ivec2 dimensions = textureSize(s_mappingData, 0);
 	vec2 texelSize = 1.0f / dimensions;
 
@@ -45,16 +47,28 @@ void main(void)
 	vec4 heightSampleU = texture(s_heightData, in_uv - vec2(0.0f,texelSize.y));
 	vec4 heightSampleD = texture(s_heightData, in_uv + vec2(0.0f,texelSize.y));
 
-	vec2 uv = in_uv - 0.0f;
-	vec4 flux = texture(s_fluxData, uv);
-	float fluxL = texture(s_fluxData, uv - vec2(texelSize.x,0.0f)).y;
-	float fluxR = texture(s_fluxData, uv + vec2(texelSize.x,0.0f)).x;
-	float fluxU = texture(s_fluxData, uv - vec2(0.0f,texelSize.y)).w;
-	float fluxD = texture(s_fluxData, uv + vec2(0.0f,texelSize.y)).z;
+	vec4 flux = texture(s_fluxData, in_uv);
+	float fluxL = texture(s_fluxData, in_uv - vec2(texelSize.x,0.0f)).y;
+	float fluxR = texture(s_fluxData, in_uv + vec2(texelSize.x,0.0f)).x;
+	float fluxU = texture(s_fluxData, in_uv - vec2(0.0f,texelSize.y)).w;
+	float fluxD = texture(s_fluxData, in_uv + vec2(0.0f,texelSize.y)).z;
+
+	vec4 mappingData = texture(s_mappingData, in_uv);
+	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
+	vec4 mappingR = texture(s_mappingData, in_uv + vec2(texelSize.x,0.0f));
+	vec4 mappingU = texture(s_mappingData, in_uv - vec2(0.0f,texelSize.y));
+	vec4 mappingD = texture(s_mappingData, in_uv + vec2(0.0f,texelSize.y));
+
+	vec4 diffuseSample = texture(s_diffuseMap, mappingData.xy);
+	vec4 diffuseSampleL = texture(s_diffuseMap, mappingL.xy);
+	vec4 diffuseSampleR = texture(s_diffuseMap, mappingR.xy);
+	vec4 diffuseSampleU = texture(s_diffuseMap, mappingU.xy);
+	vec4 diffuseSampleD = texture(s_diffuseMap, mappingD.xy);
 
 	float heat = heightSample.z;
-	float viscosity = CalcViscosity(heat);
+	float viscosity = CalcViscosity(heat, diffuseSample.y);
 
+	// Calculate velocity from flux
 	vec4 velocity = vec4(0.0f);
 	velocity.x = ((fluxL + flux.y) - (fluxR + flux.x)) / texelSize.x;
 	velocity.y = ((fluxU + flux.w) - (fluxD + flux.z)) / texelSize.y;
@@ -75,46 +89,33 @@ void main(void)
 	velocity.xy /= 1.0f + (h.x+h.y+h.z+h.w);
 	*/
 
-	vec4 mappingData = texture(s_mappingData, in_uv);
-	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
-	vec4 mappingR = texture(s_mappingData, in_uv + vec2(texelSize.x,0.0f));
-	vec4 mappingU = texture(s_mappingData, in_uv - vec2(0.0f,texelSize.y));
-	vec4 mappingD = texture(s_mappingData, in_uv + vec2(0.0f,texelSize.y));
-
+	// Update mappingData from velocity
 	mappingData.xy -= (velocity.xy * u_textureScrollSpeed * 0.01f);
 
 	// Reset mapping near mouse
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
-	mouseRatio *= u_mouseStrength;
-	if ( mouseRatio > 0.0f )
+	if ( mouseRatio > 0.8f && u_mouseStrength > 0.0f )
 	{
 		//mappingData.xy = in_uv;
 	}
 
 	// Calculate normals
-	vec4 diffuseSample = texture(s_diffuseMap, mappingData.xy);
-	vec4 diffuseSampleL = texture(s_diffuseMap, mappingL.xy);
-	vec4 diffuseSampleR = texture(s_diffuseMap, mappingR.xy);
-	vec4 diffuseSampleU = texture(s_diffuseMap, mappingU.xy);
-	vec4 diffuseSampleD = texture(s_diffuseMap, mappingD.xy);
-
 	float heightR = heightSampleR.x + heightSampleR.y;
 	float heightL = heightSampleL.x + heightSampleL.y;
 	float heightU = heightSampleU.x + heightSampleU.y;
 	float heightD = heightSampleD.x + heightSampleD.y;
 	float height = heightSample.x + heightSample.y;
 
-	float mapHeightOffset = u_mapHeightOffset;
-
 	vec3 va = normalize(vec3(u_cellSize.x, 
-	(heightR+diffuseSampleR.x*mapHeightOffset)-
-	(heightL+diffuseSampleL.x*mapHeightOffset), 0.0f));
+	(heightR+diffuseSampleR.x*u_mapHeightOffset)-
+	(heightL+diffuseSampleL.x*u_mapHeightOffset), 0.0f));
 
     vec3 vb = normalize(vec3(0.0f, 
-	(heightD+diffuseSampleD.x*mapHeightOffset)-
-	(heightU+diffuseSampleU.x*mapHeightOffset), u_cellSize.y));
+	(heightD+diffuseSampleD.x*u_mapHeightOffset)-
+	(heightU+diffuseSampleU.x*u_mapHeightOffset), u_cellSize.y));
     vec3 normal = -cross(va,vb);
 	
+	// Output
 	out_velocityData = velocity;
 	out_mappingData = mappingData;
 	out_normal = vec4(normal,0.0f);

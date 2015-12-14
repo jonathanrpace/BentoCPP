@@ -40,9 +40,15 @@ void main(void)
 
 	//outColor.xyz += abs(in_data2.xyz);
 
-	float heatForColor = max(0.0f, heat - (1.0f-in_diffuse.y) * 0.5f);
-	outColor.x += heatForColor * 0.75;
-	outColor.y += max(0.0f, heatForColor-1.0f);
+	//outColor.z += clamp( in_data0.y / in_data0.x, 0.0f, 1.0f );
+
+
+
+	float heatForColor = max(0.0f, heat - (in_diffuse.y) * 0.5f);
+	outColor.x += pow( min(heatForColor, 1.0f), 1.5f );
+
+	float heatForColor2 = max(0.0f, heat - (in_diffuse.y) * 0.8f);
+	outColor.y += pow( max(0.0f, heatForColor2-0.6f), 0.8f );
 
 	out_viewPosition = vec4(outColor,1.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );
