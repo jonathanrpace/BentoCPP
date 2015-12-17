@@ -19,7 +19,6 @@ uniform sampler2D s_diffuseMap;
  
 // Uniforms
 uniform mat4 u_mvpMatrix;
-uniform mat4 u_modelMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat3 u_normalModelViewMatrix;
 uniform float u_mapHeightOffset;
@@ -37,6 +36,7 @@ out gl_PerVertex
 // Varying
 out Varying
 {
+	vec2 out_uv;
 	vec3 out_viewNormal;
 	vec4 out_viewPosition;
 	vec4 out_data0;
@@ -72,10 +72,11 @@ void main(void)
 	vec4 diffuseSample = texture(s_diffuseMap, uv);
 	out_diffuse = diffuseSample;
 
-	float mapHeightOffset = u_mapHeightOffset;// * (1.0f+heat*5.0f);
+	float mapHeightOffset = u_mapHeightOffset;
 
 	position.y += diffuseSample.x * mapHeightOffset;
 
+	out_uv = in_uv;
 	out_viewNormal = vec3(0.0f, 1.0f, 0.0f);
 	out_viewPosition = u_modelViewMatrix * position;
 

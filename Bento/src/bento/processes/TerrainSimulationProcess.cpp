@@ -112,8 +112,8 @@ namespace bento
 
 		// Update flux
 		{
-			static GLenum fluxDrawBufferA[] = { GL_COLOR_ATTACHMENT2 };
-			static GLenum fluxDrawBufferB[] = { GL_COLOR_ATTACHMENT3 };
+			static GLenum fluxDrawBufferA[] = { FLUX_DATA_A };
+			static GLenum fluxDrawBufferB[] = { FLUX_DATA_B };
 
 			if (!m_switch)
 				_renderTarget.SetDrawBuffers(fluxDrawBufferB, sizeof(fluxDrawBufferB) / sizeof(fluxDrawBufferB[0]));
@@ -125,9 +125,6 @@ namespace bento
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
 			fragShader.SetUniform("u_elasticity", m_elasticity);
-			fragShader.SetUniform("u_mousePos", normalisedMousePos);
-			fragShader.SetUniform("u_mouseStrength", mouseStrength);
-			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapFluxData();
@@ -136,8 +133,8 @@ namespace bento
 		
 		// Update height
 		{
-			static GLenum heightDrawBufferA[] = { GL_COLOR_ATTACHMENT0 };
-			static GLenum heightDrawBufferB[] = { GL_COLOR_ATTACHMENT1 };
+			static GLenum heightDrawBufferA[] = { HEIGHT_DATA_A };
+			static GLenum heightDrawBufferB[] = { HEIGHT_DATA_B };
 
 			if (!m_switch)
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
@@ -148,7 +145,7 @@ namespace bento
 			auto fragShader = m_updateHeightShader.FragmentShader();
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
-			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
+			//fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
 			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
 
@@ -175,8 +172,8 @@ namespace bento
 
 		// Update velocity
 		{
-			static GLenum velocityDrawBuffersA[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT7 };
-			static GLenum velocityDrawBuffersB[] = { GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT6, GL_COLOR_ATTACHMENT7 };
+			static GLenum velocityDrawBuffersA[] = { VELOCITY_DATA, MAPPING_DATA_A, NORMAL_DATA };
+			static GLenum velocityDrawBuffersB[] = { VELOCITY_DATA, MAPPING_DATA_B, NORMAL_DATA };
 
 			if (!m_switch)
 				_renderTarget.SetDrawBuffers(velocityDrawBuffersA, sizeof(velocityDrawBuffersA) / sizeof(velocityDrawBuffersA[0]));
@@ -190,9 +187,9 @@ namespace bento
 			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
 
-			fragShader.SetUniform("u_mousePos", normalisedMousePos);
-			fragShader.SetUniform("u_mouseStrength", mouseStrength);
-			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+			//fragShader.SetUniform("u_mousePos", normalisedMousePos);
+			//fragShader.SetUniform("u_mouseStrength", mouseStrength);
+			//fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 
 			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
 			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
@@ -211,16 +208,16 @@ namespace bento
 		
 		// Diffuse height
 		{
-			static GLenum heightDrawBufferA[] = { GL_COLOR_ATTACHMENT0 };
-			static GLenum heightDrawBufferB[] = { GL_COLOR_ATTACHMENT1 };
+			static GLenum heightDrawBufferA[] = { HEIGHT_DATA_A };
+			static GLenum heightDrawBufferB[] = { HEIGHT_DATA_B };
 
 			m_diffuseHeightShader.BindPerPass();
 			auto fragShader = m_diffuseHeightShader.FragmentShader();
 
 			fragShader.SetUniform("u_strength", m_smoothingStrength);
 			fragShader.SetUniform("u_heatDissipation", m_heatDissipation);
-			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
-			fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
+			//fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
+			//fragShader.SetTexture("s_velocityData", &_geom.VelocityData());
 
 			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
@@ -256,14 +253,14 @@ namespace bento
 			false, false, GL_RGBA16F
 		);
 
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT0, &_node.geom->HeightDataA());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT1, &_node.geom->HeightDataB());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT2, &_node.geom->FluxDataA());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT3, &_node.geom->FluxDataB());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT4, &_node.geom->VelocityData());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT5, &_node.geom->MappingDataA());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT6, &_node.geom->MappingDataB());
-		renderTarget->AttachTexture(GL_COLOR_ATTACHMENT7, &_node.geom->NormalData());
+		renderTarget->AttachTexture(HEIGHT_DATA_A, &_node.geom->HeightDataA());
+		renderTarget->AttachTexture(HEIGHT_DATA_B, &_node.geom->HeightDataB());
+		renderTarget->AttachTexture(FLUX_DATA_A, &_node.geom->FluxDataA());
+		renderTarget->AttachTexture(FLUX_DATA_B, &_node.geom->FluxDataB());
+		renderTarget->AttachTexture(VELOCITY_DATA, &_node.geom->VelocityData());
+		renderTarget->AttachTexture(MAPPING_DATA_A, &_node.geom->MappingDataA());
+		renderTarget->AttachTexture(MAPPING_DATA_B, &_node.geom->MappingDataB());
+		renderTarget->AttachTexture(NORMAL_DATA, &_node.geom->NormalData());
 
 		m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
 	}

@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <bento.h>
 
@@ -155,6 +156,7 @@ void bento::ShaderStageBase::SetUniform(const char * _name, mat4 & _value, bool 
 	SetAsActiveShader();
 	GLint location = -1;
 	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
 	GLfloat* data = (GLfloat*)glm::value_ptr(_value);
 	GL_CHECK(glUniformMatrix4fv(location, 1, _transposed, data));
 }
@@ -164,6 +166,7 @@ void bento::ShaderStageBase::SetUniform(const char * _name, mat3 & _value, bool 
 	SetAsActiveShader();
 	GLint location = -1;
 	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
 	GLfloat* data = (GLfloat*)glm::value_ptr(_value);
 	GL_CHECK(glUniformMatrix3fv(location, 1, _transposed, data));
 }
@@ -173,6 +176,7 @@ void bento::ShaderStageBase::SetUniform(const char * _name, float _value)
 	SetAsActiveShader();
 	GLint location = -1;
 	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
 	GL_CHECK(glUniform1f(location, _value));
 }
 
@@ -181,6 +185,7 @@ void bento::ShaderStageBase::SetUniform(const char * _name, vec2& _value)
 	SetAsActiveShader();
 	GLint location = -1;
 	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
 	GL_CHECK(glUniform2f(location, _value.x, _value.y));
 }
 
@@ -189,6 +194,7 @@ void bento::ShaderStageBase::SetUniform(const char * _name, vec3& _value)
 	SetAsActiveShader();
 	GLint location = -1;
 	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
 	GL_CHECK(glUniform3f(location, _value.x, _value.y, _value.z));
 }
 
@@ -197,6 +203,7 @@ void bento::ShaderStageBase::SetUniform(const char * _name, vec4& _value)
 	SetAsActiveShader();
 	GLint location = -1;
 	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
 	GL_CHECK(glUniform4f(location, _value.x, _value.y, _value.z, _value.w));
 }
 
@@ -205,25 +212,26 @@ void bento::ShaderStageBase::SetUniform(const char * _name, int _value)
 	SetAsActiveShader();
 	GLint location = -1;
 	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
 	GL_CHECK(glUniform1i(location, _value));
 }
 
 void bento::ShaderStageBase::SetTexture(const char * _name, TextureSquare * _texture)
 {
 	SetAsActiveShader();
-	SetUniform(_name, m_textureUnit);
-	glActiveTexture(GL_TEXTURE0 + m_textureUnit);
+	SetUniform(_name, *m_textureUnit);
+	glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
 	glBindTexture(GL_TEXTURE_2D, _texture->TextureName());
-	m_textureUnit++;
+	*(m_textureUnit) = *(m_textureUnit) + 1;
 }
 
 void bento::ShaderStageBase::SetTexture(const char * _name, RectangleTexture * _texture)
 {
 	SetAsActiveShader();
-	SetUniform(_name, m_textureUnit);
-	glActiveTexture(GL_TEXTURE0 + m_textureUnit);
+	SetUniform(_name, *m_textureUnit);
+	glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
 	glBindTexture(GL_TEXTURE_RECTANGLE, _texture->TextureName());
-	m_textureUnit++;
+	*(m_textureUnit) = *(m_textureUnit)+1;
 }
 
 void bento::ShaderStageBase::SetAsActiveShader()
@@ -231,7 +239,7 @@ void bento::ShaderStageBase::SetAsActiveShader()
 	GL_CHECK(glActiveShaderProgram(m_pipelineName, m_programName);)
 }
 
-void bento::ShaderStageBase::BindPerPass()
+void bento::ShaderStageBase::BindPerPass(int* _textureUnit)
 {
-	m_textureUnit = 0;
+	m_textureUnit = _textureUnit;
 }

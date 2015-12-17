@@ -27,7 +27,7 @@ namespace bento
 
 		void SetPipelineName(GLuint _pipelineName);
 		GLuint GetProgramName();
-		void BindPerPass();
+		void BindPerPass(int* _textureUnit);
 		
 		void SetUniform(const char* _name, mat4& _value, bool _transposed = false);
 		void SetUniform(const char* _name, mat3& _value, bool _transposed = false);
@@ -48,7 +48,7 @@ namespace bento
 		GLuint m_pipelineName;
 		GLuint m_programName;
 		GLenum m_shaderType;
-		int m_textureUnit;
+		int* m_textureUnit;
 
 	protected:
 		void SetAsActiveShader();

@@ -28,11 +28,13 @@ namespace bento
 
 		void BindPerPass()
 		{
+			m_textureUnit = 0;
+
 			GL_CHECK(glBindProgramPipeline(m_pipelineName));
 			GL_CHECK(glActiveShaderProgram(m_pipelineName, m_vertexShader.GetProgramName()));
-			m_vertexShader.BindPerPass();
+			m_vertexShader.BindPerPass(&m_textureUnit);
 			GL_CHECK(glActiveShaderProgram(m_pipelineName, m_fragmentShader.GetProgramName()));
-			m_fragmentShader.BindPerPass();
+			m_fragmentShader.BindPerPass(&m_textureUnit);
 		}
 
 		T& VertexShader()
@@ -49,5 +51,6 @@ namespace bento
 		T m_vertexShader;
 		U m_fragmentShader;
 		GLuint m_pipelineName;
+		int m_textureUnit;
 	};
 }

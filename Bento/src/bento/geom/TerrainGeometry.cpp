@@ -12,7 +12,7 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
-		, m_numVerticesPerDimension(1024)
+		, m_numVerticesPerDimension(2048)
 		, m_heightDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_NEAREST, GL_REPEAT, GL_REPEAT)
 		, m_heightDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_NEAREST, GL_REPEAT, GL_REPEAT)
 		, m_fluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
@@ -80,6 +80,8 @@ namespace bento
 
 		std::srand(0);
 
+		bool hexGrid = false;
+
 		float cellSize = m_size / (float)m_numVerticesPerDimension;
 
 		int indicesIndex = 0;
@@ -96,9 +98,12 @@ namespace bento
 
 				float xPos = (xRatio * m_size) - m_size * 0.5f;
 
-				if (i % 2 != 0)
+				if (hexGrid)
 				{
-					xPos -= cellSize * 0.5f;
+					if (i % 2 != 0)
+					{
+						xPos -= cellSize * 0.5f;
+					}
 				}
 
 				positions[float3Index + 0] = xPos;
@@ -125,17 +130,32 @@ namespace bento
 
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
-					if (i % 2 != 0)
+					if (hexGrid)
 					{
-						indices[indicesIndex] = vertexIndex;
-						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-						indices[indicesIndex + 2] = vertexIndex + 1;
-						indicesIndex += 3;
+						if (i % 2 != 0)
+						{
+							indices[indicesIndex] = vertexIndex;
+							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+							indices[indicesIndex + 2] = vertexIndex + 1;
+							indicesIndex += 3;
 
-						indices[indicesIndex] = vertexIndex + 1;
-						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-						indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
-						indicesIndex += 3;
+							indices[indicesIndex] = vertexIndex + 1;
+							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+							indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
+							indicesIndex += 3;
+						}
+						else
+						{
+							indices[indicesIndex] = vertexIndex;
+							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+							indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
+							indicesIndex += 3;
+
+							indices[indicesIndex] = vertexIndex;
+							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
+							indices[indicesIndex + 2] = vertexIndex + 1;
+							indicesIndex += 3;
+						}
 					}
 					else
 					{

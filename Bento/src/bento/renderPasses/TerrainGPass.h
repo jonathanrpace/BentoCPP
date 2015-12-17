@@ -22,6 +22,7 @@ namespace bento
 		: ShaderStageBase
 	{
 		TerrainGFrag();
+		void BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material);
 	};
 
 	struct TerrainGShader
