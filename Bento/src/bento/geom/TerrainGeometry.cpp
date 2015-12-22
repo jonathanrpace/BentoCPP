@@ -12,9 +12,9 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
-		, m_numVerticesPerDimension(2048)
-		, m_heightDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_NEAREST, GL_REPEAT, GL_REPEAT)
-		, m_heightDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_numVerticesPerDimension(1024)
+		, m_heightDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
+		, m_heightDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
 		, m_fluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
 		, m_fluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
 		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
@@ -123,8 +123,8 @@ namespace bento
 				fluxData[float4Index + 2] = 0.0f;
 				fluxData[float4Index + 3] = 0.0f;
 
-				mappingData[float4Index + 0] = xRatio;
-				mappingData[float4Index + 1] = zRatio;
+				mappingData[float4Index + 0] = xRatio;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
+				mappingData[float4Index + 1] = zRatio;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
 				mappingData[float4Index + 2] = 0.0f;
 				mappingData[float4Index + 3] = 0.0f;
 

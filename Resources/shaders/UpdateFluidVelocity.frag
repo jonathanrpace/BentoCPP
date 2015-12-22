@@ -19,11 +19,13 @@ uniform float u_viscosityMin;
 uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
+uniform float u_uvTension;
+uniform float u_uvTensionThreshold;
 
 uniform vec2 u_cellSize;
 uniform vec2 u_mousePos;
 uniform float u_mouseRadius;
-uniform float u_mouseStrength;
+uniform float u_mouseVolumeStrength;
 
 // Outputs
 layout( location = 0 ) out vec4 out_velocityData;
@@ -74,7 +76,7 @@ void main(void)
 	velocity.y = ((fluxU + flux.w) - (fluxD + flux.z)) / texelSize.y;
 	velocity.xy *= u_velocityScalar * viscosity;
 
-	/*
+	
 	vec4 heightDiffs = vec4(0.0f);
 	heightDiffs.x = (heightSampleL.x+heightSampleL.y) - (heightSample.x+heightSample.y);
 	heightDiffs.y = (heightSampleR.x+heightSampleR.y) - (heightSample.x+heightSample.y);
@@ -86,17 +88,38 @@ void main(void)
 	h.y = length( vec2(heightDiffs.y, u_cellSize.x) );
 	h.z = length( vec2(heightDiffs.z, u_cellSize.y) );
 	h.w = length( vec2(heightDiffs.w, u_cellSize.y) );
-	velocity.xy /= 1.0f + (h.x+h.y+h.z+h.w);
-	*/
+	velocity.xy *= (1.0f + (h.x+h.y+h.z+h.w));
+	
 
 	// Update mappingData from velocity
-	mappingData.xy -= (velocity.xy * u_textureScrollSpeed * 0.01f);
+	mappingData.xy -= (velocity.xy * u_textureScrollSpeed * texelSize);
 
-	// Reset mapping near mouse
+	// Reset mapping
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
-	if ( mouseRatio > 0.8f && u_mouseStrength > 0.0f )
+	float lengthL = length( mappingData-mappingL );
+	lengthL = lengthL > 0.99f ? 0.0f : lengthL;
+	float lengthR = length( mappingData-mappingR );
+	lengthR = lengthR > 0.99f ? 0.0f : lengthR;
+	float lengthU = length( mappingData-mappingU );
+	lengthU = lengthU > 0.99f ? 0.0f : lengthU;
+	float lengthD = length( mappingData-mappingD );
+	lengthD = lengthD > 0.99f ? 0.0f : lengthD;
+
+	float mappingDistance = lengthL + lengthR + lengthU + lengthD;
+	float mappingDistanceThreshold = texelSize.x * u_uvTensionThreshold;
+
+	//if ( mouseRatio > 0.2f && u_mouseVolumeStrength > 0.0f && mappingDistance > mappingDistanceThreshold )
+	if ( mappingDistance > mappingDistanceThreshold )
 	{
+		//mappingData.xy = (mappingL.xy + mappingR.xy + mappingU.xy + mappingD.xy) * 0.25;
+		mappingData.xy += ((mappingL.xy + mappingR.xy + mappingU.xy + mappingD.xy) * 0.25 - mappingData.xy) * u_uvTension;
+
 		//mappingData.xy = in_uv;
+	}
+
+	if ( heat > 2.0f )
+	{
+		mappingData.xy = in_uv;
 	}
 
 	// Calculate normals

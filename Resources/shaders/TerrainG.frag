@@ -50,6 +50,12 @@ void main(void)
 	vec2 uv2 = texture(s_mappingData2, (cellIndex + vec2(0,1)) * uvPerCell ).xy;
 	vec2 uv3 = texture(s_mappingData2, (cellIndex + vec2(1,1)) * uvPerCell ).xy;
 
+	vec2 uv = uv0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
+	uv += uv1 * uvRatios.x * (1.0f-uvRatios.y);
+	uv += uv2 * (1.0f-uvRatios.x) * uvRatios.y;
+	uv += uv3 * uvRatios.x * uvRatios.y;
+
+
 	uv0 += uvRatios * uvPerCell;
 
 	uv1.x -= (1.0f - uvRatios.x) * uvPerCell.x;
@@ -60,32 +66,34 @@ void main(void)
 	
 	uv3 -= (1.0f-uvRatios) * uvPerCell;
 
-	vec4 diffuseSample0 = texture( s_diffuseMap2, uv0 );
-	vec4 diffuseSample1 = texture( s_diffuseMap2, uv1 );
-	vec4 diffuseSample2 = texture( s_diffuseMap2, uv2 );
-	vec4 diffuseSample3 = texture( s_diffuseMap2, uv3 );
+	//vec4 diffuseSample0 = texture( s_diffuseMap2, uv0 );
+	//vec4 diffuseSample1 = texture( s_diffuseMap2, uv1 );
+	//vec4 diffuseSample2 = texture( s_diffuseMap2, uv2 );
+	//vec4 diffuseSample3 = texture( s_diffuseMap2, uv3 );
 
-	vec4 diffuseSample = diffuseSample0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
-	diffuseSample += diffuseSample1 * uvRatios.x * (1.0f-uvRatios.y);
-	diffuseSample += diffuseSample2 * (1.0f-uvRatios.x) * uvRatios.y;
-	diffuseSample += diffuseSample3 * uvRatios.x * uvRatios.y;
+	//vec4 diffuseSample = diffuseSample0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
+	//diffuseSample += diffuseSample1 * uvRatios.x * (1.0f-uvRatios.y);
+	//diffuseSample += diffuseSample2 * (1.0f-uvRatios.x) * uvRatios.y;
+	//diffuseSample += diffuseSample3 * uvRatios.x * uvRatios.y;
 
-	
-	//mix( mix(diffuseSample0, diffuseSample1, uvRatios.x), diffuseSample2, uvRatios.y );
+	vec4 diffuseSample = texture( s_diffuseMap2, uv0 );
 	
 	float heat = in_data0.z;
+	float oneMinusClampedHeat = 1.0f-clamp(heat,0.0f,1.0f);
 
 	vec3 outColor = vec3( clamp( dot(in_normal.xyz, normalize(vec3(0.5,1.0f,0.2f))), 0.0f, 1.0f ) );
-	outColor *= 0.2f;
+
+	outColor *= oneMinusClampedHeat * 0.1f;
+	outColor += (diffuseSample.x) * 0.1f * oneMinusClampedHeat;
 
 	//outColor.xyz += abs(in_data2.xyz);
 
 	//outColor.z += clamp( in_data0.y / in_data0.x, 0.0f, 1.0f );
 
-	float heatForColor = max(0.0f, heat - (diffuseSample.y) * 0.5f);
+	float heatForColor = max(0.0f, heat - (diffuseSample.x) * 0.5f);
 	outColor.x += pow( min(heatForColor, 1.0f), 1.5f );
 
-	float heatForColor2 = max(0.0f, heat - (diffuseSample.y) * 0.8f);
+	float heatForColor2 = max(0.0f, heat - (diffuseSample.x) * 0.8f);
 	outColor.y += pow( max(0.0f, heatForColor2-0.6f), 0.8f );
 
 	out_viewPosition = vec4(outColor,1.0f);
@@ -93,6 +101,4 @@ void main(void)
 	out_albedo = vec4( 1.0f );
 	out_material = vec4( 1.0f, 1.0f, 0.0f, 1.0f );	// roughness, reflectivity, emissive, nowt
 	out_directLight = vec4( 0.0f );
-
-	//out_viewPosition = diffuseSample;
 }

@@ -75,20 +75,25 @@ namespace bento
 	void TerrainSimulationProcess::AddUIElements()
 	{
 		ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
-		ImGui::SliderFloat("MouseStrength", &m_mouseStrength, 0.00f, 0.01f, "%.5f");
+		ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
+		ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 0.4f, "%.2f");
 		ImGui::SliderFloat("ViscosityMin", &m_viscosityMin, 0.01f, 0.5f);
 		ImGui::SliderFloat("ViscosityMax", &m_viscosityMax, 0.01f, 0.5f);
 		ImGui::SliderFloat("Elasticity", &m_elasticity, 0.0f, 0.5f);
+		ImGui::SliderFloat("FluxDamping", &m_fluxDamping, 0.9f, 1.0f);
 		ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.1f, 10.0f);
 		ImGui::SliderFloat("HeatViscosityBias", &m_heatViscosityBias, 0.0f, 2.0f);
 		ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 5.0f);
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
-		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.1f);
-		ImGui::SliderFloat("CoolingSpeedMin", &m_coolingSpeedMin, 0.0f, 0.01f, "%.5f");
-		ImGui::SliderFloat("CoolingSpeedMax", &m_coolingSpeedMax, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
+		ImGui::SliderFloat("CoolingSpeedMin", &m_coolingSpeedMin, 0.0f, 0.02f, "%.5f");
+		ImGui::SliderFloat("CoolingSpeedMax", &m_coolingSpeedMax, 0.0f, 0.02f, "%.5f");
 		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.01f, "%.5f");
 		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.01f, "%.5f");
-		ImGui::SliderFloat("HeatSmoothing", &m_heatDissipation, 0.0f, 0.5f, "%.5f");
+		ImGui::SliderFloat("HeatSmoothing", &m_heatDissipation, 0.0f, 0.5f, "%.4f");
+
+		ImGui::SliderFloat("UVTension", &m_uvTension, 0.0f, 1.0f, "%.3f");
+		ImGui::SliderFloat("UVTensionThreshold", &m_uvTensionThreshold, 0.0f, 50.0f, "%.1f");
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -106,7 +111,8 @@ namespace bento
 
 		vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
 		normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
-		float mouseStrength = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseStrength;
+		float mouseVolumeStrength = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength;
+		float mouseHeatStrength = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseHeatStrength;
 
 		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 
@@ -124,7 +130,15 @@ namespace bento
 			auto fragShader = m_updateFluxShader.FragmentShader();
 			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+
 			fragShader.SetUniform("u_elasticity", m_elasticity);
+			fragShader.SetUniform("u_fluxDamping", m_fluxDamping);
+
+			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
+			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
+			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
+			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
+
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapFluxData();
@@ -150,7 +164,8 @@ namespace bento
 			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
 
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
-			fragShader.SetUniform("u_mouseStrength", mouseStrength);
+			fragShader.SetUniform("u_mouseVolumeStrength", mouseVolumeStrength);
+			fragShader.SetUniform("u_mouseHeatStrength", mouseHeatStrength);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 			
 			fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
@@ -187,9 +202,9 @@ namespace bento
 			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
 
-			//fragShader.SetUniform("u_mousePos", normalisedMousePos);
-			//fragShader.SetUniform("u_mouseStrength", mouseStrength);
-			//fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+			fragShader.SetUniform("u_mousePos", normalisedMousePos);
+			fragShader.SetUniform("u_mouseVolumeStrength", mouseVolumeStrength);
+			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 
 			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
 			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
@@ -201,6 +216,10 @@ namespace bento
 			fragShader.SetUniform("u_cellSize", cellSize);
 
 			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);
+
+			fragShader.SetUniform("u_uvTension", m_uvTension);
+			fragShader.SetUniform("u_uvTensionThreshold", m_uvTensionThreshold);
+
 			m_screenQuadGeom.Draw();
 
 			_geom.SwapMappingData();
@@ -214,7 +233,6 @@ namespace bento
 			m_diffuseHeightShader.BindPerPass();
 			auto fragShader = m_diffuseHeightShader.FragmentShader();
 
-			fragShader.SetUniform("u_strength", m_smoothingStrength);
 			fragShader.SetUniform("u_heatDissipation", m_heatDissipation);
 			//fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
 			//fragShader.SetTexture("s_velocityData", &_geom.VelocityData());

@@ -16,12 +16,15 @@ in Varying
 uniform vec2 u_mousePos;
 uniform float u_viscocity;
 uniform float u_mouseRadius;
-uniform float u_mouseStrength;
+uniform float u_mouseVolumeStrength;
+uniform float u_mouseHeatStrength;
 uniform float u_heatAdvectSpeed;
+
 uniform float u_viscosityMin;
 uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
+
 uniform float u_coolingSpeedMin;
 uniform float u_coolingSpeedMax;
 uniform float u_condenseSpeed;
@@ -94,8 +97,34 @@ void main(void)
 	float fluxChange = ((nFlux.x+nFlux.y+nFlux.z+nFlux.w)-(flux.x+flux.y+flux.z+flux.w));
 	float newMoltenHeight = moltenHeight + fluxChange * viscosity;
 
-	// Send heat to neighbours
 	vec4 epsilon = vec4(0.001f);
+
+	// What proportion of our volume did we lose to neighbours?
+	// If we lose half our volume, we also lose half our heat.
+	float volumeLossProp = ((flux.x+flux.y+flux.z+flux.w)* viscosity) / (moltenHeight + 0.001f);
+	volumeLossProp = min( 1.0f, volumeLossProp );
+	newHeat -= (volumeLossProp * heat) * u_heatAdvectSpeed;
+
+	// For each neighbour, determine what proportion of their volume we have gained.
+	// We also want to grab the same proportion of their heat.
+	// Essentially the inverse of above.
+	vec4 neighbourHeat = vec4(heightDataSampleL.z, heightDataSampleR.z, heightDataSampleU.z, heightDataSampleD.z);
+	vec4 neighbourHeight = vec4(heightDataSampleL.y, heightDataSampleR.y, heightDataSampleU.y, heightDataSampleD.y);
+	vec4 neighbourViscosity = vec4( 
+		CalcViscosity(neighbourHeat.x, diffuseSampleL.y), 
+		CalcViscosity(neighbourHeat.y, diffuseSampleR.y), 
+		CalcViscosity(neighbourHeat.z, diffuseSampleU.y), 
+		CalcViscosity(neighbourHeat.w, diffuseSampleD.y) 
+	);
+
+	vec4 volumeGainProp = (nFlux * neighbourViscosity) / (neighbourHeight + epsilon);
+	volumeGainProp = min( vec4(1.0f), volumeGainProp );
+	vec4 heatGain = volumeGainProp * neighbourHeat;
+	newHeat += (heatGain.x + heatGain.y + heatGain.z + heatGain.w) * u_heatAdvectSpeed;
+
+	/*
+	// Send heat to neighbours
+	
 	vec4 heatToNeighbours = min(flux / (moltenHeight+epsilon), 1.0f) * viscosity * heat * u_heatAdvectSpeed;
 	heatToNeighbours = clamp(heatToNeighbours, 0.0f, heat*0.25f);
 	newHeat -= (heatToNeighbours.x + heatToNeighbours.y + heatToNeighbours.z + heatToNeighbours.w);
@@ -112,6 +141,7 @@ void main(void)
 	vec4 heatFromNeighbours = min(nFlux / (neighbourHeight+epsilon), 1.0f) * neighbourViscosity * neighbourHeat * u_heatAdvectSpeed;
 	heatFromNeighbours = clamp( heatFromNeighbours, vec4(0.0f), neighbourHeat * 0.25 );
 	newHeat += (heatFromNeighbours.x + heatFromNeighbours.y + heatFromNeighbours.z + heatFromNeighbours.w);
+	*/
 
 	// Cooling
 	// Higher bits cool faster
@@ -124,13 +154,14 @@ void main(void)
 	//Should look like lava is rising
 
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
-	newHeat += mouseRatio*u_mouseStrength > 0.0 ? min(0.05f,  (u_mouseStrength * mouseRatio * 20.0f) / newHeat) : 0.0f;
-	newMoltenHeight += pow(mouseRatio, 1.5f) * u_mouseStrength * max(0.0f,newHeat - u_heatViscosityBias);
+	mouseRatio = pow(mouseRatio, 1.5f);
+	newHeat += (mouseRatio*u_mouseHeatStrength) / (1.0001f+heat);
+	newMoltenHeight += (mouseRatio * u_mouseVolumeStrength) / (1.0001f+newMoltenHeight);
 	
 
 	float outMoltenHeight = newMoltenHeight;
 	float outSolidHeight = solidHeight;
-	meltCondense(heat, newMoltenHeight, solidHeight, outMoltenHeight, outSolidHeight);
+	meltCondense(newHeat, newMoltenHeight, solidHeight, outMoltenHeight, outSolidHeight);
 	
 	out_heightData = vec4(outSolidHeight, outMoltenHeight, newHeat, heightDataSample.w);
 }
