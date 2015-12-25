@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 ////////////////////////////////////////////////////////////////
 // Inputs
@@ -13,12 +13,14 @@ in Varying
 	vec4 in_data0;
 	vec4 in_mappingData;
 	vec4 in_data2;
-	vec4 in_diffuse;
+	vec4 in_screenPos;
 	vec4 in_normal;
 };
 
 // Uniforms
 uniform vec2 u_numCells;
+uniform vec2 u_mouseScreenPos;
+uniform ivec2 u_windowSize;
 
 // Textures
 uniform sampler2D s_diffuseMap2;
@@ -36,11 +38,47 @@ layout( location = 3 ) out vec4 out_material;
 layout( location = 4 ) out vec4 out_directLight;
 
 ////////////////////////////////////////////////////////////////
+// Read/Write buffers
+////////////////////////////////////////////////////////////////
+
+layout( std430, binding = 0 ) buffer MousePositionBuffer
+{
+	int mouseBufferZ;
+	int mouseBufferU;
+	int mouseBufferV;
+};
+
+////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
 
+void UpdateMousePosition()
+{
+	int fragViewZ = int(-in_viewPosition.z * 256.0f);
+
+	vec4 screenPos = in_screenPos / in_screenPos.w;
+	vec2 maxDis = 1.0f / u_windowSize;
+	maxDis *= 4.0f;
+
+	vec2 dis = abs(u_mouseScreenPos-screenPos.xy);
+
+	if ( dis.x > maxDis.x || dis.y > maxDis.y )
+		return;
+
+	int currViewZ = atomicMin(mouseBufferZ, fragViewZ);
+
+	if ( fragViewZ == currViewZ )
+	{
+		ivec2 fragUV = ivec2(in_uv * 255.0f);
+		atomicExchange(mouseBufferU, fragUV.x);
+		atomicExchange(mouseBufferV, fragUV.y);
+	}
+}
+
 void main(void)
 {
+	UpdateMousePosition();
+
 	vec2 uvPerCell = 1.0f / u_numCells;
 	vec2 uvRatios = mod(in_uv / uvPerCell, 1.0f);
 	vec2 cellIndex = floor(in_uv / uvPerCell);

@@ -1,5 +1,6 @@
 #include "TerrainGPass.h"
 
+#include <bento/core/Logging.h>
 #include <bento/core/RenderParams.h>
 
 namespace bento
@@ -50,8 +51,13 @@ namespace bento
 		SetTexture("s_mappingData2", &(_geometry->MappingDataRead()));
 		SetTexture("s_diffuseMap2", &(_material->SomeTexture));
 		SetUniform("u_numCells", vec2((float)_geometry->NumVerticesPerDimension()));
-	}
 
+		
+		TerrainMousePos terrainMousePos = _geometry->GetTerrainMousePos();
+		terrainMousePos.z = INT_MAX;
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(terrainMousePos), &terrainMousePos, GL_DYNAMIC_COPY);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geometry->MousePositionBuffer());
+	}
 
 	////////////////////////////////////////////
 	// Pass
@@ -73,6 +79,16 @@ namespace bento
 			node->geom->Bind();
 			m_shader.VertexShader().BindPerModel(node->geom, node->material);
 			m_shader.FragmentShader().BindPerModel(node->geom, node->material);
+
+			vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
+			normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
+			normalisedMousePos.y = 1.0f - normalisedMousePos.y;
+			vec2 mouseScreenPos = (normalisedMousePos - vec2(0.5f)) * vec2(2.0f);
+			PRINTF("mouseScreenPos %2f, %2f", mouseScreenPos.x, mouseScreenPos.y);
+			m_shader.FragmentShader().SetUniform("u_mouseScreenPos", mouseScreenPos);
+
+			m_shader.FragmentShader().SetUniform("u_windowSize", m_scene->GetWindow()->GetWindowSize());
+
 			node->geom->Draw();
 		}
 	}

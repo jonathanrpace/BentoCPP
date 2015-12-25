@@ -7,6 +7,13 @@
 
 namespace bento
 {
+	struct TerrainMousePos
+	{
+		int z;
+		int u;
+		int v;
+	};
+
 	class TerrainGeometry
 		: public Geometry
 		, public SharedObject<TerrainGeometry>
@@ -25,7 +32,6 @@ namespace bento
 		TextureSquare& VelocityData() { return m_velocityData; }
 		TextureSquare& NormalData() { return m_normalData; }
 		
-
 		TextureSquare& HeightDataRead() { return *m_heightDataRead; }
 		TextureSquare& HeightDataWrite() { return m_heightDataRead == &m_heightDataA ? m_heightDataB : m_heightDataA; }
 		TextureSquare& FluxDataRead() { return *m_fluxDataRead; }
@@ -52,8 +58,27 @@ namespace bento
 			m_mappingDataWrite = tmp;
 		}
 
-		inline int NumVerticesPerDimension() { return m_numVerticesPerDimension; }
-		inline float Size() { return m_size; }
+		void ResetTerrainMousePos();
+
+		inline TerrainMousePos GetTerrainMousePos()
+		{
+			return m_terrainMousePos;
+		}
+
+		inline GLuint MousePositionBuffer()
+		{
+			return m_mousePositionBuffer;
+		}
+
+		inline int NumVerticesPerDimension() 
+		{ 
+			return m_numVerticesPerDimension;
+		}
+
+		inline float Size() 
+		{ 
+			return m_size; 
+		}
 
 		// From IInspectable
 		virtual void AddUIElements() override;
@@ -66,6 +91,10 @@ namespace bento
 	private:
 		float m_size;
 		int m_numVerticesPerDimension;
+
+		GLuint m_mousePositionBuffer;
+		TerrainMousePos m_terrainMousePos;
+		
 
 		TextureSquare m_heightDataA;
 		TextureSquare m_heightDataB;

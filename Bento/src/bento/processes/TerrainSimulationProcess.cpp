@@ -1,5 +1,7 @@
 #include "TerrainSimulationProcess.h"
 
+#include <bento/core/Logging.h>
+
 #include <utility>
 
 #include <imgui.h>
@@ -179,6 +181,14 @@ namespace bento
 			fragShader.SetUniform("u_coolingSpeedMax", m_coolingSpeedMax);
 			fragShader.SetUniform("u_meltSpeed", m_meltSpeed);
 			fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
+
+			// Pass through the mouse position buffer
+
+			TerrainMousePos mousePos;
+			glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(mousePos), &mousePos);
+			PRINTF("mouse pos %d, %d, %d\n", mousePos.z, mousePos.u, mousePos.v);
+
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer());
 
 			m_screenQuadGeom.Draw();
 

@@ -207,6 +207,15 @@ void bento::ShaderStageBase::SetUniform(const char * _name, vec4& _value)
 	GL_CHECK(glUniform4f(location, _value.x, _value.y, _value.z, _value.w));
 }
 
+void bento::ShaderStageBase::SetUniform(const char * _name, ivec2& _value)
+{
+	SetAsActiveShader();
+	GLint location = -1;
+	GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+	// assert(location != -1);
+	GL_CHECK(glUniform2i(location, _value.x, _value.y));
+}
+
 void bento::ShaderStageBase::SetUniform(const char * _name, int _value)
 {
 	SetAsActiveShader();

@@ -1,4 +1,8 @@
-#version 330 core
+#version 430 core
+
+////////////////////////////////////////////////////////////////
+// Inputs
+////////////////////////////////////////////////////////////////
 
 // Samplers
 uniform sampler2D s_heightData;
@@ -7,12 +11,12 @@ uniform sampler2D s_velocityData;
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_mappingData;
 
-// Inputs
 in Varying
 {
 	vec2 in_uv;
 };
 
+// Uniforms
 uniform vec2 u_mousePos;
 uniform float u_viscocity;
 uniform float u_mouseRadius;
@@ -30,8 +34,30 @@ uniform float u_coolingSpeedMax;
 uniform float u_condenseSpeed;
 uniform float u_meltSpeed;
 
+// Buffers
+layout( std430, binding = 0 ) buffer MousePositionBuffer
+{
+	int mouseBufferZ;
+	int mouseBufferU;
+	int mouseBufferV;
+};
+
+
+////////////////////////////////////////////////////////////////
 // Outputs
+////////////////////////////////////////////////////////////////
+
 layout( location = 0 ) out vec4 out_heightData;
+
+////////////////////////////////////////////////////////////////
+// Functions
+////////////////////////////////////////////////////////////////
+
+vec2 GetMousePos()
+{
+	vec2 mousePos = vec2( mouseBufferU, mouseBufferV ) / 255;
+	return mousePos;
+}
 
 float CalcViscosity( float _heat, float _viscosityScalar )
 {
@@ -122,27 +148,6 @@ void main(void)
 	vec4 heatGain = volumeGainProp * neighbourHeat;
 	newHeat += (heatGain.x + heatGain.y + heatGain.z + heatGain.w) * u_heatAdvectSpeed;
 
-	/*
-	// Send heat to neighbours
-	
-	vec4 heatToNeighbours = min(flux / (moltenHeight+epsilon), 1.0f) * viscosity * heat * u_heatAdvectSpeed;
-	heatToNeighbours = clamp(heatToNeighbours, 0.0f, heat*0.25f);
-	newHeat -= (heatToNeighbours.x + heatToNeighbours.y + heatToNeighbours.z + heatToNeighbours.w);
-
-	// Gather heat from neighbours
-	vec4 neighbourHeat = vec4(heightDataSampleL.z, heightDataSampleR.z, heightDataSampleU.z, heightDataSampleD.z);
-	vec4 neighbourHeight = vec4(heightDataSampleL.y, heightDataSampleR.y, heightDataSampleU.y, heightDataSampleD.y);
-	vec4 neighbourViscosity = vec4( 
-		CalcViscosity(neighbourHeat.x, diffuseSampleL.y), 
-		CalcViscosity(neighbourHeat.y, diffuseSampleR.y), 
-		CalcViscosity(neighbourHeat.z, diffuseSampleU.y), 
-		CalcViscosity(neighbourHeat.w, diffuseSampleD.y) 
-	);
-	vec4 heatFromNeighbours = min(nFlux / (neighbourHeight+epsilon), 1.0f) * neighbourViscosity * neighbourHeat * u_heatAdvectSpeed;
-	heatFromNeighbours = clamp( heatFromNeighbours, vec4(0.0f), neighbourHeat * 0.25 );
-	newHeat += (heatFromNeighbours.x + heatFromNeighbours.y + heatFromNeighbours.z + heatFromNeighbours.w);
-	*/
-
 	// Cooling
 	// Higher bits cool faster
 	float coolingSpeed = diffuseSample.y * u_coolingSpeedMax + (1.0f - diffuseSample.x) * u_coolingSpeedMin;
@@ -153,7 +158,8 @@ void main(void)
 	//Heat up the land - introduce molten height from zero (need to count via uniform), only add molten height when uniform is > solid height.
 	//Should look like lava is rising
 
-	float mouseRatio = 1.0f - min(1.0f, length(in_uv-u_mousePos) / u_mouseRadius);
+	vec2 mousePos = GetMousePos();
+	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 	mouseRatio = pow(mouseRatio, 1.5f);
 	newHeat += (mouseRatio*u_mouseHeatStrength) / (1.0001f+heat);
 	newMoltenHeight += (mouseRatio * u_mouseVolumeStrength) / (1.0001f+newMoltenHeight);

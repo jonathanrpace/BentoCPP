@@ -12,7 +12,7 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
-		, m_numVerticesPerDimension(1024)
+		, m_numVerticesPerDimension(256)
 		, m_heightDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
 		, m_heightDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
 		, m_fluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT)
@@ -27,11 +27,24 @@ namespace bento
 		, m_fluxDataWrite(&m_fluxDataB)
 		, m_mappingDataRead(&m_mappingDataA)
 		, m_mappingDataWrite(&m_mappingDataB)
+		, m_terrainMousePos()
 	{
+		glGenBuffers(1, &m_mousePositionBuffer);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(m_terrainMousePos), nullptr, GL_DYNAMIC_COPY);
+
+
+		// For reading back
+		//glGetBufferSubData()
 	}
 
 	TerrainGeometry::~TerrainGeometry()
 	{
+	}
+
+	void TerrainGeometry::ResetTerrainMousePos()
+	{
+		m_terrainMousePos.z = INT_MAX;
 	}
 
 	void TerrainGeometry::AddUIElements()

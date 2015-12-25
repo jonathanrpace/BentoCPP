@@ -42,7 +42,7 @@ out Varying
 	vec4 out_data0;
 	vec4 out_data1;
 	vec4 out_data2;
-	vec4 out_diffuse;
+	vec4 out_screenPos;
 	vec4 out_normal;
 };
 
@@ -70,7 +70,7 @@ void main(void)
 
 	vec2 uv = in_uv + mappingDataSample.xy;
 	vec4 diffuseSample = texture(s_diffuseMap, uv);
-	out_diffuse = diffuseSample;
+	//out_diffuse = diffuseSample;
 
 	float mapHeightOffset = u_mapHeightOffset;
 
@@ -85,5 +85,8 @@ void main(void)
 	out_data2 = fluxDataSample;
 	out_normal = normalDataSample;
 
-	gl_Position = u_mvpMatrix * position;
+	vec4 screenPos = u_mvpMatrix * position;
+	out_screenPos = screenPos;
+
+	gl_Position = screenPos;
 } 

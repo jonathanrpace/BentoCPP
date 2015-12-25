@@ -35,6 +35,7 @@ namespace bento
 		void SetUniform(const char* _name, vec2& _value);
 		void SetUniform(const char* _name, vec3& _value);
 		void SetUniform(const char* _name, vec4& _value);
+		void SetUniform(const char* _name, ivec2& _value);
 		void SetUniform(const char* _name, int _value);
 
 		void SetTexture(const char* _name, RectangleTexture* _texture);
