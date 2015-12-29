@@ -19,6 +19,7 @@ namespace bento
 		);
 		~TextureSquare();
 
+		virtual void GenerateMipMaps();
 		int GetNumMipMaps();
 	protected:
 		// Inherited via AbstractValidatable
