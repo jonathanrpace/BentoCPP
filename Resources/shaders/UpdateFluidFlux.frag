@@ -47,8 +47,7 @@ void main(void)
 	newFlux *= u_fluxDamping;
 
 	// Need to scale down the new flux so that we can't drain more fluid than we have this step
-	//float limit = min(1.0f, fluidHeightC.x / (newFlux.x + newFlux.y + newFlux.z + newFlux.w + 0.0001f) * 2.0f);
-	vec4 limit = min(vec4(1.0f), fluidHeightC / (newFlux + vec4(0.0001f)) * vec4(0.25f));
+	float limit = min(1.0f, fluidHeightC.x / (newFlux.x + newFlux.y + newFlux.z + newFlux.w + 0.0001f) * 2.0f);
 	newFlux *= limit;
 
 	out_fluxData = newFlux;

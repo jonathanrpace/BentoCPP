@@ -79,28 +79,33 @@ namespace bento
 		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
-		float m_viscosityMin = 0.36f;
-		float m_viscosityMax = 0.42f;
-		float m_elasticity = 0.5f;
-		float m_fluxDamping = 0.98f;
+		// Input
 		float m_mouseRadius = 0.1f;
 		float m_mouseVolumeStrength = 0.001f;
 		float m_mouseHeatStrength = 0.02f;
-		float m_textureScrollSpeed = 0.2f;
+
+		// Molten
+		float m_elasticity = 0.5f;
+		float m_fluxDamping = 0.98f;
+
+		float m_viscosityMin = 0.36f;
+		float m_viscosityMax = 0.42f;
 		float m_heatViscosityPower = 1.5f;
 		float m_heatViscosityBias = 0.2f;
-		float m_coolingSpeedMin = 0.0001f;
-		float m_coolingSpeedMax = 0.0005f;
-		float m_heatDissipation = 0.1f;
-		float m_heatAdvectSpeed = 0.49f;
+
 		float m_velocityScalar = 1.0f;
+		float m_textureScrollSpeed = 0.2f;
+
+		float m_heatAdvectSpeed = 0.49f;
+		float m_heatSmoothingStrength = 0.1f;
 
 		float m_meltSpeed = 0.00001f;
 		float m_condenseSpeed = 0.01f;
+		float m_tempChangeSpeed = 0.001f;
 
-		float m_uvTension = 0.01f;
-		float m_uvTensionThreshold = 20.0f;
-
+		// Global
+		float m_ambientTemperature = 0.1f;
+		
 		GLenum HEIGHT_DATA_A = GL_COLOR_ATTACHMENT0;
 		GLenum HEIGHT_DATA_B = GL_COLOR_ATTACHMENT1;
 		GLenum FLUX_DATA_A = GL_COLOR_ATTACHMENT2;

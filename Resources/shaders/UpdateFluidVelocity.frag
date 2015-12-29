@@ -18,15 +18,10 @@ uniform float u_velocityScalar;
 
 uniform float u_viscosityMin;
 uniform float u_viscosityMax;
-
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
 uniform vec2 u_cellSize;
-
-uniform vec2 u_mousePos;
-uniform float u_mouseRadius;
-uniform float u_mouseVolumeStrength;
 
 uniform int u_numHeightMips;
 

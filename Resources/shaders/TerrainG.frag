@@ -123,14 +123,16 @@ void main(void)
 	// Scortch the diffuse
 	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.1f)*0.1f);
 
+	float occlusion = 1.0f - in_normal.w;
+
 	// Direct light
 	vec3 directLight = vec3(0.0f);
-	vec3 lightDir = normalize(vec3(0.0,1.0f,0.0f));
+	vec3 lightDir = normalize(vec3(1.0,1.0f,1.0f));
 	directLight += max( dot(in_normal.xyz, lightDir), 0.0f ) * 1.5;
+	//directLight *= occlusion;
 
 	// Ambient light
 	vec3 ambientlight = vec3(0.0f);
-	float occlusion = 1.0f - in_normal.w;
 	ambientlight += 0.75f * occlusion;
 
 	// Emissive

@@ -10,6 +10,7 @@ uniform sampler2D s_fluxData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_mappingData;
+uniform sampler2D s_normalData;
 
 in Varying
 {
@@ -29,8 +30,8 @@ uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
-uniform float u_coolingSpeedMin;
-uniform float u_coolingSpeedMax;
+uniform float u_tempChangeSpeed;
+uniform float u_ambientTemp;
 uniform float u_condenseSpeed;
 uniform float u_meltSpeed;
 
@@ -74,13 +75,13 @@ void meltCondense(float heat, float moltenHeight, float solidHeight, out float o
 	}
 
 	float meltStrength = max(heat-u_heatViscosityBias, 0.0f);
-	float solidToMolten = min(solidHeight, meltStrength * u_meltSpeed);
+	float solidToMolten = 0;//min(solidHeight, meltStrength * u_meltSpeed);
 
 	o_solidHeight = solidHeight + moltenToSolid - solidToMolten;
 	o_moltenHeight = moltenHeight + solidToMolten - moltenToSolid;
 
 	float solidToMoltenRatio = solidToMolten / (moltenHeight + 0.0001f);
-	o_heat = heat / (1.0f+solidToMoltenRatio);
+	o_heat = heat;// / (1.0f+solidToMoltenRatio);
 }
 
 void main(void)
@@ -119,12 +120,14 @@ void main(void)
 	vec4 diffuseSampleD = texture(s_diffuseMap, mappingDataD.xy);
 
 	vec4 velocityDataC = texelFetch(s_velocityData, texelCoordC, 0);
+	vec4 normalDataC = texelFetch(s_normalData, texelCoordC, 0);
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;
 	float heat = heightDataC.z;
 	float newHeat = heat;
 	vec2 velocity = velocityDataC.xy;
+	float occlusion = normalDataC.w;
 	vec4 nFlux = vec4(fluxL, fluxR, fluxU, fluxD);
 	float viscosity = CalcViscosity(heat, diffuseSampleC.y);
 
@@ -156,13 +159,13 @@ void main(void)
 	newHeat += (heatGain.x + heatGain.y + heatGain.z + heatGain.w) * u_heatAdvectSpeed;
 
 	// Cooling
-	// Higher bits cool faster
-	float coolingSpeed = diffuseSampleC.y * u_coolingSpeedMax + (1.0f - diffuseSampleC.x) * u_coolingSpeedMin;
-	newHeat = max(0.0f, newHeat - coolingSpeed);
+	// Occluded areas cool slower
+	newHeat += (u_ambientTemp - newHeat) * u_tempChangeSpeed * (1.0f-occlusion);
+
+	//float coolingSpeed = diffuseSampleC.y * u_coolingSpeedMax + (1.0f - diffuseSampleC.x) * u_coolingSpeedMin;
+	//newHeat = max(0.0f, newHeat - coolingSpeed);
 
 	// Add some lava near the mouse
-	// TODO Heat up the land - introduce molten height from zero (need to count via uniform), only add molten height when uniform is > solid height.
-	// Should look like lava is rising
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 	mouseRatio = pow(mouseRatio, 1.5f);
