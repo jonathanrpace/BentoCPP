@@ -50,7 +50,7 @@ namespace bento
 	{
 		SetTexture("s_mappingData2", &(_geometry->MappingDataRead()));
 		SetTexture("s_diffuseMap2", &(_material->SomeTexture));
-		SetUniform("u_numCells", vec2((float)_geometry->NumVerticesPerDimension()));
+		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 
 		
 		TerrainMousePos terrainMousePos = _geometry->GetTerrainMousePos();

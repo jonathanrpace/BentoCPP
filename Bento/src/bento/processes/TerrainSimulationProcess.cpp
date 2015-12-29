@@ -197,6 +197,8 @@ namespace bento
 
 		// Update velocity
 		{
+			_geom.HeightDataRead().GenerateMipMaps();
+
 			static GLenum velocityDrawBuffersA[] = { VELOCITY_DATA, MAPPING_DATA_A, NORMAL_DATA };
 			static GLenum velocityDrawBuffersB[] = { VELOCITY_DATA, MAPPING_DATA_B, NORMAL_DATA };
 
@@ -211,6 +213,8 @@ namespace bento
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
 			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
 			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+
+			fragShader.SetUniform("u_numHeightMips", _geom.HeightDataRead().GetNumMipMaps());
 
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseVolumeStrength", mouseVolumeStrength);

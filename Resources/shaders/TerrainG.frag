@@ -18,7 +18,7 @@ in Varying
 };
 
 // Uniforms
-uniform vec2 u_numCells;
+uniform ivec2 u_numCells;
 uniform vec2 u_mouseScreenPos;
 uniform ivec2 u_windowSize;
 
@@ -79,60 +79,71 @@ void main(void)
 {
 	UpdateMousePosition();
 
-	vec2 uvPerCell = 1.0f / u_numCells;
-	vec2 uvRatios = mod(in_uv / uvPerCell, 1.0f);
-	vec2 cellIndex = floor(in_uv / uvPerCell);
+	ivec2 cellIndex = ivec2( in_uv * u_numCells );
 
-	vec2 uv0 = texture(s_mappingData2, cellIndex * uvPerCell ).xy;
-	vec2 uv1 = texture(s_mappingData2, (cellIndex + vec2(1,0)) * uvPerCell ).xy;
-	vec2 uv2 = texture(s_mappingData2, (cellIndex + vec2(0,1)) * uvPerCell ).xy;
-	vec2 uv3 = texture(s_mappingData2, (cellIndex + vec2(1,1)) * uvPerCell ).xy;
+	vec4 diffuseSample;
+	if ( false )
+	{
+		vec2 uv0 = texelFetch(s_mappingData2, cellIndex, 0 ).xy;
+		vec2 uv1 = texelFetch(s_mappingData2, cellIndex + ivec2(1,0), 0 ).xy;
+		vec2 uv2 = texelFetch(s_mappingData2, cellIndex + ivec2(0,1), 0 ).xy;
+		vec2 uv3 = texelFetch(s_mappingData2, cellIndex + ivec2(1,1), 0 ).xy;
 
-	vec2 uv = uv0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
-	uv += uv1 * uvRatios.x * (1.0f-uvRatios.y);
-	uv += uv2 * (1.0f-uvRatios.x) * uvRatios.y;
-	uv += uv3 * uvRatios.x * uvRatios.y;
+		vec2 uvPerCell = 1.0f / u_numCells;
+		vec2 uvRatios = mod(in_uv / uvPerCell, 1.0f);
 
+		uv0 += uvRatios * uvPerCell;
+		uv1.x -= (1.0f - uvRatios.x) * uvPerCell.x;
+		uv1.y += uvRatios.y * uvPerCell.y;
+		uv2.x += uvRatios.x * uvPerCell.x;
+		uv2.y -= (1.0f - uvRatios.y) * uvPerCell.y;
+		uv3 -= (1.0f-uvRatios) * uvPerCell;
 
-	uv0 += uvRatios * uvPerCell;
+		// Use 4 samples
+		vec4 diffuseSample0 = texture( s_diffuseMap2, uv0 );
+		vec4 diffuseSample1 = texture( s_diffuseMap2, uv1 );
+		vec4 diffuseSample2 = texture( s_diffuseMap2, uv2 );
+		vec4 diffuseSample3 = texture( s_diffuseMap2, uv3 );
 
-	uv1.x -= (1.0f - uvRatios.x) * uvPerCell.x;
-	uv1.y += uvRatios.y * uvPerCell.y;
-
-	uv2.x += uvRatios.x * uvPerCell.x;
-	uv2.y -= (1.0f - uvRatios.y) * uvPerCell.y;
-	
-	uv3 -= (1.0f-uvRatios) * uvPerCell;
-
-	//vec4 diffuseSample0 = texture( s_diffuseMap2, uv0 );
-	//vec4 diffuseSample1 = texture( s_diffuseMap2, uv1 );
-	//vec4 diffuseSample2 = texture( s_diffuseMap2, uv2 );
-	//vec4 diffuseSample3 = texture( s_diffuseMap2, uv3 );
-
-	//vec4 diffuseSample = diffuseSample0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
-	//diffuseSample += diffuseSample1 * uvRatios.x * (1.0f-uvRatios.y);
-	//diffuseSample += diffuseSample2 * (1.0f-uvRatios.x) * uvRatios.y;
-	//diffuseSample += diffuseSample3 * uvRatios.x * uvRatios.y;
-
-	vec4 diffuseSample = texture( s_diffuseMap2, uv0 );
+		diffuseSample = diffuseSample0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
+		diffuseSample += diffuseSample1 * uvRatios.x * (1.0f-uvRatios.y);
+		diffuseSample += diffuseSample2 * (1.0f-uvRatios.x) * uvRatios.y;
+		diffuseSample += diffuseSample3 * uvRatios.x * uvRatios.y;
+	}
+	else
+	{
+		vec2 uv0 = texelFetch(s_mappingData2, ivec2(cellIndex), 0 ).xy;
+		diffuseSample = texture( s_diffuseMap2, uv0 );
+	}
 	
 	float heat = in_data0.z;
+	
+	vec3 diffuse = 0.05f + vec3(diffuseSample.x) * 0.05f;
+	
+	// Scortch the diffuse
+	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.1f)*0.1f);
+
+	// Direct light
+	vec3 directLight = vec3(0.0f);
+	vec3 lightDir = normalize(vec3(0.0,1.0f,0.0f));
+	directLight += max( dot(in_normal.xyz, lightDir), 0.0f ) * 1.5;
+
+	// Ambient light
+	vec3 ambientlight = vec3(0.0f);
+	float occlusion = 1.0f - in_normal.w;
+	ambientlight += 0.75f * occlusion;
+
+	// Emissive
+	vec3 emissive = vec3(0.0f);
 	float oneMinusClampedHeat = 1.0f-clamp(heat,0.0f,1.0f);
+	float heatColor0 = max(0.0f, heat - (diffuseSample.x) * 0.5f);
+	emissive.x += pow( min(heatColor0, 1.0f), 1.5f );
 
-	vec3 outColor = vec3( clamp( dot(in_normal.xyz, normalize(vec3(0.5,1.0f,0.2f))), 0.0f, 1.0f ) );
+	float heatColor1 = max(0.0f, heat - (diffuseSample.x) * 0.8f);
+	emissive.y += pow( max(0.0f, heatColor1-0.6f), 0.8f );
 
-	outColor *= oneMinusClampedHeat * 0.1f;
-	outColor += (diffuseSample.x) * 0.1f * oneMinusClampedHeat;
 
-	//outColor.xyz += abs(in_data2.xyz);
-
-	//outColor.z += clamp( in_data0.y / in_data0.x, 0.0f, 1.0f );
-
-	float heatForColor = max(0.0f, heat - (diffuseSample.x) * 0.5f);
-	outColor.x += pow( min(heatForColor, 1.0f), 1.5f );
-
-	float heatForColor2 = max(0.0f, heat - (diffuseSample.x) * 0.8f);
-	outColor.y += pow( max(0.0f, heatForColor2-0.6f), 0.8f );
+	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
 
 	out_viewPosition = vec4(outColor,1.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );

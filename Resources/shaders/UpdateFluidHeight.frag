@@ -65,7 +65,7 @@ float CalcViscosity( float _heat, float _viscosityScalar )
 	return pow(smoothstep( 0.0f, 1.0f, clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f)), u_heatViscosityPower) * viscosity;
 }
 
-void meltCondense(float heat, float moltenHeight, float solidHeight, out float o_moltenHeight, out float o_solidHeight)
+void meltCondense(float heat, float moltenHeight, float solidHeight, out float o_moltenHeight, out float o_solidHeight, out float o_heat)
 {
 	float moltenToSolid = 0.0f;
 	if ( heat < u_heatViscosityBias )
@@ -78,71 +78,78 @@ void meltCondense(float heat, float moltenHeight, float solidHeight, out float o
 
 	o_solidHeight = solidHeight + moltenToSolid - solidToMolten;
 	o_moltenHeight = moltenHeight + solidToMolten - moltenToSolid;
+
+	float solidToMoltenRatio = solidToMolten / (moltenHeight + 0.0001f);
+	o_heat = heat / (1.0f+solidToMoltenRatio);
 }
 
 void main(void)
 { 
-	ivec2 dimensions = textureSize( s_heightData, 0 );
-	vec2 texelSize = 1.0f / dimensions;
+	//ivec2 dimensions = textureSize( s_heightData, 0 );
+	//vec2 texelSize = 1.0f / dimensions;
 
-	vec4 heightDataSample = texture(s_heightData, in_uv);
-	vec4 heightDataSampleL = texture(s_heightData, in_uv - vec2(texelSize.x,0.0f));
-	vec4 heightDataSampleR = texture(s_heightData, in_uv + vec2(texelSize.x,0.0f));
-	vec4 heightDataSampleU = texture(s_heightData, in_uv - vec2(0.0f,texelSize.y));
-	vec4 heightDataSampleD = texture(s_heightData, in_uv + vec2(0.0f,texelSize.y));
+	ivec2 texelCoordC = ivec2(gl_FragCoord.xy);
+	ivec2 texelCoordL = texelCoordC - ivec2(1,0);
+	ivec2 texelCoordR = texelCoordC + ivec2(1,0);
+	ivec2 texelCoordU = texelCoordC - ivec2(0,1);
+	ivec2 texelCoordD = texelCoordC + ivec2(0,1);
 
-	vec4 velocityDataSample = texture(s_velocityData, in_uv);
+	vec4 heightDataC = texelFetch(s_heightData, texelCoordC, 0);
+	vec4 heightDataL = texelFetch(s_heightData, texelCoordL, 0);
+	vec4 heightDataR = texelFetch(s_heightData, texelCoordR, 0);
+	vec4 heightDataU = texelFetch(s_heightData, texelCoordU, 0);
+	vec4 heightDataD = texelFetch(s_heightData, texelCoordD, 0);
 
-	vec4 mappingData = texture(s_mappingData, in_uv);
-	vec4 mappingL = texture(s_mappingData, in_uv - vec2(texelSize.x,0.0f));
-	vec4 mappingR = texture(s_mappingData, in_uv + vec2(texelSize.x,0.0f));
-	vec4 mappingU = texture(s_mappingData, in_uv - vec2(0.0f,texelSize.y));
-	vec4 mappingD = texture(s_mappingData, in_uv + vec2(0.0f,texelSize.y));
+	vec4 mappingDataC = texelFetch(s_mappingData, texelCoordC, 0);
+	vec4 mappingDataL = texelFetch(s_mappingData, texelCoordL, 0);
+	vec4 mappingDataR = texelFetch(s_mappingData, texelCoordR, 0);
+	vec4 mappingDataU = texelFetch(s_mappingData, texelCoordU, 0);
+	vec4 mappingDataD = texelFetch(s_mappingData, texelCoordD, 0);
 
-	vec4 diffuseSample = texture(s_diffuseMap, mappingData.xy);
-	vec4 diffuseSampleL = texture(s_diffuseMap, mappingL.xy);
-	vec4 diffuseSampleR = texture(s_diffuseMap, mappingR.xy);
-	vec4 diffuseSampleU = texture(s_diffuseMap, mappingU.xy);
-	vec4 diffuseSampleD = texture(s_diffuseMap, mappingD.xy);
+	vec4  fluxC = texelFetch(s_fluxData, texelCoordC, 0);
+	float fluxL = texelFetch(s_fluxData, texelCoordL, 0).y;
+	float fluxR = texelFetch(s_fluxData, texelCoordR, 0).x;
+	float fluxU = texelFetch(s_fluxData, texelCoordU, 0).w;
+	float fluxD = texelFetch(s_fluxData, texelCoordD, 0).z;
 
-	float solidHeight = heightDataSample.x;
-	float moltenHeight = heightDataSample.y;
-	float heat = heightDataSample.z;
+	vec4 diffuseSampleC = texture(s_diffuseMap, mappingDataC.xy);
+	vec4 diffuseSampleL = texture(s_diffuseMap, mappingDataL.xy);
+	vec4 diffuseSampleR = texture(s_diffuseMap, mappingDataR.xy);
+	vec4 diffuseSampleU = texture(s_diffuseMap, mappingDataU.xy);
+	vec4 diffuseSampleD = texture(s_diffuseMap, mappingDataD.xy);
+
+	vec4 velocityDataC = texelFetch(s_velocityData, texelCoordC, 0);
+
+	float solidHeight = heightDataC.x;
+	float moltenHeight = heightDataC.y;
+	float heat = heightDataC.z;
 	float newHeat = heat;
-	vec2 velocity = velocityDataSample.xy;
-
-	float viscosity = CalcViscosity(heat, diffuseSample.y);
-	
-	vec4 flux = texture(s_fluxData, in_uv);
-	float fluxL = texture(s_fluxData, in_uv - vec2(texelSize.x,0.0f)).y;
-	float fluxR = texture(s_fluxData, in_uv + vec2(texelSize.x,0.0f)).x;
-	float fluxU = texture(s_fluxData, in_uv - vec2(0.0f,texelSize.y)).w;
-	float fluxD = texture(s_fluxData, in_uv + vec2(0.0f,texelSize.y)).z;
+	vec2 velocity = velocityDataC.xy;
 	vec4 nFlux = vec4(fluxL, fluxR, fluxU, fluxD);
+	float viscosity = CalcViscosity(heat, diffuseSampleC.y);
 
-	float fluxChange = ((nFlux.x+nFlux.y+nFlux.z+nFlux.w)-(flux.x+flux.y+flux.z+flux.w));
+	float fluxChange = ((nFlux.x+nFlux.y+nFlux.z+nFlux.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
 	float newMoltenHeight = moltenHeight + fluxChange * viscosity;
 
-	vec4 epsilon = vec4(0.001f);
+	const vec4 epsilon = vec4(0.001f);
 
 	// What proportion of our volume did we lose to neighbours?
 	// If we lose half our volume, we also lose half our heat.
-	float volumeLossProp = ((flux.x+flux.y+flux.z+flux.w)* viscosity) / (moltenHeight + 0.001f);
+	float volumeLossProp = ((fluxC.x+fluxC.y+fluxC.z+fluxC.w)* viscosity) / (moltenHeight + 0.001f);
 	volumeLossProp = min( 1.0f, volumeLossProp );
 	newHeat -= (volumeLossProp * heat) * u_heatAdvectSpeed;
 
 	// For each neighbour, determine what proportion of their volume we have gained.
 	// We also want to grab the same proportion of their heat.
 	// Essentially the inverse of above.
-	vec4 neighbourHeat = vec4(heightDataSampleL.z, heightDataSampleR.z, heightDataSampleU.z, heightDataSampleD.z);
-	vec4 neighbourHeight = vec4(heightDataSampleL.y, heightDataSampleR.y, heightDataSampleU.y, heightDataSampleD.y);
+	vec4 neighbourHeat = vec4(heightDataL.z, heightDataR.z, heightDataU.z, heightDataD.z);
+	vec4 neighbourHeight = vec4(heightDataL.y, heightDataR.y, heightDataU.y, heightDataD.y);
 	vec4 neighbourViscosity = vec4( 
 		CalcViscosity(neighbourHeat.x, diffuseSampleL.y), 
 		CalcViscosity(neighbourHeat.y, diffuseSampleR.y), 
 		CalcViscosity(neighbourHeat.z, diffuseSampleU.y), 
 		CalcViscosity(neighbourHeat.w, diffuseSampleD.y) 
 	);
-
 	vec4 volumeGainProp = (nFlux * neighbourViscosity) / (neighbourHeight + epsilon);
 	volumeGainProp = min( vec4(1.0f), volumeGainProp );
 	vec4 heatGain = volumeGainProp * neighbourHeat;
@@ -150,26 +157,26 @@ void main(void)
 
 	// Cooling
 	// Higher bits cool faster
-	float coolingSpeed = diffuseSample.y * u_coolingSpeedMax + (1.0f - diffuseSample.x) * u_coolingSpeedMin;
+	float coolingSpeed = diffuseSampleC.y * u_coolingSpeedMax + (1.0f - diffuseSampleC.x) * u_coolingSpeedMin;
 	newHeat = max(0.0f, newHeat - coolingSpeed);
 
 	// Add some lava near the mouse
-
-	//Heat up the land - introduce molten height from zero (need to count via uniform), only add molten height when uniform is > solid height.
-	//Should look like lava is rising
-
+	// TODO Heat up the land - introduce molten height from zero (need to count via uniform), only add molten height when uniform is > solid height.
+	// Should look like lava is rising
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 	mouseRatio = pow(mouseRatio, 1.5f);
 	newHeat += (mouseRatio*u_mouseHeatStrength) / (1.0001f+heat);
 	newMoltenHeight += (mouseRatio * u_mouseVolumeStrength) / (1.0001f+newMoltenHeight);
 	
-
+	// Melt/Condense
 	float outMoltenHeight = newMoltenHeight;
 	float outSolidHeight = solidHeight;
-	meltCondense(newHeat, newMoltenHeight, solidHeight, outMoltenHeight, outSolidHeight);
+	float outHeat = newHeat;
+	meltCondense(newHeat, newMoltenHeight, solidHeight, outMoltenHeight, outSolidHeight, outHeat);
 	
-	out_heightData = vec4(outSolidHeight, outMoltenHeight, newHeat, heightDataSample.w);
+	// Out
+	out_heightData = vec4(outSolidHeight, outMoltenHeight, outHeat, heightDataC.w);
 }
 
 
