@@ -82,61 +82,13 @@ void main(void)
 	ivec2 cellIndex = ivec2( in_uv * u_numCells );
 
 	vec4 uvC = texelFetch(s_mappingData, cellIndex, 0 );
-	//vec4 uvL = texelFetch(s_mappingData, cellIndex - ivec2(1,0), 0 ).xy;
-	//vec4 uvR = texelFetch(s_mappingData, cellIndex + ivec2(1,0), 0 ).xy;
-	//vec4 uvT = texelFetch(s_mappingData, cellIndex - ivec2(0,1), 0 ).xy;
-	//vec4 uvB = texelFetch(s_mappingData, cellIndex + ivec2(0,1), 0 ).xy;
-	
-	//textureScalar = diffuseSampleC.x;
-
 	float textureScalar = uvC.y;
 
-	vec4 diffuseSample = texture(s_diffuseMap, in_uv);
+	float diffuseScalar = texture(s_diffuseMap, vec2(uvC.x,0)).z;
 
-	/*
-	vec4 diffuseSample;
-	if ( false )
-	{
-		vec2 uv0 = texelFetch(s_mappingData, cellIndex, 0 ).xy;
-		vec2 uv1 = texelFetch(s_mappingData, cellIndex + ivec2(1,0), 0 ).xy;
-		vec2 uv2 = texelFetch(s_mappingData, cellIndex + ivec2(0,1), 0 ).xy;
-		vec2 uv3 = texelFetch(s_mappingData, cellIndex + ivec2(1,1), 0 ).xy;
-
-		vec2 uvPerCell = 1.0f / u_numCells;
-		vec2 uvRatios = mod(in_uv / uvPerCell, 1.0f);
-
-		uv0 += uvRatios * uvPerCell;
-		uv1.x -= (1.0f - uvRatios.x) * uvPerCell.x;
-		uv1.y += uvRatios.y * uvPerCell.y;
-		uv2.x += uvRatios.x * uvPerCell.x;
-		uv2.y -= (1.0f - uvRatios.y) * uvPerCell.y;
-		uv3 -= (1.0f-uvRatios) * uvPerCell;
-
-		// Use 4 samples
-		vec4 diffuseSample0 = texture( s_diffuseMap, uv0 );
-		vec4 diffuseSample1 = texture( s_diffuseMap, uv1 );
-		vec4 diffuseSample2 = texture( s_diffuseMap, uv2 );
-		vec4 diffuseSample3 = texture( s_diffuseMap, uv3 );
-
-		diffuseSample = diffuseSample0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
-		diffuseSample += diffuseSample1 * uvRatios.x * (1.0f-uvRatios.y);
-		diffuseSample += diffuseSample2 * (1.0f-uvRatios.x) * uvRatios.y;
-		diffuseSample += diffuseSample3 * uvRatios.x * uvRatios.y;
-	}
-	else
-	{
-		vec2 uv0 = texelFetch(s_mappingData, ivec2(cellIndex), 0 ).xy;
-		diffuseSample = texture( s_diffuseMap, uv0 );
-	}
-	*/
-	
 	float heat = in_data0.z;
 
-	
-	
-
-	vec3 diffuse = 0.05f + vec3(textureScalar) * 0.05f;
-	
+	vec3 diffuse = 0.05f + vec3(diffuseScalar) * 0.05f;
 	// Scortch the diffuse
 	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.1f)*0.1f);
 
@@ -145,8 +97,7 @@ void main(void)
 	// Direct light
 	vec3 directLight = vec3(0.0f);
 	vec3 lightDir = normalize(vec3(1.0,1.0f,1.0f));
-	directLight += max( dot(in_normal.xyz, lightDir), 0.0f ) * 1.5;
-	//directLight *= occlusion;
+	directLight += max( dot(in_normal.xyz, lightDir), 0.0f ) * 2.0f;
 
 	// Ambient light
 	vec3 ambientlight = vec3(0.0f);
@@ -167,8 +118,8 @@ void main(void)
 	heatColor0 += heatColor1;
 
 	vec3 emissive = vec3(0.0f);
-	emissive.x = heatColor0;
-	emissive.y = heatColor1;
+	emissive.y = heatColor0;
+	emissive.z = heatColor1;
 
 	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
 
