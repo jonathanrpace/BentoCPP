@@ -106,7 +106,7 @@ namespace bento
 		ImGui::Spacing();
 
 		ImGui::Spacing();
-		ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.05f, "%.5f");
 		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.01f, "%.5f");
 		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.01f, "%.5f");
 		ImGui::Spacing();
@@ -114,6 +114,8 @@ namespace bento
 		ImGui::Spacing();
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
 		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
+		ImGui::SliderFloat("TextureCycleSpeed", &m_textureCycleSpeed, 0.0f, 10.0f);
+		ImGui::SliderFloat("TextureCycleDamping", &m_textureCycleDamping, 0.9f, 1.0f);
 		ImGui::Spacing();
 	}
 
@@ -236,14 +238,23 @@ namespace bento
 			fragShader.SetUniform("u_heatViscosityBias", m_heatViscosityBias);
 
 			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
+			fragShader.SetUniform("u_cycleSpeed", m_textureCycleSpeed);
+			fragShader.SetUniform("u_cycleDamping", m_textureCycleDamping);
 			fragShader.SetUniform("u_velocityScalar", m_velocityScalar);
 			fragShader.SetUniform("u_cellSize", cellSize);
 
 			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);
 
+			fragShader.SetUniform("u_mousePos", normalisedMousePos);
+			fragShader.SetUniform("u_mouseVolumeStrength", mouseVolumeStrength);
+			fragShader.SetUniform("u_mouseHeatStrength", mouseHeatStrength);
+			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+
+			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer());
+
 			m_screenQuadGeom.Draw();
 
-			_geom.SwapMappingData();
+			//_geom.SwapMappingData();
 		}
 		
 		// Diffuse height

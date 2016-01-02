@@ -69,12 +69,12 @@ void main(void)
 	
 
 	vec2 uv = in_uv + mappingDataSample.xy;
-	vec4 diffuseSample = texture(s_diffuseMap, uv);
+	//vec4 diffuseSample = texture(s_diffuseMap, uv);
 	//out_diffuse = diffuseSample;
 
 	float mapHeightOffset = u_mapHeightOffset;
 
-	position.y += diffuseSample.x * mapHeightOffset;
+	position.y += mappingDataSample.y * mapHeightOffset * (1.0f - min(heat,1.0f));
 
 	out_uv = in_uv;
 	out_viewNormal = vec3(0.0f, 1.0f, 0.0f);

@@ -29,7 +29,6 @@ namespace bento
 
 		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
 		SetTexture("s_fluxData", &(_geometry->FluxDataRead()));
-		//SetTexture("s_velocityData", &(_geometry->VelocityData()));
 		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
 		SetTexture("s_normalData", &(_geometry->NormalData()));
 
@@ -48,8 +47,8 @@ namespace bento
 
 	void TerrainGFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
-		SetTexture("s_mappingData2", &(_geometry->MappingDataRead()));
-		SetTexture("s_diffuseMap2", &(_material->SomeTexture));
+		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
+		SetTexture("s_diffuseMap", &(_material->SomeTexture));
 		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 
 		

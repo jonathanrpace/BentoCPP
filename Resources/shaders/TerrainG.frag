@@ -23,8 +23,8 @@ uniform vec2 u_mouseScreenPos;
 uniform ivec2 u_windowSize;
 
 // Textures
-uniform sampler2D s_diffuseMap2;
-uniform sampler2D s_mappingData2;
+uniform sampler2D s_diffuseMap;
+uniform sampler2D s_mappingData;
 
 
 ////////////////////////////////////////////////////////////////
@@ -81,13 +81,26 @@ void main(void)
 
 	ivec2 cellIndex = ivec2( in_uv * u_numCells );
 
+	vec4 uvC = texelFetch(s_mappingData, cellIndex, 0 );
+	//vec4 uvL = texelFetch(s_mappingData, cellIndex - ivec2(1,0), 0 ).xy;
+	//vec4 uvR = texelFetch(s_mappingData, cellIndex + ivec2(1,0), 0 ).xy;
+	//vec4 uvT = texelFetch(s_mappingData, cellIndex - ivec2(0,1), 0 ).xy;
+	//vec4 uvB = texelFetch(s_mappingData, cellIndex + ivec2(0,1), 0 ).xy;
+	
+	//textureScalar = diffuseSampleC.x;
+
+	float textureScalar = uvC.y;
+
+	vec4 diffuseSample = texture(s_diffuseMap, in_uv);
+
+	/*
 	vec4 diffuseSample;
 	if ( false )
 	{
-		vec2 uv0 = texelFetch(s_mappingData2, cellIndex, 0 ).xy;
-		vec2 uv1 = texelFetch(s_mappingData2, cellIndex + ivec2(1,0), 0 ).xy;
-		vec2 uv2 = texelFetch(s_mappingData2, cellIndex + ivec2(0,1), 0 ).xy;
-		vec2 uv3 = texelFetch(s_mappingData2, cellIndex + ivec2(1,1), 0 ).xy;
+		vec2 uv0 = texelFetch(s_mappingData, cellIndex, 0 ).xy;
+		vec2 uv1 = texelFetch(s_mappingData, cellIndex + ivec2(1,0), 0 ).xy;
+		vec2 uv2 = texelFetch(s_mappingData, cellIndex + ivec2(0,1), 0 ).xy;
+		vec2 uv3 = texelFetch(s_mappingData, cellIndex + ivec2(1,1), 0 ).xy;
 
 		vec2 uvPerCell = 1.0f / u_numCells;
 		vec2 uvRatios = mod(in_uv / uvPerCell, 1.0f);
@@ -100,10 +113,10 @@ void main(void)
 		uv3 -= (1.0f-uvRatios) * uvPerCell;
 
 		// Use 4 samples
-		vec4 diffuseSample0 = texture( s_diffuseMap2, uv0 );
-		vec4 diffuseSample1 = texture( s_diffuseMap2, uv1 );
-		vec4 diffuseSample2 = texture( s_diffuseMap2, uv2 );
-		vec4 diffuseSample3 = texture( s_diffuseMap2, uv3 );
+		vec4 diffuseSample0 = texture( s_diffuseMap, uv0 );
+		vec4 diffuseSample1 = texture( s_diffuseMap, uv1 );
+		vec4 diffuseSample2 = texture( s_diffuseMap, uv2 );
+		vec4 diffuseSample3 = texture( s_diffuseMap, uv3 );
 
 		diffuseSample = diffuseSample0 * (1.0f-uvRatios.x) * (1.0f-uvRatios.y);
 		diffuseSample += diffuseSample1 * uvRatios.x * (1.0f-uvRatios.y);
@@ -112,13 +125,17 @@ void main(void)
 	}
 	else
 	{
-		vec2 uv0 = texelFetch(s_mappingData2, ivec2(cellIndex), 0 ).xy;
-		diffuseSample = texture( s_diffuseMap2, uv0 );
+		vec2 uv0 = texelFetch(s_mappingData, ivec2(cellIndex), 0 ).xy;
+		diffuseSample = texture( s_diffuseMap, uv0 );
 	}
+	*/
 	
 	float heat = in_data0.z;
+
 	
-	vec3 diffuse = 0.05f + vec3(diffuseSample.x) * 0.05f;
+	
+
+	vec3 diffuse = 0.05f + vec3(textureScalar) * 0.05f;
 	
 	// Scortch the diffuse
 	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.1f)*0.1f);
@@ -136,16 +153,27 @@ void main(void)
 	ambientlight += 0.75f * occlusion;
 
 	// Emissive
+	textureScalar = pow(textureScalar, 2.0f);
+	
+
+	float heatForColor0 = min(1.0f,heat);
+	float heatColor0 = max(0.0f, heatForColor0 - textureScalar * 1.0f );
+	heatColor0 += pow( heatForColor0, 1.5f ) * 0.25f;
+
+	float heatForColor1 = max(heat-0.1f, 0.0f) * 0.75f;
+	float heatColor1 = max(0.0f, heatForColor1 - textureScalar * 1.0f);
+	heatColor1 = pow(heatColor1, 1.5f);
+
+	heatColor0 += heatColor1;
+
 	vec3 emissive = vec3(0.0f);
-	float oneMinusClampedHeat = 1.0f-clamp(heat,0.0f,1.0f);
-	float heatColor0 = max(0.0f, heat - (diffuseSample.x) * 0.5f);
-	emissive.x += pow( min(heatColor0, 1.0f), 1.5f );
-
-	float heatColor1 = max(0.0f, heat - (diffuseSample.x) * 0.8f);
-	emissive.y += pow( max(0.0f, heatColor1-0.6f), 0.8f );
-
+	emissive.x = heatColor0;
+	emissive.y = heatColor1;
 
 	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
+
+	//outColor = vec3(textureScalar);
+	//outColor += ambientlight * 0.1f;
 
 	out_viewPosition = vec4(outColor,1.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );

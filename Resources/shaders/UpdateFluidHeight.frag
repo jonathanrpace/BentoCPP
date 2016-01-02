@@ -20,10 +20,11 @@ in Varying
 // Uniforms
 uniform vec2 u_mousePos;
 uniform float u_viscocity;
+uniform float u_heatAdvectSpeed;
+
 uniform float u_mouseRadius;
 uniform float u_mouseVolumeStrength;
 uniform float u_mouseHeatStrength;
-uniform float u_heatAdvectSpeed;
 
 uniform float u_viscosityMin;
 uniform float u_viscosityMax;
@@ -62,7 +63,7 @@ vec2 GetMousePos()
 
 float CalcViscosity( float _heat, float _viscosityScalar )
 {
-	float viscosity = mix( u_viscosityMin, u_viscosityMax, _viscosityScalar );
+	float viscosity = mix( u_viscosityMin, u_viscosityMax, 1.0f-_viscosityScalar );
 	return pow(smoothstep( 0.0f, 1.0f, clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f)), u_heatViscosityPower) * viscosity;
 }
 
@@ -75,7 +76,7 @@ void meltCondense(float heat, float moltenHeight, float solidHeight, out float o
 	}
 
 	float meltStrength = max(heat-u_heatViscosityBias, 0.0f);
-	float solidToMolten = 0;//min(solidHeight, meltStrength * u_meltSpeed);
+	float solidToMolten = 0.0f;//min(solidHeight, meltStrength * u_meltSpeed);
 
 	o_solidHeight = solidHeight + moltenToSolid - solidToMolten;
 	o_moltenHeight = moltenHeight + solidToMolten - moltenToSolid;
@@ -113,11 +114,11 @@ void main(void)
 	float fluxU = texelFetch(s_fluxData, texelCoordU, 0).w;
 	float fluxD = texelFetch(s_fluxData, texelCoordD, 0).z;
 
-	vec4 diffuseSampleC = texture(s_diffuseMap, mappingDataC.xy);
-	vec4 diffuseSampleL = texture(s_diffuseMap, mappingDataL.xy);
-	vec4 diffuseSampleR = texture(s_diffuseMap, mappingDataR.xy);
-	vec4 diffuseSampleU = texture(s_diffuseMap, mappingDataU.xy);
-	vec4 diffuseSampleD = texture(s_diffuseMap, mappingDataD.xy);
+	vec4 diffuseSampleC = texture(s_diffuseMap, in_uv);
+	//vec4 diffuseSampleL = texture(s_diffuseMap, mappingDataL.xy);
+	//vec4 diffuseSampleR = texture(s_diffuseMap, mappingDataR.xy);
+	//vec4 diffuseSampleU = texture(s_diffuseMap, mappingDataU.xy);
+	//vec4 diffuseSampleD = texture(s_diffuseMap, mappingDataD.xy);
 
 	vec4 velocityDataC = texelFetch(s_velocityData, texelCoordC, 0);
 	vec4 normalDataC = texelFetch(s_normalData, texelCoordC, 0);
@@ -129,7 +130,7 @@ void main(void)
 	vec2 velocity = velocityDataC.xy;
 	float occlusion = normalDataC.w;
 	vec4 nFlux = vec4(fluxL, fluxR, fluxU, fluxD);
-	float viscosity = CalcViscosity(heat, diffuseSampleC.y);
+	float viscosity = CalcViscosity(heat, mappingDataC.y);
 
 	float fluxChange = ((nFlux.x+nFlux.y+nFlux.z+nFlux.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
 	float newMoltenHeight = moltenHeight + fluxChange * viscosity;
@@ -148,10 +149,10 @@ void main(void)
 	vec4 neighbourHeat = vec4(heightDataL.z, heightDataR.z, heightDataU.z, heightDataD.z);
 	vec4 neighbourHeight = vec4(heightDataL.y, heightDataR.y, heightDataU.y, heightDataD.y);
 	vec4 neighbourViscosity = vec4( 
-		CalcViscosity(neighbourHeat.x, diffuseSampleL.y), 
-		CalcViscosity(neighbourHeat.y, diffuseSampleR.y), 
-		CalcViscosity(neighbourHeat.z, diffuseSampleU.y), 
-		CalcViscosity(neighbourHeat.w, diffuseSampleD.y) 
+		CalcViscosity(neighbourHeat.x, mappingDataL.y), 
+		CalcViscosity(neighbourHeat.y, mappingDataR.y), 
+		CalcViscosity(neighbourHeat.z, mappingDataU.y), 
+		CalcViscosity(neighbourHeat.w, mappingDataD.y) 
 	);
 	vec4 volumeGainProp = (nFlux * neighbourViscosity) / (neighbourHeight + epsilon);
 	volumeGainProp = min( vec4(1.0f), volumeGainProp );
@@ -161,16 +162,12 @@ void main(void)
 	// Cooling
 	// Occluded areas cool slower
 	newHeat += (u_ambientTemp - newHeat) * u_tempChangeSpeed * (1.0f-occlusion);
-
-	//float coolingSpeed = diffuseSampleC.y * u_coolingSpeedMax + (1.0f - diffuseSampleC.x) * u_coolingSpeedMin;
-	//newHeat = max(0.0f, newHeat - coolingSpeed);
-
+	
 	// Add some lava near the mouse
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
-	mouseRatio = pow(mouseRatio, 1.5f);
-	newHeat += (mouseRatio*u_mouseHeatStrength) / (1.0001f+heat);
-	newMoltenHeight += (mouseRatio * u_mouseVolumeStrength) / (1.0001f+newMoltenHeight);
+	newHeat			+= (pow(mouseRatio, 0.5f) * u_mouseHeatStrength   * (0.001f + diffuseSampleC.y*0.999f) ) / (1.0001f+heat);
+	newMoltenHeight += (pow(mouseRatio, 1.5f) * u_mouseVolumeStrength * (0.5f + diffuseSampleC.y*0.5f) ) / (1.0001f+newMoltenHeight);
 	
 	// Melt/Condense
 	float outMoltenHeight = newMoltenHeight;
