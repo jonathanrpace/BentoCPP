@@ -14,7 +14,6 @@ in Varying
 
 uniform float u_textureScrollSpeed;
 uniform float u_cycleSpeed;
-uniform float u_cycleDamping;
 uniform float u_mapHeightOffset;
 uniform float u_velocityScalar;
 
@@ -133,13 +132,8 @@ void main(void)
 
 	mappingDataC.x = clamp( pulledValue.x, 0.0f, 1.0f );
 	
-	//vec4 neighbourFlux[8] = vec4[]( fluxUL, fluxU, fluxUR, fluxR, fluxDR, fluxD, fluxDL, fluxL );
-	//vec2 neighbourOffsets[8] = vec2[]( vec2(-1,-1), vec2(0,-1), vec2(1,-1), vec2(1,0), vec2(1,1), vec2(0,1), vec2(-1,1), vec2(-1,0) );
-
 	vec4 neighbourFlux[4] = vec4[]( fluxU, fluxR, fluxD, fluxL );
 	vec2 neighbourOffsets[4] = vec2[]( vec2(0,-1), vec2(1,0), vec2(0,1), vec2(-1,0) );
-
-	//vec2 cumulativePullDir = vec2(0);
 	float seperationAmount = 0.0f;
 	for ( int i = 0; i < 4; i++ )
 	{
@@ -155,65 +149,24 @@ void main(void)
 
 		float dp = dot( normalize(relativeVelocityN), normalize(offset) );
 		seperationAmount += dp * length(relativeVelocityN);
-
-
-		/*
-		vec2 pullUVN = (in_uv+offset*texelSize) - velocityN * u_textureScrollSpeed * texelSize * viscosity;
-
-		vec2 pullVec = (pullUVN - in_uv) / texelSize;
-		float pullStrength = 1.0f - min(length(pullVec), 1.0f);
-		pullVec = normalize(pullVec) * pullStrength;
-
-		if ( (pullVec.x < 0.0f && cumulativePullDir.x > 0.0f) || (pullVec.x > 0.0f && cumulativePullDir.x < 0.0f) )
-		{
-			seperationAmount += min(abs(pullVec.x), abs(cumulativePullDir.x));
-		}
-		if ( (pullVec.y < 0.0f && cumulativePullDir.y > 0.0f) || (pullVec.y > 0.0f && cumulativePullDir.y < 0.0f) )
-		{
-			seperationAmount += min(abs(pullVec.y), abs(cumulativePullDir.y));
-		}
-		cumulativePullDir += pullVec;
-		*/
 	}
+	seperationAmount = max(seperationAmount, 0.0f);
 
+	// Insert some extra seperation if the mouse is adding volume here
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 	mouseRatio = pow(mouseRatio, 1.5f);
-	seperationAmount += (mouseRatio * u_mouseVolumeStrength) * u_cycleSpeed;
+	//seperationAmount += (mouseRatio * u_mouseVolumeStrength) * u_cycleSpeed;
 
-	float cycleAmount = u_cycleSpeed * seperationAmount;
-	cycleAmount = clamp( cycleAmount, -0.1f, 0.1f );
+	float cyclePhase = mappingDataC.x + min(u_cycleSpeed * seperationAmount,0.1f);
+	cyclePhase = mod(cyclePhase, 1.0f);
+	mappingDataC.x = cyclePhase;
 
-	float mappedScalar = (1.0f - (clamp(heat, 0.0f, 1.0f))) * (1.0f-diffuseSampleC.y) * 50.0f;
-
-	mappingDataC.x += cycleAmount - mappedScalar * cycleAmount;
-
-	mappingDataC.x = max(0.0f, mappingDataC.x);
-	if ( mappingDataC.x < 0.0f ) mappingDataC.x += 1.0f;
-	else if ( mappingDataC.x > 1.0f ) mappingDataC.x -= 1.0f;
-	
-	float targetValue = texture(s_diffuseMap, vec2(pulledValue.x,0.0f)).x;
+	float diffuseSampleA = texture(s_diffuseMap, in_uv + velocity.xy * u_textureScrollSpeed * 0.25f).y;
+	float samplePos = pulledValue.x - (1.0f-diffuseSampleA) * (1.0f - clamp((heat-u_heatViscosityBias)*0.5f, 0.0f, 1.0f)) * 0.05f;
+	float targetValue = texture(s_diffuseMap, vec2(samplePos,0)).x;
 	mappingDataC.y = targetValue;
 
-	//mappingDataC.y -= (0.2 - (clamp(heat, 0.0f, 0.2f))) * (1.0f-diffuseSampleC.y) * 0.5f;
-
-
-	//mappingDataC.z += u_cycleSpeed * seperationAmount;
-	//mappingDataC.z /= (1.0f + length(velocity));
-	//mappingDataC.z = mod(mappingDataC.z, 1.0f);
-
-	
-
-	//targetValue = texture(s_diffuseMap, vec2(pulledValue.x,0.0f)).z;
-	//mappingDataC.w = targetValue;
-
-	/*
-	if ( heat > 0.0f && heat < 1.0 )
-	{
-		mappingDataC.y -= (1.0f-texture(s_diffuseMap, in_uv).y) * (1.0f-heat) * 0.5f;
-		mappingDataC.y = max(0.0f, mappingDataC.y);
-	}
-	*/
 	//////////////////////////////////////////////////////////////////////////////////
 	// Calculate normals
 	//////////////////////////////////////////////////////////////////////////////////

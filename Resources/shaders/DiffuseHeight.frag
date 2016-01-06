@@ -21,18 +21,28 @@ void main(void)
 	ivec2 texelCoordL = texelCoordC - ivec2(1,1) * u_axis;
 	ivec2 texelCoordR = texelCoordC + ivec2(1,1) * u_axis;
 
-	vec4 heightC = texelFetch(s_heightData, texelCoordC, 0);
-	vec4 heightA = texelFetch(s_heightData, texelCoordL, 0);
-	vec4 heightB = texelFetch(s_heightData, texelCoordR, 0);
+	vec4 heightDataC = texelFetch(s_heightData, texelCoordC, 0);
+	vec4 heightDataA = texelFetch(s_heightData, texelCoordL, 0);
+	vec4 heightDataB = texelFetch(s_heightData, texelCoordR, 0);
 
-	float heat = heightC.z;
-	float newHeat = heightC.z;
+	float heatC = heightDataC.z;
+	float heatA = heightDataA.z;
+	float heatB = heightDataB.z;
+
+	float diffA = heatA - heatC;
+	float diffB = heatB - heatC;
+
+	float newHeat = heatC;
 	
-	// Smooth heat
-	newHeat += clamp((heightA.z-heat), -heightA.z*0.25, heightA.z*0.25) * u_heatSmoothStrength;
-	newHeat += clamp((heightB.z-heat), -heightB.z*0.25, heightB.z*0.25) * u_heatSmoothStrength;
+	newHeat += clamp( diffA*u_heatSmoothStrength, -heatC*u_heatSmoothStrength, heatA*u_heatSmoothStrength );
+	newHeat += clamp( diffB*u_heatSmoothStrength, -heatC*u_heatSmoothStrength, heatB*u_heatSmoothStrength );
 
-	out_heightData = vec4(heightC.x, heightC.y, newHeat, heightC.w);
+
+	// Smooth heat
+	//newHeat += clamp((heatA-heatC), -heatA*0.25, heatA*0.25) * u_heatSmoothStrength;
+	//newHeat += clamp((heatB-heatC), -heatB*0.25, heatB*0.25) * u_heatSmoothStrength;
+
+	out_heightData = vec4(heightDataC.x, heightDataC.y, newHeat, heightDataC.w);
 }
 
 

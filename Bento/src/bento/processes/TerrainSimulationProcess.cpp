@@ -80,7 +80,7 @@ namespace bento
 		ImGui::Text("Input");
 		ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
 		ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
-		ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 0.4f, "%.2f");
+		ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 1.0f, "%.2f");
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -107,15 +107,14 @@ namespace bento
 
 		ImGui::Spacing();
 		ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.05f, "%.5f");
-		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.01f, "%.5f");
-		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.01f, "%.5f");
+		ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.001f, "%.5f");
+		ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
 		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
 		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
 		ImGui::SliderFloat("TextureCycleSpeed", &m_textureCycleSpeed, 0.0f, 10.0f);
-		ImGui::SliderFloat("TextureCycleDamping", &m_textureCycleDamping, 0.9f, 1.0f);
 		ImGui::Spacing();
 	}
 
@@ -239,7 +238,6 @@ namespace bento
 
 			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
 			fragShader.SetUniform("u_cycleSpeed", m_textureCycleSpeed);
-			fragShader.SetUniform("u_cycleDamping", m_textureCycleDamping);
 			fragShader.SetUniform("u_velocityScalar", m_velocityScalar);
 			fragShader.SetUniform("u_cellSize", cellSize);
 

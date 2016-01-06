@@ -22,6 +22,10 @@ uniform ivec2 u_numCells;
 uniform vec2 u_mouseScreenPos;
 uniform ivec2 u_windowSize;
 
+uniform vec3 u_lightDir = vec3(1.0,1.0f,1.0f);
+uniform float u_lightStrength = 2.0f;
+uniform float u_ambientLightStrength = 0.75f;
+
 // Textures
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_mappingData;
@@ -79,54 +83,44 @@ void main(void)
 {
 	UpdateMousePosition();
 
-	ivec2 cellIndex = ivec2( in_uv * u_numCells );
+	vec4 mappingDataC = texture(s_mappingData, in_uv, 0 );
 
-	vec4 uvC = texelFetch(s_mappingData, cellIndex, 0 );
-	float textureScalar = uvC.y;
-
-	float diffuseScalar = texture(s_diffuseMap, vec2(uvC.x,0)).z;
-
+	float moltenPhase = mappingDataC.x;
+	float moltenBump = mappingDataC.y;
 	float heat = in_data0.z;
-
-	vec3 diffuse = 0.05f + vec3(diffuseScalar) * 0.05f;
-	// Scortch the diffuse
-	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.1f)*0.1f);
-
 	float occlusion = 1.0f - in_normal.w;
 
+	// Diffuse
+	float diffuseScalar = texture(s_diffuseMap, vec2(moltenPhase,0)).y;
+	vec3 diffuse = 0.05f + vec3(diffuseScalar) * 0.05f;
+	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.1f)*0.05f);		// Scortch
+
 	// Direct light
-	vec3 directLight = vec3(0.0f);
-	vec3 lightDir = normalize(vec3(1.0,1.0f,1.0f));
-	directLight += max( dot(in_normal.xyz, lightDir), 0.0f ) * 2.0f;
+	vec3 directLight = vec3( max( dot(in_normal.xyz, normalize(u_lightDir)), 0.0f ) * u_lightStrength );
 
 	// Ambient light
-	vec3 ambientlight = vec3(0.0f);
-	ambientlight += 0.75f * occlusion;
+	vec3 ambientlight = vec3( u_ambientLightStrength * occlusion );
 
 	// Emissive
-	textureScalar = pow(textureScalar, 2.0f);
-	
-
+	vec3 emissive = vec3(0.0f);
 	float heatForColor0 = min(1.0f,heat);
-	float heatColor0 = max(0.0f, heatForColor0 - textureScalar * 1.0f );
-	heatColor0 += pow( heatForColor0, 1.5f ) * 0.25f;
+	float heatColor0 = max(0.0f, heatForColor0 - moltenBump * 0.5f );
+	heatColor0 = pow(heatColor0, 2.0f);
 
-	float heatForColor1 = max(heat-0.1f, 0.0f) * 0.75f;
-	float heatColor1 = max(0.0f, heatForColor1 - textureScalar * 1.0f);
-	heatColor1 = pow(heatColor1, 1.5f);
+	float heatForColor1 = heat * 0.8f;
+	float heatColor1 = max(0.0f, heatForColor1 - moltenBump * 0.25f);
+	heatColor1 = min(1.0f,heatColor1);
+	heatColor1 = pow(heatColor1, 5.0f);
 
 	heatColor0 += heatColor1;
 
-	vec3 emissive = vec3(0.0f);
-	emissive.y = heatColor0;
-	emissive.z = heatColor1;
-
+	emissive.x = heatColor0;
+	emissive.y = heatColor1;
+	
+	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
 
-	//outColor = vec3(textureScalar);
-	//outColor += ambientlight * 0.1f;
-
-	out_viewPosition = vec4(outColor,1.0f);
+	out_viewPosition = vec4(outColor, 1.0f);
 	out_viewNormal = vec4( in_viewNormal.xyz, 1.0f );
 	out_albedo = vec4( 1.0f );
 	out_material = vec4( 1.0f, 1.0f, 0.0f, 1.0f );	// roughness, reflectivity, emissive, nowt

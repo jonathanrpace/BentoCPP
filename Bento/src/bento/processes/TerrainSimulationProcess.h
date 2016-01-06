@@ -86,24 +86,23 @@ namespace bento
 
 		// Molten
 		float m_elasticity = 0.5f;
-		float m_fluxDamping = 0.98f;
+		float m_fluxDamping = 0.999f;
 
-		float m_viscosityMin = 0.1f;
+		float m_viscosityMin = 0.01f;
 		float m_viscosityMax = 0.4f;
-		float m_heatViscosityPower = 1.0f;
-		float m_heatViscosityBias = 0.2f;
+		float m_heatViscosityPower = 1.5f;
+		float m_heatViscosityBias = 0.3f;
 
 		float m_velocityScalar = 1.0f;
 		float m_textureScrollSpeed = 0.1f;
-		float m_textureCycleSpeed = 1.0f;
-		float m_textureCycleDamping = 0.999f;
+		float m_textureCycleSpeed = 3.0f;
 
 		float m_heatAdvectSpeed = 0.49f;
-		float m_heatSmoothingStrength = 0.05f;
+		float m_heatSmoothingStrength = 0.01f;
 
 		float m_meltSpeed = 0.00001f;
 		float m_condenseSpeed = 0.01f;
-		float m_tempChangeSpeed = 0.001f;
+		float m_tempChangeSpeed = 0.0001f;
 
 		// Global
 		float m_ambientTemperature = 0.01f;

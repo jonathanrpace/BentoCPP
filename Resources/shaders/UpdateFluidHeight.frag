@@ -67,7 +67,7 @@ float CalcViscosity( float _heat, float _viscosityScalar )
 	return pow(smoothstep( 0.0f, 1.0f, clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f)), u_heatViscosityPower) * viscosity;
 }
 
-void meltCondense(float heat, float moltenHeight, float solidHeight, out float o_moltenHeight, out float o_solidHeight, out float o_heat)
+void meltCondense(float heat, float moltenHeight, float solidHeight, vec2 velocity, out float o_moltenHeight, out float o_solidHeight, out float o_heat)
 {
 	float moltenToSolid = 0.0f;
 	if ( heat < u_heatViscosityBias )
@@ -75,14 +75,16 @@ void meltCondense(float heat, float moltenHeight, float solidHeight, out float o
 		moltenToSolid += min( moltenHeight, u_condenseSpeed * moltenHeight );
 	}
 
-	float meltStrength = max(heat-u_heatViscosityBias, 0.0f);
-	float solidToMolten = 0.0f;//min(solidHeight, meltStrength * u_meltSpeed);
+	float meltStrength = max(heat-u_heatViscosityBias, 0.0f) * u_meltSpeed * length(velocity);
+	float solidToMolten = min(solidHeight, meltStrength);
 
 	o_solidHeight = solidHeight + moltenToSolid - solidToMolten;
 	o_moltenHeight = moltenHeight + solidToMolten - moltenToSolid;
 
 	float solidToMoltenRatio = solidToMolten / (moltenHeight + 0.0001f);
-	o_heat = heat;// / (1.0f+solidToMoltenRatio);
+	solidToMoltenRatio = clamp(solidToMoltenRatio, 0.0f, 1.0f);
+
+	o_heat = heat * (1.0f-solidToMoltenRatio);
 }
 
 void main(void)
@@ -166,14 +168,14 @@ void main(void)
 	// Add some lava near the mouse
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
-	newHeat			+= (pow(mouseRatio, 0.5f) * u_mouseHeatStrength   * (0.001f + diffuseSampleC.y*0.999f) ) / (1.0001f+heat);
-	newMoltenHeight += (pow(mouseRatio, 1.5f) * u_mouseVolumeStrength * (0.5f + diffuseSampleC.y*0.5f) ) / (1.0001f+newMoltenHeight);
+	newHeat			+= (pow(mouseRatio, 0.5f) * u_mouseHeatStrength   * (1.0f + diffuseSampleC.y*0.0f) ) / (1.0001f+heat);
+	newMoltenHeight += (pow(mouseRatio, 1.5f) * u_mouseVolumeStrength * (0.99f + diffuseSampleC.y*0.01f) ) / (1.0001f+newMoltenHeight);
 	
 	// Melt/Condense
 	float outMoltenHeight = newMoltenHeight;
 	float outSolidHeight = solidHeight;
 	float outHeat = newHeat;
-	meltCondense(newHeat, newMoltenHeight, solidHeight, outMoltenHeight, outSolidHeight, outHeat);
+	meltCondense(newHeat, newMoltenHeight, solidHeight, velocity, outMoltenHeight, outSolidHeight, outHeat);
 	
 	// Out
 	out_heightData = vec4(outSolidHeight, outMoltenHeight, outHeat, heightDataC.w);
