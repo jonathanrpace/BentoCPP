@@ -1,12 +1,16 @@
 #version 430 core
 
+////////////////////////////////////////////////////////////////
+// Inputs
+////////////////////////////////////////////////////////////////
+
 // Samplers
-uniform sampler2D s_heightData;
+uniform sampler2D s_rockData;
+uniform sampler2D s_rockFluxData;
 uniform sampler2D s_mappingData;
 uniform sampler2D s_diffuseMap;
-uniform sampler2D s_fluxData;
 
-// Inputs
+// From VS
 in Varying
 {
 	vec2 in_uv;
@@ -39,9 +43,12 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 };
 
 // Outputs
-layout( location = 0 ) out vec4 out_velocityData;
-layout( location = 1 ) out vec4 out_mappingData;
-layout( location = 2 ) out vec4 out_normal;
+layout( location = 0 ) out vec4 out_mappingData;
+layout( location = 1 ) out vec4 out_rockNormal;
+
+////////////////////////////////////////////////////////////////
+// Functions
+////////////////////////////////////////////////////////////////
 
 float CalcViscosity( float _heat, float _viscosityScalar )
 {
@@ -55,9 +62,23 @@ vec2 GetMousePos()
 	return mousePos;
 }
 
+vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 fluxD, vec2 texelSize, float viscosity )
+{
+	vec2 velocity = vec2(	(fluxL.y + fluxC.y) - (fluxR.x + fluxC.x), 
+							(fluxU.w + fluxC.w) - (fluxD.z + fluxC.z) );
+	velocity /= texelSize;
+	velocity *= u_velocityScalar * viscosity;
+
+	return velocity;
+}
+
+////////////////////////////////////////////////////////////////
+// Main
+////////////////////////////////////////////////////////////////
+
 void main(void)
 {
-	ivec2 dimensions = textureSize( s_heightData, 0 );
+	ivec2 dimensions = textureSize( s_rockData, 0 );
 	vec2 texelSize = 1.0f / dimensions;
 
 	ivec2 texelCoordC = ivec2(gl_FragCoord.xy);
@@ -65,16 +86,12 @@ void main(void)
 	ivec2 texelCoordR = texelCoordC + ivec2(1,0);
 	ivec2 texelCoordU = texelCoordC - ivec2(0,1);
 	ivec2 texelCoordD = texelCoordC + ivec2(0,1);
-	ivec2 texelCoordUL = texelCoordC - ivec2(1,1);
-	ivec2 texelCoordUR = texelCoordC + ivec2(-1,1);
-	ivec2 texelCoordDL = texelCoordC + ivec2(1,-1);
-	ivec2 texelCoordDR = texelCoordC + ivec2(1,1);
 
-	vec4 heightDataC = texelFetch(s_heightData, texelCoordC, 0);
-	vec4 heightDataL = texelFetch(s_heightData, texelCoordL, 0);
-	vec4 heightDataR = texelFetch(s_heightData, texelCoordR, 0);
-	vec4 heightDataU = texelFetch(s_heightData, texelCoordU, 0);
-	vec4 heightDataD = texelFetch(s_heightData, texelCoordD, 0);
+	vec4 heightDataC = texelFetch(s_rockData, texelCoordC, 0);
+	vec4 heightDataL = texelFetch(s_rockData, texelCoordL, 0);
+	vec4 heightDataR = texelFetch(s_rockData, texelCoordR, 0);
+	vec4 heightDataU = texelFetch(s_rockData, texelCoordU, 0);
+	vec4 heightDataD = texelFetch(s_rockData, texelCoordD, 0);
 
 	vec4 mappingDataC = texelFetch(s_mappingData, texelCoordC, 0);
 	vec4 mappingDataL = texelFetch(s_mappingData, texelCoordL, 0);
@@ -82,41 +99,16 @@ void main(void)
 	vec4 mappingDataU = texelFetch(s_mappingData, texelCoordU, 0);
 	vec4 mappingDataD = texelFetch(s_mappingData, texelCoordD, 0);
 
-	vec4 fluxC  = texelFetch(s_fluxData, texelCoordC, 0);
-	vec4 fluxL  = texelFetch(s_fluxData, texelCoordL, 0);
-	vec4 fluxR  = texelFetch(s_fluxData, texelCoordR, 0);
-	vec4 fluxU  = texelFetch(s_fluxData, texelCoordU, 0);
-	vec4 fluxD  = texelFetch(s_fluxData, texelCoordD, 0);
-	vec4 fluxUL = texelFetch(s_fluxData, texelCoordUL, 0);
-	vec4 fluxUR = texelFetch(s_fluxData, texelCoordUR, 0);
-	vec4 fluxDL = texelFetch(s_fluxData, texelCoordDL, 0);
-	vec4 fluxDR = texelFetch(s_fluxData, texelCoordDR, 0);
-
-	vec4 diffuseSampleC = texture(s_diffuseMap, in_uv);
+	vec4 fluxC  = texelFetch(s_rockFluxData, texelCoordC, 0);
+	vec4 fluxL  = texelFetch(s_rockFluxData, texelCoordL, 0);
+	vec4 fluxR  = texelFetch(s_rockFluxData, texelCoordR, 0);
+	vec4 fluxU  = texelFetch(s_rockFluxData, texelCoordU, 0);
+	vec4 fluxD  = texelFetch(s_rockFluxData, texelCoordD, 0);
 
 	float heat = heightDataC.z;
 	float viscosity = CalcViscosity(heat, mappingDataC.y);
 
-	// Calculate velocity from flux
-	vec4 velocity = vec4(0.0f);
-	velocity.x = ((fluxL.y + fluxC.y) - (fluxR.x + fluxC.x)) / texelSize.x;
-	velocity.y = ((fluxU.w + fluxC.w) - (fluxD.z + fluxC.z)) / texelSize.y;
-	velocity.xy *= u_velocityScalar * viscosity;
-
-	
-	vec4 heightDiffs = vec4(0.0f);
-	heightDiffs.x = (heightDataL.x+heightDataL.y) - (heightDataC.x+heightDataC.y);
-	heightDiffs.y = (heightDataR.x+heightDataR.y) - (heightDataC.x+heightDataC.y);
-	heightDiffs.z = (heightDataU.x+heightDataU.y) - (heightDataC.x+heightDataC.y);
-	heightDiffs.w = (heightDataD.x+heightDataD.y) - (heightDataC.x+heightDataC.y);
-
-	vec4 h = vec4(0.0f);
-	h.x = length( vec2(heightDiffs.x, u_cellSize.x) );
-	h.y = length( vec2(heightDiffs.y, u_cellSize.x) );
-	h.z = length( vec2(heightDiffs.z, u_cellSize.y) );
-	h.w = length( vec2(heightDiffs.w, u_cellSize.y) );
-	velocity.xy *= (1.0f + (h.x+h.y+h.z+h.w));
-	
+	vec4 velocity = vec4( VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, viscosity ), 0.0f, 0.0f );
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Update Mapping
@@ -186,7 +178,7 @@ void main(void)
 	float occlusion = 0.0f;
 	for ( int i = 1; i < u_numHeightMips; i++ )
 	{
-		vec4 mippedHeightDataC = textureLod(s_heightData, in_uv, float(i));
+		vec4 mippedHeightDataC = textureLod(s_rockData, in_uv, float(i));
 		float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y;
 		float diff = max(0.0f, mippedHeight - heightC);
 		float ratio = diff / u_cellSize.x;
@@ -201,9 +193,8 @@ void main(void)
 
 	
 	// Output
-	out_velocityData = velocity;
 	out_mappingData = mappingDataC;
-	out_normal = vec4(normal,occlusion);
+	out_rockNormal = vec4(normal,occlusion);
 }
 
 

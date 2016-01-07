@@ -94,7 +94,7 @@ namespace bento
 		float m_heatViscosityBias = 0.3f;
 
 		float m_velocityScalar = 1.0f;
-		float m_textureScrollSpeed = 0.1f;
+		float m_textureScrollSpeed = 0.05f;
 		float m_textureCycleSpeed = 3.0f;
 
 		float m_heatAdvectSpeed = 0.49f;
@@ -107,13 +107,12 @@ namespace bento
 		// Global
 		float m_ambientTemperature = 0.01f;
 		
-		GLenum HEIGHT_DATA_A = GL_COLOR_ATTACHMENT0;
-		GLenum HEIGHT_DATA_B = GL_COLOR_ATTACHMENT1;
-		GLenum FLUX_DATA_A = GL_COLOR_ATTACHMENT2;
-		GLenum FLUX_DATA_B = GL_COLOR_ATTACHMENT3;
-		GLenum VELOCITY_DATA = GL_COLOR_ATTACHMENT4;
-		GLenum MAPPING_DATA_A = GL_COLOR_ATTACHMENT5;
-		GLenum MAPPING_DATA_B = GL_COLOR_ATTACHMENT6;
-		GLenum NORMAL_DATA = GL_COLOR_ATTACHMENT7;
+		GLenum ROCK_HEIGHT_DATA_A = GL_COLOR_ATTACHMENT0;
+		GLenum ROCK_HEIGHT_DATA_B = GL_COLOR_ATTACHMENT1;
+		GLenum ROCK_FLUX_DATA_A = GL_COLOR_ATTACHMENT2;
+		GLenum ROCK_FLUX_DATA_B = GL_COLOR_ATTACHMENT3;
+		GLenum MAPPING_DATA_A = GL_COLOR_ATTACHMENT4;
+		GLenum MAPPING_DATA_B = GL_COLOR_ATTACHMENT5;
+		GLenum ROCK_NORMAL_DATA = GL_COLOR_ATTACHMENT6;
 	};
 }

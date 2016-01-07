@@ -140,8 +140,8 @@ namespace bento
 
 		// Update flux
 		{
-			static GLenum fluxDrawBufferA[] = { FLUX_DATA_A };
-			static GLenum fluxDrawBufferB[] = { FLUX_DATA_B };
+			static GLenum fluxDrawBufferA[] = { ROCK_FLUX_DATA_A };
+			static GLenum fluxDrawBufferB[] = { ROCK_FLUX_DATA_B };
 
 			if (!m_switch)
 				_renderTarget.SetDrawBuffers(fluxDrawBufferB, sizeof(fluxDrawBufferB) / sizeof(fluxDrawBufferB[0]));
@@ -150,22 +150,22 @@ namespace bento
 
 			m_updateFluxShader.BindPerPass();
 			auto fragShader = m_updateFluxShader.FragmentShader();
-			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+			fragShader.SetTexture("s_heightData", &_geom.RockDataRead());
+			fragShader.SetTexture("s_fluxData", &_geom.RockFluxDataRead());
 
 			fragShader.SetUniform("u_elasticity", m_elasticity);
 			fragShader.SetUniform("u_fluxDamping", m_fluxDamping);
 
 			m_screenQuadGeom.Draw();
 
-			_geom.SwapFluxData();
+			_geom.SwapRockFluxData();
 		}
 		
 		
 		// Update height
 		{
-			static GLenum heightDrawBufferA[] = { HEIGHT_DATA_A };
-			static GLenum heightDrawBufferB[] = { HEIGHT_DATA_B };
+			static GLenum heightDrawBufferA[] = { ROCK_HEIGHT_DATA_A };
+			static GLenum heightDrawBufferB[] = { ROCK_HEIGHT_DATA_B };
 
 			if (!m_switch)
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
@@ -174,10 +174,10 @@ namespace bento
 			
 			m_updateHeightShader.BindPerPass();
 			auto fragShader = m_updateHeightShader.FragmentShader();
-			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
+			fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
+			fragShader.SetTexture("s_rockFluxData", &_geom.RockFluxDataRead());
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
-			fragShader.SetTexture("s_normalData", &_geom.NormalData());
+			fragShader.SetTexture("s_normalData", &_geom.RockNormalData());
 			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
 			
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
@@ -186,6 +186,7 @@ namespace bento
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 			
 			fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
+			fragShader.SetUniform("u_velocityScalar", m_velocityScalar);
 
 			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
 			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
@@ -207,15 +208,15 @@ namespace bento
 
 			m_screenQuadGeom.Draw();
 
-			_geom.SwapHeightData();
+			_geom.SwapRockData();
 		}
 
 		// Update velocity
 		{
-			_geom.HeightDataRead().GenerateMipMaps();
+			_geom.RockDataRead().GenerateMipMaps();
 
-			static GLenum velocityDrawBuffersA[] = { VELOCITY_DATA, MAPPING_DATA_A, NORMAL_DATA };
-			static GLenum velocityDrawBuffersB[] = { VELOCITY_DATA, MAPPING_DATA_B, NORMAL_DATA };
+			static GLenum velocityDrawBuffersA[] = { MAPPING_DATA_A, ROCK_NORMAL_DATA };
+			static GLenum velocityDrawBuffersB[] = { MAPPING_DATA_B, ROCK_NORMAL_DATA };
 
 			if (!m_switch)
 				_renderTarget.SetDrawBuffers(velocityDrawBuffersA, sizeof(velocityDrawBuffersA) / sizeof(velocityDrawBuffersA[0]));
@@ -224,12 +225,12 @@ namespace bento
 
 			m_updateVelocityShader.BindPerPass();
 			auto fragShader = m_updateVelocityShader.FragmentShader();
-			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
+			fragShader.SetTexture("s_rockFluxData", &_geom.RockFluxDataRead());
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
 			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
-			fragShader.SetTexture("s_fluxData", &_geom.FluxDataRead());
-
-			fragShader.SetUniform("u_numHeightMips", _geom.HeightDataRead().GetNumMipMaps());
+			
+			fragShader.SetUniform("u_numHeightMips", _geom.RockDataRead().GetNumMipMaps());
 
 			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
 			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
@@ -251,39 +252,37 @@ namespace bento
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer());
 
 			m_screenQuadGeom.Draw();
-
-			//_geom.SwapMappingData();
 		}
 		
 		// Diffuse height
 		{
-			static GLenum heightDrawBufferA[] = { HEIGHT_DATA_A };
-			static GLenum heightDrawBufferB[] = { HEIGHT_DATA_B };
+			static GLenum heightDrawBufferA[] = { ROCK_HEIGHT_DATA_A };
+			static GLenum heightDrawBufferB[] = { ROCK_HEIGHT_DATA_B };
 
 			m_diffuseHeightShader.BindPerPass();
 			auto fragShader = m_diffuseHeightShader.FragmentShader();
 
 			fragShader.SetUniform("u_heatSmoothStrength", m_heatSmoothingStrength);
 
-			if (&_geom.HeightDataRead() == &_geom.HeightDataA())	
+			if (&_geom.RockDataRead() == &_geom.RockDataA())	
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
 			else			
 				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
 
-			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetTexture("s_heightData", &_geom.RockDataRead());
 			fragShader.SetUniform("u_axis", ivec2(1,0));
 			m_screenQuadGeom.Draw();
-			_geom.SwapHeightData();
+			_geom.SwapRockData();
 
-			if (&_geom.HeightDataRead() == &_geom.HeightDataA())
+			if (&_geom.RockDataRead() == &_geom.RockDataA())
 				_renderTarget.SetDrawBuffers(heightDrawBufferB, sizeof(heightDrawBufferB) / sizeof(heightDrawBufferB[0]));
 			else
 				_renderTarget.SetDrawBuffers(heightDrawBufferA, sizeof(heightDrawBufferA) / sizeof(heightDrawBufferA[0]));
 
-			fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+			fragShader.SetTexture("s_heightData", &_geom.RockDataRead());
 			fragShader.SetUniform("u_axis", ivec2(0,1));
 			m_screenQuadGeom.Draw();
-			_geom.SwapHeightData();
+			_geom.SwapRockData();
 		}
 		
 		m_switch = !m_switch;
@@ -298,14 +297,13 @@ namespace bento
 			false, false, GL_RGBA16F
 		);
 
-		renderTarget->AttachTexture(HEIGHT_DATA_A, &_node.geom->HeightDataA());
-		renderTarget->AttachTexture(HEIGHT_DATA_B, &_node.geom->HeightDataB());
-		renderTarget->AttachTexture(FLUX_DATA_A, &_node.geom->FluxDataA());
-		renderTarget->AttachTexture(FLUX_DATA_B, &_node.geom->FluxDataB());
-		renderTarget->AttachTexture(VELOCITY_DATA, &_node.geom->VelocityData());
+		renderTarget->AttachTexture(ROCK_HEIGHT_DATA_A, &_node.geom->RockDataA());
+		renderTarget->AttachTexture(ROCK_HEIGHT_DATA_B, &_node.geom->RockDataB());
+		renderTarget->AttachTexture(ROCK_FLUX_DATA_A, &_node.geom->RockFluxDataA());
+		renderTarget->AttachTexture(ROCK_FLUX_DATA_B, &_node.geom->RockFluxDataB());
 		renderTarget->AttachTexture(MAPPING_DATA_A, &_node.geom->MappingDataA());
 		renderTarget->AttachTexture(MAPPING_DATA_B, &_node.geom->MappingDataB());
-		renderTarget->AttachTexture(NORMAL_DATA, &_node.geom->NormalData());
+		renderTarget->AttachTexture(ROCK_NORMAL_DATA, &_node.geom->RockNormalData());
 
 		m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
 	}

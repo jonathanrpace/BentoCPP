@@ -24,16 +24,16 @@ namespace bento
 
 		SetTexture("s_diffuseMap", &(_material->SomeTexture));
 
-		_geometry->SwapHeightData();
-		_geometry->SwapFluxData();
+		_geometry->SwapRockData();
+		_geometry->SwapRockFluxData();
 
-		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
-		SetTexture("s_fluxData", &(_geometry->FluxDataRead()));
+		SetTexture("s_heightData", &(_geometry->RockDataRead()));
+		SetTexture("s_fluxData", &(_geometry->RockFluxDataRead()));
 		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
-		SetTexture("s_normalData", &(_geometry->NormalData()));
+		SetTexture("s_normalData", &(_geometry->RockNormalData()));
 
-		_geometry->SwapHeightData();
-		_geometry->SwapFluxData();
+		_geometry->SwapRockData();
+		_geometry->SwapRockFluxData();
 	}
 
 	////////////////////////////////////////////

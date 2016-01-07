@@ -23,31 +23,30 @@ namespace bento
 		TerrainGeometry(std::string _name = "TerrainGeometry");
 		~TerrainGeometry();
 
-		TextureSquare& HeightDataA() { return m_heightDataA; }
-		TextureSquare& HeightDataB() { return m_heightDataB; }
-		TextureSquare& FluxDataA() { return m_fluxDataA; }
-		TextureSquare& FluxDataB() { return m_fluxDataB; }
+		TextureSquare& RockDataA() { return m_rockDataA; }
+		TextureSquare& RockDataB() { return m_rockDataB; }
+		TextureSquare& RockFluxDataA() { return m_rockFluxDataA; }
+		TextureSquare& RockFluxDataB() { return m_rockFluxDataB; }
 		TextureSquare& MappingDataA() { return m_mappingDataA; }
 		TextureSquare& MappingDataB() { return m_mappingDataB; }
-		TextureSquare& VelocityData() { return m_velocityData; }
-		TextureSquare& NormalData() { return m_normalData; }
+		TextureSquare& RockNormalData() { return m_rockNormalData; }
 		
-		TextureSquare& HeightDataRead() { return *m_heightDataRead; }
-		TextureSquare& HeightDataWrite() { return m_heightDataRead == &m_heightDataA ? m_heightDataB : m_heightDataA; }
-		TextureSquare& FluxDataRead() { return *m_fluxDataRead; }
+		TextureSquare& RockDataRead() { return *m_rockDataRead; }
+		TextureSquare& RockDataWrite() { return m_rockDataRead == &m_rockDataA ? m_rockDataB : m_rockDataA; }
+		TextureSquare& RockFluxDataRead() { return *m_rockFluxDataRead; }
 		TextureSquare& MappingDataRead() { return *m_mappingDataRead; }
 
-		void SwapHeightData()
+		void SwapRockData()
 		{
-			TextureSquare* tmp = m_heightDataRead;
-			m_heightDataRead = m_heightDataWrite;
+			TextureSquare* tmp = m_rockDataRead;
+			m_rockDataRead = m_heightDataWrite;
 			m_heightDataWrite = tmp;
 		}
 
-		void SwapFluxData()
+		void SwapRockFluxData()
 		{
-			TextureSquare* tmp = m_fluxDataRead;
-			m_fluxDataRead = m_fluxDataWrite;
+			TextureSquare* tmp = m_rockFluxDataRead;
+			m_rockFluxDataRead = m_fluxDataWrite;
 			m_fluxDataWrite = tmp;
 		}
 
@@ -96,20 +95,19 @@ namespace bento
 		TerrainMousePos m_terrainMousePos;
 		
 
-		TextureSquare m_heightDataA;
-		TextureSquare m_heightDataB;
-		TextureSquare m_fluxDataA;
-		TextureSquare m_fluxDataB;
+		TextureSquare m_rockDataA;
+		TextureSquare m_rockDataB;
+		TextureSquare m_rockFluxDataA;
+		TextureSquare m_rockFluxDataB;
 		TextureSquare m_mappingDataA;
 		TextureSquare m_mappingDataB;
 
-		TextureSquare m_velocityData;
-		TextureSquare m_normalData;
+		TextureSquare m_rockNormalData;
 		
-		TextureSquare* m_heightDataRead;
+		TextureSquare* m_rockDataRead;
 		TextureSquare* m_heightDataWrite;
 
-		TextureSquare* m_fluxDataRead;
+		TextureSquare* m_rockFluxDataRead;
 		TextureSquare* m_fluxDataWrite;
 
 		TextureSquare* m_mappingDataRead;

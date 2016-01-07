@@ -13,18 +13,17 @@ namespace bento
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
 		, m_numVerticesPerDimension(512)
-		, m_heightDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_heightDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_fluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_fluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_rockDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_rockDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_rockFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_rockFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, m_mappingDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, m_velocityData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_normalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_heightDataRead(&m_heightDataA)
-		, m_heightDataWrite(&m_heightDataB)
-		, m_fluxDataRead(&m_fluxDataA)
-		, m_fluxDataWrite(&m_fluxDataB)
+		, m_rockNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_rockDataRead(&m_rockDataA)
+		, m_heightDataWrite(&m_rockDataB)
+		, m_rockFluxDataRead(&m_rockFluxDataA)
+		, m_fluxDataWrite(&m_rockFluxDataB)
 		, m_mappingDataRead(&m_mappingDataA)
 		, m_mappingDataWrite(&m_mappingDataB)
 		, m_terrainMousePos()
@@ -85,11 +84,10 @@ namespace bento
 		std::vector<float> fluxData(m_numVertices * 4);
 		std::vector<float> mappingData(m_numVertices * 4);
 
-		m_heightDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_heightDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_fluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_fluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_velocityData.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_rockDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_rockDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_rockFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 
 		std::srand(0);
 
@@ -126,10 +124,10 @@ namespace bento
 				uvs[float2Index + 0] = xRatio;
 				uvs[float2Index + 1] = zRatio;
 
-				heightData[float4Index + 0] = 0.0f;// xRatio * 0.5f;// 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);	// solidHeight
-				heightData[float4Index + 1] = 0.0f;// 0.1f * (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX));	// moltenHeight
-				heightData[float4Index + 2] = 0.0f;	// empty
-				heightData[float4Index + 3] = 0.0f;	// empty
+				heightData[float4Index + 0] = 0.0f;
+				heightData[float4Index + 1] = 0.0f;
+				heightData[float4Index + 2] = 0.0f;
+				heightData[float4Index + 3] = 0.0f;
 			
 				fluxData[float4Index + 0] = 0.0f;
 				fluxData[float4Index + 1] = 0.0f;
@@ -188,16 +186,14 @@ namespace bento
 			}
 		}
 
-		m_heightDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_heightDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_rockDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_rockDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
-		m_fluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
-		m_fluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_rockFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
 
 		m_mappingDataA.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
 		m_mappingDataB.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
-
-		m_velocityData.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
 		
 		BufferVertexData(0, &positions[0], m_numVertices * 3);
 		BufferVertexData(1, &uvs[0], m_numVertices * 2);
