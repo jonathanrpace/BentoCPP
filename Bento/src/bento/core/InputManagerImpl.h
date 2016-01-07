@@ -17,6 +17,8 @@ namespace bento
 
 		virtual vec2 GetMousePosition() override;
 		virtual bool IsMouseDown(int _button);
+
+		virtual bool IsKeyDown(int _key);
 		
 	private:
 		GLFWwindow* m_window;
@@ -24,5 +26,6 @@ namespace bento
 		static InputManagerImpl* s_instance;
 		static void MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods);
 		static void MouseMoveCallback(GLFWwindow* window, double _x, double _y);
+		static void KeyCallback(GLFWwindow* window, int _key, int _scanCode, int _action, int _mods);
 	};
 }
