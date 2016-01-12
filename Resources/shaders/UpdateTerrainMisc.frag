@@ -7,6 +7,8 @@
 // Samplers
 uniform sampler2D s_rockData;
 uniform sampler2D s_rockFluxData;
+uniform sampler2D s_waterData;
+uniform sampler2D s_waterFluxData;
 uniform sampler2D s_mappingData;
 uniform sampler2D s_diffuseMap;
 
@@ -45,6 +47,7 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 // Outputs
 layout( location = 0 ) out vec4 out_mappingData;
 layout( location = 1 ) out vec4 out_rockNormal;
+layout( location = 2 ) out vec4 out_waterNormal;
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -87,11 +90,17 @@ void main(void)
 	ivec2 texelCoordU = texelCoordC - ivec2(0,1);
 	ivec2 texelCoordD = texelCoordC + ivec2(0,1);
 
-	vec4 heightDataC = texelFetch(s_rockData, texelCoordC, 0);
-	vec4 heightDataL = texelFetch(s_rockData, texelCoordL, 0);
-	vec4 heightDataR = texelFetch(s_rockData, texelCoordR, 0);
-	vec4 heightDataU = texelFetch(s_rockData, texelCoordU, 0);
-	vec4 heightDataD = texelFetch(s_rockData, texelCoordD, 0);
+	vec4 rockDataC = texelFetch(s_rockData, texelCoordC, 0);
+	vec4 rockDataL = texelFetch(s_rockData, texelCoordL, 0);
+	vec4 rockDataR = texelFetch(s_rockData, texelCoordR, 0);
+	vec4 rockDataU = texelFetch(s_rockData, texelCoordU, 0);
+	vec4 rockDataD = texelFetch(s_rockData, texelCoordD, 0);
+
+	vec4 waterDataC = texelFetch(s_waterData, texelCoordC, 0);
+	vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
+	vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
+	vec4 waterDataU = texelFetch(s_waterData, texelCoordU, 0);
+	vec4 waterDataD = texelFetch(s_waterData, texelCoordD, 0);
 
 	vec4 mappingDataC = texelFetch(s_mappingData, texelCoordC, 0);
 	vec4 mappingDataL = texelFetch(s_mappingData, texelCoordL, 0);
@@ -99,16 +108,16 @@ void main(void)
 	vec4 mappingDataU = texelFetch(s_mappingData, texelCoordU, 0);
 	vec4 mappingDataD = texelFetch(s_mappingData, texelCoordD, 0);
 
-	vec4 fluxC  = texelFetch(s_rockFluxData, texelCoordC, 0);
-	vec4 fluxL  = texelFetch(s_rockFluxData, texelCoordL, 0);
-	vec4 fluxR  = texelFetch(s_rockFluxData, texelCoordR, 0);
-	vec4 fluxU  = texelFetch(s_rockFluxData, texelCoordU, 0);
-	vec4 fluxD  = texelFetch(s_rockFluxData, texelCoordD, 0);
+	vec4 rockFluxC  = texelFetch(s_rockFluxData, texelCoordC, 0);
+	vec4 rockFluxL  = texelFetch(s_rockFluxData, texelCoordL, 0);
+	vec4 rockFluxR  = texelFetch(s_rockFluxData, texelCoordR, 0);
+	vec4 rockFluxU  = texelFetch(s_rockFluxData, texelCoordU, 0);
+	vec4 rockFluxD  = texelFetch(s_rockFluxData, texelCoordD, 0);
 
-	float heat = heightDataC.z;
+	float heat = rockDataC.z;
 	float viscosity = CalcViscosity(heat, mappingDataC.y);
 
-	vec4 velocity = vec4( VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, viscosity ), 0.0f, 0.0f );
+	vec4 velocity = vec4( VelocityFromFlux(rockFluxC, rockFluxL, rockFluxR, rockFluxU, rockFluxD, texelSize, viscosity ), 0.0f, 0.0f );
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Update Mapping
@@ -124,7 +133,7 @@ void main(void)
 
 	mappingDataC.x = clamp( pulledValue.x, 0.0f, 1.0f );
 	
-	vec4 neighbourFlux[4] = vec4[]( fluxU, fluxR, fluxD, fluxL );
+	vec4 neighbourFlux[4] = vec4[]( rockFluxU, rockFluxR, rockFluxD, rockFluxL );
 	vec2 neighbourOffsets[4] = vec2[]( vec2(0,-1), vec2(1,0), vec2(0,1), vec2(-1,0) );
 	float seperationAmount = 0.0f;
 	for ( int i = 0; i < 4; i++ )
@@ -159,18 +168,38 @@ void main(void)
 	float targetValue = texture(s_diffuseMap, vec2(samplePos,0)).x;
 	mappingDataC.y = targetValue;
 
-	//////////////////////////////////////////////////////////////////////////////////
-	// Calculate normals
-	//////////////////////////////////////////////////////////////////////////////////
-	float heightR = heightDataR.x + heightDataR.y + mappingDataR.y * u_mapHeightOffset;
-	float heightL = heightDataL.x + heightDataL.y + mappingDataL.y * u_mapHeightOffset;
-	float heightU = heightDataU.x + heightDataU.y + mappingDataU.y * u_mapHeightOffset;
-	float heightD = heightDataD.x + heightDataD.y + mappingDataD.y * u_mapHeightOffset;
-	float heightC = heightDataC.x + heightDataC.y + mappingDataC.y * u_mapHeightOffset;
 
-	vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
-    vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
-    vec3 normal = -cross(va,vb);
+	//////////////////////////////////////////////////////////////////////////////////
+	// Calculate water normal
+	//////////////////////////////////////////////////////////////////////////////////
+	vec3 waterNormal;
+	{
+		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + waterDataR.y;
+		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + waterDataL.y;
+		float heightU = rockDataU.x + rockDataU.y + rockDataU.w + waterDataU.x + waterDataU.y;
+		float heightD = rockDataD.x + rockDataD.y + rockDataD.w + waterDataD.x + waterDataD.y;
+		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y;
+		
+		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
+		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
+		waterNormal = -cross(va,vb);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Calculate rock normals
+	//////////////////////////////////////////////////////////////////////////////////
+	vec3 rockNormal;
+	{
+		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + mappingDataR.y * u_mapHeightOffset;
+		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + mappingDataL.y * u_mapHeightOffset;
+		float heightU = rockDataU.x + rockDataU.y + rockDataU.w + mappingDataU.y * u_mapHeightOffset;
+		float heightD = rockDataD.x + rockDataD.y + rockDataD.w + mappingDataD.y * u_mapHeightOffset;
+		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + mappingDataC.y * u_mapHeightOffset;
+
+		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
+		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
+		rockNormal = -cross(va,vb);
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Calculate occlusion
@@ -178,8 +207,10 @@ void main(void)
 	float occlusion = 0.0f;
 	for ( int i = 1; i < u_numHeightMips; i++ )
 	{
-		vec4 mippedHeightDataC = textureLod(s_rockData, in_uv, float(i));
-		float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y;
+		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + mappingDataC.y * u_mapHeightOffset;
+
+		vec4 mippedRockDataC = textureLod(s_rockData, in_uv, float(i));
+		float mippedHeight = mippedRockDataC.x + mippedRockDataC.y + mippedRockDataC.a;
 		float diff = max(0.0f, mippedHeight - heightC);
 		float ratio = diff / u_cellSize.x;
 		float angle = atan(ratio);
@@ -194,7 +225,8 @@ void main(void)
 	
 	// Output
 	out_mappingData = mappingDataC;
-	out_rockNormal = vec4(normal,occlusion);
+	out_rockNormal = vec4(rockNormal,occlusion);
+	out_waterNormal = vec4(waterNormal,0.0f);
 }
 
 

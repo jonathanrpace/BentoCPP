@@ -19,30 +19,30 @@
 
 namespace bento
 {
-	struct UpdateFluidFluxFrag : ShaderStageBase
+	struct UpdateTerrainFluxFrag : ShaderStageBase
 	{
-		UpdateFluidFluxFrag();
+		UpdateTerrainFluxFrag();
 	};
 
-	struct UpdateFluidHeightFrag : ShaderStageBase
+	struct UpdateTerrainDataFrag : ShaderStageBase
 	{
-		UpdateFluidHeightFrag();
+		UpdateTerrainDataFrag();
 	};
 
-	struct UpdateFluidVelocityFrag : ShaderStageBase
+	struct UpdateTerrainMiscFrag : ShaderStageBase
 	{
-		UpdateFluidVelocityFrag();
+		UpdateTerrainMiscFrag();
 	};
 
-	struct DiffuseHeightFrag : ShaderStageBase
+	struct UpdateTerrainSmthFrag : ShaderStageBase
 	{
-		DiffuseHeightFrag();
+		UpdateTerrainSmthFrag();
 	};
 
-	struct UpdateFluidFluxShader : ShaderBase<ScreenQuadVert, UpdateFluidFluxFrag> {};
-	struct UpdateFluidHeightShader : ShaderBase<ScreenQuadVert, UpdateFluidHeightFrag> {};
-	struct UpdateFluidVelocityShader : ShaderBase<ScreenQuadVert, UpdateFluidVelocityFrag> {};
-	struct DiffuseHeightShader : ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
+	struct UpdateTerrainFluxShader : ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
+	struct UpdateTerrainDataShader : ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
+	struct UpdateTerrainMiscShader : ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
+	struct UpdateTerrainSmthShader : ShaderBase<ScreenQuadVert, UpdateTerrainSmthFrag> {};
 
 	DEFINE_NODE_2
 	(
@@ -73,25 +73,25 @@ namespace bento
 
 		bool m_switch;
 		ScreenQuadGeometry m_screenQuadGeom;
-		UpdateFluidFluxShader m_updateFluxShader;
-		UpdateFluidHeightShader m_updateHeightShader;
-		UpdateFluidVelocityShader m_updateVelocityShader;
-		DiffuseHeightShader m_diffuseHeightShader;
+		UpdateTerrainFluxShader m_updateFluxShader;
+		UpdateTerrainDataShader m_updateDataShader;
+		UpdateTerrainMiscShader m_updateMiscShader;
+		UpdateTerrainSmthShader m_updateSmthShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		// Input
 		float m_mouseRadius = 0.1f;
-		float m_mouseVolumeStrength = 0.005f;
+		float m_mouseMoltenVolumeStrength = 0.005f;
 		float m_mouseHeatStrength = 0.3f;
 
 		// Molten
-		float m_elasticity = 0.5f;
-		float m_fluxDamping = 0.999f;
+		float m_rockElasticity = 0.5f;
+		float m_rockFluxDamping = 0.999f;
 
 		float m_viscosityMin = 0.01f;
 		float m_viscosityMax = 0.4f;
 		float m_heatViscosityPower = 1.5f;
-		float m_heatViscosityBias = 0.3f;
+		float m_rockMeltingPoint = 0.3f;
 
 		float m_velocityScalar = 1.0f;
 		float m_textureScrollSpeed = 0.05f;
@@ -104,15 +104,15 @@ namespace bento
 		float m_condenseSpeed = 0.01f;
 		float m_tempChangeSpeed = 0.0001f;
 
+		// Water
+		float m_waterElasticity = 0.5f;
+		float m_waterFluxDamping = 0.999f;
+
+		float m_waterViscosity = 0.49f;
+		float m_waterBoilingPoint = 0.1f;
+		float m_waterFreezingPoint = 0.0f;
+
 		// Global
-		float m_ambientTemperature = 0.01f;
-		
-		GLenum ROCK_HEIGHT_DATA_A = GL_COLOR_ATTACHMENT0;
-		GLenum ROCK_HEIGHT_DATA_B = GL_COLOR_ATTACHMENT1;
-		GLenum ROCK_FLUX_DATA_A = GL_COLOR_ATTACHMENT2;
-		GLenum ROCK_FLUX_DATA_B = GL_COLOR_ATTACHMENT3;
-		GLenum MAPPING_DATA_A = GL_COLOR_ATTACHMENT4;
-		GLenum MAPPING_DATA_B = GL_COLOR_ATTACHMENT5;
-		GLenum ROCK_NORMAL_DATA = GL_COLOR_ATTACHMENT6;
+		float m_ambientTemperature = 0.05f;
 	};
 }

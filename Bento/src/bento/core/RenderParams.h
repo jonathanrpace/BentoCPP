@@ -45,7 +45,7 @@ public:
 		s_prevInvViewProjectionMatrix = s_invViewProjetionMatrix;
 
 		s_viewMatrix = _viewMatrix;
-		s_normalViewMatrix = transpose(mat3(_viewMatrix));
+		s_normalViewMatrix = mat3(_viewMatrix);
 		s_projectionMatrix = _lens.GetMatrix();
 
 		s_invViewMatrix = inverse(s_viewMatrix);

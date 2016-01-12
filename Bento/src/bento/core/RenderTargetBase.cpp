@@ -47,8 +47,9 @@ namespace bento
 
 	void RenderTargetBase::Bind()
 	{
-		Validate();
-		GL_CHECK(glBindFramebuffer(m_frameBuffer, GL_FRAMEBUFFER));
+		ValidateNow();
+		assert(glIsFramebuffer(m_frameBuffer));
+		GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, m_frameBuffer));
 	}
 
 	void RenderTargetBase::Validate()
@@ -106,16 +107,46 @@ namespace bento
 	void RenderTargetBase::AttachTexture(GLenum _attachment, RectangleTexture* _texture, int _level)
 	{
 		assert(m_isRectangular);
-		m_texturesByAttachment[_attachment] = _texture;
-		m_levelsByAttachment[_attachment] = _level;
+
+		// Attach immediately if we're ready to go
+		if (_texture->Width() == m_width && _texture->Height() == m_height)
+		{
+			m_texturesByAttachment[_attachment] = _texture;
+			m_levelsByAttachment[_attachment] = _level;
+
+			Bind();
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_RECTANGLE, _texture->TextureName(), _level));
+		}
+		else
+		{
+			m_texturesByAttachment[_attachment] = _texture;
+			m_levelsByAttachment[_attachment] = _level;
+			Invalidate();
+		}
 	}
 
 	void RenderTargetBase::AttachTexture(GLenum _attachment, TextureSquare* _texture, int _level)
 	{
 		assert(!m_isRectangular);
-		m_texturesByAttachment[_attachment] = _texture;
-		m_levelsByAttachment[_attachment] = _level;
+
+		// Attach immediately if we're ready to go
+		if (_texture->Width() == m_width && _texture->Height() == m_height)
+		{
+			m_texturesByAttachment[_attachment] = _texture;
+			m_levelsByAttachment[_attachment] = _level;
+
+			Bind();
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_2D, _texture->TextureName(), _level));
+		}
+		else
+		{
+			m_texturesByAttachment[_attachment] = _texture;
+			m_levelsByAttachment[_attachment] = _level;
+			Invalidate();
+		}
 	}
+
+
 
 	void RenderTargetBase::SetDrawBuffers(GLenum * _drawBuffers, GLsizei _size)
 	{

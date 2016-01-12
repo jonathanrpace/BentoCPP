@@ -7,8 +7,13 @@
 // Samplers
 uniform sampler2D s_rockData;
 uniform sampler2D s_rockFluxData;
+uniform sampler2D s_rockNormalData;
+
+uniform sampler2D s_waterData;
+uniform sampler2D s_waterFluxData;
+uniform sampler2D s_waterNormalData;
+
 uniform sampler2D s_mappingData;
-uniform sampler2D s_normalData;
 uniform sampler2D s_diffuseMap;
 
 // From VS
@@ -18,25 +23,32 @@ in Varying
 };
 
 // Uniforms
+
+// Mouse
 uniform vec2 u_mousePos;
-uniform float u_viscocity;
-uniform float u_heatAdvectSpeed;
-
 uniform float u_mouseRadius;
-uniform float u_mouseVolumeStrength;
-uniform float u_mouseHeatStrength;
+uniform float u_mouseMoltenVolumeStrength;
+uniform float u_mouseWaterVolumeStrength;
+uniform float u_mouseMoltenHeatStrength;
 
+// Environment
+uniform float u_ambientTemp;
+
+// Molten
+uniform float u_heatAdvectSpeed;
 uniform float u_viscosityMin;
 uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
 uniform float u_velocityScalar;
-
 uniform float u_tempChangeSpeed;
-uniform float u_ambientTemp;
 uniform float u_condenseSpeed;
 uniform float u_meltSpeed;
+
+// Water
+uniform float u_waterViscosity;
+
 
 // Buffers
 layout( std430, binding = 0 ) buffer MousePositionBuffer
@@ -52,6 +64,7 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 ////////////////////////////////////////////////////////////////
 
 layout( location = 0 ) out vec4 out_rockData;
+layout( location = 1 ) out vec4 out_waterData;
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -97,16 +110,20 @@ void main(void)
 
 	// Shared data samples
 	vec4 rockDataC = texelFetch(s_rockData, texelCoordC, 0);
+	vec4 waterDataC = texelFetch(s_waterData, texelCoordC, 0);
 	vec4 mappingDataC = texelFetch(s_mappingData, texelCoordC, 0);
 	vec4 diffuseSampleC = texture(s_diffuseMap, in_uv);
 	
 	// Shared local vars
 	float solidHeight = rockDataC.x;
+	float dirtHeight = rockDataC.w;
 	float moltenHeight = rockDataC.y;
 	float moltenHeat = rockDataC.z;
+	float iceHeight = waterDataC.x;
+	float waterHeight = waterDataC.y;
+
 	float moltenViscosityScalar = mappingDataC.y;
 	float moltenViscosity = CalcViscosity(moltenHeat, moltenViscosityScalar);
-	//vec2 moltenVelocity = VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, moltenViscosity);
 
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
@@ -162,16 +179,38 @@ void main(void)
 
 		// Cooling
 		// Occluded areas cool slower
-		vec4 rockNormalDataC = texelFetch(s_normalData, texelCoordC, 0);
+		vec4 rockNormalDataC = texelFetch(s_rockNormalData, texelCoordC, 0);
 		float occlusion = rockNormalDataC.w;
 		newMoltenHeat += (u_ambientTemp - newMoltenHeat) * u_tempChangeSpeed * (1.0f-occlusion);
 
 		// Add some lava near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
-		newMoltenHeat	+= ( pow(mouseRatio, 0.5f) * u_mouseHeatStrength   * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+moltenHeat*5.0f);
-		newMoltenHeight += ( pow(mouseRatio, 1.5f) * u_mouseVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+newMoltenHeight);
+		newMoltenHeat	+= ( pow(mouseRatio, 0.5f) * u_mouseMoltenHeatStrength   * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+moltenHeat*5.0f);
+		newMoltenHeight += ( pow(mouseRatio, 1.5f) * u_mouseMoltenVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+newMoltenHeight);
 	}
-	
+
+	////////////////////////////////////////////////////////////////
+	// Update water
+	////////////////////////////////////////////////////////////////
+	float newWaterHeight = waterHeight;
+
+	{
+		vec4 fluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
+		vec4 fluxL = texelFetch(s_waterFluxData, texelCoordL, 0);
+		vec4 fluxR = texelFetch(s_waterFluxData, texelCoordR, 0);
+		vec4 fluxU = texelFetch(s_waterFluxData, texelCoordU, 0);
+		vec4 fluxD = texelFetch(s_waterFluxData, texelCoordD, 0);
+		vec4 fluxN = vec4(fluxL.y, fluxR.x, fluxU.w, fluxD.z);
+
+		// Update water height based on flux
+		float fluxChange = ((fluxN.x+fluxN.y+fluxN.z+fluxN.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
+		newWaterHeight = waterHeight + fluxChange * u_waterViscosity;
+
+		// Add some water near the mouse
+		float mouseTextureScalar = diffuseSampleC.x;
+		newWaterHeight += ( pow(mouseRatio, 1.5f) * u_mouseWaterVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+newWaterHeight);
+	}
+
 	////////////////////////////////////////////////////////////////
 	// Exchange heat/volume between layers
 	////////////////////////////////////////////////////////////////
@@ -197,6 +236,7 @@ void main(void)
 	// Output
 	////////////////////////////////////////////////////////////////
 	out_rockData = vec4(solidHeight, newMoltenHeight, newMoltenHeat, 0.0f);
+	out_waterData = vec4(0.0f, newWaterHeight, 0.0f, 0.0f);
 }
 
 

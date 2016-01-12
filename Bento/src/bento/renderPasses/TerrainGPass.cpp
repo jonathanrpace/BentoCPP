@@ -1,5 +1,7 @@
 #include "TerrainGPass.h"
 
+#include <glm/glm.hpp>
+
 #include <bento/core/Logging.h>
 #include <bento/core/RenderParams.h>
 
@@ -22,18 +24,27 @@ namespace bento
 		//SetUniform("u_normalModelViewMatrix", RenderParams::NormalModelViewMatrix());
 		SetUniform("u_mapHeightOffset", _material->MapHeightOffset);
 
-		SetTexture("s_diffuseMap", &(_material->SomeTexture));
+		//SetTexture("s_diffuseMap", &(_material->SomeTexture));
 
 		_geometry->SwapRockData();
 		_geometry->SwapRockFluxData();
+		_geometry->SwapWaterData();
+		_geometry->SwapWaterFluxData();
 
-		SetTexture("s_heightData", &(_geometry->RockDataRead()));
-		SetTexture("s_fluxData", &(_geometry->RockFluxDataRead()));
+		SetTexture("s_rockData", &(_geometry->RockDataRead()));
+		SetTexture("s_rockFluxData", &(_geometry->RockFluxDataRead()));
+		SetTexture("s_rockNormalData", &(_geometry->RockNormalData()));
+
+		SetTexture("s_waterData", &(_geometry->WaterDataRead()));
+		SetTexture("s_waterFluxData", &(_geometry->WaterFluxDataRead()));
+		SetTexture("s_waterNormalData", &(_geometry->WaterNormalData()));
+
 		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
-		SetTexture("s_normalData", &(_geometry->RockNormalData()));
-
+		
 		_geometry->SwapRockData();
 		_geometry->SwapRockFluxData();
+		_geometry->SwapWaterData();
+		_geometry->SwapWaterFluxData();
 	}
 
 	////////////////////////////////////////////
@@ -74,19 +85,22 @@ namespace bento
 		for (auto node : m_nodeGroup.Nodes())
 		{
 			RenderParams::SetModelMatrix(node->transform->matrix);
-
+			
 			node->geom->Bind();
 			m_shader.VertexShader().BindPerModel(node->geom, node->material);
 			m_shader.FragmentShader().BindPerModel(node->geom, node->material);
-
+			
 			vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
 			normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
 			normalisedMousePos.y = 1.0f - normalisedMousePos.y;
 			vec2 mouseScreenPos = (normalisedMousePos - vec2(0.5f)) * vec2(2.0f);
-			PRINTF("mouseScreenPos %2f, %2f", mouseScreenPos.x, mouseScreenPos.y);
+			PRINTF("mouseScreenPos %2f, %2f\n", mouseScreenPos.x, mouseScreenPos.y);
 			m_shader.FragmentShader().SetUniform("u_mouseScreenPos", mouseScreenPos);
 
 			m_shader.FragmentShader().SetUniform("u_windowSize", m_scene->GetWindow()->GetWindowSize());
+
+			m_shader.FragmentShader().SetUniform("u_viewMatrix", RenderParams::ViewMatrix() );
+
 
 			node->geom->Draw();
 		}

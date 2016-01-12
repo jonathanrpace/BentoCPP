@@ -17,13 +17,24 @@ namespace bento
 		, m_rockDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_rockFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, m_mappingDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, m_rockNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_rockDataRead(&m_rockDataA)
-		, m_heightDataWrite(&m_rockDataB)
+		, m_rockDataWrite(&m_rockDataB)
 		, m_rockFluxDataRead(&m_rockFluxDataA)
-		, m_fluxDataWrite(&m_rockFluxDataB)
+		, m_rockFluxDataWrite(&m_rockFluxDataB)
+
+		, m_waterDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_waterDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_waterNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_waterDataRead(&m_waterDataA)
+		, m_waterDataWrite(&m_waterDataB)
+		, m_waterFluxDataRead(&m_waterFluxDataA)
+		, m_waterFluxDataWrite(&m_waterFluxDataB)
+
+		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, m_mappingDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, m_mappingDataRead(&m_mappingDataA)
 		, m_mappingDataWrite(&m_mappingDataB)
 		, m_terrainMousePos()
@@ -83,11 +94,6 @@ namespace bento
 		std::vector<float> heightData(m_numVertices * 4);
 		std::vector<float> fluxData(m_numVertices * 4);
 		std::vector<float> mappingData(m_numVertices * 4);
-
-		m_rockDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 
 		std::srand(0);
 
@@ -186,11 +192,25 @@ namespace bento
 			}
 		}
 
+		m_rockDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_rockDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
+		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_rockFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+
+		m_waterDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_waterDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_waterDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_waterDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+
+		m_waterFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_waterFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_waterFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_waterFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
 
 		m_mappingDataA.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
 		m_mappingDataB.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);

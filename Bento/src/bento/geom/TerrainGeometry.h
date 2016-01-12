@@ -27,27 +27,54 @@ namespace bento
 		TextureSquare& RockDataB() { return m_rockDataB; }
 		TextureSquare& RockFluxDataA() { return m_rockFluxDataA; }
 		TextureSquare& RockFluxDataB() { return m_rockFluxDataB; }
-		TextureSquare& MappingDataA() { return m_mappingDataA; }
-		TextureSquare& MappingDataB() { return m_mappingDataB; }
+		
 		TextureSquare& RockNormalData() { return m_rockNormalData; }
 		
 		TextureSquare& RockDataRead() { return *m_rockDataRead; }
 		TextureSquare& RockDataWrite() { return m_rockDataRead == &m_rockDataA ? m_rockDataB : m_rockDataA; }
 		TextureSquare& RockFluxDataRead() { return *m_rockFluxDataRead; }
+		
+
+		TextureSquare& WaterDataA() { return m_waterDataA; }
+		TextureSquare& WaterDataB() { return m_waterDataB; }
+		TextureSquare& WaterFluxDataA() { return m_waterFluxDataA; }
+		TextureSquare& WaterFluxDataB() { return m_waterFluxDataB; }
+		TextureSquare& WaterNormalData() { return m_waterNormalData; }
+
+		TextureSquare& WaterDataRead() { return *m_waterDataRead; }
+		TextureSquare& WaterDataWrite() { return m_waterDataRead == &m_waterDataA ? m_waterDataB : m_waterDataA; }
+		TextureSquare& WaterFluxDataRead() { return *m_waterFluxDataRead; }
+
+		TextureSquare& MappingDataA() { return m_mappingDataA; }
+		TextureSquare& MappingDataB() { return m_mappingDataB; }
 		TextureSquare& MappingDataRead() { return *m_mappingDataRead; }
 
 		void SwapRockData()
 		{
 			TextureSquare* tmp = m_rockDataRead;
-			m_rockDataRead = m_heightDataWrite;
-			m_heightDataWrite = tmp;
+			m_rockDataRead = m_rockDataWrite;
+			m_rockDataWrite = tmp;
+		}
+
+		void SwapWaterData()
+		{
+			TextureSquare* tmp = m_waterDataRead;
+			m_waterDataRead = m_waterDataWrite;
+			m_waterDataWrite = tmp;
 		}
 
 		void SwapRockFluxData()
 		{
 			TextureSquare* tmp = m_rockFluxDataRead;
-			m_rockFluxDataRead = m_fluxDataWrite;
-			m_fluxDataWrite = tmp;
+			m_rockFluxDataRead = m_rockFluxDataWrite;
+			m_rockFluxDataWrite = tmp;
+		}
+
+		void SwapWaterFluxData()
+		{
+			TextureSquare* tmp = m_waterFluxDataRead;
+			m_waterFluxDataRead = m_waterFluxDataWrite;
+			m_waterFluxDataWrite = tmp;
 		}
 
 		void SwapMappingData()
@@ -99,16 +126,26 @@ namespace bento
 		TextureSquare m_rockDataB;
 		TextureSquare m_rockFluxDataA;
 		TextureSquare m_rockFluxDataB;
+		TextureSquare m_rockNormalData;
+
+		TextureSquare* m_rockDataRead;
+		TextureSquare* m_rockDataWrite;
+		TextureSquare* m_rockFluxDataRead;
+		TextureSquare* m_rockFluxDataWrite;
+
+		TextureSquare m_waterDataA;
+		TextureSquare m_waterDataB;
+		TextureSquare m_waterFluxDataA;
+		TextureSquare m_waterFluxDataB;
+		TextureSquare m_waterNormalData;
+						
+		TextureSquare* m_waterDataRead;
+		TextureSquare* m_waterDataWrite;
+		TextureSquare* m_waterFluxDataRead;
+		TextureSquare* m_waterFluxDataWrite;
+
 		TextureSquare m_mappingDataA;
 		TextureSquare m_mappingDataB;
-
-		TextureSquare m_rockNormalData;
-		
-		TextureSquare* m_rockDataRead;
-		TextureSquare* m_heightDataWrite;
-
-		TextureSquare* m_rockFluxDataRead;
-		TextureSquare* m_fluxDataWrite;
 
 		TextureSquare* m_mappingDataRead;
 		TextureSquare* m_mappingDataWrite;
