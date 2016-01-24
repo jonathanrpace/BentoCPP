@@ -19,6 +19,7 @@ namespace bento
 	{
 		AddRenderPhase(eRenderPhase_OffScreen);
 		AddRenderPhase(eRenderPhase_G);
+		AddRenderPhase(eRenderPhase_Forward);
 		AddRenderPhase(eRenderPhase_DirectLight);
 		AddRenderPhase(eRenderPhase_IndirectLight);
 		AddRenderPhase(eRenderPhase_PostLight);
@@ -111,15 +112,25 @@ namespace bento
 		RenderPassesInPhase(eRenderPhase_OffScreen, dt);
 
 		glViewport(0, 0, windowSize.x, windowSize.y);
-		// G-Pass
-		//glEnable(GL_DEPTH_TEST);
-		//glClearColor(1.0, 0.0, 0.0, 1.0);
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// G-Pass
 		m_deferredRenderTarget.BindForGPhase();
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 		RenderPassesInPhase(eRenderPhase_G, dt);
+
+		// Forward pass
+
+		// First copy outputA to outputB
+		m_deferredRenderTarget.BindForForwardPhase();
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(GL_FALSE);
+		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.OutputTextureA());
+
+		// Render forward passes
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		RenderPassesInPhase(eRenderPhase_Forward, dt);
 
 		// Switch draw target to back buffer
 		glViewport(0, 0, windowSize.x, windowSize.y);
@@ -127,7 +138,7 @@ namespace bento
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
 		//GL.Enable( EnableCap.FramebufferSrgb );
-		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.PositionTexture());
+		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.OutputTextureB());
 
 		// UI-Pass
 		RenderPassesInPhase(eRenderPhase_UI, dt);

@@ -48,6 +48,10 @@ uniform float u_meltSpeed;
 
 // Water
 uniform float u_waterViscosity;
+uniform float u_erosionSpeed;
+uniform float u_erosionFluxMin;
+uniform float u_erosionFluxMax;
+uniform float u_depositionSpeed;
 
 
 // Buffers
@@ -121,6 +125,7 @@ void main(void)
 	float moltenHeat = rockDataC.z;
 	float iceHeight = waterDataC.x;
 	float waterHeight = waterDataC.y;
+	float waterFoam = waterDataC.w;
 
 	float moltenViscosityScalar = mappingDataC.y;
 	float moltenViscosity = CalcViscosity(moltenHeat, moltenViscosityScalar);
@@ -193,6 +198,8 @@ void main(void)
 	// Update water
 	////////////////////////////////////////////////////////////////
 	float newWaterHeight = waterHeight;
+	float newWaterFoam = waterFoam;
+	float newDissolvedDirtHeight = waterDataC.z;
 
 	{
 		vec4 fluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
@@ -208,7 +215,55 @@ void main(void)
 
 		// Add some water near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
-		newWaterHeight += ( pow(mouseRatio, 1.5f) * u_mouseWaterVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+newWaterHeight);
+		newWaterHeight += ( pow(mouseRatio, 2.0f) * u_mouseWaterVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar) );
+
+		////////////////////////////////////////////////////////////////
+		// Foam
+		////////////////////////////////////////////////////////////////
+
+		// Advect foam along velocity
+		vec2 waterVelocity = VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, u_waterViscosity);
+		float waterSpeed = length(waterVelocity);
+		float absFlux = length(waterVelocity);
+		waterSpeed *= 0.00005f;
+		waterSpeed = min( waterSpeed, texelSize.x * 4.0f ) ;
+		waterVelocity = normalize(waterVelocity) * waterSpeed;
+		newWaterFoam = texture2D(s_waterData, in_uv - waterVelocity).w;
+
+		// Add some foam where flux is high
+		// TODO Make these inspectable
+		float u_foamMinFlux = 0.00f;
+		float u_foamMaxFlux = 2.0f;
+		float u_foamSpawnStrength = 0.004f;
+		float u_foamDamping = 0.97f;
+
+		float foamSpawnRatio = min( max(0.0f, absFlux - u_foamMinFlux) / (u_foamMaxFlux-u_foamMinFlux), 1.0f );
+		foamSpawnRatio = pow( foamSpawnRatio, 100.5f );
+
+		newWaterFoam *= u_foamDamping;
+		newWaterFoam += foamSpawnRatio * u_foamSpawnStrength;
+		newWaterFoam = min(newWaterFoam, 2.0f);
+		if ( waterHeight < 0.01f )
+		{
+			newWaterFoam *= 0.99f;
+		}
+
+		////////////////////////////////////////////////////////////////
+		// Erosion
+		////////////////////////////////////////////////////////////////
+		/*
+		float erosionRatio = clamp( (absFlux - u_erosionFluxMin) / (u_erosionFluxMax-u_erosionFluxMin), 0.0f, 1.0f );
+		float errosionAmount = min( u_erosionSpeed * erosionRatio * newWaterHeight, solidHeight );
+
+		newDissolvedDirtHeight += errosionAmount;
+		solidHeight -= errosionAmount;
+
+		float depositionRatio = absFlux < u_erosionFluxMin ? u_depositionSpeed : 0.0f;
+		float depositionAmount = min( depositionRatio, newDissolvedDirtHeight );
+
+		newDissolvedDirtHeight -= depositionAmount;
+		solidHeight += depositionAmount;
+		*/
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -236,7 +291,7 @@ void main(void)
 	// Output
 	////////////////////////////////////////////////////////////////
 	out_rockData = vec4(solidHeight, newMoltenHeight, newMoltenHeat, 0.0f);
-	out_waterData = vec4(0.0f, newWaterHeight, 0.0f, 0.0f);
+	out_waterData = vec4(0.0f, newWaterHeight, newDissolvedDirtHeight, newWaterFoam);
 }
 
 

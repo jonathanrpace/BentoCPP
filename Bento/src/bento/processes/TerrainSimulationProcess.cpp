@@ -119,13 +119,19 @@ namespace bento
 		ImGui::Spacing();
 
 		ImGui::Text("Water");
-		ImGui::SliderFloat("Elasticity", &m_waterElasticity, 0.0f, 0.5f);
-		ImGui::SliderFloat("FluxDamping", &m_waterFluxDamping, 0.9f, 1.0f);
+		ImGui::SliderFloat("Elasticity2", &m_waterElasticity, 0.0f, 0.5f);
+		ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
+		ImGui::SliderFloat("Viscosity2", &m_waterViscosity, 0.01f, 0.5f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
-		ImGui::SliderFloat("Viscosity", &m_waterViscosity, 0.01f, 0.5f);
+		ImGui::SliderFloat("ErosionSpeed", &m_erosionSpeed, 0.0f, 0.05f);
+		ImGui::SliderFloat("ErosionFluxMin", &m_erosionFluxMin, 0.0f, 0.5f);
+		ImGui::SliderFloat("ErosionFluxMax", &m_erosionFluxMax, 0.0f, 0.5f);
+		ImGui::SliderFloat("DepositionSpeed", &m_depositionSpeed, 0.0f, 0.05f);
 		ImGui::Spacing();
+
+
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -244,6 +250,11 @@ namespace bento
 
 			fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
 
+			fragShader.SetUniform("u_erosionSpeed", m_erosionSpeed);
+			fragShader.SetUniform("u_erosionFluxMin", m_erosionFluxMin);
+			fragShader.SetUniform("u_erosionFluxMax", m_erosionFluxMax);
+			fragShader.SetUniform("u_depositionSpeed", m_depositionSpeed);
+
 			// Pass through the mouse position buffer
 
 			TerrainMousePos mousePos;
@@ -307,6 +318,8 @@ namespace bento
 			fragShader.SetUniform("u_mouseVolumeStrength", moltenVolumeAmount);
 			fragShader.SetUniform("u_mouseHeatStrength", heatChangeAmount);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
+
+			fragShader.SetUniform("u_time", (float)glfwGetTime());
 
 			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer());
 

@@ -1,6 +1,7 @@
 #include "TerrainGPass.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtx/polar_coordinates.hpp>
 
 #include <bento/core/Logging.h>
 #include <bento/core/RenderParams.h>
@@ -58,6 +59,10 @@ namespace bento
 
 	void TerrainGFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
+		SetUniform("u_lightDir", -glm::euclidean(vec2(_material->lightAltitude, _material->lightAzimuth)));
+		SetUniform("u_lightIntensity", _material->directLightIntensity);
+		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
+
 		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
 		SetTexture("s_diffuseMap", &(_material->SomeTexture));
 		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));

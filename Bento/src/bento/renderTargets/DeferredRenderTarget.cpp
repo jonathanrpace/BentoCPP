@@ -11,7 +11,8 @@ namespace bento
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_MATERIAL = GL_COLOR_ATTACHMENT3;
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT = GL_COLOR_ATTACHMENT4;
 	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT = GL_COLOR_ATTACHMENT5;
-	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_OUTPUT = GL_COLOR_ATTACHMENT6;
+	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_OUTPUT_A = GL_COLOR_ATTACHMENT6;
+	const GLuint DeferredRenderTarget::FRAME_BUFFER_ATTACHMENT_OUTPUT_B = GL_COLOR_ATTACHMENT7;
 	
 	DeferredRenderTarget::DeferredRenderTarget
 	(
@@ -25,7 +26,8 @@ namespace bento
 		, m_materialTexture(_width, _height, GL_RGBA16F)
 		, m_directLightTexture(_width, _height, GL_RGBA16F)
 		, m_indirectLightTexture(_width, _height, GL_RGBA16F)
-		, m_outputTexture(_width, _height, GL_RGBA16F)
+		, m_outputTextureA(_width, _height, GL_RGBA16F)
+		, m_outputTextureB(_width, _height, GL_RGBA16F)
 	{
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_POSITION, &m_positionTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_NORMAL, &m_normalTexture);
@@ -33,7 +35,8 @@ namespace bento
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_MATERIAL, &m_materialTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT, &m_directLightTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT, &m_indirectLightTexture);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT, &m_outputTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT_A, &m_outputTextureA);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT_B, &m_outputTextureB);
 	}
 
 	DeferredRenderTarget::~DeferredRenderTarget()
@@ -53,7 +56,8 @@ namespace bento
 			FRAME_BUFFER_ATTACHMENT_MATERIAL,
 			FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT,
 			FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT,
-			FRAME_BUFFER_ATTACHMENT_OUTPUT
+			FRAME_BUFFER_ATTACHMENT_OUTPUT_A,
+			FRAME_BUFFER_ATTACHMENT_OUTPUT_B
 		};
 		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 
@@ -73,7 +77,7 @@ namespace bento
 			FRAME_BUFFER_ATTACHMENT_NORMAL,
 			FRAME_BUFFER_ATTACHMENT_ALBEDO,
 			FRAME_BUFFER_ATTACHMENT_MATERIAL,
-			FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT // TODO - NEED THIS?
+			FRAME_BUFFER_ATTACHMENT_OUTPUT_A
 		};
 		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 	}
@@ -100,13 +104,24 @@ namespace bento
 		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 	}
 
+	void DeferredRenderTarget::BindForForwardPhase()
+	{
+		ValidateNow();
+		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
+
+		static const GLenum drawBuffers[] = {
+			FRAME_BUFFER_ATTACHMENT_OUTPUT_B
+		};
+		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
+	}
+
 	void DeferredRenderTarget::BindForResolvePhase()
 	{
 		ValidateNow();
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));
 
 		static const GLenum drawBuffers[] = {
-			FRAME_BUFFER_ATTACHMENT_OUTPUT
+			FRAME_BUFFER_ATTACHMENT_OUTPUT_B
 		};
 		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
 	}
@@ -148,8 +163,13 @@ namespace bento
 		return &m_indirectLightTexture;
 	}
 
-	RectangleTexture* DeferredRenderTarget::OutputTexture()
+	RectangleTexture* DeferredRenderTarget::OutputTextureA()
 	{
-		return &m_outputTexture;
+		return &m_outputTextureA;
+	}
+
+	RectangleTexture* DeferredRenderTarget::OutputTextureB()
+	{
+		return &m_outputTextureB;
 	}
 }

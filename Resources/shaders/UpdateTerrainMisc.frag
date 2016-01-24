@@ -36,6 +36,11 @@ uniform vec2 u_cellSize;
 
 uniform int u_numHeightMips;
 
+uniform float u_time = 0.0f;
+const float SEA_CHOPPY = 2.0;
+const float SEA_SPEED = 0.2f;
+const float SEA_FREQ = 2.0;
+
 // Buffers
 layout( std430, binding = 0 ) buffer MousePositionBuffer
 {
@@ -74,6 +79,57 @@ vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 flux
 
 	return velocity;
 }
+
+float hash( vec2 p ) 
+{
+	float h = dot(p,vec2(127.1,311.7));	
+    return fract(sin(h)*43758.5453123);
+}
+
+float noise( in vec2 p ) 
+{
+    vec2 i = floor( p );
+    vec2 f = fract( p );	
+	vec2 u = f*f*(3.0-2.0*f);
+    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
+                     hash( i + vec2(1.0,0.0) ), u.x),
+                mix( hash( i + vec2(0.0,1.0) ), 
+                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
+}
+
+float sea_octave(vec2 uv, float choppy)
+{
+    uv += noise(uv);        
+    vec2 wv = 1.0-abs(sin(uv));
+    vec2 swv = abs(cos(uv));    
+    wv = mix(wv,swv,wv);
+    return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
+}
+
+float map_detailed(vec3 p, float choppy)
+{
+	mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+
+    float freq = SEA_FREQ;
+    float amp = 0.8f;
+    choppy = 1.0f + choppy * SEA_CHOPPY;
+    vec2 uv = p.xz; uv.x *= 0.75;
+    
+    float d, h = 0.0;    
+    for(int i = 0; i < 6; i++)
+	 {        
+    	d = sea_octave((uv+u_time*SEA_SPEED)*freq,choppy);
+    	d += sea_octave((uv-u_time*SEA_SPEED)*freq,choppy);
+        h += d * amp;        
+    	uv *= octave_m; 
+		freq *= 1.6; 
+		amp *= 0.4;
+        //choppy = mix(choppy,1.0,0.2);
+    }
+    return p.y - h;
+}
+
+
 
 ////////////////////////////////////////////////////////////////
 // Main
@@ -170,21 +226,64 @@ void main(void)
 
 
 	//////////////////////////////////////////////////////////////////////////////////
-	// Calculate water normal
+	// Calculate water normal and foam
 	//////////////////////////////////////////////////////////////////////////////////
 	vec3 waterNormal;
 	{
-		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + waterDataR.y;
-		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + waterDataL.y;
-		float heightU = rockDataU.x + rockDataU.y + rockDataU.w + waterDataU.x + waterDataU.y;
-		float heightD = rockDataD.x + rockDataD.y + rockDataD.w + waterDataD.x + waterDataD.y;
-		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y;
+		vec3 p = vec3(in_uv.x,waterDataC.y,in_uv.y);
+		float NOISE_STRENGTH = min( waterDataC.y * 0.5f, 1.0f);
+		float CHOPPY = min( waterDataC.y * 0.25f, 1.0f );
+		float noiseC = map_detailed(p,CHOPPY) * NOISE_STRENGTH;
+		float noiseL = map_detailed(p - vec3(texelSize.x,0,0), CHOPPY) * NOISE_STRENGTH;
+		float noiseR = map_detailed(p + vec3(texelSize.x,0,0), CHOPPY) * NOISE_STRENGTH;
+		float noiseU = map_detailed(p - vec3(0,0,texelSize.y), CHOPPY) * NOISE_STRENGTH;
+		float noiseD = map_detailed(p + vec3(0,0,texelSize.y), CHOPPY) * NOISE_STRENGTH;
+
+
+		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + waterDataR.y + noiseR;
+		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + waterDataL.y + noiseL;
+		float heightU = rockDataU.x + rockDataU.y + rockDataU.w + waterDataU.x + waterDataU.y + noiseU;
+		float heightD = rockDataD.x + rockDataD.y + rockDataD.w + waterDataD.x + waterDataD.y + noiseD;
+		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y + noiseC;
 		
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
 		waterNormal = -cross(va,vb);
 	}
+	/*
+	//////////////////////////////////////////////////////////////////////////////////
+	// Calculate foam offset
+	//////////////////////////////////////////////////////////////////////////////////
+	{
+		vec2 foamOffset = mappingDataC.zw;
 
+		vec4 waterFluxC  = texelFetch(s_waterFluxData, texelCoordC, 0);
+		vec4 waterFluxL  = texelFetch(s_waterFluxData, texelCoordL, 0);
+		vec4 waterFluxR  = texelFetch(s_waterFluxData, texelCoordR, 0);
+		vec4 waterFluxU  = texelFetch(s_waterFluxData, texelCoordU, 0);
+		vec4 waterFluxD  = texelFetch(s_waterFluxData, texelCoordD, 0);
+		vec2 waterVelocity = VelocityFromFlux(waterFluxC, waterFluxL, waterFluxR, waterFluxU, waterFluxD, texelSize, 0.5f );
+
+		//float speed = length(waterVelocity) * 0.005f;
+		//speed = min(speed, 0.00005f);
+		waterVelocity *= 0.002f;
+
+		//foamOffset *= 0.95f;
+
+		if ( waterDataC.w > 0.1f )
+		{
+			foamOffset -= waterVelocity;
+		}
+		else
+		{
+			foamOffset = vec2(0,0);
+		}
+		//foamOffset *= 0.999f;
+		
+
+		mappingDataC.zw = foamOffset;
+	}
+	*/
 	//////////////////////////////////////////////////////////////////////////////////
 	// Calculate rock normals
 	//////////////////////////////////////////////////////////////////////////////////

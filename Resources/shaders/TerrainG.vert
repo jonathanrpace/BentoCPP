@@ -72,8 +72,8 @@ void main(void)
 	position.y += solidHeight;
 	position.y += moltenHeight;
 	position.y += dirtHeight;
-	position.y += iceHeight;
-	position.y += waterHeight;
+	//position.y += iceHeight;
+	//position.y += waterHeight;
 
 	float heat = rockDataC.z;
 	position.y += mappingDataC.y * u_mapHeightOffset * (1.0f - min(heat,1.0f));

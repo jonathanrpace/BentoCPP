@@ -23,6 +23,9 @@ typedef glm::mat3 mat3;
 #include <bento/core/Logging.h>
 #include <bento/util/GLErrorUtil.h>
 
+#define DEG_TO_RAD 0.01745329251994329576923690768489f
+#define RAD_TO_DEG 57.295779513082320876798154814105f
+
 namespace bento
 {
 	struct Config

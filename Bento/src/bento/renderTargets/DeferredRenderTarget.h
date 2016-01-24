@@ -14,7 +14,8 @@ namespace bento
 		static const GLuint FRAME_BUFFER_ATTACHMENT_MATERIAL;
 		static const GLuint FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT;
 		static const GLuint FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT;
-		static const GLuint FRAME_BUFFER_ATTACHMENT_OUTPUT;
+		static const GLuint FRAME_BUFFER_ATTACHMENT_OUTPUT_A;
+		static const GLuint FRAME_BUFFER_ATTACHMENT_OUTPUT_B;
 		
 		DeferredRenderTarget(int _width = 800, int _height = 600);
 		~DeferredRenderTarget();
@@ -23,6 +24,7 @@ namespace bento
 		void BindForGPhase();
 		void BindForDirectLightPhase();
 		void BindForIndirectLightPhase();
+		void BindForForwardPhase();
 		void BindForResolvePhase();
 		void BindForNoDraw();
 		
@@ -32,7 +34,8 @@ namespace bento
 		RectangleTexture* MaterialTexture();
 		RectangleTexture* DirectLightTexture();
 		RectangleTexture* IndirectLightTexture();
-		RectangleTexture* OutputTexture();
+		RectangleTexture* OutputTextureA();
+		RectangleTexture* OutputTextureB();
 		
 	private:
 		RectangleTexture m_normalTexture;
@@ -41,6 +44,7 @@ namespace bento
 		RectangleTexture m_materialTexture;
 		RectangleTexture m_directLightTexture;
 		RectangleTexture m_indirectLightTexture;
-		RectangleTexture m_outputTexture;
+		RectangleTexture m_outputTextureA;
+		RectangleTexture m_outputTextureB;
 	};
 }
