@@ -12,11 +12,11 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
-		, m_numVerticesPerDimension(512)
+		, m_numVerticesPerDimension(1024)
 		, m_rockDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_rockFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_rockFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_rockFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_rockFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_rockDataRead(&m_rockDataA)
 		, m_rockDataWrite(&m_rockDataB)
@@ -25,8 +25,8 @@ namespace bento
 
 		, m_waterDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_waterDataRead(&m_waterDataA)
 		, m_waterDataWrite(&m_waterDataB)
@@ -143,7 +143,7 @@ namespace bento
 				mappingData[float4Index + 0] = 0.0f;// 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
 				mappingData[float4Index + 1] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
 				mappingData[float4Index + 2] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
-				mappingData[float4Index + 3] = 0.0f;
+				mappingData[float4Index + 3] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
 
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{

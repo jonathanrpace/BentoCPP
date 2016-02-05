@@ -199,6 +199,8 @@ namespace bento
 			_geom.SwapWaterFluxData();
 		}
 		
+		_geom.RockFluxDataRead().GenerateMipMaps();
+		_geom.WaterFluxDataRead().GenerateMipMaps();
 		
 		// Update Data
 		{
@@ -306,6 +308,8 @@ namespace bento
 			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
 			fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
 			fragShader.SetUniform("u_heatViscosityBias", m_rockMeltingPoint);
+
+			fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
 
 			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
 			fragShader.SetUniform("u_cycleSpeed", m_textureCycleSpeed);

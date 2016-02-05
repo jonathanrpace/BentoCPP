@@ -63,11 +63,16 @@ void main(void)
 		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) ) * u_rockElasticity;
 
 		vec4 rockFluxC = texelFetch(s_rockFluxData, texelCoordC, 0);
-		rockFluxC += heightDiff * u_rockFluxDamping;
-
+		rockFluxC += heightDiff;
+		rockFluxC *= u_rockFluxDamping;
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
 		float limit = min(1.0f, moltenHeightC.x / (rockFluxC.x + rockFluxC.y + rockFluxC.z + rockFluxC.w + 0.0001f) );
 		rockFluxC *= limit;
+
+		if ( heightC.x < 0.001 )
+		{
+			rockFluxC *= 0.99f;
+		}
 
 		out_rockFluxData = rockFluxC;
 	}
@@ -78,7 +83,8 @@ void main(void)
 		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) ) * u_waterElasticity;
 
 		vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
-		waterFluxC += heightDiff * u_waterFluxDamping;
+		waterFluxC += heightDiff;
+		waterFluxC *= u_waterFluxDamping;
 
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
 		float limit = min(1.0f, waterHeightC.x / (waterFluxC.x + waterFluxC.y + waterFluxC.z + waterFluxC.w + 0.0001f) );

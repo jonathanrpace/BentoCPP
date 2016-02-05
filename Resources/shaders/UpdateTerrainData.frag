@@ -215,38 +215,85 @@ void main(void)
 
 		// Add some water near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
-		newWaterHeight += ( pow(mouseRatio, 2.0f) * u_mouseWaterVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar) );
+		newWaterHeight += pow(mouseRatio, 2.0f) * u_mouseWaterVolumeStrength;// * mix(0.5f, 1.0f, mouseTextureScalar);
 
 		////////////////////////////////////////////////////////////////
 		// Foam
 		////////////////////////////////////////////////////////////////
 
-		// Advect foam along velocity
-		vec2 waterVelocity = VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, u_waterViscosity);
-		float waterSpeed = length(waterVelocity);
-		float absFlux = length(waterVelocity);
-		waterSpeed *= 0.00005f;
-		waterSpeed = min( waterSpeed, texelSize.x * 4.0f ) ;
-		waterVelocity = normalize(waterVelocity) * waterSpeed;
-		newWaterFoam = texture2D(s_waterData, in_uv - waterVelocity).w;
+		vec4 foamMapScalar = texture2D( s_diffuseMap, in_uv );
 
-		// Add some foam where flux is high
-		// TODO Make these inspectable
-		float u_foamMinFlux = 0.00f;
-		float u_foamMaxFlux = 2.0f;
-		float u_foamSpawnStrength = 0.004f;
-		float u_foamDamping = 0.97f;
+		vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
+		vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
+		vec4 waterDataU = texelFetch(s_waterData, texelCoordU, 0);
+		vec4 waterDataD = texelFetch(s_waterData, texelCoordD, 0);
 
-		float foamSpawnRatio = min( max(0.0f, absFlux - u_foamMinFlux) / (u_foamMaxFlux-u_foamMinFlux), 1.0f );
-		foamSpawnRatio = pow( foamSpawnRatio, 100.5f );
+		// Foam advection
+		vec3 waterNormal = texelFetch(s_waterNormalData, texelCoordC, 0).xyz;
 
-		newWaterFoam *= u_foamDamping;
-		newWaterFoam += foamSpawnRatio * u_foamSpawnStrength;
-		newWaterFoam = min(newWaterFoam, 2.0f);
-		if ( waterHeight < 0.01f )
+		vec2 advectDirection = vec2(waterNormal.xz);
+		float advectSpeed = pow( length(advectDirection), 0.5 ) * 0.001;
+		advectDirection = normalize(advectDirection);
+
+		newWaterFoam = texture2D( s_waterData, in_uv - advectDirection * advectSpeed ).w;
+
+
+		/*
+		// What proportion of our foam did we lose to neighbours?
+		// If we lose half our height, we also lose half our foam.
+		float foamLossProp = (advectSpeed) / (waterHeight + 0.001f);
+		foamLossProp = min( 1.0f, foamLossProp );
+		newWaterFoam -= (foamLossProp * waterFoam) * foamAdvectSpeed;
+
+		// For each neighbour, determine what proportion of their foam we have gained.
+		// We also want to grab the same proportion of their foam.
+		// Essentially the inverse of above.
+		vec4 neighbourFoam = vec4(waterDataL.w, waterDataR.w, waterDataU.w, waterDataD.w);
+		vec4 neighbourHeight = vec4(waterDataL.y, waterDataR.y, waterDataU.y, waterDataD.y);
+
+		vec4 foamGainProp = (fluxN * u_waterViscosity) / (neighbourHeight + EPSILON);
+		foamGainProp = min( vec4(1.0f), foamGainProp );
+		vec4 foamGain = foamGainProp * neighbourFoam;
+		newWaterFoam += (foamGain.x + foamGain.y + foamGain.z + foamGain.w) * foamAdvectSpeed;
+		*/
+
+		//vec2 waterVelocity = VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, u_waterViscosity);
+		//float compression = mappingDataC.w;
+		//float seperation = 1.0f - clamp( mappingDataC.w, 0.0f, 1.0f );
+	
+		
+
+		//float foamL = waterDataL.w;
+		//float foamR = waterDataR.w;
+		//float foamU = waterDataU.w;
+		//float foamD = waterDataD.w;
+
+		// Add some foam where compression is high
+		float foamSpawnAmount = mappingDataC.w;
+		float u_foamMinCompression = 0.0f;
+		float u_foamMaxCompression = 50.0f;
+		float foamSpawnRatio = min( max(0.0f, foamSpawnAmount - u_foamMinCompression) / (u_foamMaxCompression-u_foamMinCompression), 1.0f );
+
+		float foamSpawnDamping = (1.0f - newWaterFoam);
+		newWaterFoam += pow( foamSpawnRatio, 1.0 ) * foamSpawnDamping;
+
+		//newWaterFoam *= 0.99f;
+
+		float foamTexture = texture2D( s_diffuseMap, in_uv ).z;
+
+		newWaterFoam *= mix( 1.0, 0.98, foamTexture );
+
+		if ( waterHeight < 0.005f )
 		{
-			newWaterFoam *= 0.99f;
+			newWaterFoam += (0.005 - waterHeight) * 0.5f;
 		}
+
+		//newWaterFoam -= foamMapScalar.z * 0.01f * waterNormal.y;
+		newWaterFoam = clamp(newWaterFoam, 0, 1);
+
+		
+
+
 
 		////////////////////////////////////////////////////////////////
 		// Erosion

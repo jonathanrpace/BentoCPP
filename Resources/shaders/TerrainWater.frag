@@ -82,12 +82,14 @@ void main(void)
 	float fresnel = 1.0f - clamp(dot(in_waterNormal.xyz,-eye), 0.0f, 1.0f);
 	fresnel = pow( fresnel, u_fresnelPower );
 
+	vec4 mappingDataC = texture2D( s_mappingData, in_uv );
+
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
 	if ( targetViewPosition.z == 0.0f ) targetViewPosition.z = in_viewPosition.z + 50.0f;
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 	viewDepth = min(viewDepth, 0.5f);
-	float waterAlpha = min(1.0f, viewDepth / 0.5f );
-	waterAlpha = pow( waterAlpha, 0.2f );
+	float waterAlpha = min(1.0f, viewDepth / 0.05f );
+	waterAlpha = pow( waterAlpha, 0.8f );
 
 	////////////////////////////////////////////////////////////////
 	// Refraction
@@ -151,7 +153,7 @@ void main(void)
 		vec3 refractedLightDir = -refract(-u_lightDir, translucentVec, u_indexOfRefraction);
 		float translucentDot = pow( max( dot( translucentVec, u_lightDir ), 0.0f ), 1.5f ) * max( 0.01f, pow( max( dot(refractedLightDir, eye), 0.0f ), 1.5f ) );
 
-		outColor += u_waterTranslucentColor * pow(translucentDot,0.5f) * translucency * u_lightIntensity;
+		outColor += u_waterTranslucentColor * pow(translucentDot,0.5f) * translucency * u_lightIntensity * waterAlpha;
 	}
 	
 	////////////////////////////////////////////////////////////////
@@ -172,23 +174,47 @@ void main(void)
 	// Foam
 	////////////////////////////////////////////////////////////////
 	{
-		float foamDot = 1.0f - clamp( dot( in_waterNormal.xyz, vec3(0.0f,1.0f,0.0f) ), 0.0f, 1.0f );
-		float frothAmount = waterDataSample.w;
-		float foamStrength = foamDot + frothAmount;
+		vec2 frothUV = in_uv + in_waterNormal.xz * 0.0f;
+		float foamAlpha = texture2D( s_waterData, frothUV ).w;
 
-		float foamAlphaA = texture2D( s_diffuseMap, in_foamUVA * 3.0f ).z * u_phase.x;
-		float foamAlphaB = texture2D( s_diffuseMap, in_foamUVB * 3.0f ).z * u_phase.y;
-		float foamAlpha = (foamAlphaA + foamAlphaB) * foamStrength * waterAlpha;
+		vec4 diffuseSample = texture2D( s_diffuseMap, in_uv + u_phase.xy * 0.01 );
+
+		vec2 uvOffset = diffuseSample.xy * 0.05;
+
+		float foamTextureA = texture2D( s_diffuseMap, in_foamUVA * 4.0 + uvOffset).z;
+		float foamTextureB = texture2D( s_diffuseMap, in_foamUVB * 4.0 - uvOffset).z;
+		float phaseA = u_phase.y;
+		float phaseB = u_phase.x;
+
+		float foamTexture = foamTextureA*phaseB + foamTextureB*phaseA;
+		//foamTexture = smoothstep(1.0,0.0f,foamTexture);
+		foamTexture = 1.0f - foamTexture;
+		foamTexture = pow(foamTexture, 0.1+(1.0-foamAlpha)*2);
+
+
+		//foamAlpha *= (foamTexture*0.5) + 0.5;
+
+		foamAlpha *= foamTexture;
 
 		// Light the foam
-		vec3 foamDiffuse = vec3(0.7f);
+		vec3 foamDiffuse = vec3(foamAlpha);//vec3( mix(1.0, 0.0, pow( foamAlpha, 1.0)) );
 		float foamDiffuseDot = clamp( dot( in_waterNormal.xyz, u_lightDir ) * 0.9f + 0.1f, 0.0f, 1.0f );
-		foamDiffuse *= foamDiffuseDot * u_lightIntensity;
-		foamDiffuse += u_ambientLightIntensity * occlusion;
-		
+		foamDiffuse *= foamDiffuseDot * u_lightIntensity + u_ambientLightIntensity;
+
+		float foamSpecular = specular( in_waterNormal.xyz, u_lightDir, eye, 1.0f ) * u_lightIntensity * 0.25f;
+
+		//foamAlpha = pow(foamAlpha, 2.0);
+		//foamAlpha = smoothstep( 0.0, 0.25, foamAlpha );
+
 		// Blend foam on top of current output
-		outColor = mix( outColor, foamDiffuse, foamAlpha );
+		outColor = mix( outColor, foamDiffuse + foamSpecular, foamAlpha * waterAlpha );
+
+		//outColor = vec3(mappingDataC.z, mappingDataC.w, 0.0);
+		//outColor = vec3(foamTexture);
+		//outColor = vec3(frothAmount, mappingDataC.w*10.0f, 0);
 	}
+
+	
 
 	out_forwad = vec4( outColor, 0.0f );
 }

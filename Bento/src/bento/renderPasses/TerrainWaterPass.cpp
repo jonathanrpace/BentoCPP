@@ -102,8 +102,8 @@ namespace bento
 			
 			node->geom->Bind();
 
-			float phaseSpeed = 0.3f;
-			float flowSpeed = 0.1f;
+			float phaseSpeed = 0.2f;
+			float flowSpeed = 1.0f;
 			float phase = fmod((float)glfwGetTime() * phaseSpeed, 1.0f);
 			float offsetPhaseA = phase;
 			float offsetA = offsetPhaseA * flowSpeed;

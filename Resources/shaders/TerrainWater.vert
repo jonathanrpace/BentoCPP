@@ -89,16 +89,19 @@ void main(void)
 	out_screenPosition = screenPos;
 
 
-	vec2 foamFlowDirection = -normalize(waterNormalDataC.xz);
-	foamFlowDirection *= 1.0f-waterNormalDataC.y;
+	vec4 waterFluxDataMipped = textureLod(s_waterFluxData, in_uv, 1);
+	vec2 foamFlow = -vec2( waterFluxDataMipped.y - waterFluxDataMipped.x, waterFluxDataMipped.w - waterFluxDataMipped.z );
 
-	//vec2 storedSign = sign(foamFlowDirection);
-	//foamFlowDirection = abs(foamFlowDirection);
-	//foamFlowDirection = pow( foamFlowDirection, vec2(5.0f) );
-	//foamFlowDirection *= storedSign;
+	float foamFlowSpeedA = min( length(foamFlow) * 0.6, 1);
+	float foamFlowSpeedB = min( length(foamFlow) * 0.6, 1);
+	foamFlowSpeedA = pow(foamFlowSpeedA, 0.8) * u_phase.z;
+	foamFlowSpeedB = pow(foamFlowSpeedB, 0.8) * u_phase.w;
 
-	vec2 foamUVA = in_uv + foamFlowDirection * u_phase.zz;
-	vec2 foamUVB = in_uv + foamFlowDirection * u_phase.ww;
+	vec2 foamFlowDirA = normalize(foamFlow) * foamFlowSpeedA;
+	vec2 foamFlowDirB = normalize(foamFlow) * foamFlowSpeedB;
+
+	vec2 foamUVA = in_uv + foamFlowDirA;
+	vec2 foamUVB = in_uv + foamFlowDirB + vec2(0.5);
 
 	out_foamUVA = foamUVA;
 	out_foamUVB = foamUVB;

@@ -10,7 +10,7 @@ namespace bento
 		, waterColor(0.37f, 0.73f, 0.69f)
 		, waterTranslucentColor(0.37f, 0.73f, 0.69f)
 		, lightAltitude(-M_PI * 0.5f)
-		, lightAzimuth(0.0f);
+		, lightAzimuth(0.0f)
 	{
 		SomeTexture.TexImage2D("textures/DataMap.png");
 	}
@@ -40,4 +40,3 @@ namespace bento
 	}
 
 }
-

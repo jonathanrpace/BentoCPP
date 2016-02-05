@@ -28,6 +28,8 @@ uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
+uniform float u_waterViscosity;
+
 uniform float u_mouseRadius;
 uniform float u_mouseVolumeStrength;
 uniform float u_mouseHeatStrength;
@@ -38,7 +40,7 @@ uniform int u_numHeightMips;
 
 uniform float u_time = 0.0f;
 const float SEA_CHOPPY = 2.0;
-const float SEA_SPEED = 0.2f;
+const float SEA_SPEED = 0.1f;
 const float SEA_FREQ = 2.0;
 
 // Buffers
@@ -116,7 +118,7 @@ float map_detailed(vec3 p, float choppy)
     vec2 uv = p.xz; uv.x *= 0.75;
     
     float d, h = 0.0;    
-    for(int i = 0; i < 6; i++)
+    for(int i = 0; i < 5; i++)
 	 {        
     	d = sea_octave((uv+u_time*SEA_SPEED)*freq,choppy);
     	d += sea_octave((uv-u_time*SEA_SPEED)*freq,choppy);
@@ -164,16 +166,10 @@ void main(void)
 	vec4 mappingDataU = texelFetch(s_mappingData, texelCoordU, 0);
 	vec4 mappingDataD = texelFetch(s_mappingData, texelCoordD, 0);
 
-	vec4 rockFluxC  = texelFetch(s_rockFluxData, texelCoordC, 0);
-	vec4 rockFluxL  = texelFetch(s_rockFluxData, texelCoordL, 0);
-	vec4 rockFluxR  = texelFetch(s_rockFluxData, texelCoordR, 0);
-	vec4 rockFluxU  = texelFetch(s_rockFluxData, texelCoordU, 0);
-	vec4 rockFluxD  = texelFetch(s_rockFluxData, texelCoordD, 0);
+	
 
 	float heat = rockDataC.z;
 	float viscosity = CalcViscosity(heat, mappingDataC.y);
-
-	vec4 velocity = vec4( VelocityFromFlux(rockFluxC, rockFluxL, rockFluxR, rockFluxU, rockFluxD, texelSize, viscosity ), 0.0f, 0.0f );
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Update Mapping
@@ -184,49 +180,51 @@ void main(void)
 	// neighbours pulling this colour get fresh detail, rather than smearing a single 
 	// value
 	//////////////////////////////////////////////////////////////////////////////////
-	vec2 pullUV = in_uv - velocity.xy * u_textureScrollSpeed * texelSize;
-	vec4 pulledValue = texture(s_mappingData, pullUV);
-
-	mappingDataC.x = clamp( pulledValue.x, 0.0f, 1.0f );
-	
-	vec4 neighbourFlux[4] = vec4[]( rockFluxU, rockFluxR, rockFluxD, rockFluxL );
-	vec2 neighbourOffsets[4] = vec2[]( vec2(0,-1), vec2(1,0), vec2(0,1), vec2(-1,0) );
-	float seperationAmount = 0.0f;
-	for ( int i = 0; i < 4; i++ )
 	{
-		vec4 fluxN = neighbourFlux[i];
-		vec2 offset = neighbourOffsets[i];
+		vec4 fluxC  = texelFetch(s_rockFluxData, texelCoordC, 0);
+		vec4 fluxL  = texelFetch(s_rockFluxData, texelCoordL, 0);
+		vec4 fluxR  = texelFetch(s_rockFluxData, texelCoordR, 0);
+		vec4 fluxU  = texelFetch(s_rockFluxData, texelCoordU, 0);
+		vec4 fluxD  = texelFetch(s_rockFluxData, texelCoordD, 0);
 
-		vec2 velocityN = vec2(fluxN.y-fluxN.x, fluxN.w-fluxN.z);
-		velocityN *= u_velocityScalar * viscosity;
-		vec2 relativeVelocityN = velocityN - velocity.xy;
+		vec2 velocity = VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, viscosity );
 
-		if ( length(relativeVelocityN) < 0.001f ) 
-			continue;
+		vec2 pullUV = in_uv - velocity * u_textureScrollSpeed * texelSize;
+		vec4 pulledValue = texture(s_mappingData, pullUV);
 
-		float dp = dot( normalize(relativeVelocityN), normalize(offset) );
-		seperationAmount += dp * length(relativeVelocityN);
+		mappingDataC.x = clamp( pulledValue.x, 0.0f, 1.0f );
+	
+		vec4 neighbourFlux[4] = vec4[]( fluxU, fluxR, fluxD, fluxL );
+		vec2 neighbourOffsets[4] = vec2[]( vec2(0,-1), vec2(1,0), vec2(0,1), vec2(-1,0) );
+		float seperationAmount = 0.0f;
+		for ( int i = 0; i < 4; i++ )
+		{
+			vec4 fluxN = neighbourFlux[i];
+			vec2 offset = neighbourOffsets[i];
+
+			vec2 velocityN = vec2(fluxN.y-fluxN.x, fluxN.w-fluxN.z);
+			velocityN *= u_velocityScalar * viscosity;
+			vec2 relativeVelocityN = velocityN - velocity;
+
+			if ( length(relativeVelocityN) < 0.001f ) 
+				continue;
+
+			float dp = dot( normalize(relativeVelocityN), normalize(offset) );
+			seperationAmount += dp * length(relativeVelocityN);
+		}
+		seperationAmount = max(seperationAmount, 0.0f);
+
+		float cyclePhase = mappingDataC.x + min(u_cycleSpeed * seperationAmount,0.1f);
+		mappingDataC.x = mod(cyclePhase, 1.0f);
+
+		float diffuseSampleA = texture(s_diffuseMap, in_uv + velocity * u_textureScrollSpeed * 0.25f).y;
+		float samplePos = pulledValue.x - (1.0f-diffuseSampleA) * (1.0f - clamp((heat-u_heatViscosityBias)*0.5f, 0.0f, 1.0f)) * 0.05f;
+		float targetValue = texture(s_diffuseMap, vec2(samplePos,0)).x;
+		mappingDataC.y = targetValue;
 	}
-	seperationAmount = max(seperationAmount, 0.0f);
-
-	// Insert some extra seperation if the mouse is adding volume here
-	vec2 mousePos = GetMousePos();
-	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
-	mouseRatio = pow(mouseRatio, 1.5f);
-	//seperationAmount += (mouseRatio * u_mouseVolumeStrength) * u_cycleSpeed;
-
-	float cyclePhase = mappingDataC.x + min(u_cycleSpeed * seperationAmount,0.1f);
-	cyclePhase = mod(cyclePhase, 1.0f);
-	mappingDataC.x = cyclePhase;
-
-	float diffuseSampleA = texture(s_diffuseMap, in_uv + velocity.xy * u_textureScrollSpeed * 0.25f).y;
-	float samplePos = pulledValue.x - (1.0f-diffuseSampleA) * (1.0f - clamp((heat-u_heatViscosityBias)*0.5f, 0.0f, 1.0f)) * 0.05f;
-	float targetValue = texture(s_diffuseMap, vec2(samplePos,0)).x;
-	mappingDataC.y = targetValue;
-
 
 	//////////////////////////////////////////////////////////////////////////////////
-	// Calculate water normal and foam
+	// Calculate water normal
 	//////////////////////////////////////////////////////////////////////////////////
 	vec3 waterNormal;
 	{
@@ -250,40 +248,80 @@ void main(void)
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
 		waterNormal = -cross(va,vb);
 	}
-	/*
+
 	//////////////////////////////////////////////////////////////////////////////////
-	// Calculate foam offset
+	// Foam
 	//////////////////////////////////////////////////////////////////////////////////
 	{
-		vec2 foamOffset = mappingDataC.zw;
+		// Generate a map where the tips of waves are white (generate foam)
 
-		vec4 waterFluxC  = texelFetch(s_waterFluxData, texelCoordC, 0);
-		vec4 waterFluxL  = texelFetch(s_waterFluxData, texelCoordL, 0);
-		vec4 waterFluxR  = texelFetch(s_waterFluxData, texelCoordR, 0);
-		vec4 waterFluxU  = texelFetch(s_waterFluxData, texelCoordU, 0);
-		vec4 waterFluxD  = texelFetch(s_waterFluxData, texelCoordD, 0);
-		vec2 waterVelocity = VelocityFromFlux(waterFluxC, waterFluxL, waterFluxR, waterFluxU, waterFluxD, texelSize, 0.5f );
+		vec4 waterDataC = textureLod(s_waterData, in_uv, 0);
+		vec4 rockDataC = textureLod(s_rockData, in_uv, 0);
 
-		//float speed = length(waterVelocity) * 0.005f;
-		//speed = min(speed, 0.00005f);
-		waterVelocity *= 0.002f;
+		float height = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y;
 
-		//foamOffset *= 0.95f;
-
-		if ( waterDataC.w > 0.1f )
+		float heightDifferenceTotal = 0.0f;
+		float strength = 100.0f;
+		for ( int i = 1; i < 8; i++ )
 		{
-			foamOffset -= waterVelocity;
-		}
-		else
-		{
-			foamOffset = vec2(0,0);
-		}
-		//foamOffset *= 0.999f;
-		
+			vec4 waterDataM = textureLod(s_waterData, in_uv, i);
+			vec4 rockDataM = textureLod(s_rockData, in_uv, i);
 
-		mappingDataC.zw = foamOffset;
+			float heightM = rockDataM.x + rockDataM.y + rockDataM.w + waterDataM.x + waterDataM.y;
+
+			float diff = max(0, height - heightM);
+
+			heightDifferenceTotal += diff * strength;
+
+			strength *= 0.8;
+		}
+
+		//heightDifferenceTotal = clamp(heightDifferenceTotal,0,1);
+		//heightDifferenceTotal = pow(heightDifferenceTotal, 16.0);
+
+		mappingDataC.w = heightDifferenceTotal;
+
+		/* 
+		SEPERATION/COMPRESSION
+
+		vec4 fluxC  = textureLod(s_waterFluxData, in_uv, 1);
+
+		// Seperation
+		vec2 velocity = vec2( fluxC.y - fluxC.x, fluxC.w - fluxC.z );
+		float seperationAmount = 0.0f;
+		float compressionAmount = 0.0f;
+		ivec2 coord = texelCoordC / 4;
+		float strength = 1.0f;
+		for ( int i = 2; i < 8; i++ )
+		{
+			vec4 fluxN = textureLod( s_waterFluxData, in_uv, i );
+			vec2 velocityN = vec2( fluxN.y-fluxN.x, fluxN.w-fluxN.z );
+
+			float compressionDot = clamp( dot( normalize(velocityN), normalize(velocity) ), 0.0f, 1.0f );
+			vec2 relativeVelocityN = velocityN - velocity;
+			float compressionScalar = length(relativeVelocityN);
+			compressionAmount += compressionScalar * compressionDot * strength;
+
+			float seperationDot = 1.0f-clamp( dot( normalize(velocityN), normalize(velocity) ), 0.0f, 1.0f );
+			float seperationScalar = length(velocityN) + length(velocity);
+			seperationAmount += seperationScalar * seperationDot * strength;
+			
+
+			coord /= 2;
+			strength *= 0.5f;
+		}
+
+		float cycleAmount = compressionAmount;
+		float cyclePhase = mappingDataC.z + min(u_cycleSpeed * cycleAmount * 50.0f, 0.1f);
+		mappingDataC.z = mod(cyclePhase, 1.0f);
+
+		compressionAmount *= 80.0f;
+
+		mappingDataC.w = compressionAmount;
+
+		*/
 	}
-	*/
+
 	//////////////////////////////////////////////////////////////////////////////////
 	// Calculate rock normals
 	//////////////////////////////////////////////////////////////////////////////////
@@ -306,7 +344,7 @@ void main(void)
 	float occlusion = 0.0f;
 	for ( int i = 1; i < u_numHeightMips; i++ )
 	{
-		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + mappingDataC.y * u_mapHeightOffset;
+		float heightC = rockDataC.x + rockDataC.y + rockDataC.w;// + mappingDataC.y * u_mapHeightOffset;
 
 		vec4 mippedRockDataC = textureLod(s_rockData, in_uv, float(i));
 		float mippedHeight = mippedRockDataC.x + mippedRockDataC.y + mippedRockDataC.a;
