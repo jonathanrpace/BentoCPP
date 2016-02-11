@@ -90,7 +90,6 @@ namespace bento
 		ImGui::Spacing();
 
 		ImGui::Text("Molten");
-		ImGui::SliderFloat("Elasticity", &m_rockElasticity, 0.0f, 0.5f);
 		ImGui::SliderFloat("FluxDamping", &m_rockFluxDamping, 0.9f, 1.0f);
 		ImGui::Spacing();
 
@@ -113,13 +112,11 @@ namespace bento
 		ImGui::Spacing();
 
 		ImGui::Spacing();
-		ImGui::SliderFloat("VelocityScalar", &m_velocityScalar, 0.0f, 20.0f);
-		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.5f);
-		ImGui::SliderFloat("TextureCycleSpeed", &m_textureCycleSpeed, 0.0f, 10.0f);
+		ImGui::SliderFloat("ScrollSpeed", &m_textureScrollSpeed, 0.0f, 0.2f);
+		ImGui::SliderFloat("TextureCycleSpeed", &m_textureCycleSpeed, 0.0f, 0.5f);
 		ImGui::Spacing();
 
 		ImGui::Text("Water");
-		ImGui::SliderFloat("Elasticity2", &m_waterElasticity, 0.0f, 0.5f);
 		ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
 		ImGui::SliderFloat("Viscosity2", &m_waterViscosity, 0.01f, 0.5f);
 		ImGui::Spacing();
@@ -187,10 +184,7 @@ namespace bento
 			fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
 			fragShader.SetTexture("s_waterFluxData", &_geom.WaterFluxDataRead());
 
-			fragShader.SetUniform("u_rockElasticity", m_rockElasticity);
 			fragShader.SetUniform("u_rockFluxDamping", m_rockFluxDamping);
-
-			fragShader.SetUniform("u_waterElasticity", m_waterElasticity);
 			fragShader.SetUniform("u_waterFluxDamping", m_waterFluxDamping);
 
 			m_screenQuadGeom.Draw();
@@ -238,7 +232,6 @@ namespace bento
 			fragShader.SetUniform("u_mouseWaterVolumeStrength", waterVolumeAmount);
 			
 			fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
-			fragShader.SetUniform("u_velocityScalar", m_velocityScalar);
 
 			fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
 			fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
@@ -313,7 +306,6 @@ namespace bento
 
 			fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
 			fragShader.SetUniform("u_cycleSpeed", m_textureCycleSpeed);
-			fragShader.SetUniform("u_velocityScalar", m_velocityScalar);
 			fragShader.SetUniform("u_cellSize", cellSize);
 
 			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);

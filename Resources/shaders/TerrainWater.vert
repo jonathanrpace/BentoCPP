@@ -92,8 +92,8 @@ void main(void)
 	vec4 waterFluxDataMipped = textureLod(s_waterFluxData, in_uv, 1);
 	vec2 foamFlow = -vec2( waterFluxDataMipped.y - waterFluxDataMipped.x, waterFluxDataMipped.w - waterFluxDataMipped.z );
 
-	float foamFlowSpeedA = min( length(foamFlow) * 0.6, 1);
-	float foamFlowSpeedB = min( length(foamFlow) * 0.6, 1);
+	float foamFlowSpeedA = length(foamFlow) * 0.6;
+	float foamFlowSpeedB = length(foamFlow) * 0.6;
 	foamFlowSpeedA = pow(foamFlowSpeedA, 0.8) * u_phase.z;
 	foamFlowSpeedB = pow(foamFlowSpeedB, 0.8) * u_phase.w;
 

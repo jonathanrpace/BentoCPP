@@ -33,8 +33,8 @@ namespace bento
 		, m_waterFluxDataRead(&m_waterFluxDataA)
 		, m_waterFluxDataWrite(&m_waterFluxDataB)
 
-		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, m_mappingDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_mappingDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_mappingDataRead(&m_mappingDataA)
 		, m_mappingDataWrite(&m_mappingDataB)
 		, m_terrainMousePos()

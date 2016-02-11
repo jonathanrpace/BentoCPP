@@ -88,7 +88,7 @@ void main(void)
 	if ( targetViewPosition.z == 0.0f ) targetViewPosition.z = in_viewPosition.z + 50.0f;
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 	viewDepth = min(viewDepth, 0.5f);
-	float waterAlpha = min(1.0f, viewDepth / 0.05f );
+	float waterAlpha = min(1.0f, viewDepth / 0.01f );
 	waterAlpha = pow( waterAlpha, 0.8f );
 
 	////////////////////////////////////////////////////////////////
@@ -179,39 +179,28 @@ void main(void)
 
 		vec4 diffuseSample = texture2D( s_diffuseMap, in_uv + u_phase.xy * 0.01 );
 
-		vec2 uvOffset = diffuseSample.xy * 0.05;
-
-		float foamTextureA = texture2D( s_diffuseMap, in_foamUVA * 4.0 + uvOffset).z;
-		float foamTextureB = texture2D( s_diffuseMap, in_foamUVB * 4.0 - uvOffset).z;
+		vec2 uvOffset = diffuseSample.xy * 0.025;
+		float foamTextureA = texture2D( s_diffuseMap, in_foamUVA * 6.0 + uvOffset).z;
+		float foamTextureB = texture2D( s_diffuseMap, in_foamUVB * 6.0 - uvOffset).z;
 		float phaseA = u_phase.y;
 		float phaseB = u_phase.x;
 
 		float foamTexture = foamTextureA*phaseB + foamTextureB*phaseA;
-		//foamTexture = smoothstep(1.0,0.0f,foamTexture);
 		foamTexture = 1.0f - foamTexture;
 		foamTexture = pow(foamTexture, 0.1+(1.0-foamAlpha)*2);
-
-
-		//foamAlpha *= (foamTexture*0.5) + 0.5;
-
 		foamAlpha *= foamTexture;
 
+		foamAlpha = clamp(foamAlpha, 0, 1);
+
 		// Light the foam
-		vec3 foamDiffuse = vec3(foamAlpha);//vec3( mix(1.0, 0.0, pow( foamAlpha, 1.0)) );
+		vec3 foamDiffuse = vec3( mix(0.0, 1.0, pow( foamAlpha, 2.0)) );
 		float foamDiffuseDot = clamp( dot( in_waterNormal.xyz, u_lightDir ) * 0.9f + 0.1f, 0.0f, 1.0f );
 		foamDiffuse *= foamDiffuseDot * u_lightIntensity + u_ambientLightIntensity;
 
-		float foamSpecular = specular( in_waterNormal.xyz, u_lightDir, eye, 1.0f ) * u_lightIntensity * 0.25f;
-
-		//foamAlpha = pow(foamAlpha, 2.0);
-		//foamAlpha = smoothstep( 0.0, 0.25, foamAlpha );
+		float foamSpecular = 0.0f;//specular( in_waterNormal.xyz, u_lightDir, eye, 1.0f ) * u_lightIntensity * 0.25f;
 
 		// Blend foam on top of current output
 		outColor = mix( outColor, foamDiffuse + foamSpecular, foamAlpha * waterAlpha );
-
-		//outColor = vec3(mappingDataC.z, mappingDataC.w, 0.0);
-		//outColor = vec3(foamTexture);
-		//outColor = vec3(frothAmount, mappingDataC.w*10.0f, 0);
 	}
 
 	

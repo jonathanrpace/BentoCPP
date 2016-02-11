@@ -12,9 +12,7 @@ in Varying
 	vec2 in_uv;
 };
 
-uniform float u_rockElasticity;
 uniform float u_rockFluxDamping;
-uniform float u_waterElasticity;
 uniform float u_waterFluxDamping;
 
 // Outputs
@@ -41,9 +39,6 @@ void main(void)
 	vec4 waterDataU = texelFetch(s_waterData, texelCoordU, 0);
 	vec4 waterDataD = texelFetch(s_waterData, texelCoordD, 0);
 
-	
-	vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
-
 	vec4 rockHeightC = vec4(rockDataC.x);
 	vec4 dirtHeightC = vec4(rockDataC.w);
 	vec4 moltenHeightC = vec4(rockDataC.y);
@@ -60,19 +55,16 @@ void main(void)
 	{
 		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC;
 		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN;
-		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) ) * u_rockElasticity;
+		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) );
 
 		vec4 rockFluxC = texelFetch(s_rockFluxData, texelCoordC, 0);
 		rockFluxC += heightDiff;
-		rockFluxC *= u_rockFluxDamping;
+		
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
 		float limit = min(1.0f, moltenHeightC.x / (rockFluxC.x + rockFluxC.y + rockFluxC.z + rockFluxC.w + 0.0001f) );
 		rockFluxC *= limit;
 
-		if ( heightC.x < 0.001 )
-		{
-			rockFluxC *= 0.99f;
-		}
+		rockFluxC *= u_rockFluxDamping;
 
 		out_rockFluxData = rockFluxC;
 	}
@@ -80,15 +72,16 @@ void main(void)
 	{
 		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + iceHeightC + waterHeightC;
 		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + iceHeightN + waterHeightN;
-		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) ) * u_waterElasticity;
+		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) );
 
 		vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
 		waterFluxC += heightDiff;
-		waterFluxC *= u_waterFluxDamping;
-
+		
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
 		float limit = min(1.0f, waterHeightC.x / (waterFluxC.x + waterFluxC.y + waterFluxC.z + waterFluxC.w + 0.0001f) );
 		waterFluxC *= limit;
+
+		waterFluxC *= u_waterFluxDamping;
 
 		out_waterFluxData = waterFluxC;
 	}

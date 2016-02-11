@@ -41,7 +41,6 @@ uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
-uniform float u_velocityScalar;
 uniform float u_tempChangeSpeed;
 uniform float u_condenseSpeed;
 uniform float u_meltSpeed;
@@ -91,7 +90,7 @@ vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 flux
 	vec2 velocity = vec2(	(fluxL.y + fluxC.y) - (fluxR.x + fluxC.x), 
 							(fluxU.w + fluxC.w) - (fluxD.z + fluxC.z) );
 	velocity /= texelSize;
-	velocity *= u_velocityScalar * viscosity;
+	velocity *= viscosity;
 
 	return velocity;
 }
@@ -150,7 +149,7 @@ void main(void)
 		// Update molten height based on flux
 		float fluxChange = ((fluxN.x+fluxN.y+fluxN.z+fluxN.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
 		newMoltenHeight = moltenHeight + fluxChange * moltenViscosity;
-
+		
 		// What proportion of our volume did we lose to neighbours?
 		// If we lose half our volume, we also lose half our heat.
 		float volumeLossProp = ((fluxC.x+fluxC.y+fluxC.z+fluxC.w)* moltenViscosity) / (moltenHeight + 0.001f);
@@ -189,9 +188,10 @@ void main(void)
 		newMoltenHeat += (u_ambientTemp - newMoltenHeat) * u_tempChangeSpeed * (1.0f-occlusion);
 
 		// Add some lava near the mouse
-		float mouseTextureScalar = diffuseSampleC.x;
-		newMoltenHeat	+= ( pow(mouseRatio, 0.5f) * u_mouseMoltenHeatStrength   * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+moltenHeat*5.0f);
-		newMoltenHeight += ( pow(mouseRatio, 1.5f) * u_mouseMoltenVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+newMoltenHeight);
+		float mouseTextureScalar = diffuseSampleC.y;
+		float mouseTextureScalar2 = 1.0f-diffuseSampleC.y;
+		newMoltenHeat	+= ( pow(mouseRatio, 1.5f) * u_mouseMoltenHeatStrength   * mix(0.5f, 1.0f, mouseTextureScalar) ) / (1.0001f+moltenHeat*5.0f);
+		newMoltenHeight += ( pow(mouseRatio, 1.5f) * u_mouseMoltenVolumeStrength * mix(0.25f, 1.0f, mouseTextureScalar2) ) / (1.0001f+newMoltenHeight);
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -200,7 +200,6 @@ void main(void)
 	float newWaterHeight = waterHeight;
 	float newWaterFoam = waterFoam;
 	float newDissolvedDirtHeight = waterDataC.z;
-
 	{
 		vec4 fluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
 		vec4 fluxL = texelFetch(s_waterFluxData, texelCoordL, 0);
@@ -215,11 +214,14 @@ void main(void)
 
 		// Add some water near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
-		newWaterHeight += pow(mouseRatio, 2.0f) * u_mouseWaterVolumeStrength;// * mix(0.5f, 1.0f, mouseTextureScalar);
+		newWaterHeight += pow(mouseRatio, 0.9f) * u_mouseWaterVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar);
 
 		////////////////////////////////////////////////////////////////
 		// Foam
 		////////////////////////////////////////////////////////////////
+
+		vec4 waterFluxDataMipped = textureLod(s_waterFluxData, in_uv, 1);
+		vec2 foamFlow = -vec2( waterFluxDataMipped.y - waterFluxDataMipped.x, waterFluxDataMipped.w - waterFluxDataMipped.z );
 
 		vec4 foamMapScalar = texture2D( s_diffuseMap, in_uv );
 
@@ -231,42 +233,13 @@ void main(void)
 		// Foam advection
 		vec3 waterNormal = texelFetch(s_waterNormalData, texelCoordC, 0).xyz;
 
-		vec2 advectDirection = vec2(waterNormal.xz);
-		float advectSpeed = pow( length(advectDirection), 0.5 ) * 0.001;
-		advectDirection = normalize(advectDirection);
+		//vec2 advectDirection = vec2(waterNormal.xz);
+		vec2 advectDirection = foamFlow;
+		float advectSpeed = 0.01f;
+		//float advectSpeed = pow( length(advectDirection), 0.5 ) * 0.001;
+		//advectDirection = normalize(advectDirection);
 
 		newWaterFoam = texture2D( s_waterData, in_uv - advectDirection * advectSpeed ).w;
-
-
-		/*
-		// What proportion of our foam did we lose to neighbours?
-		// If we lose half our height, we also lose half our foam.
-		float foamLossProp = (advectSpeed) / (waterHeight + 0.001f);
-		foamLossProp = min( 1.0f, foamLossProp );
-		newWaterFoam -= (foamLossProp * waterFoam) * foamAdvectSpeed;
-
-		// For each neighbour, determine what proportion of their foam we have gained.
-		// We also want to grab the same proportion of their foam.
-		// Essentially the inverse of above.
-		vec4 neighbourFoam = vec4(waterDataL.w, waterDataR.w, waterDataU.w, waterDataD.w);
-		vec4 neighbourHeight = vec4(waterDataL.y, waterDataR.y, waterDataU.y, waterDataD.y);
-
-		vec4 foamGainProp = (fluxN * u_waterViscosity) / (neighbourHeight + EPSILON);
-		foamGainProp = min( vec4(1.0f), foamGainProp );
-		vec4 foamGain = foamGainProp * neighbourFoam;
-		newWaterFoam += (foamGain.x + foamGain.y + foamGain.z + foamGain.w) * foamAdvectSpeed;
-		*/
-
-		//vec2 waterVelocity = VelocityFromFlux(fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, u_waterViscosity);
-		//float compression = mappingDataC.w;
-		//float seperation = 1.0f - clamp( mappingDataC.w, 0.0f, 1.0f );
-	
-		
-
-		//float foamL = waterDataL.w;
-		//float foamR = waterDataR.w;
-		//float foamU = waterDataU.w;
-		//float foamD = waterDataD.w;
 
 		// Add some foam where compression is high
 		float foamSpawnAmount = mappingDataC.w;
@@ -277,23 +250,17 @@ void main(void)
 		float foamSpawnDamping = (1.0f - newWaterFoam);
 		newWaterFoam += pow( foamSpawnRatio, 1.0 ) * foamSpawnDamping;
 
-		//newWaterFoam *= 0.99f;
+		newWaterFoam *= 0.99;
 
-		float foamTexture = texture2D( s_diffuseMap, in_uv ).z;
-
-		newWaterFoam *= mix( 1.0, 0.98, foamTexture );
+		//float foamTexture = texture2D( s_diffuseMap, in_uv ).z;
+		//newWaterFoam *= mix( 1.0, 0.98, foamTexture );
 
 		if ( waterHeight < 0.005f )
 		{
 			newWaterFoam += (0.005 - waterHeight) * 0.5f;
 		}
 
-		//newWaterFoam -= foamMapScalar.z * 0.01f * waterNormal.y;
 		newWaterFoam = clamp(newWaterFoam, 0, 1);
-
-		
-
-
 
 		////////////////////////////////////////////////////////////////
 		// Erosion

@@ -96,9 +96,9 @@ void main(void)
 	float occlusion = 1.0f - in_rockNormal.w;
 
 	// Diffuse
-	float diffuseScalar = texture(s_diffuseMap, vec2(moltenPhase,0)).y;
-	vec3 diffuse = 0.05f + vec3(diffuseScalar) * 0.05f;
-	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.1f)*0.05f);		// Scortch
+	float diffuseScalar = moltenPhase;//texture(s_diffuseMap, vec2(moltenPhase,0)).x;
+	vec3 diffuse = vec3(0.05f);// + vec3(diffuseScalar) * 0.05f;
+	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.0f)*0.05f);		// Scortch
 
 	// Direct light
 	vec3 directLight = vec3( max( dot(in_rockNormal.xyz, u_lightDir), 0.0f ) * u_lightIntensity );
