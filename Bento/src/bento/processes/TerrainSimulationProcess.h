@@ -12,8 +12,10 @@
 #include <bento/core/ShaderBase.h>
 #include <bento/core/RenderTargetBase.h>
 #include <bento/shaderStages/ScreenQuadVert.h>
+#include <bento/shaderStages/NullFrag.h>
 #include <bento/geom/TerrainGeometry.h>
 #include <bento/geom/ScreenQuadGeometry.h>
+#include <bento/geom/FoamParticleGeom.h>
 #include <bento/materials/TerrainMaterial.h>
 #include <bento/components/Transform.h>
 
@@ -39,16 +41,24 @@ namespace bento
 		UpdateTerrainSmthFrag();
 	};
 
+	struct FoamParticleUpdateVert : ShaderStageBase
+	{
+		FoamParticleUpdateVert();
+		//void OnPostCompileAndLink() override;
+	};
+
 	struct UpdateTerrainFluxShader : ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader : ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct UpdateTerrainMiscShader : ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
 	struct UpdateTerrainSmthShader : ShaderBase<ScreenQuadVert, UpdateTerrainSmthFrag> {};
+	struct FoamParticleUpdateShader : ShaderBase<ScreenQuadVert, UpdateTerrainSmthFrag> {};
 
-	DEFINE_NODE_2
+	DEFINE_NODE_3
 	(
 		TerrainSimPassNode,
 		TerrainGeometry, geom,
-		TerrainMaterial, material
+		TerrainMaterial, material,
+		FoamParticleGeom, foamGeom
 	)
 
 	struct TerrainSimulationProcess
@@ -66,7 +76,7 @@ namespace bento
 		virtual void AddUIElements() override;
 
 	private:
-		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget);
+		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, FoamParticleGeom & _foamParticleGeom);
 
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
@@ -77,6 +87,7 @@ namespace bento
 		UpdateTerrainDataShader m_updateDataShader;
 		UpdateTerrainMiscShader m_updateMiscShader;
 		UpdateTerrainSmthShader m_updateSmthShader;
+		FoamParticleUpdateShader m_foamParticleUpdateShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		// Input

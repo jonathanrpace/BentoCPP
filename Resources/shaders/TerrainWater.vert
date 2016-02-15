@@ -89,7 +89,7 @@ void main(void)
 	out_screenPosition = screenPos;
 
 
-	vec4 waterFluxDataMipped = textureLod(s_waterFluxData, in_uv, 1);
+	vec4 waterFluxDataMipped = textureLod(s_waterFluxData, in_uv, 4);
 	vec2 foamFlow = -vec2( waterFluxDataMipped.y - waterFluxDataMipped.x, waterFluxDataMipped.w - waterFluxDataMipped.z );
 
 	float foamFlowSpeedA = length(foamFlow) * 0.6;

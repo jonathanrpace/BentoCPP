@@ -34,6 +34,19 @@ namespace bento
 	UpdateTerrainSmthFrag::UpdateTerrainSmthFrag() : ShaderStageBase("shaders/UpdateTerrainSmoothing.frag") {}
 
 	//////////////////////////////////////////////////////////////////////////
+	// FoamParticleUpdateVert
+	//////////////////////////////////////////////////////////////////////////
+
+	FoamParticleUpdateVert::FoamParticleUpdateVert() : ShaderStageBase("shaders/FoamParticleUpdate.vert") {}
+	/*
+	void FoamParticleUpdateVert::OnPostCompileAndLink()
+	{
+		static const char * const varyings[] = { "out_position", "out_velocity" };
+		//GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
+		//GL_CHECK(glLinkProgram(m_programName));
+	}
+	*/
+	//////////////////////////////////////////////////////////////////////////
 	// TerrainSimulationPass
 	//////////////////////////////////////////////////////////////////////////
 	
@@ -43,6 +56,7 @@ namespace bento
 		, m_updateDataShader()
 		, m_updateMiscShader()
 		, m_updateSmthShader()
+		, m_foamParticleUpdateShader()
 		, m_screenQuadGeom()
 		, m_renderTargetByNodeMap()
 		, m_switch(false)
@@ -71,7 +85,7 @@ namespace bento
 		for (auto node : m_nodeGroup.Nodes())
 		{
 			RenderTargetBase* renderTarget = m_renderTargetByNodeMap[node];
-			AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget);
+			AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->foamGeom));
 		}
 	}
 
@@ -139,7 +153,8 @@ namespace bento
 	(
 		TerrainGeometry & _geom, 
 		TerrainMaterial & _material, 
-		RenderTargetBase & _renderTarget
+		RenderTargetBase & _renderTarget,
+		FoamParticleGeom & _foamParticleGeom
 	)
 	{
 		GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension(), _geom.NumVerticesPerDimension()));
@@ -317,10 +332,37 @@ namespace bento
 
 			fragShader.SetUniform("u_time", (float)glfwGetTime());
 
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer());
+			GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer()));
 
 			m_screenQuadGeom.Draw();
 		}
+
+		// Update foam
+		{
+			m_foamParticleUpdateShader.BindPerPass();
+
+			if (_foamParticleGeom.Switch())
+			{
+				GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _foamParticleGeom.TransformFeedbackObjB()));
+				GL_CHECK(glBindVertexArray(_foamParticleGeom.VertexArrayA()));
+			}
+			else
+			{
+				GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _foamParticleGeom.TransformFeedbackObjA()));
+				GL_CHECK(glBindVertexArray(_foamParticleGeom.VertexArrayB()));
+			}
+
+			GL_CHECK(glBeginTransformFeedback(GL_POINTS));
+			GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
+
+			GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
+
+			GL_CHECK(glDisable(GL_RASTERIZER_DISCARD));
+			GL_CHECK(glEndTransformFeedback());
+
+			_foamParticleGeom.Switch(!_foamParticleGeom.Switch());
+		}
+
 		/*
 		// Diffuse height
 		{

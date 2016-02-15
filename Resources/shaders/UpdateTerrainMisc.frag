@@ -281,7 +281,7 @@ void main(void)
 
 			float heightM = rockDataM.x + rockDataM.y + rockDataM.w + waterDataM.x + waterDataM.y;
 
-			float diff = abs(height - heightM);
+			float diff = max(height - heightM, 0);
 
 			heightDifferenceTotal += diff * strength;
 

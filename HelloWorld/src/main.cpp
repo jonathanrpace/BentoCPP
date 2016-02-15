@@ -20,6 +20,7 @@
 #include <bento/geom/ScreenQuadGeometry.h>
 #include <bento/geom/TerrainGeometry.h>
 #include <bento/geom/PlaneGeometry.h>
+#include <bento/geom/FoamParticleGeom.h>
 #include <bento/renderPasses/GPass.h>
 #include <bento/renderPasses/TerrainGPass.h>
 #include <bento/renderPasses/TerrainWaterPass.h>
@@ -47,6 +48,8 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(transform, entity);
 		auto material = bento::TerrainMaterial::Create();
 		scene.AddComponentToEntity(material, entity);
+		auto foamParticleGeom = bento::FoamParticleGeom::Create();
+		scene.AddComponentToEntity(foamParticleGeom, entity);
 	}
 
 	// Processes

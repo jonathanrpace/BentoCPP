@@ -1,5 +1,7 @@
 #pragma once
 
+#include <assert.h>
+
 #include <bento\Util\GLErrorUtil.h>
 
 namespace bento
@@ -29,7 +31,7 @@ namespace bento
 		void BindPerPass()
 		{
 			m_textureUnit = 0;
-
+			assert(glIsProgramPipeline(m_pipelineName));
 			GL_CHECK(glBindProgramPipeline(m_pipelineName));
 			GL_CHECK(glActiveShaderProgram(m_pipelineName, m_vertexShader.GetProgramName()));
 			m_vertexShader.BindPerPass(&m_textureUnit);

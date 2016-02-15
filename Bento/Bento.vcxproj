@@ -160,6 +160,7 @@
     <ClInclude Include="src\bento\core\ShaderStageBase.h" />
     <ClInclude Include="src\bento\core\SharedObject.h" />
     <ClInclude Include="src\bento\core\TextureBase.h" />
+    <ClInclude Include="src\bento\geom\FoamParticleGeom.h" />
     <ClInclude Include="src\bento\geom\Geometry.h" />
     <ClInclude Include="src\bento\geom\PlaneGeometry.h" />
     <ClInclude Include="src\bento\geom\ScreenQuadGeometry.h" />
@@ -170,9 +171,11 @@
     <ClInclude Include="src\bento\processes\TerrainSimulationProcess.h" />
     <ClInclude Include="src\bento\renderers\DefaultRenderer.h" />
     <ClInclude Include="src\bento\renderPasses\GPass.h" />
+    <ClInclude Include="src\bento\renderPasses\TerrainFoamPass.h" />
     <ClInclude Include="src\bento\renderPasses\TerrainGPass.h" />
     <ClInclude Include="src\bento\renderPasses\TerrainWaterPass.h" />
     <ClInclude Include="src\bento\renderTargets\DeferredRenderTarget.h" />
+    <ClInclude Include="src\bento\shaderStages\NullFrag.h" />
     <ClInclude Include="src\bento\shaderStages\RectTextureFrag.h" />
     <ClInclude Include="src\bento\shaderStages\ScreenQuadVert.h" />
     <ClInclude Include="src\bento\shaderStages\SimpleVert.h" />
@@ -181,6 +184,7 @@
     <ClInclude Include="src\bento\textures\RectangleTexture.h" />
     <ClInclude Include="src\bento\textures\TextureSquare.h" />
     <ClInclude Include="src\bento\util\GLErrorUtil.h" />
+    <ClInclude Include="src\bento\util\Rand.h" />
     <ClInclude Include="src\bento\util\TextureUtil.h" />
     <ClInclude Include="src\event.h" />
     <ClInclude Include="src\fast_delegate\FastDelegate.h" />
@@ -201,7 +205,10 @@
     <ClInclude Include="src\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bento\geom\FoamParticleGeom.cpp" />
+    <ClCompile Include="src\bento\renderPasses\TerrainFoamPass.cpp" />
     <ClCompile Include="src\bento\renderPasses\TerrainWaterPass.cpp" />
+    <ClCompile Include="src\bento\util\Rand.cpp" />
     <ClCompile Include="src\bento\util\TextureUtil.cpp" />
     <ClInclude Include="src\bento.h">
       <FileType>CppCode</FileType>

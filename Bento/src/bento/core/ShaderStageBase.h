@@ -44,6 +44,8 @@ namespace bento
 	protected:
 		void Validate();
 		void OnInvalidate();
+		virtual void OnPreCompileAndLink();
+		virtual void OnPostCompileAndLink();
 
 		char* m_filename;
 		GLuint m_pipelineName;

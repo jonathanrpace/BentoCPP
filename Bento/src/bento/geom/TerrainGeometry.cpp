@@ -12,7 +12,7 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
-		, m_numVerticesPerDimension(1024)
+		, m_numVerticesPerDimension(512)
 		, m_rockDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -42,10 +42,6 @@ namespace bento
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(m_terrainMousePos), nullptr, GL_DYNAMIC_COPY);
-
-
-		// For reading back
-		//glGetBufferSubData()
 	}
 
 	TerrainGeometry::~TerrainGeometry()

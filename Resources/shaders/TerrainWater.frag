@@ -177,19 +177,20 @@ void main(void)
 		vec2 frothUV = in_uv + in_waterNormal.xz * 0.0f;
 		float foamAlpha = texture2D( s_waterData, frothUV ).w;
 
-		vec4 diffuseSample = texture2D( s_diffuseMap, in_uv + u_phase.xy * 0.01 );
-
-		vec2 uvOffset = diffuseSample.xy * 0.025;
-		float foamTextureA = texture2D( s_diffuseMap, in_foamUVA * 6.0 + uvOffset).z;
-		float foamTextureB = texture2D( s_diffuseMap, in_foamUVB * 6.0 - uvOffset).z;
+		float foamTextureA = texture2D( s_diffuseMap, in_foamUVA * 1.5).z;
+		float foamTextureB = texture2D( s_diffuseMap, in_foamUVB * 1.5).z;
 		float phaseA = u_phase.y;
 		float phaseB = u_phase.x;
 
 		float foamTexture = foamTextureA*phaseB + foamTextureB*phaseA;
-		foamTexture = 1.0f - foamTexture;
-		foamTexture = pow(foamTexture, 0.1+(1.0-foamAlpha)*2);
-		foamAlpha *= foamTexture;
 
+		foamAlpha *= foamTexture;//(foamTexture - (1.0-foamAlpha)) / mix(foamAlpha, 1.0, 0.5);
+
+
+
+		//foamAlpha = mix(foamAlpha*foamTexture, foamAlpha, pow(foamAlpha,2.0));
+
+		//foamAlpha *= foamTexture;
 		foamAlpha = clamp(foamAlpha, 0, 1);
 
 		// Light the foam

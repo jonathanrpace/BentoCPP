@@ -234,15 +234,16 @@ void main(void)
 		vec3 waterNormal = texelFetch(s_waterNormalData, texelCoordC, 0).xyz;
 
 		//vec2 advectDirection = vec2(waterNormal.xz);
-		vec2 advectDirection = foamFlow;
-		float advectSpeed = 0.01f;
+		vec2 advectDirection = -foamFlow;
+		float advectSpeed = 0.08f;
 		//float advectSpeed = pow( length(advectDirection), 0.5 ) * 0.001;
 		//advectDirection = normalize(advectDirection);
-
 		newWaterFoam = texture2D( s_waterData, in_uv - advectDirection * advectSpeed ).w;
 
+		float foamSpawnAmount = texture2D( s_mappingData, in_uv - advectDirection * advectSpeed ).w;
+
 		// Add some foam where compression is high
-		float foamSpawnAmount = mappingDataC.w;
+		//float foamSpawnAmount = mappingDataC.w;
 		float u_foamMinCompression = 0.0f;
 		float u_foamMaxCompression = 50.0f;
 		float foamSpawnRatio = min( max(0.0f, foamSpawnAmount - u_foamMinCompression) / (u_foamMaxCompression-u_foamMinCompression), 1.0f );
@@ -252,8 +253,8 @@ void main(void)
 
 		newWaterFoam *= 0.99;
 
-		//float foamTexture = texture2D( s_diffuseMap, in_uv ).z;
-		//newWaterFoam *= mix( 1.0, 0.98, foamTexture );
+		//float foamTexture = texture2D( s_diffuseMap, (in_uv*4.0) - advectDirection * advectSpeed).z;
+		//newWaterFoam *= mix( 1.0, 0.99, foamTexture );
 
 		if ( waterHeight < 0.005f )
 		{

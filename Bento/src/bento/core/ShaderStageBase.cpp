@@ -136,8 +136,10 @@ void bento::ShaderStageBase::Validate()
 	TRACE("Compiling Shader : ");
 	TRACE(m_filename);
 	TRACE("\n");
+	OnPreCompileAndLink();
 	GL_CHECK(m_programName = glCreateShaderProgramEXT(m_shaderType, shaderSourcePtr));
 	UnloadShader(&shaderSourcePtr);
+	OnPostCompileAndLink();
 
 	CHECK_SHADER_COMPILATION(m_programName);
 }
@@ -251,4 +253,14 @@ void bento::ShaderStageBase::SetAsActiveShader()
 void bento::ShaderStageBase::BindPerPass(int* _textureUnit)
 {
 	m_textureUnit = _textureUnit;
+}
+
+void bento::ShaderStageBase::OnPreCompileAndLink()
+{
+	// Intentionally blank
+}
+
+void bento::ShaderStageBase::OnPostCompileAndLink()
+{
+	// Intentionally blank
 }

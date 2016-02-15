@@ -1,0 +1,143 @@
+#include "FoamParticleGeom.h"
+
+#include <bento/util/Rand.h>
+#include <math.h>
+
+namespace bento
+{
+
+	FoamParticleGeom::FoamParticleGeom(std::string _name)
+		: Component(_name, typeid(FoamParticleGeom)),
+		m_vertexArrayA(-1),
+		m_vertexArrayB(-1),
+		m_numParticles(10000)
+	{
+
+	}
+
+	FoamParticleGeom::~FoamParticleGeom()
+	{
+		Invalidate();
+	}
+
+	void FoamParticleGeom::Validate()
+	{
+		assert(glIsVertexArray(m_vertexArrayA) == false);
+		
+		// Generate all the shit
+		std::vector<float> positions(m_numParticles * 4);
+		std::vector<float> velocities(m_numParticles * 3);
+		std::vector<float> properties(m_numParticles * 4);
+
+		for (int i = 0; i < m_numParticles; i++)
+		{
+			int float3Index = i * 3;
+			int float4Index = i * 4;
+
+			positions[float4Index + 0] = 0;
+			positions[float4Index + 1] = 0;
+			positions[float4Index + 2] = 0;
+			positions[float4Index + 3] = 0;
+
+			velocities[float3Index + 0] = 0;
+			velocities[float3Index + 1] = 0;
+			velocities[float3Index + 2] = 0;
+
+			properties[float4Index + 0] = Rand();		// HomeX
+			properties[float4Index + 1] = Rand();		// HomeY
+			properties[float4Index + 2] = Rand();		// PreferedSpawnLevel
+			properties[float4Index + 3] = Rand();		// Handy randy
+		}
+
+		// Transfer the data to the buffers, and bind them together, associating some with transform feedback
+		{
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			// A
+			//////////////////////////////////////////////////////////////////////////////////////////////
+
+			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjA));
+			GL_CHECK(glGenVertexArrays(1, &m_vertexArrayA));
+			GL_CHECK(glGenBuffers(1, &m_positionBufferA))
+			GL_CHECK(glGenBuffers(1, &m_velocityBufferA));
+			GL_CHECK(glGenBuffers(1, &m_propertiesBufferA));
+
+			GL_CHECK(glBindVertexArray(m_vertexArrayA));
+			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedbackObjA));
+
+			// Position A
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferA));											// Start doing stuff with position buffer A
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size(), &positions[0], GL_DYNAMIC_COPY));			// Transfer the data across
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferA));							// Position will be fedback to 0 index buffer.
+			GL_CHECK(glEnableVertexAttribArray(0));
+			GL_CHECK(glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));	// Mark up this array as being the zero index attribute.
+
+			// Velocity A
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_velocityBufferA));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size(), &velocities[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferA));
+			GL_CHECK(glEnableVertexAttribArray(1));
+			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+
+			// Properties A (No transform feedback)
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_propertiesBufferA));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size(), &properties[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glEnableVertexAttribArray(2));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			// B
+			//////////////////////////////////////////////////////////////////////////////////////////////
+
+			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjB));
+			GL_CHECK(glGenVertexArrays(1, &m_vertexArrayB));
+			GL_CHECK(glGenBuffers(1, &m_positionBufferB));
+			GL_CHECK(glGenBuffers(1, &m_velocityBufferB));
+			GL_CHECK(glGenBuffers(1, &m_propertiesBufferB));
+
+			GL_CHECK(glBindVertexArray(m_vertexArrayB));
+			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedbackObjB));
+
+			// Position B
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferB));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size(), &positions[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferB));
+			GL_CHECK(glEnableVertexAttribArray(0));
+			GL_CHECK(glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(GL_FLOAT) * 4, nullptr));
+
+			// Velocity B
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_velocityBufferB));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size(), &velocities[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferB));
+			GL_CHECK(glEnableVertexAttribArray(1));
+			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(GL_FLOAT) * 3, nullptr));
+
+			// Properties B (No transform feedback)
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_propertiesBufferB));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size(), &properties[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glEnableVertexAttribArray(2));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(GL_FLOAT) * 4, nullptr));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
+			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, GL_NONE));
+		}
+	}
+
+	void FoamParticleGeom::OnInvalidate()
+	{
+		if (glIsVertexArray(m_vertexArrayA))
+		{
+			glDeleteVertexArrays(1, &m_vertexArrayA);
+			glDeleteVertexArrays(1, &m_vertexArrayB);
+
+			glDeleteBuffers(1, &m_positionBufferA);
+			glDeleteBuffers(1, &m_positionBufferB);
+			glDeleteBuffers(1, &m_velocityBufferA);
+			glDeleteBuffers(1, &m_velocityBufferB);
+			glDeleteBuffers(1, &m_propertiesBufferA);
+			glDeleteBuffers(1, &m_propertiesBufferB);
+
+			glDeleteTransformFeedbacks(1, &m_transformFeedbackObjA);
+			glDeleteTransformFeedbacks(1, &m_transformFeedbackObjB);
+		}
+	}
+}
