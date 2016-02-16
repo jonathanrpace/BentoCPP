@@ -114,9 +114,9 @@ namespace bento
 		float m_tempChangeSpeed = 0.0001f;
 
 		// Water
-		float m_waterFluxDamping = 0.995f;
+		float m_waterFluxDamping = 0.99f;
 
-		float m_waterViscosity = 0.4f;
+		float m_waterViscosity = 0.5f;
 		float m_waterBoilingPoint = 0.1f;
 		float m_waterFreezingPoint = 0.0f;
 

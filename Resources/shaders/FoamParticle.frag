@@ -5,10 +5,13 @@ layout( location = 0 ) out vec4 out_fragColor;
 
 in Varying
 {
-	float in_alpha;
+	vec4 in_color;
 };
 
 void main(void)
 {
-	out_fragColor = vec4(1.0, 1.0, 1.0, in_alpha);
+	//vec2 temp = gl_PointCoord - vec2(0.5);
+	//float f = sqrt(dot(temp,temp)) / 0.5;
+
+	out_fragColor = in_color;
 } 

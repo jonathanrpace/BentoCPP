@@ -359,6 +359,7 @@ namespace bento
 			m_foamParticleUpdateShader.VertexShader().SetTexture("s_waterNormalData", &_geom.WaterNormalData());
 			m_foamParticleUpdateShader.VertexShader().SetTexture("s_waterData", &_geom.WaterDataRead());
 			m_foamParticleUpdateShader.VertexShader().SetTexture("s_rockData", &_geom.RockDataRead());
+			m_foamParticleUpdateShader.VertexShader().SetTexture("s_mappingData", &_geom.MappingDataRead());
 
 			GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
 

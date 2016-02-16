@@ -10,7 +10,7 @@ namespace bento
 		: Component(_name, typeid(FoamParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(100000)
+		m_numParticles(1000000)
 	{
 
 	}
@@ -44,10 +44,10 @@ namespace bento
 			velocities[float4Index + 2] = 0.0f;
 			velocities[float4Index + 3] = 0.0f;	// Life
 
-			properties[float4Index + 0] = Rand();		// HomeX
-			properties[float4Index + 1] = Rand();		// HomeY
-			properties[float4Index + 2] = Rand();		// PreferedSpawnLevel
-			properties[float4Index + 3] = Rand();		// Handy randy
+			properties[float4Index + 0] = Rand();			// HomeX
+			properties[float4Index + 1] = Rand();			// HomeY
+			properties[float4Index + 2] = Rand();		// Max life
+			properties[float4Index + 3] = Rand();			// Handy randy
 		}
 
 		// Transfer the data to the buffers, and bind them together, associating some with transform feedback

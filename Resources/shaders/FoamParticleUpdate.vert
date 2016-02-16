@@ -9,6 +9,7 @@ layout(location = 2) in vec4 in_properties;
 uniform sampler2D s_waterNormalData;
 uniform sampler2D s_waterData;
 uniform sampler2D s_rockData;
+uniform sampler2D s_mappingData;
 uniform float u_terrainSize = 1.5;
 
 // Outputs
@@ -26,7 +27,10 @@ void main(void)
 	vec4 waterData = texture2D( s_waterData, uv );
 	vec4 rockData = texture2D( s_rockData, uv );
 
-	float foamSpawnStrength = waterData.w;
+	vec4 mappingData = texture2D( s_mappingData, in_properties.xy );
+	float foamSpawnStrength = min( mappingData.w, 1.0 );
+
+	float maxLife = 1.0f;//mix(0.9, 1.0, in_properties.z);
 
 	float solidHeight = rockData.x;
 	float moltenHeight = rockData.y;
@@ -37,29 +41,37 @@ void main(void)
 	float life = in_velocity.w;
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
-	
+
 	if ( life <= 0.0 && foamSpawnStrength > 0.2 )
 	{
-		life = 1.0;// * foamSpawnStrength;
+		life = maxLife * mix( 0.1, 1.0f, foamSpawnStrength);
 		
 		position.x = in_properties.x;
 		position.z = in_properties.y;
 
-		velocity = vec3(0.0);
+		velocity = vec3(waterNormal.x, 0.0, waterNormal.z) * 0.004;
 	}
 
-	life -= (1.0/600.0);
+	life -= (1.0/800.0);
 	life = max(0,life);
+
+	// Speed up death if needed back home
+	if ( life > 0.0 && foamSpawnStrength > 0.2 )
+	{
+		life -= (1.0f/60.0);
+		life = max(0,life);
+	}
 	
 	
 	velocity *= 0.8;
 
-	float speed = 0.0005;
+	float speed = 0.0004;
 	velocity.x += waterNormal.x * speed;
 	velocity.z += waterNormal.z * speed;
 	
 	
 	position.xz += velocity.xz;
+
 	position.y = 0;
 	position.y += solidHeight;
 	position.y += moltenHeight;
@@ -68,5 +80,5 @@ void main(void)
 	position.y += waterHeight;
 
 	out_position = position;
-	out_velocity = vec4(velocity, life);
+	out_velocity = vec4(velocity, life/maxLife);
 } 

@@ -7,6 +7,9 @@
 
 #include <gl/glew.h>
 
+#include <glm/gtx/polar_coordinates.hpp>
+#include <glm/glm.hpp>
+
 #include <glfw3.h>
 
 #include <bento/core/Logging.h>
@@ -61,7 +64,10 @@ namespace bento
 			m_shader.VertexShader().SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 			m_shader.VertexShader().SetTexture("s_rockData", &node->geom->RockDataRead());
 			m_shader.VertexShader().SetTexture("s_waterData", &node->geom->WaterDataRead());
-			
+
+			m_shader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(node->material->lightAltitude, node->material->lightAzimuth)));
+			m_shader.VertexShader().SetUniform("u_lightIntensity", node->material->directLightIntensity);
+			m_shader.VertexShader().SetUniform("u_ambientLightIntensity", node->material->ambientLightIntensity);
 
 			glEnable(GL_PROGRAM_POINT_SIZE);
 			GL_CHECK(glDrawArrays(GL_POINTS, 0, node->foamGeom->NumParticles()));
