@@ -10,7 +10,7 @@ namespace bento
 		: Component(_name, typeid(FoamParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(10000)
+		m_numParticles(100000)
 	{
 
 	}
@@ -26,7 +26,7 @@ namespace bento
 		
 		// Generate all the shit
 		std::vector<float> positions(m_numParticles * 4);
-		std::vector<float> velocities(m_numParticles * 3);
+		std::vector<float> velocities(m_numParticles * 4);
 		std::vector<float> properties(m_numParticles * 4);
 
 		for (int i = 0; i < m_numParticles; i++)
@@ -34,14 +34,15 @@ namespace bento
 			int float3Index = i * 3;
 			int float4Index = i * 4;
 
-			positions[float4Index + 0] = Rand();
+			positions[float4Index + 0] = 0.0f;
 			positions[float4Index + 1] = 0.0f;
-			positions[float4Index + 2] = Rand();
+			positions[float4Index + 2] = 0.0f;
 			positions[float4Index + 3] = 1.0f;
 
-			velocities[float3Index + 0] = 0.0f;
-			velocities[float3Index + 1] = 0.0f;
-			velocities[float3Index + 2] = 0.0f;
+			velocities[float4Index + 0] = 0.0f;
+			velocities[float4Index + 1] = 0.0f;
+			velocities[float4Index + 2] = 0.0f;
+			velocities[float4Index + 3] = 0.0f;	// Life
 
 			properties[float4Index + 0] = Rand();		// HomeX
 			properties[float4Index + 1] = Rand();		// HomeY
@@ -74,7 +75,7 @@ namespace bento
 			// Velocity A
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_velocityBufferA));
 			GL_CHECK(glEnableVertexAttribArray(1));
-			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
 			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));
 			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferA));
 			
@@ -111,7 +112,7 @@ namespace bento
 			// Velocity B
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_velocityBufferB));
 			GL_CHECK(glEnableVertexAttribArray(1));
-			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
 			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));
 			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferB));
 			

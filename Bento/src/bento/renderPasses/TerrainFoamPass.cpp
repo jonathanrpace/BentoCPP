@@ -44,6 +44,11 @@ namespace bento
 	void TerrainFoamPass::Advance(double _dt)
 	{
 		m_shader.BindPerPass();
+
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		for (auto node : m_nodeGroup.Nodes())
 		{
 			RenderParams::SetModelMatrix(node->transform->matrix);
@@ -64,5 +69,7 @@ namespace bento
 
 			glBindVertexArray(GL_NONE);
 		}
+
+		glDisable(GL_BLEND);
 	}
 }

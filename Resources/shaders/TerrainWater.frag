@@ -201,7 +201,7 @@ void main(void)
 		float foamSpecular = 0.0f;//specular( in_waterNormal.xyz, u_lightDir, eye, 1.0f ) * u_lightIntensity * 0.25f;
 
 		// Blend foam on top of current output
-		outColor = mix( outColor, foamDiffuse + foamSpecular, foamAlpha * waterAlpha );
+		//outColor = mix( outColor, foamDiffuse + foamSpecular, foamAlpha * waterAlpha );
 	}
 
 	

@@ -71,24 +71,21 @@ namespace bento
 		TRACE(m_filename);
 		TRACE("\n");
 
-		if (m_useSSO)
-		{
-			GL_CHECK(m_programName = glCreateShaderProgramEXT(m_shaderType, shaderSourcePtr));
-		}
-		else
-		{
-			m_programName = glCreateProgram();
+		m_programName = glCreateProgram();
+		GLuint shader = glCreateShader(m_shaderType);
+		glShaderSource(shader, 1, &shaderSourcePtr, NULL);
+		glCompileShader(shader);
+		glProgramParameteri(m_programName, GL_PROGRAM_SEPARABLE, GL_TRUE);
+		glAttachShader(m_programName, shader);
 
-			GLuint shader = glCreateShader(m_shaderType);
-			glShaderSource(shader, 1, &shaderSourcePtr, 0);
-			glCompileShader(shader);
-			glAttachShader(m_programName, shader);
+		// Give derived classes the ability to configure any more shader state before linking occurs
+		// Primarily used for configuring transform feedback varyings, which is required to happen before a link
+		this->OnPreLink();
 
-			static const char * const varyings[] = { "out_position", "out_velocity" };
-			GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
+		glLinkProgram(m_programName);
+		glDetachShader(m_programName, shader);
+		glDeleteShader(shader);
 
-			glLinkProgram(m_programName);
-		}
 		UnloadShader(&shaderSourcePtr);
 
 		CHECK_SHADER_COMPILATION(m_programName);
@@ -105,8 +102,7 @@ namespace bento
 
 	void ShaderStageBase::SetUniform(const char * _name, mat4 & _value, bool _transposed)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		GLint location = -1;
 		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
 		// assert(location != -1);
@@ -126,8 +122,7 @@ namespace bento
 
 	void ShaderStageBase::SetUniform(const char * _name, float _value)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		GLint location = -1;
 		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
 		// assert(location != -1);
@@ -136,8 +131,7 @@ namespace bento
 
 	void ShaderStageBase::SetUniform(const char * _name, vec2& _value)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		GLint location = -1;
 		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
 		// assert(location != -1);
@@ -146,8 +140,7 @@ namespace bento
 
 	void ShaderStageBase::SetUniform(const char * _name, vec3& _value)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		GLint location = -1;
 		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
 		// assert(location != -1);
@@ -156,8 +149,7 @@ namespace bento
 
 	void ShaderStageBase::SetUniform(const char * _name, vec4& _value)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		GLint location = -1;
 		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
 		// assert(location != -1);
@@ -166,8 +158,7 @@ namespace bento
 
 	void ShaderStageBase::SetUniform(const char * _name, ivec2& _value)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		GLint location = -1;
 		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
 		// assert(location != -1);
@@ -176,8 +167,7 @@ namespace bento
 
 	void ShaderStageBase::SetUniform(const char * _name, int _value)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		GLint location = -1;
 		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
 		// assert(location != -1);
@@ -186,8 +176,7 @@ namespace bento
 
 	void ShaderStageBase::SetTexture(const char * _name, TextureSquare * _texture)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		SetUniform(_name, *m_textureUnit);
 		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
 		glBindTexture(GL_TEXTURE_2D, _texture->TextureName());
@@ -196,8 +185,7 @@ namespace bento
 
 	void ShaderStageBase::SetTexture(const char * _name, RectangleTexture * _texture)
 	{
-		if (m_useSSO)
-			SetAsActiveShader();
+		SetAsActiveShader();
 		SetUniform(_name, *m_textureUnit);
 		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
 		glBindTexture(GL_TEXTURE_RECTANGLE, _texture->TextureName());
@@ -212,5 +200,10 @@ namespace bento
 	void ShaderStageBase::BindPerPass(int* _textureUnit)
 	{
 		m_textureUnit = _textureUnit;
+	}
+
+	void ShaderStageBase::OnPreLink()
+	{
+		// Intentionally blank
 	}
 }

@@ -36,6 +36,7 @@ namespace bento
 	protected:
 		void Validate();
 		void OnInvalidate();
+		virtual void OnPreLink();
 
 		bool m_useSSO;
 		char* m_filename;
