@@ -44,14 +44,12 @@ namespace bento
 	struct FoamParticleUpdateVert : ShaderStageBase
 	{
 		FoamParticleUpdateVert();
-		//void OnPostCompileAndLink() override;
 	};
 
 	struct UpdateTerrainFluxShader : ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader : ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct UpdateTerrainMiscShader : ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
 	struct UpdateTerrainSmthShader : ShaderBase<ScreenQuadVert, UpdateTerrainSmthFrag> {};
-	struct FoamParticleUpdateShader : ShaderBase<ScreenQuadVert, UpdateTerrainSmthFrag> {};
 
 	DEFINE_NODE_3
 	(
@@ -87,7 +85,7 @@ namespace bento
 		UpdateTerrainDataShader m_updateDataShader;
 		UpdateTerrainMiscShader m_updateMiscShader;
 		UpdateTerrainSmthShader m_updateSmthShader;
-		FoamParticleUpdateShader m_foamParticleUpdateShader;
+		FoamParticleUpdateVert m_foamParticleUpdateShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		// Input

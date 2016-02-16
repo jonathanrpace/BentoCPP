@@ -181,6 +181,7 @@
     <ClInclude Include="src\bento\shaderStages\SimpleVert.h" />
     <ClInclude Include="src\bento\shaderStages\TestFrag.h" />
     <ClInclude Include="src\bento\shaders\RectTextureToScreenShader.h" />
+    <ClInclude Include="src\bento\shaders\ShaderUtil.h" />
     <ClInclude Include="src\bento\textures\RectangleTexture.h" />
     <ClInclude Include="src\bento\textures\TextureSquare.h" />
     <ClInclude Include="src\bento\util\GLErrorUtil.h" />
@@ -208,6 +209,7 @@
     <ClCompile Include="src\bento\geom\FoamParticleGeom.cpp" />
     <ClCompile Include="src\bento\renderPasses\TerrainFoamPass.cpp" />
     <ClCompile Include="src\bento\renderPasses\TerrainWaterPass.cpp" />
+    <ClCompile Include="src\bento\shaders\ShaderUtil.cpp" />
     <ClCompile Include="src\bento\util\Rand.cpp" />
     <ClCompile Include="src\bento\util\TextureUtil.cpp" />
     <ClInclude Include="src\bento.h">

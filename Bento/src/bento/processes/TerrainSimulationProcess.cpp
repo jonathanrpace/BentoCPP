@@ -37,15 +37,8 @@ namespace bento
 	// FoamParticleUpdateVert
 	//////////////////////////////////////////////////////////////////////////
 
-	FoamParticleUpdateVert::FoamParticleUpdateVert() : ShaderStageBase("shaders/FoamParticleUpdate.vert") {}
-	/*
-	void FoamParticleUpdateVert::OnPostCompileAndLink()
-	{
-		static const char * const varyings[] = { "out_position", "out_velocity" };
-		//GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
-		//GL_CHECK(glLinkProgram(m_programName));
-	}
-	*/
+	FoamParticleUpdateVert::FoamParticleUpdateVert() : ShaderStageBase("shaders/FoamParticleUpdate.vert", false) {}
+	
 	//////////////////////////////////////////////////////////////////////////
 	// TerrainSimulationPass
 	//////////////////////////////////////////////////////////////////////////
@@ -338,8 +331,14 @@ namespace bento
 		}
 
 		// Update foam
+		/*
 		{
-			m_foamParticleUpdateShader.BindPerPass();
+			glBindProgramPipeline(GL_NONE);
+
+			glUseProgram(m_foamParticleUpdateShader.GetProgramName());
+
+			//m_foamParticleUpdateShader.BindPerPass();
+			
 
 			if (_foamParticleGeom.Switch())
 			{
@@ -355,13 +354,17 @@ namespace bento
 			GL_CHECK(glBeginTransformFeedback(GL_POINTS));
 			GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
 
+			m_foamParticleUpdateShader.SetTexture("s_waterNormalData", &_geom.WaterNormalData());
+
 			GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
 
 			GL_CHECK(glDisable(GL_RASTERIZER_DISCARD));
 			GL_CHECK(glEndTransformFeedback());
+			glUseProgram(GL_NONE);
 
 			_foamParticleGeom.Switch(!_foamParticleGeom.Switch());
 		}
+		*/
 
 		/*
 		// Diffuse height

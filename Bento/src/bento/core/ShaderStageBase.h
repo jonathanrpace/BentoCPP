@@ -1,7 +1,5 @@
 #pragma once
 
-#include <fstream>
-
 #include <bento.h>
 
 #include <bento/core/AbstractValidatable.h>
@@ -14,15 +12,9 @@ namespace bento
 	class ShaderStageBase 
 		: public bento::AbstractValidatable
 	{
-		// STATIC 
-	private:
-		static unsigned long GetFileLength(std::ifstream& _file);
-		static int LoadShader(char* _filename, GLchar** o_ShaderSource, unsigned long* o_len);
-		static void UnloadShader(GLchar** ShaderSource);
-		// ~STATIC
 
 	public:
-		ShaderStageBase(char* _filename);
+		ShaderStageBase(char* _filename, bool _useSSO = true);
 		~ShaderStageBase();
 
 		void SetPipelineName(GLuint _pipelineName);
@@ -44,16 +36,14 @@ namespace bento
 	protected:
 		void Validate();
 		void OnInvalidate();
-		virtual void OnPreCompileAndLink();
-		virtual void OnPostCompileAndLink();
 
+		bool m_useSSO;
 		char* m_filename;
 		GLuint m_pipelineName;
 		GLuint m_programName;
 		GLenum m_shaderType;
 		int* m_textureUnit;
 
-	protected:
 		void SetAsActiveShader();
 	};
 }

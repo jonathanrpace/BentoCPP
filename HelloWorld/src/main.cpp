@@ -24,6 +24,7 @@
 #include <bento/renderPasses/GPass.h>
 #include <bento/renderPasses/TerrainGPass.h>
 #include <bento/renderPasses/TerrainWaterPass.h>
+#include <bento/renderPasses/TerrainFoamPass.h>
 #include <bento/processes/TerrainSimulationProcess.h>
 #include <bento/processes/OrbitCamera.h>
 #include <bento/util/GLErrorUtil.h>
@@ -63,6 +64,7 @@ void mainLoop(GLFWwindow* window)
 		renderer->AddRenderPass(bento::GPass::Create());
 		renderer->AddRenderPass(bento::TerrainGPass::Create());
 		renderer->AddRenderPass(bento::TerrainWaterPass::Create());
+		renderer->AddRenderPass(bento::TerrainFoamPass::Create());
 		renderer->AddRenderPass(bento::IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);
