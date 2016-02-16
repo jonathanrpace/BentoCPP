@@ -34,14 +34,14 @@ namespace bento
 			int float3Index = i * 3;
 			int float4Index = i * 4;
 
-			positions[float4Index + 0] = 0;
-			positions[float4Index + 1] = 0;
-			positions[float4Index + 2] = 0;
-			positions[float4Index + 3] = 0;
+			positions[float4Index + 0] = Rand();
+			positions[float4Index + 1] = 0.0f;
+			positions[float4Index + 2] = Rand();
+			positions[float4Index + 3] = 1.0f;
 
-			velocities[float3Index + 0] = 0;
-			velocities[float3Index + 1] = 0;
-			velocities[float3Index + 2] = 0;
+			velocities[float3Index + 0] = 0.0f;
+			velocities[float3Index + 1] = 0.0f;
+			velocities[float3Index + 2] = 0.0f;
 
 			properties[float4Index + 0] = Rand();		// HomeX
 			properties[float4Index + 1] = Rand();		// HomeY
@@ -66,28 +66,32 @@ namespace bento
 
 			// Position A
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferA));											// Start doing stuff with position buffer A
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size(), &positions[0], GL_DYNAMIC_COPY));			// Transfer the data across
-			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferA));							// Position will be fedback to 0 index buffer.
 			GL_CHECK(glEnableVertexAttribArray(0));
 			GL_CHECK(glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));	// Mark up this array as being the zero index attribute.
-
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(float), &positions[0], GL_DYNAMIC_COPY));			// Transfer the data across
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferA));						// Position will be fedback to 0 index buffer.
+			
 			// Velocity A
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_velocityBufferA));
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size(), &velocities[0], GL_DYNAMIC_COPY));
-			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferA));
 			GL_CHECK(glEnableVertexAttribArray(1));
 			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferA));
+			
 
 			// Properties A (No transform feedback)
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_propertiesBufferA));
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size(), &properties[0], GL_DYNAMIC_COPY));
 			GL_CHECK(glEnableVertexAttribArray(2));
-			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size() * sizeof(float), &properties[0], GL_DYNAMIC_COPY));
+			
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
+			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, GL_NONE));
 
 			//////////////////////////////////////////////////////////////////////////////////////////////
 			// B
 			//////////////////////////////////////////////////////////////////////////////////////////////
-
+			
 			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjB));
 			GL_CHECK(glGenVertexArrays(1, &m_vertexArrayB));
 			GL_CHECK(glGenBuffers(1, &m_positionBufferB));
@@ -99,24 +103,24 @@ namespace bento
 
 			// Position B
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferB));
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size(), &positions[0], GL_DYNAMIC_COPY));
-			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferB));
 			GL_CHECK(glEnableVertexAttribArray(0));
-			GL_CHECK(glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(GL_FLOAT) * 4, nullptr));
-
+			GL_CHECK(glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(float), &positions[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferB));
+			
 			// Velocity B
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_velocityBufferB));
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size(), &velocities[0], GL_DYNAMIC_COPY));
-			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferB));
 			GL_CHECK(glEnableVertexAttribArray(1));
-			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(GL_FLOAT) * 3, nullptr));
-
+			GL_CHECK(glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferB));
+			
 			// Properties B (No transform feedback)
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_propertiesBufferB));
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size(), &properties[0], GL_DYNAMIC_COPY));
 			GL_CHECK(glEnableVertexAttribArray(2));
-			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(GL_FLOAT) * 4, nullptr));
-
+			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size() * sizeof(float), &properties[0], GL_DYNAMIC_COPY));
+			
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
 			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, GL_NONE));
 		}
