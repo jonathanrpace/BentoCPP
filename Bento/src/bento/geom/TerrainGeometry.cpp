@@ -211,9 +211,9 @@ namespace bento
 		m_mappingDataA.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
 		m_mappingDataB.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
 		
-		BufferVertexData(0, &positions[0], m_numVertices * 3);
-		BufferVertexData(1, &uvs[0], m_numVertices * 2);
-		BufferIndexData(0, &indices[0], m_numIndices);
+		BufferVertexData(0, &positions[0], positions.size());
+		BufferVertexData(1, &uvs[0], uvs.size());
+		BufferIndexData(0, &indices[0], indices.size());
 	}
 
 	void TerrainGeometry::OnInvalidate()
