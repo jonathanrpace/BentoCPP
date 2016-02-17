@@ -30,7 +30,7 @@ void main(void)
 	vec4 mappingData = texture2D( s_mappingData, in_properties.xy );
 	float foamSpawnStrength = min( mappingData.w, 1.0 );
 
-	float maxLife = 1.0f;//mix(0.9, 1.0, in_properties.z);
+	float maxLife = mix(0.5, 1.0, in_properties.z);
 
 	float solidHeight = rockData.x;
 	float moltenHeight = rockData.y;
@@ -38,47 +38,64 @@ void main(void)
 	float waterHeight = waterData.x;
 	float iceHeight = waterData.y;
 
+	float waterSurfaceHeight = solidHeight + moltenHeight + dirtHeight + waterHeight + iceHeight;
+
 	float life = in_velocity.w;
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
 
-	if ( life <= 0.0 && foamSpawnStrength > 0.2 )
+	if ( life <= 0.0 && foamSpawnStrength > 0.1 )
 	{
 		life = maxLife * mix( 0.1, 1.0f, foamSpawnStrength);
 		
 		position.x = in_properties.x;
 		position.z = in_properties.y;
 
-		velocity = vec3(waterNormal.x, 0.0, waterNormal.z) * 0.004;
+		velocity = waterNormal.xyz * pow(foamSpawnStrength, 1.5) * 0.001;
 	}
+
+	const float GRAVITY = 0.0001;
 
 	life -= (1.0/800.0);
 	life = max(0,life);
 
 	// Speed up death if needed back home
-	if ( life > 0.0 && foamSpawnStrength > 0.2 )
+	if ( life > 0.0 && foamSpawnStrength > 0.1 )
 	{
 		life -= (1.0f/60.0);
 		life = max(0,life);
 	}
 	
-	
-	velocity *= 0.8;
+	bool wasInAir = position.y > waterSurfaceHeight;
+	position.xyz += velocity;
+	bool inAir = (position.y-GRAVITY*5.0) > waterSurfaceHeight;
 
-	float speed = 0.0004;
-	velocity.x += waterNormal.x * speed;
-	velocity.z += waterNormal.z * speed;
-	
-	
-	position.xz += velocity.xz;
+	if ( wasInAir && !inAir )
+	{
+		velocity.y *= 0.1;
+		velocity = reflect(velocity, waterNormal.xyz);
+		velocity.y -= 0.001;
+		velocity *= 0.995;
+	}
+	else if ( inAir )
+	{
+		// Gravity
+		velocity.y -= GRAVITY;
 
-	position.y = 0;
-	position.y += solidHeight;
-	position.y += moltenHeight;
-	position.y += dirtHeight;
-	position.y += iceHeight;
-	position.y += waterHeight;
+		velocity *= 0.995;
+	}
+	else
+	{
+		velocity.y = 0;
+		velocity *= 0.8;
+
+		position.y = waterSurfaceHeight;
+
+		float speed = 0.0003;
+		velocity.x += waterNormal.x * speed;
+		velocity.z += waterNormal.z * speed;
+	}
 
 	out_position = position;
-	out_velocity = vec4(velocity, life/maxLife);
+	out_velocity = vec4(velocity, life);
 } 
