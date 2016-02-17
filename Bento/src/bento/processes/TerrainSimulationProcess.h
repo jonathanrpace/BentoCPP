@@ -96,17 +96,17 @@ namespace bento
 		float m_mouseHeatStrength = 0.3f;
 
 		// Molten
-		float m_rockFluxDamping = 0.95f;
+		float m_rockFluxDamping = 0.99f;
 
-		float m_viscosityMin = 0.05f;
-		float m_viscosityMax = 0.14f;
+		float m_viscosityMin = 0.01f;
+		float m_viscosityMax = 0.4f;
 		float m_heatViscosityPower = 1.5f;
 		float m_rockMeltingPoint = 0.3f;
 
-		float m_textureScrollSpeed = 0.1f;
-		float m_textureCycleSpeed = 0.07f;
+		float m_textureScrollSpeed = 0.04f;
+		float m_textureCycleSpeed = 0.05f;
 
-		float m_heatAdvectSpeed = 0.8f;
+		float m_heatAdvectSpeed = 1.0f;
 		float m_heatSmoothingStrength = 0.002f;
 
 		float m_meltSpeed = 0.00001f;

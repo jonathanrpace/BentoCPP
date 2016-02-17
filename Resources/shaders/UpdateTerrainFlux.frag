@@ -62,6 +62,7 @@ void main(void)
 		
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
 		float limit = min(1.0f, moltenHeightC.x / (rockFluxC.x + rockFluxC.y + rockFluxC.z + rockFluxC.w + 0.0001f) );
+		limit = smoothstep(0,1,limit);
 		rockFluxC *= limit;
 
 		rockFluxC *= u_rockFluxDamping;
@@ -78,7 +79,9 @@ void main(void)
 		waterFluxC += heightDiff;
 		
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
-		float limit = min(1.0f, waterHeightC.x / (waterFluxC.x + waterFluxC.y + waterFluxC.z + waterFluxC.w + 0.0001f) );
+		float totalOutflow = waterFluxC.x + waterFluxC.y + waterFluxC.z + waterFluxC.w + 0.0001f;
+		float limit = min(1.0f, waterHeightC.x / totalOutflow );
+		limit = smoothstep(0,1,limit);
 		waterFluxC *= limit;
 
 		waterFluxC *= u_waterFluxDamping;
