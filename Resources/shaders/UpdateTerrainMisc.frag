@@ -285,10 +285,14 @@ void main(void)
 
 			heightDifferenceTotal += diff * strength;
 
-			strength *= 0.9;
+			strength *= 0.7;
 		}
 
+		heightDifferenceTotal = min(heightDifferenceTotal,1);
 
+		heightDifferenceTotal *= min(waterDataC.y / 0.01, 1);
+
+		//heightDifferenceTotal = pow(heightDifferenceTotal, 2.0);
 		mappingDataC.w = heightDifferenceTotal;
 	}
 

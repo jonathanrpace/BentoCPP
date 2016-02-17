@@ -44,28 +44,30 @@ void main(void)
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
 
-	if ( life <= 0.0 && foamSpawnStrength > 0.1 )
+	float spawnThreshold = mix(0.4, 0.8, in_properties.w);
+
+	if ( life <= 0.0 && foamSpawnStrength > spawnThreshold )
 	{
-		life = maxLife * mix( 0.1, 1.0f, foamSpawnStrength);
+		life = maxLife;// * mix( 0.1, 1.0f, foamSpawnStrength);
 		
 		position.x = in_properties.x;
 		position.z = in_properties.y;
 
-		velocity = waterNormal.xyz * pow(foamSpawnStrength, 1.5) * 0.001;
+		velocity = waterNormal.xyz * pow(foamSpawnStrength, 1.2) * 0.001;
 	}
 
 	const float GRAVITY = 0.0001;
 
-	life -= (1.0/800.0);
+	life -= (1.0/400.0);
 	life = max(0,life);
 
 	// Speed up death if needed back home
-	if ( life > 0.0 && foamSpawnStrength > 0.1 )
+	if ( life > 0.0 && foamSpawnStrength > spawnThreshold )
 	{
 		life -= (1.0f/60.0);
 		life = max(0,life);
 	}
-	
+
 	bool wasInAir = position.y > waterSurfaceHeight;
 	position.xyz += velocity;
 	bool inAir = (position.y-GRAVITY*5.0) > waterSurfaceHeight;
@@ -87,11 +89,11 @@ void main(void)
 	else
 	{
 		velocity.y = 0;
-		velocity *= 0.8;
+		velocity *= 0.7;
 
 		position.y = waterSurfaceHeight;
 
-		float speed = 0.0003;
+		float speed = 0.0006;
 		velocity.x += waterNormal.x * speed;
 		velocity.z += waterNormal.z * speed;
 	}

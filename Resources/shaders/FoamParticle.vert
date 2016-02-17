@@ -45,5 +45,5 @@ void main(void)
 	gl_PointSize = 4.0f / (1.0f+screenPos.z);
 	gl_Position = screenPos;
 
-	out_color = vec4(lightDot, lightDot, lightDot, life/maxLife);
+	out_color = vec4(lightDot, lightDot, lightDot, (life/maxLife) * mix(0.1, 0.5, in_properties.w));
 } 
