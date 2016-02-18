@@ -24,12 +24,11 @@ namespace bento
 	{
 	}
 
-	void TerrainWaterVert::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material, vec4 _phase)
+	void TerrainWaterVert::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
 		
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
-		SetUniform("u_phase", _phase);
 
 		_geometry->SwapRockData();
 		_geometry->SwapRockFluxData();
@@ -41,6 +40,7 @@ namespace bento
 		SetTexture("s_waterFluxData", &(_geometry->WaterFluxDataRead()));
 		SetTexture("s_waterNormalData", &(_geometry->WaterNormalData()));
 		SetTexture("s_rockNormalData", &(_geometry->RockNormalData()));
+		SetTexture("s_diffuseMap", &(_material->SomeTexture));
 		
 		_geometry->SwapRockData();
 		_geometry->SwapRockFluxData();
@@ -57,7 +57,7 @@ namespace bento
 	{
 	}
 
-	void TerrainWaterFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material, vec4 _phase)
+	void TerrainWaterFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material->lightAltitude, _material->lightAzimuth)));
 		SetUniform("u_lightIntensity", _material->directLightIntensity);
@@ -79,8 +79,6 @@ namespace bento
 		SetTexture("s_waterFluxData", &_geometry->WaterFluxDataRead());
 		SetTexture("s_mappingData", &_geometry->MappingDataRead());
 		SetTexture("s_diffuseMap", &_material->SomeTexture);
-
-		SetUniform("u_phase", _phase);
 	}
 
 	////////////////////////////////////////////
@@ -102,6 +100,9 @@ namespace bento
 			
 			node->geom->Bind();
 
+			// One cycle of a phase is a minute
+			float phase = fmod((float)glfwGetTime() * (1.0f/60.0f), 1.0f);
+			/*
 			float phaseSpeed = 0.4f;
 			float flowSpeed = 2.0f;
 			float phase = fmod((float)glfwGetTime() * phaseSpeed, 1.0f);
@@ -114,8 +115,14 @@ namespace bento
 
 			vec4 phaseVec = vec4(1.0f - alpha, alpha, offsetA, offsetB);
 
-			m_shader.VertexShader().BindPerModel(node->geom, node->material, phaseVec);
-			m_shader.FragmentShader().BindPerModel(node->geom, node->material, phaseVec);
+			
+			*/
+
+			m_shader.VertexShader().BindPerModel(node->geom, node->material);
+			m_shader.FragmentShader().BindPerModel(node->geom, node->material);
+
+			m_shader.VertexShader().SetUniform("u_phase", phase);
+
 			node->geom->Draw();
 		}
 	}

@@ -16,8 +16,6 @@ in Varying
 	vec4 in_viewPosition;
 	vec4 in_worldPosition;
 	vec4 in_screenPosition;
-	vec2 in_foamUVA;
-	vec2 in_foamUVB;
 };
 
 // Uniforms ////////////////////////////////////////////////////
@@ -32,7 +30,7 @@ uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
 // Dynamics
-uniform vec4 u_phase;
+uniform float u_phase;
 
 // Material
 uniform float u_specularPower;
@@ -170,40 +168,6 @@ void main(void)
 		outColor += skyReflect * vec3(pow(fresnel, 1.5f)) * 0.15f * waterAlpha;
 	}
 	
-	////////////////////////////////////////////////////////////////
-	// Foam
-	////////////////////////////////////////////////////////////////
-	{
-		vec2 frothUV = in_uv + in_waterNormal.xz * 0.0f;
-		float foamAlpha = texture2D( s_waterData, frothUV ).w;
-
-		float foamTextureA = texture2D( s_diffuseMap, in_foamUVA * 1.5).z;
-		float foamTextureB = texture2D( s_diffuseMap, in_foamUVB * 1.5).z;
-		float phaseA = u_phase.y;
-		float phaseB = u_phase.x;
-
-		float foamTexture = foamTextureA*phaseB + foamTextureB*phaseA;
-
-		foamAlpha *= foamTexture;//(foamTexture - (1.0-foamAlpha)) / mix(foamAlpha, 1.0, 0.5);
-
-
-
-		//foamAlpha = mix(foamAlpha*foamTexture, foamAlpha, pow(foamAlpha,2.0));
-
-		//foamAlpha *= foamTexture;
-		foamAlpha = clamp(foamAlpha, 0, 1);
-
-		// Light the foam
-		vec3 foamDiffuse = vec3( mix(0.0, 1.0, pow( foamAlpha, 2.0)) );
-		float foamDiffuseDot = clamp( dot( in_waterNormal.xyz, u_lightDir ) * 0.9f + 0.1f, 0.0f, 1.0f );
-		foamDiffuse *= foamDiffuseDot * u_lightIntensity + u_ambientLightIntensity;
-
-		float foamSpecular = 0.0f;//specular( in_waterNormal.xyz, u_lightDir, eye, 1.0f ) * u_lightIntensity * 0.25f;
-
-		// Blend foam on top of current output
-		//outColor = mix( outColor, foamDiffuse + foamSpecular, foamAlpha * waterAlpha );
-	}
-
 	
 	//outColor = vec3(mappingDataC.w,0,0);
 	out_forwad = vec4( outColor, 0.0f );

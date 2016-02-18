@@ -14,11 +14,12 @@ uniform sampler2D s_waterData;
 uniform sampler2D s_waterFluxData;
 uniform sampler2D s_waterNormalData;
 uniform sampler2D s_rockNormalData;
+uniform sampler2D s_diffuseMap;
  
 // Uniforms
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
-uniform vec4 u_phase;
+uniform float u_phase;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -42,13 +43,49 @@ out Varying
 	vec4 out_viewPosition;
 	vec4 out_worldPosition;
 	vec4 out_screenPosition;
-	vec2 out_foamUVA;
-	vec2 out_foamUVB;
 };
 
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
+
+float waterNoiseHeight(vec2 uv)
+{
+	const int NUM_OCTAVES = 4;
+	const float OCTAVE_SCALE = 1.1;
+	const float OCTAVE_STRENGTH = 0.5;
+	const float OCTAVE_OFFSET = 0.5;
+	const float OCTAVE_ANGLE = 1.0;
+
+	float scale = 1.0;
+	float strength = 1.0;
+	float angle = 0.0;
+	vec2 uvOffset = vec2(0, u_phase * 1.0);
+
+	uv *= scale;
+	uv += uvOffset;
+
+	float outValue = 0.0;
+	for ( int i = 0; i < NUM_OCTAVES; i++ )
+	{
+		float sinTheta = sin(angle);
+		float cosTheta = cos(angle);
+
+		vec2 rotatedUV = vec2(uv.x * cosTheta - uv.y * sinTheta, uv.y * cosTheta + uv.x * sinTheta);
+
+		outValue += texture( s_diffuseMap, rotatedUV ).z * strength;
+
+		scale *= OCTAVE_SCALE;
+		strength *= OCTAVE_STRENGTH;
+		uvOffset *= OCTAVE_OFFSET;
+		angle += OCTAVE_ANGLE;
+
+		uv *= scale;
+		uv += uvOffset;
+	}
+
+	return outValue;
+}
 
 void main(void)
 {
@@ -62,8 +99,8 @@ void main(void)
 	float solidHeight = rockDataC.x;
 	float moltenHeight = rockDataC.y;
 	float dirtHeight = rockDataC.w;
-	float waterHeight = waterDataC.x;
-	float iceHeight = waterDataC.y;
+	float waterHeight = waterDataC.y;
+	float iceHeight = waterDataC.x;
 	
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += solidHeight;
@@ -71,6 +108,11 @@ void main(void)
 	position.y += dirtHeight;
 	position.y += iceHeight;
 	position.y += waterHeight;
+
+	vec2 p = vec2(in_uv.xy);
+	float NOISE_STRENGTH = min( waterDataC.y * 0.25f, 0.5f);
+	float noiseC = waterNoiseHeight(p) * NOISE_STRENGTH;
+	position.y += noiseC;
 
 	out_uv = in_uv;
 	out_rockData = rockDataC;
@@ -87,24 +129,6 @@ void main(void)
 	vec4 screenPos = u_mvpMatrix * position;
 
 	out_screenPosition = screenPos;
-
-
-	vec4 waterFluxDataMipped = textureLod(s_waterFluxData, in_uv, 4);
-	vec2 foamFlow = -vec2( waterFluxDataMipped.y - waterFluxDataMipped.x, waterFluxDataMipped.w - waterFluxDataMipped.z );
-
-	float foamFlowSpeedA = length(foamFlow) * 0.6;
-	float foamFlowSpeedB = length(foamFlow) * 0.6;
-	foamFlowSpeedA = pow(foamFlowSpeedA, 0.8) * u_phase.z;
-	foamFlowSpeedB = pow(foamFlowSpeedB, 0.8) * u_phase.w;
-
-	vec2 foamFlowDirA = normalize(foamFlow) * foamFlowSpeedA;
-	vec2 foamFlowDirB = normalize(foamFlow) * foamFlowSpeedB;
-
-	vec2 foamUVA = in_uv + foamFlowDirA;
-	vec2 foamUVB = in_uv + foamFlowDirB + vec2(0.5);
-
-	out_foamUVA = foamUVA;
-	out_foamUVB = foamUVB;
 
 	gl_Position = screenPos;
 } 

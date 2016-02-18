@@ -170,6 +170,8 @@ namespace bento
 		float waterScalar = m_scene->GetInputManager()->IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f;
 		float waterVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseMoltenVolumeStrength * waterScalar;
 
+		float phase = fmod((float)glfwGetTime() * (1.0f / 60.0f), 1.0f);
+
 		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 
 		// Update Flux
@@ -330,6 +332,8 @@ namespace bento
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 
 			fragShader.SetUniform("u_time", (float)glfwGetTime());
+
+			fragShader.SetUniform("u_phase", phase);
 
 			GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer()));
 

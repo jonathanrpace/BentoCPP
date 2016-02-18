@@ -27,6 +27,7 @@ uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
+uniform float u_phase;
 uniform float u_waterViscosity;
 
 uniform float u_mouseRadius;
@@ -131,6 +132,44 @@ float map_detailed(vec3 p, float choppy)
 		speed *= 1.5;
     }
     return p.y - h;
+}
+
+float waterNoiseHeight(vec2 uv)
+{
+	const int NUM_OCTAVES = 4;
+	const float OCTAVE_SCALE = 1.1;
+	const float OCTAVE_STRENGTH = 0.5;
+	const float OCTAVE_OFFSET = 0.5;
+	const float OCTAVE_ANGLE = 1.0;
+
+	float scale = 1.0;
+	float strength = 1.0;
+	float angle = 0.0;
+	vec2 uvOffset = vec2(0, u_phase * 1.0);
+
+	uv *= scale;
+	uv += uvOffset;
+
+	float outValue = 0.0;
+	for ( int i = 0; i < NUM_OCTAVES; i++ )
+	{
+		float sinTheta = sin(angle);
+		float cosTheta = cos(angle);
+
+		vec2 rotatedUV = vec2(uv.x * cosTheta - uv.y * sinTheta, uv.y * cosTheta + uv.x * sinTheta);
+
+		outValue += texture( s_diffuseMap, rotatedUV ).z * strength;
+
+		scale *= OCTAVE_SCALE;
+		strength *= OCTAVE_STRENGTH;
+		uvOffset *= OCTAVE_OFFSET;
+		angle += OCTAVE_ANGLE;
+
+		uv *= scale;
+		uv += uvOffset;
+	}
+
+	return outValue;
 }
 
 
@@ -241,15 +280,13 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	vec3 waterNormal;
 	{
-		vec3 p = vec3(in_uv.x,waterDataC.y,in_uv.y);
-		float NOISE_STRENGTH = min( waterDataC.y * 0.5f, 1.0f);
-		float CHOPPY = min( waterDataC.y * 0.25f, 1.0f );
-		float noiseC = map_detailed(p,CHOPPY) * NOISE_STRENGTH;
-		float noiseL = map_detailed(p - vec3(texelSize.x,0,0), CHOPPY) * NOISE_STRENGTH;
-		float noiseR = map_detailed(p + vec3(texelSize.x,0,0), CHOPPY) * NOISE_STRENGTH;
-		float noiseU = map_detailed(p - vec3(0,0,texelSize.y), CHOPPY) * NOISE_STRENGTH;
-		float noiseD = map_detailed(p + vec3(0,0,texelSize.y), CHOPPY) * NOISE_STRENGTH;
-
+		vec2 p = vec2(in_uv.xy);
+		float NOISE_STRENGTH = min( waterDataC.y * 0.25f, 0.5f);
+		float noiseC = waterNoiseHeight(p) * NOISE_STRENGTH;
+		float noiseL = waterNoiseHeight(p - vec2(texelSize.x,0)) * NOISE_STRENGTH;
+		float noiseR = waterNoiseHeight(p + vec2(texelSize.x,0)) * NOISE_STRENGTH;
+		float noiseU = waterNoiseHeight(p - vec2(0,texelSize.y)) * NOISE_STRENGTH;
+		float noiseD = waterNoiseHeight(p + vec2(0,texelSize.y)) * NOISE_STRENGTH;
 
 		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + waterDataR.y + noiseR;
 		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + waterDataL.y + noiseL;
