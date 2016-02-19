@@ -41,6 +41,11 @@ namespace bento
 		SetTexture("s_waterNormalData", &(_geometry->WaterNormalData()));
 
 		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
+
+		SetUniform("u_wave0", vec4(_material->waveStrength0, _material->waveScale0, _material->waveAngle0, (float)_material->waveSpeed0));
+		SetUniform("u_wave1", vec4(_material->waveStrength1, _material->waveScale1, _material->waveAngle1, (float)_material->waveSpeed1));
+		SetUniform("u_wave2", vec4(_material->waveStrength2, _material->waveScale2, _material->waveAngle2, (float)_material->waveSpeed2));
+		SetUniform("u_wave3", vec4(_material->waveStrength3, _material->waveScale3, _material->waveAngle3, (float)_material->waveSpeed3));
 		
 		_geometry->SwapRockData();
 		_geometry->SwapRockFluxData();

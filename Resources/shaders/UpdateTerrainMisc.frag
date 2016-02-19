@@ -40,6 +40,11 @@ uniform int u_numHeightMips;
 
 uniform float u_time = 0.0f;
 
+uniform vec4 u_wave0;
+uniform vec4 u_wave1;
+uniform vec4 u_wave2;
+uniform vec4 u_wave3;
+
 
 // Buffers
 layout( std430, binding = 0 ) buffer MousePositionBuffer
@@ -134,43 +139,32 @@ float map_detailed(vec3 p, float choppy)
     return p.y - h;
 }
 
+float waveOctave( vec2 uv, vec4 params )
+{
+	float strength = params.x;
+	float scale = params.y;
+	float angle = params.z;
+	float speed = params.w;
+
+	vec2 waveUV = uv * scale;
+	float sinTheta = sin(angle);
+	float cosTheta = cos(angle);
+	waveUV += u_phase * speed;
+	waveUV = vec2(waveUV.x * cosTheta - waveUV.y * sinTheta, waveUV.y * cosTheta + waveUV.x * sinTheta);
+
+	return (texture( s_diffuseMap, waveUV ).z-0.5) * strength * 2;
+}
+
 float waterNoiseHeight(vec2 uv, float waterHeight)
 {
-	const int NUM_OCTAVES = 4;
-	const float OCTAVE_SCALE = 1.05;
-	const float OCTAVE_STRENGTH = 0.5;
-	const float OCTAVE_OFFSET = 1.0;
-	const float OCTAVE_ANGLE = (3.142*2.0)/NUM_OCTAVES;
-
-	float scale = 1.5;
-	float strength = 1.0;
-	float angle = 0.0;
-	vec2 uvOffset = vec2(u_phase*1.0, u_phase * 1.0);
-
-	uv *= scale;
-	uv += uvOffset;
-
 	float outValue = 0.0;
-	for ( int i = 0; i < NUM_OCTAVES; i++ )
-	{
-		float sinTheta = sin(angle);
-		float cosTheta = cos(angle);
 
-		vec2 rotatedUV = vec2(uv.x * cosTheta - uv.y * sinTheta, uv.y * cosTheta + uv.x * sinTheta);
-
-		outValue += (texture( s_diffuseMap, rotatedUV ).z-0.5) * strength * 2;
-
-		scale *= OCTAVE_SCALE;
-		strength *= OCTAVE_STRENGTH;
-		uvOffset *= OCTAVE_OFFSET;
-		angle += OCTAVE_ANGLE;
-
-		uv *= scale;
-		uv += uvOffset;
-	}
+	outValue += waveOctave( uv, u_wave0 );
+	outValue += waveOctave( uv, u_wave1 );
+	outValue += waveOctave( uv, u_wave2 );
+	outValue += waveOctave( uv, u_wave3 );
 
 	float scalar = smoothstep( 0.0, 0.5, waterHeight ) * 0.25;
-
 	return (outValue+0.5) * scalar * 0.5;
 }
 

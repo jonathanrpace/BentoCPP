@@ -360,10 +360,17 @@ namespace bento
 			GL_CHECK(glBeginTransformFeedback(GL_POINTS));
 			GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
 
-			m_foamParticleUpdateShader.VertexShader().SetTexture("s_waterNormalData", &_geom.WaterNormalData());
-			m_foamParticleUpdateShader.VertexShader().SetTexture("s_waterData", &_geom.WaterDataRead());
-			m_foamParticleUpdateShader.VertexShader().SetTexture("s_rockData", &_geom.RockDataRead());
-			m_foamParticleUpdateShader.VertexShader().SetTexture("s_mappingData", &_geom.MappingDataRead());
+			auto vertexShader = m_foamParticleUpdateShader.VertexShader();
+
+			vertexShader.SetTexture("s_waterNormalData", &_geom.WaterNormalData());
+			vertexShader.SetTexture("s_waterData", &_geom.WaterDataRead());
+			vertexShader.SetTexture("s_rockData", &_geom.RockDataRead());
+			vertexShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
+
+			vertexShader.SetUniform("u_wave0", vec4(_material.waveStrength0, _material.waveScale0, _material.waveAngle0, (float)_material.waveSpeed0));
+			vertexShader.SetUniform("u_wave1", vec4(_material.waveStrength1, _material.waveScale1, _material.waveAngle1, (float)_material.waveSpeed1));
+			vertexShader.SetUniform("u_wave2", vec4(_material.waveStrength2, _material.waveScale2, _material.waveAngle2, (float)_material.waveSpeed2));
+			vertexShader.SetUniform("u_wave3", vec4(_material.waveStrength3, _material.waveScale3, _material.waveAngle3, (float)_material.waveSpeed3));
 
 			GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
 

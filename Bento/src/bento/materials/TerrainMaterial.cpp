@@ -28,6 +28,26 @@ namespace bento
 		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.0f, 2.0f);
 		ImGui::ColorEdit3("WaterColor", glm::value_ptr(waterColor));
 		ImGui::ColorEdit3("WaterTranslucentColor", glm::value_ptr(waterTranslucentColor));
+		ImGui::Text("Wave Strength");
+		ImGui::SliderFloat("Strength 0", &waveStrength0, 0.0f, 2.0f);
+		ImGui::SliderFloat("Strength 1", &waveStrength1, 0.0f, 2.0f);
+		ImGui::SliderFloat("Strength 2", &waveStrength2, 0.0f, 2.0f);
+		ImGui::SliderFloat("Strength 3", &waveStrength3, 0.0f, 2.0f);
+		ImGui::Text("Wave Angle");
+		ImGui::SliderAngle("Angle 0", &waveAngle0, 0.0f, 360.0f);
+		ImGui::SliderAngle("Angle 1", &waveAngle1, 0.0f, 360.0f);
+		ImGui::SliderAngle("Angle 2", &waveAngle2, 0.0f, 360.0f);
+		ImGui::SliderAngle("Angle 3", &waveAngle3, 0.0f, 360.0f);
+		ImGui::Text("Wave Speed");
+		ImGui::SliderInt("Speed 0", &waveSpeed0, 0, 64);
+		ImGui::SliderInt("Speed 1", &waveSpeed1, 0, 64);
+		ImGui::SliderInt("Speed 2", &waveSpeed2, 0, 64);
+		ImGui::SliderInt("Speed 3", &waveSpeed3, 0, 64);
+		ImGui::Text("Wave Scale");
+		ImGui::SliderFloat("Scale 0", &waveScale0, 0.0f, 8.0f);
+		ImGui::SliderFloat("Scale 1", &waveScale1, 0.0f, 8.0f);
+		ImGui::SliderFloat("Scale 2", &waveScale2, 0.0f, 8.0f);
+		ImGui::SliderFloat("Scale 3", &waveScale3, 0.0f, 8.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
