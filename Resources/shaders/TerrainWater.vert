@@ -49,18 +49,18 @@ out Varying
 // Functions
 ////////////////////////////////////////////////////////////////
 
-float waterNoiseHeight(vec2 uv)
+float waterNoiseHeight(vec2 uv, float waterHeight)
 {
 	const int NUM_OCTAVES = 4;
-	const float OCTAVE_SCALE = 1.1;
+	const float OCTAVE_SCALE = 1.05;
 	const float OCTAVE_STRENGTH = 0.5;
-	const float OCTAVE_OFFSET = 0.5;
-	const float OCTAVE_ANGLE = 1.0;
+	const float OCTAVE_OFFSET = 1.0;
+	const float OCTAVE_ANGLE = (3.142*2.0)/NUM_OCTAVES;
 
-	float scale = 1.0;
+	float scale = 1.5;
 	float strength = 1.0;
 	float angle = 0.0;
-	vec2 uvOffset = vec2(0, u_phase * 1.0);
+	vec2 uvOffset = vec2(u_phase*1.0, u_phase * 1.0);
 
 	uv *= scale;
 	uv += uvOffset;
@@ -73,18 +73,20 @@ float waterNoiseHeight(vec2 uv)
 
 		vec2 rotatedUV = vec2(uv.x * cosTheta - uv.y * sinTheta, uv.y * cosTheta + uv.x * sinTheta);
 
-		outValue += texture( s_diffuseMap, rotatedUV ).z * strength;
+		outValue += (texture( s_diffuseMap, rotatedUV ).z-0.5) * strength * 2;
 
 		scale *= OCTAVE_SCALE;
 		strength *= OCTAVE_STRENGTH;
-		uvOffset *= OCTAVE_OFFSET;
+		uvOffset *= -OCTAVE_OFFSET;
 		angle += OCTAVE_ANGLE;
 
 		uv *= scale;
 		uv += uvOffset;
 	}
 
-	return outValue;
+	float scalar = smoothstep( 0.0, 0.5, waterHeight ) * 0.25;
+
+	return (outValue+0.5) * scalar * 0.5;
 }
 
 void main(void)
@@ -110,8 +112,7 @@ void main(void)
 	position.y += waterHeight;
 
 	vec2 p = vec2(in_uv.xy);
-	float NOISE_STRENGTH = min( waterDataC.y * 0.25f, 0.5f);
-	float noiseC = waterNoiseHeight(p) * NOISE_STRENGTH;
+	float noiseC = waterNoiseHeight(p, waterDataC.y);
 	position.y += noiseC;
 
 	out_uv = in_uv;
