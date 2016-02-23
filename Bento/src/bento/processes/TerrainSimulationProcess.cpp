@@ -170,7 +170,7 @@ namespace bento
 		float waterScalar = m_scene->GetInputManager()->IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f;
 		float waterVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseMoltenVolumeStrength * waterScalar;
 
-		float phase = fmod((float)glfwGetTime() * (1.0f / 60.0f), 1.0f);
+		float phase = fmod((float)glfwGetTime() * (1.0f / 600.0f), 1.0f);
 
 		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 
@@ -260,6 +260,13 @@ namespace bento
 			fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
 
 			fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
+			fragShader.SetUniform("u_phase", phase);
+			fragShader.SetUniform("u_wave0", vec4(_material.waveStrength0, _material.waveScale0, _material.waveAngle0, (float)_material.waveSpeed0));
+			fragShader.SetUniform("u_wave1", vec4(_material.waveStrength1, _material.waveScale1, _material.waveAngle1, (float)_material.waveSpeed1));
+			fragShader.SetUniform("u_wave2", vec4(_material.waveStrength2, _material.waveScale2, _material.waveAngle2, (float)_material.waveSpeed2));
+			fragShader.SetUniform("u_wave3", vec4(_material.waveStrength3, _material.waveScale3, _material.waveAngle3, (float)_material.waveSpeed3));
+
+			fragShader.SetUniform("u_wave", vec4(_material.waveEffectStrength, _material.waveEffectLimit, _material.choppyLimit, _material.choppyPower));
 
 			fragShader.SetUniform("u_erosionSpeed", m_erosionSpeed);
 			fragShader.SetUniform("u_erosionFluxMin", m_erosionFluxMin);
@@ -331,16 +338,12 @@ namespace bento
 			fragShader.SetUniform("u_mouseHeatStrength", heatChangeAmount);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
 
-			fragShader.SetUniform("u_time", (float)glfwGetTime());
-
-			fragShader.SetUniform("u_phase", phase);
-
 			GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer()));
 
 			m_screenQuadGeom.Draw();
 		}
 
-		// Update foam
+		// Update foam particles
 		{
 			glBindProgramPipeline(GL_NONE);
 
@@ -367,10 +370,6 @@ namespace bento
 			vertexShader.SetTexture("s_rockData", &_geom.RockDataRead());
 			vertexShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
 
-			vertexShader.SetUniform("u_wave0", vec4(_material.waveStrength0, _material.waveScale0, _material.waveAngle0, (float)_material.waveSpeed0));
-			vertexShader.SetUniform("u_wave1", vec4(_material.waveStrength1, _material.waveScale1, _material.waveAngle1, (float)_material.waveSpeed1));
-			vertexShader.SetUniform("u_wave2", vec4(_material.waveStrength2, _material.waveScale2, _material.waveAngle2, (float)_material.waveSpeed2));
-			vertexShader.SetUniform("u_wave3", vec4(_material.waveStrength3, _material.waveScale3, _material.waveAngle3, (float)_material.waveSpeed3));
 
 			GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
 

@@ -19,12 +19,7 @@ uniform sampler2D s_diffuseMap;
 // Uniforms
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
-uniform float u_phase;
 
-uniform vec4 u_wave0;
-uniform vec4 u_wave1;
-uniform vec4 u_wave2;
-uniform vec4 u_wave3;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -53,34 +48,6 @@ out Varying
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
-float waveOctave( vec2 uv, vec4 params )
-{
-	float strength = params.x;
-	float scale = params.y;
-	float angle = params.z;
-	float speed = params.w;
-
-	vec2 waveUV = uv * scale;
-	float sinTheta = sin(angle);
-	float cosTheta = cos(angle);
-	waveUV += u_phase * speed;
-	waveUV = vec2(waveUV.x * cosTheta - waveUV.y * sinTheta, waveUV.y * cosTheta + waveUV.x * sinTheta);
-
-	return (texture( s_diffuseMap, waveUV ).z-0.5) * strength * 2;
-}
-
-float waterNoiseHeight(vec2 uv, float waterHeight)
-{
-	float outValue = 0.0;
-
-	outValue += waveOctave( uv, u_wave0 );
-	outValue += waveOctave( uv, u_wave1 );
-	outValue += waveOctave( uv, u_wave2 );
-	outValue += waveOctave( uv, u_wave3 );
-
-	float scalar = smoothstep( 0.0, 0.5, waterHeight ) * 0.25;
-	return (outValue+0.5) * scalar * 0.5;
-}
 
 void main(void)
 {
@@ -96,6 +63,7 @@ void main(void)
 	float dirtHeight = rockDataC.w;
 	float waterHeight = waterDataC.y;
 	float iceHeight = waterDataC.x;
+	float waveNoiseHeight = waterDataC.w;
 	
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += solidHeight;
@@ -103,10 +71,7 @@ void main(void)
 	position.y += dirtHeight;
 	position.y += iceHeight;
 	position.y += waterHeight;
-
-	vec2 p = vec2(in_uv.xy);
-	float noiseC = waterNoiseHeight(p, waterDataC.y);
-	position.y += noiseC;
+	position.y += waveNoiseHeight;
 
 	out_uv = in_uv;
 	out_rockData = rockDataC;

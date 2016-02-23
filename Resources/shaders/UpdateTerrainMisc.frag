@@ -27,9 +27,7 @@ uniform float u_viscosityMax;
 uniform float u_heatViscosityPower;
 uniform float u_heatViscosityBias;
 
-uniform float u_phase;
 uniform float u_waterViscosity;
-
 uniform float u_mouseRadius;
 uniform float u_mouseVolumeStrength;
 uniform float u_mouseHeatStrength;
@@ -37,14 +35,6 @@ uniform float u_mouseHeatStrength;
 uniform vec2 u_cellSize;
 
 uniform int u_numHeightMips;
-
-uniform float u_time = 0.0f;
-
-uniform vec4 u_wave0;
-uniform vec4 u_wave1;
-uniform vec4 u_wave2;
-uniform vec4 u_wave3;
-
 
 // Buffers
 layout( std430, binding = 0 ) buffer MousePositionBuffer
@@ -84,90 +74,6 @@ vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 flux
 
 	return velocity;
 }
-
-float hash( vec2 p ) 
-{
-	float h = dot(p,vec2(127.1,311.7));	
-    return fract(sin(h)*43758.5453123);
-}
-
-float noise( in vec2 p ) 
-{
-    vec2 i = floor( p );
-    vec2 f = fract( p );	
-	vec2 u = f*f*(3.0-2.0*f);
-    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
-                     hash( i + vec2(1.0,0.0) ), u.x),
-                mix( hash( i + vec2(0.0,1.0) ), 
-                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
-}
-
-float sea_octave(vec2 uv, float choppy)
-{
-    uv += noise(uv);        
-    vec2 wv = 1.0-abs(sin(uv));
-    vec2 swv = abs(cos(uv));    
-    wv = mix(wv,swv,wv);
-    return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
-}
-
-float map_detailed(vec3 p, float choppy)
-{
-	const float SEA_CHOPPY = 2.0;
-	const float SEA_SPEED = 0.1f;
-	const float SEA_FREQ = 1.0;
-
-	mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
-
-    float freq = SEA_FREQ;
-    float amp = 1.0f;
-	float speed = SEA_SPEED;
-    choppy = 1.0f + choppy * SEA_CHOPPY;
-    vec2 uv = p.xz; uv.x *= 0.75;
-    
-    float d, h = 0.0;    
-    for(int i = 0; i < 5; i++)
-	 {        
-    	d = sea_octave((uv+u_time*SEA_SPEED)*freq,choppy);
-    	d += sea_octave((uv-u_time*SEA_SPEED)*freq,choppy);
-        h += d * amp;        
-    	uv *= octave_m; 
-		freq *= 2.2; 
-		amp *= 0.3;
-		speed *= 1.5;
-    }
-    return p.y - h;
-}
-
-float waveOctave( vec2 uv, vec4 params )
-{
-	float strength = params.x;
-	float scale = params.y;
-	float angle = params.z;
-	float speed = params.w;
-
-	vec2 waveUV = uv * scale;
-	float sinTheta = sin(angle);
-	float cosTheta = cos(angle);
-	waveUV += u_phase * speed;
-	waveUV = vec2(waveUV.x * cosTheta - waveUV.y * sinTheta, waveUV.y * cosTheta + waveUV.x * sinTheta);
-
-	return (texture( s_diffuseMap, waveUV ).z-0.5) * strength * 2;
-}
-
-float waterNoiseHeight(vec2 uv, float waterHeight)
-{
-	float outValue = 0.0;
-
-	outValue += waveOctave( uv, u_wave0 );
-	outValue += waveOctave( uv, u_wave1 );
-	outValue += waveOctave( uv, u_wave2 );
-	outValue += waveOctave( uv, u_wave3 );
-
-	float scalar = smoothstep( 0.0, 0.5, waterHeight ) * 0.25;
-	return (outValue+0.5) * scalar * 0.5;
-}
-
 
 ////////////////////////////////////////////////////////////////
 // Main
@@ -275,12 +181,11 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	vec3 waterNormal;
 	{
-		vec2 p = vec2(in_uv.xy);
-		float noiseC = waterNoiseHeight(p, waterDataC.y);
-		float noiseL = waterNoiseHeight(p - vec2(texelSize.x,0), waterDataC.y);
-		float noiseR = waterNoiseHeight(p + vec2(texelSize.x,0), waterDataC.y);
-		float noiseU = waterNoiseHeight(p - vec2(0,texelSize.y), waterDataC.y);
-		float noiseD = waterNoiseHeight(p + vec2(0,texelSize.y), waterDataC.y);
+		float noiseC = waterDataC.w;
+		float noiseL = waterDataL.w;
+		float noiseR = waterDataR.w;
+		float noiseU = waterDataU.w;
+		float noiseD = waterDataD.w;
 
 		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + waterDataR.y + noiseR;
 		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + waterDataL.y + noiseL;
@@ -298,33 +203,39 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	{
 		// Generate a map where the tips of waves are white (generate foam)
-		vec4 waterDataC = textureLod(s_waterData, in_uv, 0);
-		vec4 rockDataC = textureLod(s_rockData, in_uv, 0);
+		vec4 waterDataC = textureLod(s_waterData, in_uv, 1);
+		vec4 rockDataC = textureLod(s_rockData, in_uv, 1);
 
-		float height = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y;
+		float height = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y + waterDataC.w;
 
 		float heightDifferenceTotal = 0.0f;
-		float strength = 80.0f;
-		for ( int i = 1; i < 7; i++ )
+		float strength = 1.0f;
+		float totalStrength = 0.0f;
+		for ( int i = 2; i < 4; i++ )
 		{
 			vec4 waterDataM = textureLod(s_waterData, in_uv, i);
 			vec4 rockDataM = textureLod(s_rockData, in_uv, i);
 
-			float heightM = rockDataM.x + rockDataM.y + rockDataM.w + waterDataM.x + waterDataM.y;
+			float heightM = rockDataM.x + rockDataM.y + rockDataM.w + waterDataM.x + waterDataM.y + waterDataM.w;
 
 			float diff = max(height - heightM, 0);
 
 			heightDifferenceTotal += diff * strength;
 
-			strength *= 0.7;
+			totalStrength += strength;
+			strength *= 0.75;
 		}
 
-		heightDifferenceTotal = min(heightDifferenceTotal,1);
+		// Normalise
+		heightDifferenceTotal /= totalStrength;
 
+		// Scale to an appropriate range
+		heightDifferenceTotal /= 0.0006;
+
+		// Reduce when no water.
 		heightDifferenceTotal *= min(waterDataC.y / 0.01, 1);
 
-		//heightDifferenceTotal = pow(heightDifferenceTotal, 2.0);
-		mappingDataC.w = heightDifferenceTotal;
+		mappingDataC.w = clamp( heightDifferenceTotal, 0.0, 1.0 );
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////

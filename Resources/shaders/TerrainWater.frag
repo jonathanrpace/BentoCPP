@@ -74,10 +74,10 @@ void main(void)
 {
 	// Grab a load of commonly used values
 	float occlusion = 1.0f - in_rockNormal.w;
-	vec3 eye = normalize( in_viewPosition.xyz * mat3(u_viewMatrix) );
+	vec3 eye = -normalize( in_viewPosition.xyz * mat3(u_viewMatrix) );
 	vec4 rockDataSample = texture2D( s_rockData, in_uv );
 	vec4 waterDataSample = texture2D( s_waterData, in_uv );
-	float fresnel = 1.0f - clamp(dot(in_waterNormal.xyz,-eye), 0.0f, 1.0f);
+	float fresnel = 1.0f - clamp(dot(in_waterNormal.xyz,eye), 0.0f, 1.0f);
 	fresnel = pow( fresnel, u_fresnelPower );
 
 	vec4 mappingDataC = texture2D( s_mappingData, in_uv );
@@ -99,7 +99,7 @@ void main(void)
 		screenPosition.xyz /= screenPosition.w;
 		screenPosition.xy += 1.0f;
 		screenPosition.xy *= 0.5f;
-		vec3 refractVec = -normalize( refract(eye, -in_waterNormal.xyz, u_indexOfRefraction) );
+		vec3 refractVec = -normalize( refract(-eye, in_waterNormal.xyz, u_indexOfRefraction) );
 		
 		vec4 samplePos = vec4( in_worldPosition );
 		samplePos.xyz += refractVec * viewDepth;
@@ -149,7 +149,7 @@ void main(void)
 
 		// We now take this vector and refract it backwards through the wave.
 		vec3 refractedLightDir = -refract(-u_lightDir, translucentVec, u_indexOfRefraction);
-		float translucentDot = pow( max( dot( translucentVec, u_lightDir ), 0.0f ), 1.5f ) * max( 0.01f, pow( max( dot(refractedLightDir, eye), 0.0f ), 1.5f ) );
+		float translucentDot = pow( max( dot( translucentVec, u_lightDir ), 0.0f ), 1.5f ) * max( 0.01f, pow( max( dot(refractedLightDir, -eye), 0.0f ), 1.5f ) );
 
 		outColor += u_waterTranslucentColor * pow(translucentDot,0.5f) * translucency * u_lightIntensity * waterAlpha;
 	}
@@ -159,11 +159,11 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	{
 		// Specular
-		vec3 waterSpecular = vec3( specular( in_waterNormal.xyz, u_lightDir, eye, u_specularPower ) * u_lightIntensity );
+		vec3 waterSpecular = vec3( specular( in_waterNormal.xyz, u_lightDir, -eye, u_specularPower ) * u_lightIntensity );
 		outColor += waterSpecular * fresnel * waterAlpha;
 
 		// Sky
-		float skyReflect = clamp(dot(in_waterNormal.xyz,-eye), 0.0f, 1.0f);
+		float skyReflect = clamp(dot(in_waterNormal.xyz,eye), 0.0f, 1.0f);
 		skyReflect = smoothstep(0.45f, 0.55f, fresnel);
 		outColor += skyReflect * vec3(pow(fresnel, 1.5f)) * 0.15f * waterAlpha;
 	}

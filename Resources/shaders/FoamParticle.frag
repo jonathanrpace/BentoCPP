@@ -10,8 +10,10 @@ in Varying
 
 void main(void)
 {
-	//vec2 temp = gl_PointCoord - vec2(0.5);
-	//float f = sqrt(dot(temp,temp)) / 0.5;
+	vec2 temp = gl_PointCoord - vec2(0.5);
+	float dp = dot(temp,temp);
 
-	out_fragColor = in_color;
+	float f = 1.0-(sqrt(dp) / 0.5);
+
+	out_fragColor = vec4(in_color.xyz, f * in_color.w);
 } 

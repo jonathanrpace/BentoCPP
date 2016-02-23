@@ -41,7 +41,7 @@ namespace bento
 		SetTexture("s_waterNormalData", &(_geometry->WaterNormalData()));
 		SetTexture("s_rockNormalData", &(_geometry->RockNormalData()));
 		SetTexture("s_diffuseMap", &(_material->SomeTexture));
-		
+
 		_geometry->SwapRockData();
 		_geometry->SwapRockFluxData();
 		_geometry->SwapWaterData();
@@ -100,28 +100,8 @@ namespace bento
 			
 			node->geom->Bind();
 
-			// One cycle of a phase is a minute
-			float phase = fmod((float)glfwGetTime() * (1.0f/60.0f), 1.0f);
-			/*
-			float phaseSpeed = 0.4f;
-			float flowSpeed = 2.0f;
-			float phase = fmod((float)glfwGetTime() * phaseSpeed, 1.0f);
-			float offsetPhaseA = phase;
-			float offsetA = offsetPhaseA * flowSpeed;
-			float offsetPhaseB = fmod(phase + 0.5f, 1.0f);
-			float offsetB = offsetPhaseB * flowSpeed;
-			float alpha = phase < 0.5f ? phase / 0.5f : 1.0f - (phase - 0.5f) / 0.5f;
-			alpha = 1.0f - alpha;
-
-			vec4 phaseVec = vec4(1.0f - alpha, alpha, offsetA, offsetB);
-
-			
-			*/
-
 			m_shader.VertexShader().BindPerModel(node->geom, node->material);
 			m_shader.FragmentShader().BindPerModel(node->geom, node->material);
-
-			m_shader.VertexShader().SetUniform("u_phase", phase);
 
 			node->geom->Draw();
 		}

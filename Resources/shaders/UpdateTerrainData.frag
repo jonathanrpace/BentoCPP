@@ -52,6 +52,14 @@ uniform float u_erosionFluxMin;
 uniform float u_erosionFluxMax;
 uniform float u_depositionSpeed;
 
+// Waves
+uniform float u_phase;
+uniform vec4 u_wave;
+uniform vec4 u_wave0;
+uniform vec4 u_wave1;
+uniform vec4 u_wave2;
+uniform vec4 u_wave3;
+
 
 // Buffers
 layout( std430, binding = 0 ) buffer MousePositionBuffer
@@ -72,6 +80,55 @@ layout( location = 1 ) out vec4 out_waterData;
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
+
+float waveOctave( vec2 uv, vec4 params, float effectScalar )
+{
+	float strength = params.x;
+	float scale = params.y;
+	float angle = params.z;
+	float speed = params.w;
+
+	float choppyLimit = u_wave.z;
+	float choppyPower = u_wave.w;
+
+	vec2 waveUV = uv * scale;
+	float sinTheta = sin(angle);
+	float cosTheta = cos(angle);
+	waveUV = vec2(waveUV.x * cosTheta - waveUV.y * sinTheta, waveUV.y * cosTheta + waveUV.x * sinTheta);
+	waveUV += u_phase * speed;
+
+	float value = texture( s_diffuseMap, waveUV ).z * strength;
+	
+	// Make it choppy (pow it)
+	float choppyRatio = min( (value*effectScalar) / choppyLimit, 1.0);
+	value = pow( value, 1.0f + choppyRatio * choppyPower );
+
+	return value;
+}
+
+float waveNoise(vec2 uv, float waterHeight, float fluxChange)
+{
+	float effectStrength = u_wave.x;
+	float effectLimit = u_wave.y;
+	
+	float effectHeightRatio = min( waterHeight / effectLimit, 1.0 );
+	float effectFluxRatio = min( abs(fluxChange) / effectLimit * 5.0, 1.0 );
+	float effectRatio = mix( effectHeightRatio, effectFluxRatio, 0.9 );
+
+	float effectScalar = effectRatio * effectStrength;
+
+	float outValue = 0.0;
+	outValue += waveOctave( uv, u_wave0, effectScalar ) - 0.5;
+	outValue += waveOctave( uv, u_wave1, effectScalar ) - 0.5;
+	outValue += waveOctave( uv, u_wave2, effectScalar ) - 0.5;
+	outValue += waveOctave( uv, u_wave3, effectScalar ) - 0.5;
+
+	// Normalise the summed octaves so it ranges from [-0.5, 0.5]
+	float totalOctaveStrength = u_wave0.x + u_wave1.x + u_wave2.x + u_wave3.x;
+	outValue /= totalOctaveStrength;
+	
+	return outValue * effectScalar;
+}
 
 vec2 GetMousePos()
 {
@@ -124,7 +181,6 @@ void main(void)
 	float moltenHeat = rockDataC.z;
 	float iceHeight = waterDataC.x;
 	float waterHeight = waterDataC.y;
-	float waterFoam = waterDataC.w;
 
 	float moltenViscosityScalar = mappingDataC.y;
 	float moltenViscosity = CalcViscosity(moltenHeat, moltenViscosityScalar);
@@ -198,7 +254,7 @@ void main(void)
 	// Update water
 	////////////////////////////////////////////////////////////////
 	float newWaterHeight = waterHeight;
-	float newWaterFoam = waterFoam;
+	float waveNoiseHeight;
 	float newDissolvedDirtHeight = waterDataC.z;
 	{
 		vec4 fluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
@@ -217,68 +273,10 @@ void main(void)
 		newWaterHeight += pow(mouseRatio, 0.9f) * u_mouseWaterVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar);
 
 		////////////////////////////////////////////////////////////////
-		// Foam
+		// Wave noise
 		////////////////////////////////////////////////////////////////
 
-		vec4 waterFluxDataMipped = textureLod(s_waterFluxData, in_uv, 1);
-		vec2 foamFlow = -vec2( waterFluxDataMipped.y - waterFluxDataMipped.x, waterFluxDataMipped.w - waterFluxDataMipped.z );
-
-		vec4 foamMapScalar = texture2D( s_diffuseMap, in_uv );
-
-		vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
-		vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
-		vec4 waterDataU = texelFetch(s_waterData, texelCoordU, 0);
-		vec4 waterDataD = texelFetch(s_waterData, texelCoordD, 0);
-
-		// Foam advection
-		vec3 waterNormal = texelFetch(s_waterNormalData, texelCoordC, 0).xyz;
-
-		//vec2 advectDirection = vec2(waterNormal.xz);
-		vec2 advectDirection = -foamFlow;
-		float advectSpeed = 0.08f;
-		//float advectSpeed = pow( length(advectDirection), 0.5 ) * 0.001;
-		//advectDirection = normalize(advectDirection);
-		newWaterFoam = texture2D( s_waterData, in_uv - advectDirection * advectSpeed ).w;
-
-		float foamSpawnAmount = texture2D( s_mappingData, in_uv - advectDirection * advectSpeed ).w;
-
-		// Add some foam where compression is high
-		//float foamSpawnAmount = mappingDataC.w;
-		float u_foamMinCompression = 0.0f;
-		float u_foamMaxCompression = 50.0f;
-		float foamSpawnRatio = min( max(0.0f, foamSpawnAmount - u_foamMinCompression) / (u_foamMaxCompression-u_foamMinCompression), 1.0f );
-
-		float foamSpawnDamping = (1.0f - newWaterFoam);
-		newWaterFoam += pow( foamSpawnRatio, 1.0 ) * foamSpawnDamping;
-
-		newWaterFoam *= 0.99;
-
-		//float foamTexture = texture2D( s_diffuseMap, (in_uv*4.0) - advectDirection * advectSpeed).z;
-		//newWaterFoam *= mix( 1.0, 0.99, foamTexture );
-
-		if ( waterHeight < 0.005f )
-		{
-			newWaterFoam += (0.005 - waterHeight) * 0.5f;
-		}
-
-		newWaterFoam = clamp(newWaterFoam, 0, 1);
-
-		////////////////////////////////////////////////////////////////
-		// Erosion
-		////////////////////////////////////////////////////////////////
-		/*
-		float erosionRatio = clamp( (absFlux - u_erosionFluxMin) / (u_erosionFluxMax-u_erosionFluxMin), 0.0f, 1.0f );
-		float errosionAmount = min( u_erosionSpeed * erosionRatio * newWaterHeight, solidHeight );
-
-		newDissolvedDirtHeight += errosionAmount;
-		solidHeight -= errosionAmount;
-
-		float depositionRatio = absFlux < u_erosionFluxMin ? u_depositionSpeed : 0.0f;
-		float depositionAmount = min( depositionRatio, newDissolvedDirtHeight );
-
-		newDissolvedDirtHeight -= depositionAmount;
-		solidHeight += depositionAmount;
-		*/
+		waveNoiseHeight = waveNoise(in_uv, newWaterHeight, fluxChange);
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -306,7 +304,7 @@ void main(void)
 	// Output
 	////////////////////////////////////////////////////////////////
 	out_rockData = vec4(solidHeight, newMoltenHeight, newMoltenHeat, 0.0f);
-	out_waterData = vec4(0.0f, newWaterHeight, newDissolvedDirtHeight, newWaterFoam);
+	out_waterData = vec4(0.0f, newWaterHeight, newDissolvedDirtHeight, waveNoiseHeight);
 }
 
 

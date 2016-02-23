@@ -29,28 +29,33 @@ namespace bento
 		// Water
 		vec3 waterColor;
 		vec3 waterTranslucentColor;
-		float waterSpecularPower = 125.0f;
+		float waterSpecularPower = 80.0f;
 		float waterIndexOfRefraction = 0.0f;
 
 		float waveStrength0 = 1.0f;
-		float waveStrength1 = 1.0f;
-		float waveStrength2 = 1.0f;
-		float waveStrength3 = 1.0f;
+		float waveStrength1 = 0.5f;
+		float waveStrength2 = 0.25f;
+		float waveStrength3 = 0.125f;
 
 		float waveAngle0 = 0.0f;
-		float waveAngle1 = 0.0f;
-		float waveAngle2 = 0.0f;
-		float waveAngle3 = 0.0f;
+		float waveAngle1 = 4.0f;
+		float waveAngle2 = 1.0f;
+		float waveAngle3 = 2.0f;
 
-		int waveSpeed0 = 1;
-		int waveSpeed1 = 1;
-		int waveSpeed2 = 1;
-		int waveSpeed3 = 1;
+		int waveSpeed0 = 8;
+		int waveSpeed1 = 8;
+		int waveSpeed2 = 8;
+		int waveSpeed3 = 8;
 
 		float waveScale0 = 1.0f;
-		float waveScale1 = 1.0f;
-		float waveScale2 = 1.0f;
-		float waveScale3 = 1.0f;
+		float waveScale1 = 2.0f;
+		float waveScale2 = 4.0f;
+		float waveScale3 = 8.0f;
+
+		float choppyPower = 0.0f;
+		float choppyLimit = 1.0f;
+		float waveEffectLimit = 0.025f;
+		float waveEffectStrength = 0.008f;
 
 		// Lighting
 		float lightAzimuth;

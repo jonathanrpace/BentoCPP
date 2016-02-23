@@ -10,7 +10,7 @@ namespace bento
 		: Component(_name, typeid(FoamParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(500000)
+		m_numParticles(1000000)
 	{
 
 	}
@@ -25,27 +25,35 @@ namespace bento
 		assert(glIsVertexArray(m_vertexArrayA) == false);
 		
 		// Generate all the shit
-		std::vector<float> positions(m_numParticles * 4);
+		//std::vector<float> positions(m_numParticles * 4);
 		std::vector<float> velocities(m_numParticles * 4);
 		std::vector<float> properties(m_numParticles * 4);
+
+		float numParticlesPerDimension = (float)std::sqrt((float)m_numParticles);
+
+
 
 		for (int i = 0; i < m_numParticles; i++)
 		{
 			int float3Index = i * 3;
 			int float4Index = i * 4;
 
-			positions[float4Index + 0] = 0.0f;
-			positions[float4Index + 1] = 0.0f;
-			positions[float4Index + 2] = 0.0f;
-			positions[float4Index + 3] = 1.0f;
+			//positions[float4Index + 0] = 0.0f;
+			//positions[float4Index + 1] = 0.0f;
+			//positions[float4Index + 2] = 0.0f;
+			//positions[float4Index + 3] = 1.0f;
 
 			velocities[float4Index + 0] = 0.0f;
 			velocities[float4Index + 1] = 0.0f;
 			velocities[float4Index + 2] = 0.0f;
 			velocities[float4Index + 3] = 0.0f;	// Life
 
-			properties[float4Index + 0] = Rand();			// HomeX
-			properties[float4Index + 1] = Rand();			// HomeY
+			float fi = (float)i;
+			float xRatio = std::fmod( fi / numParticlesPerDimension, 1.0f );
+			float yRatio = std::floor(fi / numParticlesPerDimension) / numParticlesPerDimension;
+
+			properties[float4Index + 0] = xRatio;			// HomeX
+			properties[float4Index + 1] = yRatio;			// HomeY
 			properties[float4Index + 2] = Rand();		// Max life
 			properties[float4Index + 3] = Rand();			// Handy randy
 		}
@@ -69,7 +77,7 @@ namespace bento
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferA));											// Start doing stuff with position buffer A
 			GL_CHECK(glEnableVertexAttribArray(0));
 			GL_CHECK(glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));	// Mark up this array as being the zero index attribute.
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(float), &positions[0], GL_DYNAMIC_COPY));			// Transfer the data across
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));			// Transfer the data across
 			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferA));						// Position will be fedback to 0 index buffer.
 			
 			// Velocity A
@@ -106,7 +114,7 @@ namespace bento
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferB));
 			GL_CHECK(glEnableVertexAttribArray(0));
 			GL_CHECK(glVertexAttribPointer(0, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
-			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(float), &positions[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));
 			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_positionBufferB));
 			
 			// Velocity B

@@ -28,22 +28,23 @@ out Varying
 void main(void)
 {
 	float life = in_velocity.w;
-	float maxLife = mix(0.5, 1.0, in_properties.z);
 
 	vec4 position = in_position;
 	position.xz *= u_terrainSize;
 	position.xz -= u_terrainSize*0.5;
 	position.y += 0.002;
+	position.w = 1.0;
 
 	vec4 screenPos = u_mvpMatrix * position;
+
+	float pointSize = 4.0;
+	gl_PointSize = pointSize / (1.0f+screenPos.z);
+	gl_Position = screenPos;
 
 	vec3 normal = in_velocity.xyz;
 	normal.y = 0.1;
 	normal = normalize(normal);
 	float lightDot = clamp( dot(normal, u_lightDir), 0, 1 );
 
-	gl_PointSize = 4.0f / (1.0f+screenPos.z);
-	gl_Position = screenPos;
-
-	out_color = vec4(lightDot, lightDot, lightDot, (life/maxLife) * mix(0.1, 0.5, in_properties.w));
+	out_color = vec4(lightDot, lightDot, lightDot, life * mix( 0.4, 0.4, in_properties.w));
 } 
