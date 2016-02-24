@@ -30,7 +30,7 @@ namespace bento
 		vec3 waterColor;
 		vec3 waterTranslucentColor;
 		float waterSpecularPower = 80.0f;
-		float waterIndexOfRefraction = 0.0f;
+		float waterIndexOfRefraction = 0.33f;
 
 		float waveStrength0 = 1.0f;
 		float waveStrength1 = 0.5f;
@@ -55,7 +55,7 @@ namespace bento
 		float choppyPower = 0.0f;
 		float choppyLimit = 1.0f;
 		float waveEffectLimit = 0.025f;
-		float waveEffectStrength = 0.008f;
+		float waveEffectStrength = 0.013f;
 
 		// Lighting
 		float lightAzimuth;

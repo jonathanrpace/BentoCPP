@@ -7,7 +7,7 @@ namespace bento
 	TerrainMaterial::TerrainMaterial(std::string _name)
 		: Component(_name, typeid(TerrainMaterial))
 		, SomeTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR)
-		, waterColor(0.37f, 0.73f, 0.69f)
+		, waterColor(0.219f, 0.435f, 0.411f)
 		, waterTranslucentColor(0.37f*0.8f, 0.73f*0.8f, 0.69f*0.8f)
 		, lightAltitude((float)-M_PI * 0.5f)
 		, lightAzimuth(0.0f)
@@ -25,12 +25,12 @@ namespace bento
 		ImGui::Spacing();
 		ImGui::Text("Water");
 		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 1.0f, 200.0f);
-		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, -2.0f, 2.0f);
+		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.0f, 2.0f);
 		ImGui::ColorEdit3("WaterColor", glm::value_ptr(waterColor));
 		ImGui::ColorEdit3("WaterTranslucentColor", glm::value_ptr(waterTranslucentColor));
 		ImGui::Text("Waves");
-		ImGui::SliderFloat("Effect strength", &waveEffectStrength, 0.0f, 0.2f);
-		ImGui::SliderFloat("Effect limit", &waveEffectLimit, 0.0f, 0.5f);
+		ImGui::SliderFloat("Effect strength", &waveEffectStrength, 0.0f, 0.05f);
+		ImGui::SliderFloat("Effect limit", &waveEffectLimit, 0.0f, 0.3f);
 		ImGui::SliderFloat("Choppy limit", &choppyLimit, 0.0f, 0.5f);
 		ImGui::SliderFloat("Choppy power", &choppyPower, 0.0f, 3.0f);
 		ImGui::Text("Wave Strength");

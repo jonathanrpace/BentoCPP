@@ -83,11 +83,11 @@ void main(void)
 	vec4 mappingDataC = texture2D( s_mappingData, in_uv );
 
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
-	if ( targetViewPosition.z == 0.0f ) targetViewPosition.z = in_viewPosition.z + 50.0f;
+	if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
-	viewDepth = min(viewDepth, 0.5f);
-	float waterAlpha = min(1.0f, viewDepth / 0.01f );
-	waterAlpha = pow( waterAlpha, 0.8f );
+	viewDepth = clamp(viewDepth, 0.0, 0.05);
+	float waterAlpha = min(1.0f, viewDepth / 0.01 );
+	waterAlpha = pow( waterAlpha, 0.8 );
 
 	////////////////////////////////////////////////////////////////
 	// Refraction
@@ -95,18 +95,15 @@ void main(void)
 	vec3 outColor = vec3(0.0f);
 	{
 		// We do this first as we need to know what pixel in the frame-buffer we're blending with
-		vec4 screenPosition = in_screenPosition;
-		screenPosition.xyz /= screenPosition.w;
-		screenPosition.xy += 1.0f;
-		screenPosition.xy *= 0.5f;
-		vec3 refractVec = -normalize( refract(-eye, in_waterNormal.xyz, u_indexOfRefraction) );
+
+		vec3 refractVec = refract(-eye, in_waterNormal.xyz, u_indexOfRefraction);
 		
 		vec4 samplePos = vec4( in_worldPosition );
 		samplePos.xyz += refractVec * viewDepth;
 		samplePos *= u_mvpMatrix;
 		samplePos.xyz /= samplePos.w;
-		samplePos.xy += 1.0f;
-		samplePos.xy *= 0.5f;
+		samplePos.xy += 1.0;
+		samplePos.xy *= 0.5;
 
 		vec2 dimensions = vec2(textureSize( s_output, 0 ));
 
@@ -117,8 +114,8 @@ void main(void)
 	// Filter
 	////////////////////////////////////////////////////////////////
 	{
-		vec3 waterColor = diffuse(in_waterNormal.xyz, u_lightDir, 1.0f) * u_waterColor * u_lightIntensity;
-		waterColor = pow(waterColor, vec3(0.75f));
+		vec3 waterColor = diffuse(in_waterNormal.xyz, u_lightDir, 1.5f) * u_waterColor * (u_lightIntensity+u_ambientLightIntensity);
+		//waterColor = pow(waterColor, vec3(0.75f));
 		waterColor *= waterAlpha;
 		
 		// Filter color behind water. The deeper the water, the more filter applied.

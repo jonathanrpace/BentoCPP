@@ -46,5 +46,5 @@ void main(void)
 	normal = normalize(normal);
 	float lightDot = clamp( dot(normal, u_lightDir), 0, 1 );
 
-	out_color = vec4(lightDot, lightDot, lightDot, life * mix( 0.4, 0.4, in_properties.w));
+	out_color = vec4(lightDot, lightDot, lightDot, life * mix( 0.6, 0.6, in_properties.w));
 } 

@@ -43,7 +43,7 @@ void main(void)
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
 
-	float spawnThreshold = mix(0.4, 0.6, in_properties.w);
+	float spawnThreshold = mix(0.5, 0.8, in_properties.w);
 
 	if ( life <= 0.0 && foamSpawnStrength > spawnThreshold )
 	{
