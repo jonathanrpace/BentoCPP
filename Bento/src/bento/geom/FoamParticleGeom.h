@@ -43,6 +43,7 @@ namespace bento
 		GLuint m_positionBufferB;
 		GLuint m_velocityBufferA;
 		GLuint m_velocityBufferB;
+		GLuint m_normalBuffer;
 		GLuint m_propertiesBufferA;
 		GLuint m_propertiesBufferB;
 		GLuint m_transformFeedbackObjA;

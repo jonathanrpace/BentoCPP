@@ -61,6 +61,14 @@ namespace bento
 		// Transfer the data to the buffers, and bind them together, associating some with transform feedback
 		{
 			//////////////////////////////////////////////////////////////////////////////////////////////
+			// Shared
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			GL_CHECK(glGenBuffers(1, &m_normalBuffer))
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer));
+			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
+
+			//////////////////////////////////////////////////////////////////////////////////////////////
 			// A
 			//////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,13 +95,18 @@ namespace bento
 			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, velocities.size() * sizeof(float), &velocities[0], GL_DYNAMIC_COPY));
 			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, m_velocityBufferA));
 			
-
 			// Properties A (No transform feedback)
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_propertiesBufferA));
 			GL_CHECK(glEnableVertexAttribArray(2));
 			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
 			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size() * sizeof(float), &properties[0], GL_DYNAMIC_COPY));
-			
+
+			// Normal
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer));
+			GL_CHECK(glEnableVertexAttribArray(3));
+			GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 2, m_normalBuffer));
+
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
 			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, GL_NONE));
 
@@ -130,6 +143,12 @@ namespace bento
 			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
 			GL_CHECK(glBufferData(GL_ARRAY_BUFFER, properties.size() * sizeof(float), &properties[0], GL_DYNAMIC_COPY));
 			
+			// Normal
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_normalBuffer));
+			GL_CHECK(glEnableVertexAttribArray(3));
+			GL_CHECK(glVertexAttribPointer(3, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+			GL_CHECK(glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 2, m_normalBuffer));
+
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
 			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, GL_NONE));
 		}
@@ -148,6 +167,7 @@ namespace bento
 			glDeleteBuffers(1, &m_velocityBufferB);
 			glDeleteBuffers(1, &m_propertiesBufferA);
 			glDeleteBuffers(1, &m_propertiesBufferB);
+			glDeleteBuffers(1, &m_normalBuffer);
 
 			glDeleteTransformFeedbacks(1, &m_transformFeedbackObjA);
 			glDeleteTransformFeedbacks(1, &m_transformFeedbackObjB);

@@ -41,8 +41,8 @@ namespace bento
 
 	void FoamParticleUpdateVert::OnPreLink()
 	{
-		const char * varyings[] = { "out_position", "out_velocity" };
-		GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
+		const char * varyings[] = { "out_position", "out_velocity", "out_normal" };
+		GL_CHECK(glTransformFeedbackVaryings(m_programName, 3, varyings, GL_SEPARATE_ATTRIBS));
 	}
 	
 	//////////////////////////////////////////////////////////////////////////

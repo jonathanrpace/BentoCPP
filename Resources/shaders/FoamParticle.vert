@@ -4,6 +4,7 @@
 layout(location = 0) in vec4 in_position;
 layout(location = 1) in vec4 in_velocity;
 layout(location = 2) in vec4 in_properties;
+layout(location = 3) in vec3 in_normal;
 
 // Uniforms
 uniform mat4 u_mvpMatrix;
@@ -41,10 +42,10 @@ void main(void)
 	gl_PointSize = pointSize / (1.0f+screenPos.z);
 	gl_Position = screenPos;
 
-	vec3 normal = in_velocity.xyz;
-	normal.y = 0.1;
-	normal = normalize(normal);
+	vec3 normal = in_normal;//in_velocity.xyz;
+	//normal.y = 0.1;
+	//normal = normalize(normal);
 	float lightDot = clamp( dot(normal, u_lightDir), 0, 1 );
 
-	out_color = vec4(lightDot, lightDot, lightDot, life * mix( 0.6, 0.6, in_properties.w));
+	out_color = vec4(vec3(lightDot), life * mix( 0.5, 1.0, in_properties.w));
 } 

@@ -17,6 +17,7 @@ out Varying
 {
 	vec4 out_position;
 	vec4 out_velocity;
+	vec3 out_normal;
 };
 
 void main(void)
@@ -103,4 +104,5 @@ void main(void)
 
 	out_position = position;
 	out_velocity = vec4(velocity, life);
+	out_normal = waterNormal.xyz;
 } 

@@ -114,7 +114,7 @@ void main(void)
 	// Filter
 	////////////////////////////////////////////////////////////////
 	{
-		vec3 waterColor = diffuse(in_waterNormal.xyz, u_lightDir, 1.5f) * u_waterColor * (u_lightIntensity+u_ambientLightIntensity);
+		vec3 waterColor = diffuse(in_waterNormal.xyz, u_lightDir, 1.0f) * u_waterColor * (u_lightIntensity+u_ambientLightIntensity);
 		//waterColor = pow(waterColor, vec3(0.75f));
 		waterColor *= waterAlpha;
 		
@@ -146,7 +146,7 @@ void main(void)
 
 		// We now take this vector and refract it backwards through the wave.
 		vec3 refractedLightDir = -refract(-u_lightDir, translucentVec, u_indexOfRefraction);
-		float translucentDot = pow( max( dot( translucentVec, u_lightDir ), 0.0f ), 1.5f ) * max( 0.01f, pow( max( dot(refractedLightDir, -eye), 0.0f ), 1.5f ) );
+		float translucentDot = pow( max( dot( translucentVec, u_lightDir ), 0.0f ), 2.5f ) * max( 0.01f, pow( max( dot(refractedLightDir, -eye), 0.0f ), 2.5f ) );
 
 		outColor += u_waterTranslucentColor * pow(translucentDot,0.5f) * translucency * u_lightIntensity * waterAlpha;
 	}

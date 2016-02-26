@@ -7,8 +7,8 @@ namespace bento
 	TerrainMaterial::TerrainMaterial(std::string _name)
 		: Component(_name, typeid(TerrainMaterial))
 		, SomeTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR)
-		, waterColor(0.219f, 0.435f, 0.411f)
-		, waterTranslucentColor(0.37f*0.8f, 0.73f*0.8f, 0.69f*0.8f)
+		, waterColor(0.219f, 0.286f, 0.278f)
+		, waterTranslucentColor(0.219f, 0.411f, 0.392f)
 		, lightAltitude((float)-M_PI * 0.5f)
 		, lightAzimuth(0.0f)
 	{
