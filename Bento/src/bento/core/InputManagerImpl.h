@@ -3,8 +3,6 @@
 #include <bento.h>
 #include <bento/core/IInputManager.h>
 
-#include <event.h>
-
 struct GLFWwindow;
 
 namespace bento

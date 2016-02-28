@@ -1,7 +1,7 @@
 #pragma once
 
 #include <bento/core/RenderTargetBase.h>
-#include <bento/textures/RectangleTexture.h>
+#include <bento/components/textures/RectangleTexture.h>
 
 namespace bento
 {

@@ -1,6 +1,6 @@
 #include "GPass.h"
 
-#include <bento/core/RenderParams.h>
+#include <bento/render/RenderParams.h>
 
 namespace bento
 {

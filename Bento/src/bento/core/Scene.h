@@ -2,7 +2,6 @@
 
 // bento
 #include <bento.h>
-#include <event.h>
 #include <bento/core/IInputManager.h>
 #include <bento/core/IWindow.h>
 #include <bento/core/Component.h>

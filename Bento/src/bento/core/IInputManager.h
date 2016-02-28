@@ -1,6 +1,5 @@
 #pragma once
 
-#include <event.h>
 #include <bento.h>
 
 namespace bento

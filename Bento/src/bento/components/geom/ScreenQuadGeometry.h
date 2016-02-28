@@ -4,7 +4,7 @@
 #include <string>
 
 #include <bento/core/SharedObject.h>
-#include <bento/geom/Geometry.h>
+#include <bento/components/geom/Geometry.h>
 
 namespace bento
 {

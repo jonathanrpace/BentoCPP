@@ -2,8 +2,6 @@
 
 #include <map>
 
-#include <event.h>
-
 #include <bento.h>
 #include <bento/core/IInspectable.h>
 #include <bento/core/SharedObject.h>
@@ -11,12 +9,12 @@
 #include <bento/core/ShaderStageBase.h>
 #include <bento/core/ShaderBase.h>
 #include <bento/core/RenderTargetBase.h>
-#include <bento/shaderStages/ScreenQuadVert.h>
-#include <bento/shaderStages/NullFrag.h>
-#include <bento/geom/TerrainGeometry.h>
-#include <bento/geom/ScreenQuadGeometry.h>
-#include <bento/geom/FoamParticleGeom.h>
-#include <bento/materials/TerrainMaterial.h>
+#include <bento/render/shaders/ScreenQuadVert.h>
+#include <bento/render/shaders/NullFrag.h>
+#include <bento/components/geom/TerrainGeometry.h>
+#include <bento/components/geom/ScreenQuadGeometry.h>
+#include <bento/components/geom/FoamParticleGeom.h>
+#include <bento/components/materials/TerrainMaterial.h>
 #include <bento/components/Transform.h>
 
 namespace bento

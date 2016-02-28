@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <typeinfo>
+#include <string.h>
 
 #include <gl/glew.h>
 #include <glm/glm.hpp>
@@ -21,19 +22,32 @@ typedef glm::mat4 mat4;
 typedef glm::mat3 mat3;
 
 #include <bento/core/Logging.h>
+#include <bento/core/event.h>
 #include <bento/util/GLErrorUtil.h>
 
 #define DEG_TO_RAD 0.01745329251994329576923690768489f
 #define RAD_TO_DEG 57.295779513082320876798154814105f
+
+
 
 namespace bento
 {
 	struct Config
 	{
 	public:
-		static char* ResourcePath();
-		static void ResourcePath(char* _resourcePath);
+		static void Init
+		(
+			std::string _resourcePath,
+			std::string _defaultsPath
+		);
+
+		static void Shutdown();
+
+		static std::string ResourcePath();
+		static std::string DefaultsPath();
+
 	private:
-		static char* s_resourcePath;
+		static std::string* s_resourcePath;
+		static std::string* s_defaultsPath;
 	};
 }

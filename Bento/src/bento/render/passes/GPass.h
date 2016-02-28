@@ -7,9 +7,9 @@
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
 #include <bento/core/RenderPass.h>
-#include <bento/geom/Geometry.h>
+#include <bento/components/geom/Geometry.h>
 #include <bento/components/Transform.h>
-#include <bento/materials/StandardMaterial.h>
+#include <bento/components/materials/StandardMaterial.h>
 
 namespace bento
 {

@@ -4,7 +4,7 @@
 #include <assert.h>
 #include <utility>
 
-#include <bento/core/RenderParams.h>
+#include <bento/render/RenderParams.h>
 #include <bento/components/PerspectiveLens.h>
 #include <bento/components/Transform.h>
 

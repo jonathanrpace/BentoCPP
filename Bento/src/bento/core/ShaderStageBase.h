@@ -3,9 +3,9 @@
 #include <bento.h>
 
 #include <bento/core/AbstractValidatable.h>
-#include <bento/core/RenderParams.h>
-#include <bento/textures/RectangleTexture.h>
-#include <bento/textures/TextureSquare.h>
+#include <bento/render/RenderParams.h>
+#include <bento/components/textures/RectangleTexture.h>
+#include <bento/components/textures/TextureSquare.h>
 
 namespace bento
 {

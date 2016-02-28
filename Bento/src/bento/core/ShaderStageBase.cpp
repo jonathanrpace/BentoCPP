@@ -2,12 +2,10 @@
 
 #include <iostream>
 #include <assert.h>
-#include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include <bento.h>
-#include <bento/shaders/ShaderUtil.h>
+#include <bento/util/ShaderUtil.h>
 
 namespace bento
 {

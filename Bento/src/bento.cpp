@@ -7,15 +7,32 @@
 
 namespace bento
 {
-	char* Config::s_resourcePath = "./resources/";
+	std::string* Config::s_resourcePath = nullptr;
+	std::string* Config::s_defaultsPath = nullptr;
 
-	char* Config::ResourcePath()
+	void Config::Init(std::string _resourcePath, std::string _defaultsPath)
 	{
-		return Config::s_resourcePath;
+		Shutdown();
+
+		Config::s_resourcePath = new std::string(_resourcePath);
+		Config::s_defaultsPath = new std::string(_defaultsPath);
 	}
 
-	void Config::ResourcePath(char* _resourcePath)
+	void Config::Shutdown()
 	{
-		Config::s_resourcePath = _resourcePath;
+		if (Config::s_resourcePath != nullptr)
+			delete s_resourcePath;
+		if (Config::s_defaultsPath != nullptr)
+			delete s_defaultsPath;
+	}
+
+	std::string Config::ResourcePath()
+	{
+		return *Config::s_resourcePath;
+	}
+
+	std::string Config::DefaultsPath()
+	{
+		return *Config::s_defaultsPath;
 	}
 }

@@ -5,10 +5,10 @@
 #include <bento/core/SharedObject.h>
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
-#include <bento/geom/TerrainGeometry.h>
-#include <bento/geom/FoamParticleGeom.h>
+#include <bento/components/geom/TerrainGeometry.h>
+#include <bento/components/geom/FoamParticleGeom.h>
 #include <bento/components/Transform.h>
-#include <bento/materials/TerrainMaterial.h>
+#include <bento/components/materials/TerrainMaterial.h>
 
 namespace bento
 {

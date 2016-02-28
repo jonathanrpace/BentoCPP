@@ -14,17 +14,17 @@
 #include <bento/Core/Entity.h>
 #include <bento/core/InputManagerImpl.h>
 #include <bento/core/WindowImpl.h>
-#include <bento/renderers/DefaultRenderer.h>
+#include <bento/render/DefaultRenderer.h>
 #include <bento/Components/Transform.h>
-#include <bento/materials/TerrainMaterial.h>
-#include <bento/geom/ScreenQuadGeometry.h>
-#include <bento/geom/TerrainGeometry.h>
-#include <bento/geom/PlaneGeometry.h>
-#include <bento/geom/FoamParticleGeom.h>
-#include <bento/renderPasses/GPass.h>
-#include <bento/renderPasses/TerrainGPass.h>
-#include <bento/renderPasses/TerrainWaterPass.h>
-#include <bento/renderPasses/TerrainFoamPass.h>
+#include <bento/components/materials/TerrainMaterial.h>
+#include <bento/components/geom/ScreenQuadGeometry.h>
+#include <bento/components/geom/TerrainGeometry.h>
+#include <bento/components/geom/PlaneGeometry.h>
+#include <bento/components/geom/FoamParticleGeom.h>
+#include <bento/render/passes/GPass.h>
+#include <bento/render/passes/TerrainGPass.h>
+#include <bento/render/passes/TerrainWaterPass.h>
+#include <bento/render/passes/TerrainFoamPass.h>
 #include <bento/processes/TerrainSimulationProcess.h>
 #include <bento/processes/OrbitCamera.h>
 #include <bento/util/GLErrorUtil.h>
@@ -133,12 +133,13 @@ int main(int argc, char **argv)
 	// glfw is generating some gl errors and not checking for them
 	while (glGetError() != GL_NONE) {}
 
-	bento::Config::ResourcePath("../../../../Resources/");
-	
+	bento::Config::Init("../../../../Resources/", "../../../../Defaults/");
 	mainLoop(window);
+	bento::Config::Shutdown();
 
 	ImGui_ImplGlfwGL3_Shutdown();
 	glfwTerminate();
+
 
 	if (_CrtDumpMemoryLeaks() != 0)
 	{

@@ -4,7 +4,7 @@
 
 #include <bento/core/IInputManager.h>
 #include <bento/Components/Transform.h>
-#include <bento/renderers/DefaultRenderer.h>
+#include <bento/render/DefaultRenderer.h>
 
 namespace bento
 {

@@ -5,51 +5,51 @@
 #include <bento/core/SharedObject.h>
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
-#include <bento/geom/TerrainGeometry.h>
+#include <bento/components/geom/TerrainGeometry.h>
 #include <bento/components/Transform.h>
-#include <bento/materials/TerrainMaterial.h>
+#include <bento/components/materials/TerrainMaterial.h>
 
 namespace bento
 {
-	struct TerrainWaterVert
+	struct TerrainGVert
 		: ShaderStageBase
 	{
-		TerrainWaterVert();
+		TerrainGVert();
 		void BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material);
 	};
 
-	struct TerrainWaterFrag
+	struct TerrainGFrag
 		: ShaderStageBase
 	{
-		TerrainWaterFrag();
+		TerrainGFrag();
 		void BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material);
 	};
 
-	struct TerrainWaterShader
-		: ShaderBase<TerrainWaterVert, TerrainWaterFrag>
+	struct TerrainGShader
+		: ShaderBase<TerrainGVert, TerrainGFrag>
 	{
 	};
 
 	DEFINE_NODE_3
 	(
-		TerrainWaterPassNode,
+		TerrainGPassNode,
 		TerrainGeometry, geom,
 		Transform, transform,
 		TerrainMaterial, material
 	)
 
-	class TerrainWaterPass
-		: public NodeGroupProcess<TerrainWaterPassNode>
+	class TerrainGPass
+		: public NodeGroupProcess<TerrainGPassNode>
 		, public RenderPass
-		, public SharedObject<TerrainWaterPass>
+		, public SharedObject<TerrainGPass>
 	{
 	public:
-		TerrainWaterPass(std::string _name = "TerrainWaterPass");
+		TerrainGPass(std::string _name = "TerrainGPass");
 
 		// From Process
 		virtual void Advance(double _dt) override;
 
 	private:
-		TerrainWaterShader m_shader;
+		TerrainGShader m_shader;
 	};
 }

@@ -1,13 +1,10 @@
-#include "ShaderUtil.h"
+#include "FileUtil.h"
 
 #include <iostream>
 
+#include <bento.h>
 
-
-unsigned long bento::GetFileLength
-(
-	std::ifstream& _file
-)
+unsigned long bento::fileUtil::GetFileLength(std::ifstream& _file)
 {
 	if (!_file.good()) return 0;
 
@@ -19,12 +16,7 @@ unsigned long bento::GetFileLength
 	return (unsigned long)len;
 }
 
-int bento::LoadShader
-(
-	char* _filename,
-	GLchar** o_shaderSourceHandle,
-	unsigned long* o_len
-	)
+int bento::fileUtil::LoadFile(char* _filename, char** o_fileContents, unsigned long* o_len)
 {
 	std::ifstream file;
 
@@ -41,7 +33,7 @@ int bento::LoadShader
 	if (o_len == 0) return -2;   // Error: Empty File 
 
 	*o_shaderSourceHandle = (GLchar*) new char[(*o_len) + 1];
-	GLchar* shaderSource = *o_shaderSourceHandle;
+	GLchar* shaderSource = *o_shaderSourceHandle;z
 	if (shaderSource == 0) return -3;   // can't reserve memory
 
 										// len isn't always strlen cause some characters are stripped in 
@@ -63,11 +55,4 @@ int bento::LoadShader
 	file.close();
 
 	return 0; // No Error
-}
-
-void bento::UnloadShader(GLchar** _shaderSource)
-{
-	if (*_shaderSource != 0)
-		delete[] * _shaderSource;
-	*_shaderSource = 0;
 }

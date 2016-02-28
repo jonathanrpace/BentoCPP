@@ -13,7 +13,7 @@
 #include <glfw3.h>
 
 #include <bento/core/Logging.h>
-#include <bento/core/RenderParams.h>
+#include <bento/render/RenderParams.h>
 
 namespace bento
 {

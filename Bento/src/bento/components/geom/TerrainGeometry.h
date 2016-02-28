@@ -2,8 +2,8 @@
 
 #include <bento/core/SharedObject.h>
 #include <bento/core/IInspectable.h>
-#include <bento/geom/Geometry.h>
-#include <bento/textures/TextureSquare.h>
+#include <bento/components/geom/Geometry.h>
+#include <bento/components/textures/TextureSquare.h>
 
 namespace bento
 {

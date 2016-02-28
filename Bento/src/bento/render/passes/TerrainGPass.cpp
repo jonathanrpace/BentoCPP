@@ -4,7 +4,7 @@
 #include <glm/gtx/polar_coordinates.hpp>
 
 #include <bento/core/Logging.h>
-#include <bento/core/RenderParams.h>
+#include <bento/render/RenderParams.h>
 
 namespace bento
 {

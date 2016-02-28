@@ -47,9 +47,9 @@ namespace bento
 
 	void TextureBase::TexImage2D(const char* _filename) /* _level = 0 */
 	{
-		size_t resolvedFilenameSize = strlen(_filename) + strlen(bento::Config::ResourcePath()) + 1;
+		size_t resolvedFilenameSize = strlen(_filename) + strlen(bento::Config::ResourcePath().c_str()) + 1;
 		char* resolvedFilename = new char[resolvedFilenameSize];
-		strcpy_s(resolvedFilename, resolvedFilenameSize, bento::Config::ResourcePath())  ;
+		strcpy_s(resolvedFilename, resolvedFilenameSize, bento::Config::ResourcePath().c_str());
 		strcat_s(resolvedFilename, resolvedFilenameSize, _filename);
 		
 		int x, y, n;
@@ -61,7 +61,7 @@ namespace bento
 		TexImage2D(GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 		stbi_image_free(data);
-		delete resolvedFilename;
+		delete[] resolvedFilename;
 	}
 
 	void TextureBase::GetTexImage(GLint _level, GLenum _format, GLenum _type, GLvoid* _pixels)

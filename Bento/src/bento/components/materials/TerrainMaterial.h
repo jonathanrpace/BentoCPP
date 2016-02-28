@@ -8,7 +8,7 @@
 #include <bento.h>
 #include <bento/core/Component.h>
 #include <bento/core/SharedObject.h>
-#include <bento/textures/TextureSquare.h>
+#include <bento/components/textures/TextureSquare.h>
 #include <bento/core/IInspectable.h>
 
 namespace bento

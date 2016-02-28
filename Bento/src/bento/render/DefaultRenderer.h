@@ -12,8 +12,8 @@
 #include <bento/core/RenderPass.h>
 #include <bento/core/RenderPhase.h>
 #include <bento/core/Scene.h>
-#include <bento/renderTargets/DeferredRenderTarget.h>
-#include <bento/shaders/RectTextureToScreenShader.h>
+#include <bento/render/DeferredRenderTarget.h>
+#include <bento/render/shaders/RectTextureToScreenShader.h>
 
 namespace bento
 {
