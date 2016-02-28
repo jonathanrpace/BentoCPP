@@ -14,7 +14,7 @@ namespace bento
 	{
 
 	public:
-		ShaderStageBase(char* _filename, bool _useSSO = true);
+		ShaderStageBase(const char* _filename, bool _useSSO = true);
 		~ShaderStageBase();
 
 		void SetPipelineName(GLuint _pipelineName);
@@ -39,7 +39,7 @@ namespace bento
 		virtual void OnPreLink();
 
 		bool m_useSSO;
-		char* m_filename;
+		const char* m_filename;
 		GLuint m_pipelineName;
 		GLuint m_programName;
 		GLenum m_shaderType;

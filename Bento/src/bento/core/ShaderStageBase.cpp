@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include <bento.h>
-#include <bento/util/ShaderUtil.h>
+#include <bento/util/FileUtil.h>
 
 namespace bento
 {
@@ -16,7 +16,7 @@ namespace bento
 	//************************************
 	ShaderStageBase::ShaderStageBase
 	(
-		char * _filename,
+		const char * _filename,
 		bool _useSSO
 	) :
 		m_filename(_filename),
@@ -62,9 +62,9 @@ namespace bento
 		assert(m_shaderType == GL_VERTEX_SHADER ||
 				m_shaderType == GL_FRAGMENT_SHADER);
 
-		GLchar* shaderSourcePtr;
+		char* shaderSourcePtr;
 		unsigned long shaderSourceLength;
-		LoadShader(m_filename, &shaderSourcePtr, &shaderSourceLength);
+		fileUtil::LoadFile(std::string(m_filename), &shaderSourcePtr, &shaderSourceLength);
 		TRACE("Compiling Shader : ");
 		TRACE(m_filename);
 		TRACE("\n");
@@ -84,7 +84,7 @@ namespace bento
 		glDetachShader(m_programName, shader);
 		glDeleteShader(shader);
 
-		UnloadShader(&shaderSourcePtr);
+		delete[] shaderSourcePtr;
 
 		CHECK_SHADER_COMPILATION(m_programName);
 	}

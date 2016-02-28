@@ -183,7 +183,6 @@
     <ClInclude Include="src\bento\render\shaders\SimpleVert.h" />
     <ClInclude Include="src\bento\render\shaders\TestFrag.h" />
     <ClInclude Include="src\bento\render\shaders\RectTextureToScreenShader.h" />
-    <ClInclude Include="src\bento\util\ShaderUtil.h" />
     <ClInclude Include="src\bento\components\textures\RectangleTexture.h" />
     <ClInclude Include="src\bento\components\textures\TextureSquare.h" />
     <ClInclude Include="src\bento\util\FileUtil.h" />
@@ -214,7 +213,7 @@
     <ClCompile Include="src\bento\render\DefaultRenderer.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainFoamPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainWaterPass.cpp" />
-    <ClCompile Include="src\bento\util\ShaderUtil.cpp" />
+    <ClCompile Include="src\bento\util\FileUtil.cpp" />
     <ClCompile Include="src\bento\util\Rand.cpp" />
     <ClCompile Include="src\bento\util\TextureUtil.cpp" />
     <ClInclude Include="src\bento.h">
@@ -255,18 +254,6 @@
     <ClCompile Include="src\bento\components\textures\RectangleTexture.cpp" />
     <ClCompile Include="src\bento\components\textures\TextureSquare.cpp" />
     <ClCompile Include="src\bento\util\GLErrorUtil.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src\bento\glsl\AmbientLight.frag" />
-    <None Include="src\bento\glsl\DirectionalLight.frag" />
-    <None Include="src\bento\glsl\LightBufferConvolution.frag" />
-    <None Include="src\bento\glsl\LightingLib.frag" />
-    <None Include="src\bento\glsl\LightTransportShader.frag" />
-    <None Include="src\bento\glsl\PointLight.frag" />
-    <None Include="src\bento\glsl\PointLight.vert" />
-    <None Include="src\bento\glsl\RectangleTextureShader.frag" />
-    <None Include="src\bento\glsl\ResolveShader.frag" />
-    <None Include="src\bento\glsl\ScreenSpaceReflectionShader.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -18,6 +18,18 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\unused\AmbientLight.frag" />
+    <None Include="shaders\unused\DirectionalLight.frag" />
+    <None Include="shaders\unused\LightBufferConvolution.frag" />
+    <None Include="shaders\unused\LightingLib.frag" />
+    <None Include="shaders\unused\LightTransportShader.frag" />
+    <None Include="shaders\unused\PointLight.frag" />
+    <None Include="shaders\unused\PointLight.vert" />
+    <None Include="shaders\unused\RectangleTextureShader.frag" />
+    <None Include="shaders\unused\ResolveShader.frag" />
+    <None Include="shaders\unused\ScreenSpaceReflectionShader.frag" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>

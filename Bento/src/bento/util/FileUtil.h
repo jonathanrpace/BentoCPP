@@ -7,6 +7,6 @@ namespace bento
 	namespace fileUtil
 	{
 		unsigned long GetFileLength(std::ifstream& _file);
-		int LoadFile(std::string _filename, std::string* o_fileContents, unsigned long* o_len);
+		int LoadFile(std::string _filename, char** o_fileContentsHandle, unsigned long* o_len);
 	}
 }

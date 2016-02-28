@@ -16,43 +16,43 @@ unsigned long bento::fileUtil::GetFileLength(std::ifstream& _file)
 	return (unsigned long)len;
 }
 
-int bento::fileUtil::LoadFile(char* _filename, char** o_fileContents, unsigned long* o_len)
+int bento::fileUtil::LoadFile(std::string _filename, char** o_fileContentsHandle, unsigned long* o_len)
 {
 	std::ifstream file;
 
-	size_t resolvedFilenameSize = strlen(_filename) + strlen(bento::Config::ResourcePath()) + 1;
-	char* resolvedFilename = new char[resolvedFilenameSize];
-	strcpy_s(resolvedFilename, resolvedFilenameSize, bento::Config::ResourcePath());
-	strcat_s(resolvedFilename, resolvedFilenameSize, _filename);
-	file.open(resolvedFilename, std::ios::in); // opens as ASCII!
-	delete resolvedFilename;
-	if (!file) return -1;
+	std::string resolvedFilename = bento::Config::ResourcePath() + _filename;
+	file.open(resolvedFilename.c_str(), std::ios::in); // opens as ASCII!
 
-	*o_len = GetFileLength(file);
+	if (!file) 
+		return -1;	// Error: Can't open file
 
-	if (o_len == 0) return -2;   // Error: Empty File 
+	unsigned long fileLength = GetFileLength(file);
+	if (fileLength == 0)
+		return -2;   // Error: Empty File 
 
-	*o_shaderSourceHandle = (GLchar*) new char[(*o_len) + 1];
-	GLchar* shaderSource = *o_shaderSourceHandle;z
-	if (shaderSource == 0) return -3;   // can't reserve memory
+	char* fileContents = new char[fileLength + 1];
+	if (fileContents == 0) 
+		return -3;   // can't reserve memory
 
-										// len isn't always strlen cause some characters are stripped in 
-										// ascii read... it is important to 0-terminate the real length
-										// later, len is just max possible value... 
-	shaderSource[*o_len] = 0;
+	// len isn't always strlen cause some characters are stripped in 
+	// ascii read... it is important to 0-terminate the real length
+	// later, len is just max possible value... 
+	fileContents[fileLength] = 0;
 
 	unsigned int i = 0;
 	while (file.good())
 	{
 		// get character from file.
-		shaderSource[i] = file.get();
+		fileContents[i] = file.get();
 		if (!file.eof())
 			i++;
 	}
 
-	shaderSource[i] = 0;  // 0-terminate it at the correct position
-
+	fileContents[i] = 0;  // 0-terminate it at the correct position
 	file.close();
+
+	*o_len = fileLength;
+	*o_fileContentsHandle = fileContents;
 
 	return 0; // No Error
 }
