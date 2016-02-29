@@ -10,41 +10,52 @@
 namespace bento
 {
 	//////////////////////////////////////////////////////////////////////////
-	// UpdateTerrainFluxFrag
-	//////////////////////////////////////////////////////////////////////////
-
-	UpdateTerrainFluxFrag::UpdateTerrainFluxFrag() : ShaderStageBase("shaders/UpdateTerrainFlux.frag") {}
-
-	//////////////////////////////////////////////////////////////////////////
-	// UpdateTerrainDataFrag
-	//////////////////////////////////////////////////////////////////////////
-
-	UpdateTerrainDataFrag::UpdateTerrainDataFrag() : ShaderStageBase("shaders/UpdateTerrainData.frag") {}
+	UpdateTerrainFluxFrag::UpdateTerrainFluxFrag()
+		: ShaderStageBase("shaders/UpdateTerrainFlux.frag")
+	{
+	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// UpdateTerrainMiscFrag
-	//////////////////////////////////////////////////////////////////////////
-
-	UpdateTerrainMiscFrag::UpdateTerrainMiscFrag() : ShaderStageBase("shaders/UpdateTerrainMisc.frag") {}
-
-	//////////////////////////////////////////////////////////////////////////
-	// UpdateTerrainSmoothingFrag
-	//////////////////////////////////////////////////////////////////////////
-
-	UpdateTerrainSmthFrag::UpdateTerrainSmthFrag() : ShaderStageBase("shaders/UpdateTerrainSmoothing.frag") {}
+	UpdateTerrainDataFrag::UpdateTerrainDataFrag()
+		: ShaderStageBase("shaders/UpdateTerrainData.frag")
+	{
+	}
 
 	//////////////////////////////////////////////////////////////////////////
-	// FoamParticleUpdateVert
-	//////////////////////////////////////////////////////////////////////////
+	UpdateTerrainMiscFrag::UpdateTerrainMiscFrag()
+		: ShaderStageBase("shaders/UpdateTerrainMisc.frag")
+	{
+	}
 
-	FoamParticleUpdateVert::FoamParticleUpdateVert() : ShaderStageBase("shaders/FoamParticleUpdate.vert", false) {}
+	//////////////////////////////////////////////////////////////////////////
+	UpdateTerrainSmthFrag::UpdateTerrainSmthFrag()
+		: ShaderStageBase("shaders/UpdateTerrainSmoothing.frag")
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	FoamParticleUpdateVert::FoamParticleUpdateVert()
+		: ShaderStageBase("shaders/FoamParticleUpdate.vert", false)
+	{
+	}
 
 	void FoamParticleUpdateVert::OnPreLink()
 	{
-		const char * varyings[] = { "out_position", "out_velocity", "out_normal" };
-		GL_CHECK(glTransformFeedbackVaryings(m_programName, 3, varyings, GL_SEPARATE_ATTRIBS));
+		const char * varyings[] = { "out_position", "out_velocity" };
+		GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
 	}
-	
+
+	//////////////////////////////////////////////////////////////////////////
+	FoamVert::FoamVert()
+		: ShaderStageBase("shaders/FoamParticle.vert", false)
+	{
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	FoamFrag::FoamFrag() : ShaderStageBase("shaders/FoamParticle.frag", false)
+	{
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// TerrainSimulationPass
 	//////////////////////////////////////////////////////////////////////////
@@ -56,6 +67,7 @@ namespace bento
 		, m_updateMiscShader()
 		, m_updateSmthShader()
 		, m_foamParticleUpdateShader()
+		, m_foamShader()
 		, m_screenQuadGeom()
 		, m_renderTargetByNodeMap()
 		, m_switch(false)
@@ -378,6 +390,36 @@ namespace bento
 			glUseProgram(GL_NONE);
 
 			_foamParticleGeom.Switch(!_foamParticleGeom.Switch());
+		}
+
+		// Render foam particles to map
+		{
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.WaterFoamData());
+			static GLenum foamDrawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+			_renderTarget.SetDrawBuffers(foamDrawBuffers, sizeof(foamDrawBuffers) / sizeof(foamDrawBuffers[0]));
+
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			m_foamShader.BindPerPass();
+
+			GLuint vertexArray = _foamParticleGeom.Switch() ? _foamParticleGeom.VertexArrayA() : _foamParticleGeom.VertexArrayB();
+			GL_CHECK(glBindVertexArray(vertexArray));
+
+			m_foamShader.BindPerPass();
+			m_foamShader.VertexShader().SetTexture("s_rockData", &_geom.RockDataRead());
+			m_foamShader.VertexShader().SetTexture("s_waterData", &_geom.WaterDataRead());
+
+			glEnable(GL_BLEND);
+			glBlendEquation(GL_FUNC_ADD);
+			glBlendFunc(GL_ONE, GL_ONE);
+			glPointSize(0.5f);
+
+			GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
+
+			glDisable(GL_BLEND);
+
+			glBindVertexArray(GL_NONE);
 		}
 
 		/*

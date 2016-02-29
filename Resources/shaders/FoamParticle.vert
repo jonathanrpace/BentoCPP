@@ -7,9 +7,7 @@ layout(location = 2) in vec4 in_properties;
 layout(location = 3) in vec3 in_normal;
 
 // Uniforms
-uniform mat4 u_mvpMatrix;
 uniform float u_terrainSize = 1.5;
-uniform vec3 u_lightDir = vec3(0.0,1.0,0.0);
 
 uniform sampler2D s_waterData; 
 uniform sampler2D s_rockData; 
@@ -18,7 +16,6 @@ uniform sampler2D s_rockData;
 out gl_PerVertex 
 {
 	vec4 gl_Position;
-	float gl_PointSize;
 };
 
 out Varying
@@ -28,24 +25,11 @@ out Varying
 
 void main(void)
 {
-	float life = in_velocity.w;
-
-	vec4 position = in_position;
-	position.xz *= u_terrainSize;
-	position.xz -= u_terrainSize*0.5;
-	position.y += 0.002;
-	position.w = 1.0;
-
-	vec4 screenPos = u_mvpMatrix * position;
-
-	float pointSize = 4.0;
-	gl_PointSize = pointSize / (1.0f+screenPos.z);
+	vec4 screenPos = vec4(in_position.x, in_position.z, 1.0, 1.0);
+	screenPos.xy -= 0.5;
+	screenPos.xy *= 2.0;
 	gl_Position = screenPos;
 
-	vec3 normal = in_normal;//in_velocity.xyz;
-	//normal.y = 0.1;
-	//normal = normalize(normal);
-	float lightDot = clamp( dot(normal, u_lightDir), 0, 1 );
-
-	out_color = vec4(vec3(lightDot), life * mix( 0.5, 1.0, in_properties.w));
+	float life = in_velocity.w;
+	out_color = vec4(life * 0.2);
 } 

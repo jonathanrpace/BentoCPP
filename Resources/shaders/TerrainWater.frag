@@ -45,6 +45,7 @@ uniform sampler2D s_waterData;
 uniform sampler2D s_waterFluxData;
 uniform sampler2D s_mappingData;
 uniform sampler2D s_diffuseMap;
+uniform sampler2D s_foamData;
 uniform sampler2DRect s_output;
 uniform sampler2DRect s_positionBuffer;
 
@@ -165,7 +166,16 @@ void main(void)
 		outColor += skyReflect * vec3(pow(fresnel, 1.5f)) * 0.15f * waterAlpha;
 	}
 	
-	
+	////////////////////////////////////////////////////////////////
+	// Foam
+	////////////////////////////////////////////////////////////////
+	{
+		vec4 foamSample = texture2D( s_foamData, in_uv );
+
+		outColor = mix(outColor, vec3(1.0), foamSample.x*0.5);
+	}
+
+
 	//outColor = vec3(mappingDataC.w,0,0);
 	out_forwad = vec4( outColor, 0.0f );
 }

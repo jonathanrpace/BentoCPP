@@ -16,12 +16,11 @@ unsigned long bento::fileUtil::GetFileLength(std::ifstream& _file)
 	return (unsigned long)len;
 }
 
-int bento::fileUtil::LoadFile(std::string _filename, char** o_fileContentsHandle, unsigned long* o_len)
+int bento::fileUtil::LoadFile(const char* _filename, char** o_fileContentsHandle, unsigned long* o_len)
 {
 	std::ifstream file;
 
-	std::string resolvedFilename = bento::Config::ResourcePath() + _filename;
-	file.open(resolvedFilename.c_str(), std::ios::in); // opens as ASCII!
+	file.open(_filename, std::ios::in); // opens as ASCII!
 
 	if (!file) 
 		return -1;	// Error: Can't open file

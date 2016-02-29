@@ -78,6 +78,7 @@ namespace bento
 		SetTexture("s_waterData", &_geometry->WaterDataRead());
 		SetTexture("s_waterFluxData", &_geometry->WaterFluxDataRead());
 		SetTexture("s_mappingData", &_geometry->MappingDataRead());
+		SetTexture("s_foamData", &_geometry->WaterFoamData());
 		SetTexture("s_diffuseMap", &_material->SomeTexture);
 	}
 

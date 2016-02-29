@@ -64,7 +64,6 @@ void mainLoop(GLFWwindow* window)
 		renderer->AddRenderPass(bento::GPass::Create());
 		renderer->AddRenderPass(bento::TerrainGPass::Create());
 		renderer->AddRenderPass(bento::TerrainWaterPass::Create());
-		renderer->AddRenderPass(bento::TerrainFoamPass::Create());
 		renderer->AddRenderPass(bento::IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);
@@ -134,8 +133,10 @@ int main(int argc, char **argv)
 	while (glGetError() != GL_NONE) {}
 
 	bento::Config::Init("../../../../Resources/", "../../../../Defaults/");
+	//bento::DefaultsManager::Init("../../../../Defaults/");
 	mainLoop(window);
 	bento::Config::Shutdown();
+	//bento::DefaultsManager::Shutdown();
 
 	ImGui_ImplGlfwGL3_Shutdown();
 	glfwTerminate();

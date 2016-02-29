@@ -23,6 +23,7 @@ typedef glm::mat3 mat3;
 
 #include <bento/core/Logging.h>
 #include <bento/core/event.h>
+#include <bento/core/DefaultsManager.h>
 #include <bento/util/GLErrorUtil.h>
 
 #define DEG_TO_RAD 0.01745329251994329576923690768489f

@@ -16,14 +16,12 @@ namespace bento
 		: ShaderStageBase
 	{
 		TerrainFoamVert();
-		//void BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material, vec4 _phase);
 	};
 
 	struct TerrainFoamFrag
 		: ShaderStageBase
 	{
 		struct TerrainFoamFrag();
-		//void BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material, vec4 _phase);
 	};
 
 	struct TerrainFoamShader

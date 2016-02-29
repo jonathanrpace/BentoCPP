@@ -64,7 +64,8 @@ namespace bento
 
 		char* shaderSourcePtr;
 		unsigned long shaderSourceLength;
-		fileUtil::LoadFile(std::string(m_filename), &shaderSourcePtr, &shaderSourceLength);
+		std::string resolvedFilename = bento::Config::ResourcePath() + std::string(m_filename);
+		fileUtil::LoadFile(resolvedFilename.c_str(), &shaderSourcePtr, &shaderSourceLength);
 		TRACE("Compiling Shader : ");
 		TRACE(m_filename);
 		TRACE("\n");

@@ -29,6 +29,7 @@ namespace bento
 		TextureSquare& RockFluxDataB() { return m_rockFluxDataB; }
 		
 		TextureSquare& RockNormalData() { return m_rockNormalData; }
+		TextureSquare& WaterFoamData() { return m_waterFoamData; }
 		
 		TextureSquare& RockDataRead() { return *m_rockDataRead; }
 		TextureSquare& RockDataWrite() { return m_rockDataRead == &m_rockDataA ? m_rockDataB : m_rockDataA; }
@@ -138,6 +139,7 @@ namespace bento
 		TextureSquare m_waterFluxDataA;
 		TextureSquare m_waterFluxDataB;
 		TextureSquare m_waterNormalData;
+		TextureSquare m_waterFoamData;
 						
 		TextureSquare* m_waterDataRead;
 		TextureSquare* m_waterDataWrite;

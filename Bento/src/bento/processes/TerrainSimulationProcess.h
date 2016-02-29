@@ -45,11 +45,22 @@ namespace bento
 		virtual void OnPreLink() override;
 	};
 
+	struct FoamVert : ShaderStageBase
+	{
+		FoamVert();
+	};
+
+	struct FoamFrag : ShaderStageBase
+	{
+		struct FoamFrag();
+	};
+
 	struct UpdateTerrainFluxShader : ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader : ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct UpdateTerrainMiscShader : ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
 	struct UpdateTerrainSmthShader : ShaderBase<ScreenQuadVert, UpdateTerrainSmthFrag> {};
 	struct FoamParticleUpdateShader : ShaderBase<FoamParticleUpdateVert, NullFrag> {};
+	struct FoamShader : ShaderBase<FoamVert, FoamFrag> {};
 
 	DEFINE_NODE_3
 	(
@@ -86,6 +97,7 @@ namespace bento
 		UpdateTerrainMiscShader m_updateMiscShader;
 		UpdateTerrainSmthShader m_updateSmthShader;
 		FoamParticleUpdateShader m_foamParticleUpdateShader;
+		FoamShader m_foamShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		// Input
