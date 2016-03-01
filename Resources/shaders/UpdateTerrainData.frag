@@ -270,7 +270,7 @@ void main(void)
 
 		// Add some water near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
-		newWaterHeight += pow(mouseRatio, 0.9f) * u_mouseWaterVolumeStrength * mix(0.5f, 1.0f, mouseTextureScalar);
+		newWaterHeight += pow(mouseRatio, 1.1f) * u_mouseWaterVolumeStrength * mix(0.9f, 1.0f, mouseTextureScalar);
 
 		////////////////////////////////////////////////////////////////
 		// Wave noise

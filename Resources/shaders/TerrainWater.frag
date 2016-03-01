@@ -115,12 +115,15 @@ void main(void)
 	// Filter
 	////////////////////////////////////////////////////////////////
 	{
-		vec3 waterColor = diffuse(in_waterNormal.xyz, u_lightDir, 1.0f) * u_waterColor * (u_lightIntensity+u_ambientLightIntensity);
+		vec3 waterDiffuse = vec3( diffuse(in_waterNormal.xyz, u_lightDir, 1.5f) * u_lightIntensity );
+		waterDiffuse += u_ambientLightIntensity;
+		waterDiffuse *= u_waterColor;
+
 		//waterColor = pow(waterColor, vec3(0.75f));
-		waterColor *= waterAlpha;
+		//waterColor *= waterAlpha;
 		
 		// Filter color behind water. The deeper the water, the more filter applied.
-		outColor *= mix( vec3(1.0f), waterColor, waterAlpha );
+		outColor *= mix( vec3(1.0f), waterDiffuse, waterAlpha );
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -172,7 +175,11 @@ void main(void)
 	{
 		vec4 foamSample = texture2D( s_foamData, in_uv );
 
-		outColor = mix(outColor, vec3(1.0), foamSample.x*0.5);
+		vec3 foamDiffuse = vec3( diffuse(in_waterNormal.xyz, u_lightDir, 2.0f) * u_lightIntensity );
+		foamDiffuse += u_ambientLightIntensity;
+		foamDiffuse *= vec3(0.2);	// Albedo
+
+		outColor = mix(outColor, foamDiffuse, foamSample.w * 0.75);
 	}
 
 

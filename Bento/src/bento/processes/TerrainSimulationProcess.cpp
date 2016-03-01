@@ -412,14 +412,16 @@ namespace bento
 
 			glEnable(GL_BLEND);
 			glBlendEquation(GL_FUNC_ADD);
-			glBlendFunc(GL_ONE, GL_ONE);
-			glPointSize(0.5f);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glPointSize(0.25f);
 
 			GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
 
 			glDisable(GL_BLEND);
 
 			glBindVertexArray(GL_NONE);
+
+			_geom.WaterFoamData().GenerateMipMaps();
 		}
 
 		/*
