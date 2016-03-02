@@ -34,11 +34,6 @@ namespace bento
 		UpdateTerrainMiscFrag();
 	};
 
-	struct UpdateTerrainSmthFrag : ShaderStageBase
-	{
-		UpdateTerrainSmthFrag();
-	};
-
 	struct FoamParticleUpdateVert : ShaderStageBase
 	{
 		FoamParticleUpdateVert();
@@ -55,12 +50,17 @@ namespace bento
 		struct FoamFrag();
 	};
 
+	struct DiffuseHeightFrag : ShaderStageBase
+	{
+		DiffuseHeightFrag();
+	};
+
 	struct UpdateTerrainFluxShader : ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader : ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct UpdateTerrainMiscShader : ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
-	struct UpdateTerrainSmthShader : ShaderBase<ScreenQuadVert, UpdateTerrainSmthFrag> {};
 	struct FoamParticleUpdateShader : ShaderBase<FoamParticleUpdateVert, NullFrag> {};
 	struct FoamShader : ShaderBase<FoamVert, FoamFrag> {};
+	struct DiffuseHeightShader : ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
 
 	DEFINE_NODE_3
 	(
@@ -95,9 +95,9 @@ namespace bento
 		UpdateTerrainFluxShader m_updateFluxShader;
 		UpdateTerrainDataShader m_updateDataShader;
 		UpdateTerrainMiscShader m_updateMiscShader;
-		UpdateTerrainSmthShader m_updateSmthShader;
 		FoamParticleUpdateShader m_foamParticleUpdateShader;
 		FoamShader m_foamShader;
+		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		// Input

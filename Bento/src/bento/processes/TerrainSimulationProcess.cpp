@@ -28,8 +28,8 @@ namespace bento
 	}
 
 	//////////////////////////////////////////////////////////////////////////
-	UpdateTerrainSmthFrag::UpdateTerrainSmthFrag()
-		: ShaderStageBase("shaders/UpdateTerrainSmoothing.frag")
+	DiffuseHeightFrag::DiffuseHeightFrag()
+		: ShaderStageBase("shaders/DiffuseHeight.frag")
 	{
 	}
 
@@ -65,9 +65,9 @@ namespace bento
 		, m_updateFluxShader()
 		, m_updateDataShader()
 		, m_updateMiscShader()
-		, m_updateSmthShader()
 		, m_foamParticleUpdateShader()
 		, m_foamShader()
+		, m_diffuseHeightShader()
 		, m_screenQuadGeom()
 		, m_renderTargetByNodeMap()
 		, m_switch(false)
@@ -185,6 +185,34 @@ namespace bento
 		float phase = fmod((float)glfwGetTime() * (1.0f / 600.0f), 1.0f);
 
 		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
+
+
+
+		// Diffuse water height
+		{
+			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.WaterDataWrite());
+			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+			m_diffuseHeightShader.BindPerPass();
+			auto fragShader = m_diffuseHeightShader.FragmentShader();
+
+			fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
+			fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
+			fragShader.SetUniform("u_axis", ivec2(1, 0));
+			m_screenQuadGeom.Draw();
+			_geom.SwapWaterData();
+
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.WaterDataWrite());
+			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+			fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
+			fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
+			fragShader.SetUniform("u_axis", ivec2(0, 1));
+			m_screenQuadGeom.Draw();
+			_geom.SwapWaterData();
+		}
 
 		// Update Flux
 		{
@@ -424,41 +452,7 @@ namespace bento
 			_geom.WaterFoamData().GenerateMipMaps();
 		}
 
-		/*
-		// Diffuse height
-		{
-			if (&_geom.RockDataRead() == &_geom.RockDataA())
-			{
-				_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.RockDataB());
-				_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.RockDataA());
-			}
-			else
-			{
-				_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.RockDataA());
-				_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.RockDataB());
-			}
-
-			static GLenum drawBuffersA[] = { GL_COLOR_ATTACHMENT0 };
-			_renderTarget.SetDrawBuffers(drawBuffersA, sizeof(drawBuffersA) / sizeof(drawBuffersA[0]));
-
-			m_diffuseHeightShader.BindPerPass();
-			auto fragShader = m_diffuseHeightShader.FragmentShader();
-
-			fragShader.SetUniform("u_heatSmoothStrength", m_heatSmoothingStrength);
-			fragShader.SetTexture("s_heightData", &_geom.RockDataRead());
-			fragShader.SetUniform("u_axis", ivec2(1,0));
-			m_screenQuadGeom.Draw();
-			_geom.SwapRockData();
-
-			static GLenum drawBuffersB[] = { GL_COLOR_ATTACHMENT1 };
-			_renderTarget.SetDrawBuffers(drawBuffersB, sizeof(drawBuffersB) / sizeof(drawBuffersB[0]));
-
-			fragShader.SetTexture("s_heightData", &_geom.RockDataRead());
-			fragShader.SetUniform("u_axis", ivec2(0,1));
-			m_screenQuadGeom.Draw();
-			_geom.SwapRockData();
-		}
-		*/
+		
 		m_switch = !m_switch;
 	}
 
