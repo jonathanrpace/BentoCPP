@@ -175,7 +175,7 @@ void main(void)
 	{
 		vec4 foamSample = texture2D( s_foamData, in_uv );
 
-		vec3 foamDiffuse = vec3( diffuse(in_waterNormal.xyz, u_lightDir, 2.0f) * u_lightIntensity );
+		vec3 foamDiffuse = vec3( diffuse(in_waterNormal.xyz, u_lightDir, 4.0f) * u_lightIntensity );
 		foamDiffuse += u_ambientLightIntensity;
 		foamDiffuse *= vec3(0.2);	// Albedo
 
