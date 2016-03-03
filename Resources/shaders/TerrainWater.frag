@@ -183,6 +183,6 @@ void main(void)
 	}
 
 
-	//outColor = vec3(mappingDataC.w,0,0);
+	outColor += vec3(mappingDataC.w,0,0);
 	out_forwad = vec4( outColor, 0.0f );
 }

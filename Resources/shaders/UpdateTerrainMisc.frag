@@ -206,17 +206,17 @@ void main(void)
 		vec4 waterDataC = textureLod(s_waterData, in_uv, 1);
 		vec4 rockDataC = textureLod(s_rockData, in_uv, 1);
 
-		float height = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y + waterDataC.w;
+		float height = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y;// + waterDataC.w;
 
 		float heightDifferenceTotal = 0.0f;
 		float strength = 1.0f;
 		float totalStrength = 0.0f;
-		for ( int i = 2; i < 4; i++ )
+		for ( int i = 2; i < 5; i++ )
 		{
 			vec4 waterDataM = textureLod(s_waterData, in_uv, i);
 			vec4 rockDataM = textureLod(s_rockData, in_uv, i);
 
-			float heightM = rockDataM.x + rockDataM.y + rockDataM.w + waterDataM.x + waterDataM.y + waterDataM.w;
+			float heightM = rockDataM.x + rockDataM.y + rockDataM.w + waterDataM.x + waterDataM.y;// + waterDataM.w;
 
 			float diff = max(height - heightM, 0);
 

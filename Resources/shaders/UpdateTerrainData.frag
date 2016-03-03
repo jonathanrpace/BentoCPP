@@ -112,8 +112,9 @@ float waveNoise(vec2 uv, float waterHeight, float fluxChange)
 	float effectLimit = u_wave.y;
 	
 	float effectHeightRatio = min( waterHeight / effectLimit, 1.0 );
-	float effectFluxRatio = min( abs(fluxChange) / 0.001, 1.0 );
-	float effectRatio = mix( effectHeightRatio, effectFluxRatio, 0.75 );
+	float effectFluxRatio = min( abs(fluxChange) / effectLimit, 1.0 );
+	float effectRatio = smoothstep( 0.0, 1.0, effectFluxRatio );
+	//float effectRatio = mix( effectHeightRatio, effectFluxRatio, 1.75 );
 
 	float effectScalar = effectRatio * effectStrength;
 
