@@ -40,7 +40,7 @@ void main(void)
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
 
-	float spawnThreshold = mix(0.9, 0.9, in_properties.w);
+	float spawnThreshold = pow( in_properties.w, 2.0 );
 	vec4 mappingData = texture2D( s_mappingData, in_properties.xy );
 	float foamSpawnStrength = mappingData.w;
 

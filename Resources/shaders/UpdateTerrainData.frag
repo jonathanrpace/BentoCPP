@@ -81,6 +81,56 @@ layout( location = 1 ) out vec4 out_waterData;
 // Functions
 ////////////////////////////////////////////////////////////////
 
+float hash( vec2 p ) 
+{
+	float h = dot(p,vec2(127.1,311.7));	
+    return fract(sin(h)*43758.5453123);
+}
+
+float noise( in vec2 p ) 
+{
+    vec2 i = floor( p );
+    vec2 f = fract( p );	
+	vec2 u = f*f*(3.0-2.0*f);
+    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
+						hash( i + vec2(1.0,0.0) ), u.x),
+                mix( hash( i + vec2(0.0,1.0) ), 
+                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
+}
+
+float waveOctave(vec2 uv, float choppy)
+{
+    uv += noise(uv);        
+    vec2 wv = 1.0-abs(sin(uv));
+    vec2 swv = abs(cos(uv));    
+    wv = mix(wv,swv,wv);
+    return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
+}
+
+mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+float waveNoise(vec2 p) 
+{
+    float freq = u_wave0.y;
+    float amp = 1.0;
+    float choppy = u_wave.w;
+    
+    float d;
+	float h = 0.0;  
+
+    for(int i = 0; i < 8; i++) 
+	{        
+    	d = waveOctave((p+u_phase)*freq,choppy);
+    	d += waveOctave((p-u_phase)*freq,choppy);
+        h += d * amp;
+    	p *= octave_m; 
+		freq *= u_wave1.x; 
+		amp *= u_wave2.x;
+        choppy = mix(choppy,1.0,0.2);
+    }
+    return (h-0.5)*2.0;
+}
+
+/*
 float waveOctave( vec2 uv, vec4 params, float effectScalar )
 {
 	float strength = params.x;
@@ -111,10 +161,9 @@ float waveNoise(vec2 uv, float waterHeight, float fluxChange)
 	float effectStrength = u_wave.x;
 	float effectLimit = u_wave.y;
 	
-	float effectHeightRatio = min( waterHeight / effectLimit, 1.0 );
-	float effectFluxRatio = min( abs(fluxChange) / effectLimit, 1.0 );
+	float effectFluxRatio = pow( min( abs(fluxChange) / effectLimit, 1.0 ), 0.8  );
 	float effectRatio = smoothstep( 0.0, 1.0, effectFluxRatio );
-	//float effectRatio = mix( effectHeightRatio, effectFluxRatio, 1.75 );
+	effectRatio = mix( 0.2, 1.0, effectRatio );
 
 	float effectScalar = effectRatio * effectStrength;
 
@@ -130,6 +179,7 @@ float waveNoise(vec2 uv, float waterHeight, float fluxChange)
 	
 	return outValue * effectScalar;
 }
+*/
 
 vec2 GetMousePos()
 {
@@ -277,7 +327,12 @@ void main(void)
 		// Wave noise
 		////////////////////////////////////////////////////////////////
 
-		waveNoiseHeight = waveNoise(in_uv, newWaterHeight, fluxChange);
+		waveNoiseHeight = waveNoise(in_uv);
+		waveNoiseHeight *= u_wave.x;
+		float effectFluxRatio = pow( min( abs(fluxChange) / u_wave.y, 1.0 ), 0.8  );
+		float effectRatio = smoothstep( 0.0, 1.0, effectFluxRatio );
+		effectRatio = mix( 0.2, 1.0, effectRatio );
+		waveNoiseHeight *= effectRatio;
 	}
 
 	////////////////////////////////////////////////////////////////

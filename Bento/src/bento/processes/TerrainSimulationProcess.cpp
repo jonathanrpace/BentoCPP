@@ -182,7 +182,7 @@ namespace bento
 		float waterScalar = m_scene->GetInputManager()->IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f;
 		float waterVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseMoltenVolumeStrength * waterScalar;
 
-		float phase = fmod((float)glfwGetTime() * (1.0f / 600.0f), 1.0f);
+		
 
 		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 
@@ -300,6 +300,9 @@ namespace bento
 			fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
 
 			fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
+			float phase = fmod((float)glfwGetTime()*_material.waveStrength0 / 60.0f, 1.0f);
+			phase *= 3.142f * 2.0f;
+
 			fragShader.SetUniform("u_phase", phase);
 			fragShader.SetUniform("u_wave0", vec4(_material.waveStrength0, _material.waveScale0, _material.waveAngle0, (float)_material.waveSpeed0));
 			fragShader.SetUniform("u_wave1", vec4(_material.waveStrength1, _material.waveScale1, _material.waveAngle1, (float)_material.waveSpeed1));

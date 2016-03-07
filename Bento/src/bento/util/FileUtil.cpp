@@ -55,3 +55,12 @@ int bento::fileUtil::LoadFile(const char* _filename, char** o_fileContentsHandle
 
 	return 0; // No Error
 }
+
+int bento::fileUtil::SaveFile(const char* _filename, const char* _fileContents, unsigned long _size)
+{
+	std::ofstream file(_filename, std::ios::out);
+	file.write(_fileContents, _size);
+	file.close();
+
+	return 0;
+}

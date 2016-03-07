@@ -203,15 +203,15 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	{
 		// Generate a map where the tips of waves are white (generate foam)
-		vec4 waterDataC = textureLod(s_waterData, in_uv, 1);
-		vec4 rockDataC = textureLod(s_rockData, in_uv, 1);
+		vec4 waterDataC = textureLod(s_waterData, in_uv, 0);
+		vec4 rockDataC = textureLod(s_rockData, in_uv, 0);
 
 		float height = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y;// + waterDataC.w;
 
 		float heightDifferenceTotal = 0.0f;
 		float strength = 1.0f;
 		float totalStrength = 0.0f;
-		for ( int i = 2; i < 5; i++ )
+		for ( int i = 1; i < 8; i++ )
 		{
 			vec4 waterDataM = textureLod(s_waterData, in_uv, i);
 			vec4 rockDataM = textureLod(s_rockData, in_uv, i);
@@ -219,18 +219,18 @@ void main(void)
 			float heightM = rockDataM.x + rockDataM.y + rockDataM.w + waterDataM.x + waterDataM.y;// + waterDataM.w;
 
 			float diff = max(height - heightM, 0);
-
+			//height = heightM;
 			heightDifferenceTotal += diff * strength;
 
 			totalStrength += strength;
-			strength *= 0.75;
+			strength *= 0.25;
 		}
 
 		// Normalise
 		heightDifferenceTotal /= totalStrength;
 
 		// Scale to an appropriate range
-		heightDifferenceTotal /= 0.0006;
+		heightDifferenceTotal /= 0.0005;
 
 		// Reduce when no water.
 		heightDifferenceTotal *= min(waterDataC.y / 0.01, 1);

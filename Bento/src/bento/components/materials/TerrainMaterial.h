@@ -24,43 +24,43 @@ namespace bento
 		virtual void AddUIElements() override;
 
 		TextureSquare SomeTexture;
-		float MapHeightOffset = 0.005f;
+		float MapHeightOffset;
 
 		// Water
 		vec3 waterColor;
 		vec3 waterTranslucentColor;
-		float waterSpecularPower = 80.0f;
-		float waterIndexOfRefraction = 0.33f;
+		float waterSpecularPower;
+		float waterIndexOfRefraction;
 
-		float waveStrength0 = 1.0f;
-		float waveStrength1 = 0.5f;
-		float waveStrength2 = 0.25f;
-		float waveStrength3 = 0.125f;
+		float waveStrength0;
+		float waveStrength1;
+		float waveStrength2;
+		float waveStrength3;
 
-		float waveAngle0 = 0.0f;
-		float waveAngle1 = 4.0f;
-		float waveAngle2 = 1.0f;
-		float waveAngle3 = 2.0f;
+		float waveAngle0;
+		float waveAngle1;
+		float waveAngle2;
+		float waveAngle3;
 
-		int waveSpeed0 = 8;
-		int waveSpeed1 = 8;
-		int waveSpeed2 = 8;
-		int waveSpeed3 = 8;
+		int waveSpeed0;
+		int waveSpeed1;
+		int waveSpeed2;
+		int waveSpeed3;
 
-		float waveScale0 = 1.0f;
-		float waveScale1 = 2.0f;
-		float waveScale2 = 4.0f;
-		float waveScale3 = 8.0f;
+		float waveScale0;
+		float waveScale1;
+		float waveScale2;
+		float waveScale3;
 
-		float choppyPower = 0.0f;
-		float choppyLimit = 1.0f;
-		float waveEffectLimit = 0.025f;
-		float waveEffectStrength = 0.013f;
+		float choppyPower;
+		float choppyLimit;
+		float waveEffectLimit;
+		float waveEffectStrength;
 
 		// Lighting
 		float lightAzimuth;
 		float lightAltitude;
-		float directLightIntensity = 1.0f;
-		float ambientLightIntensity = 1.2f;
+		float directLightIntensity;
+		float ambientLightIntensity;
 	};
 }
