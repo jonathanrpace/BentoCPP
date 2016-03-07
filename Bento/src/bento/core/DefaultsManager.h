@@ -13,25 +13,35 @@ namespace bento
 	{
 	public:
 		static void Init(std::string _filepath);
+		static void Flush();
 		static void Shutdown();
 
 		static void SetNamespace(std::string _namespace);
 
 		template <typename T>
-		static T GetValue(const char* _key, T _default)
+		static void GetValue(const char* _key, T _default, T* const o_value)
 		{
-			return s_data[_key].get<T>();
+			json::object ns = (*s_data)[(*s_namespace).c_str()].get<json::object>();
+			bool isNull = ns[_key].is_null();
+			if (isNull)
+			{
+				(*o_value) = _default;
+				return;
+			}
+			T value = ns[_key].get<T>();
+			(*o_value) = value;
 		}
 
 		template <typename T>
 		static void SetValue(const char* _key, T _value)
 		{
-			s_data[_key] = _value;
+			(*s_data)[(*s_namespace).c_str()][_key] = _value;
 		}
 
 	private:
-		static std::string s_namespace;
-		static json s_data;
+		static std::string* s_namespace;
+		static std::string* s_filepath;
+		static json* s_data;
 	};
 
 }

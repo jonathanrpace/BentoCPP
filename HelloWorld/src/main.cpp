@@ -133,10 +133,15 @@ int main(int argc, char **argv)
 	while (glGetError() != GL_NONE) {}
 
 	bento::Config::Init("../../../../Resources/", "../../../../Defaults/");
-	//bento::DefaultsManager::Init("../../../../Defaults/");
+	bento::DefaultsManager::Init("../../../../Defaults/defaults.json");
+
+	//bento::DefaultsManager::SetValue("someFloat", 0.5f);
+
 	mainLoop(window);
+
 	bento::Config::Shutdown();
-	//bento::DefaultsManager::Shutdown();
+	bento::DefaultsManager::Flush();
+	bento::DefaultsManager::Shutdown();
 
 	ImGui_ImplGlfwGL3_Shutdown();
 	glfwTerminate();
