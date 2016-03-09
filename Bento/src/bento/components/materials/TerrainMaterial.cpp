@@ -28,10 +28,10 @@ namespace bento
 		DefaultsManager::GetValue("waveAngle1", 4.0f, &waveAngle1);
 		DefaultsManager::GetValue("waveAngle2", 1.0f, &waveAngle2);
 		DefaultsManager::GetValue("waveAngle3", 2.0f, &waveAngle3);
-		DefaultsManager::GetValue("waveSpeed0", 8, &waveSpeed0);
-		DefaultsManager::GetValue("waveSpeed1", 8, &waveSpeed1);
-		DefaultsManager::GetValue("waveSpeed2", 8, &waveSpeed2);
-		DefaultsManager::GetValue("waveSpeed3", 8, &waveSpeed3);
+		//DefaultsManager::GetValue("waveSpeed0", 8, &waveSpeed0);
+		//DefaultsManager::GetValue("waveSpeed1", 8, &waveSpeed1);
+		//DefaultsManager::GetValue("waveSpeed2", 8, &waveSpeed2);
+		//DefaultsManager::GetValue("waveSpeed3", 8, &waveSpeed3);
 		DefaultsManager::GetValue("waveScale0", 1.0f, &waveScale0);
 		DefaultsManager::GetValue("waveScale1", 2.0f, &waveScale1);
 		DefaultsManager::GetValue("waveScale2", 4.0f, &waveScale2);
