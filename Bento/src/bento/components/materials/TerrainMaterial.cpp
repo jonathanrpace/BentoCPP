@@ -16,6 +16,11 @@ namespace bento
 	{
 		SomeTexture.TexImage2D("textures/DataMap.png");
 
+		ResetDefaults();
+	}
+
+	void TerrainMaterial::ResetDefaults()
+	{
 		DefaultsManager::SetNamespace("TerrainMaterial");
 		DefaultsManager::GetValue("MapHeightOffset", 0.005f, &MapHeightOffset);
 		DefaultsManager::GetValue("waterSpecularPower", 80.0f, &waterSpecularPower);
@@ -28,10 +33,10 @@ namespace bento
 		DefaultsManager::GetValue("waveAngle1", 4.0f, &waveAngle1);
 		DefaultsManager::GetValue("waveAngle2", 1.0f, &waveAngle2);
 		DefaultsManager::GetValue("waveAngle3", 2.0f, &waveAngle3);
-		//DefaultsManager::GetValue("waveSpeed0", 8, &waveSpeed0);
-		//DefaultsManager::GetValue("waveSpeed1", 8, &waveSpeed1);
-		//DefaultsManager::GetValue("waveSpeed2", 8, &waveSpeed2);
-		//DefaultsManager::GetValue("waveSpeed3", 8, &waveSpeed3);
+		DefaultsManager::GetValue("waveSpeed0", 8, &waveSpeed0);
+		DefaultsManager::GetValue("waveSpeed1", 8, &waveSpeed1);
+		DefaultsManager::GetValue("waveSpeed2", 8, &waveSpeed2);
+		DefaultsManager::GetValue("waveSpeed3", 8, &waveSpeed3);
 		DefaultsManager::GetValue("waveScale0", 1.0f, &waveScale0);
 		DefaultsManager::GetValue("waveScale1", 2.0f, &waveScale1);
 		DefaultsManager::GetValue("waveScale2", 4.0f, &waveScale2);
@@ -91,6 +96,16 @@ namespace bento
 		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 2.0f);
 		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 2.0f);
 		ImGui::Spacing();
+
+		if (ImGui::Button("Save"))
+		{
+			DefaultsManager::Flush();
+		}
+
+		if (ImGui::Button("Revert"))
+		{
+			ResetDefaults();
+		}
 	}
 
 }

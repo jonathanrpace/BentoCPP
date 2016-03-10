@@ -11,40 +11,68 @@ namespace bento
 {
 	class DefaultsManager
 	{
+
+	////////////////////////////////////////////////////////////////////
+	// STATIC
+	////////////////////////////////////////////////////////////////////
 	public:
 		static void Init(std::string _filepath);
-		static void Flush();
 		static void Shutdown();
 
-		static void SetNamespace(std::string _namespace);
-
-		static void GetValue(const char* _key, float _default, float* o_value);
-		/*
 		template <typename T>
-		static void GetValue(const char* _key, T _default, T* const o_value)
+		static void GetValue(const char* _key, T _default, T* o_value)
 		{
-			json::object ns = (*s_data)[(*s_namespace).c_str()].get<json::object>();
-			bool isNull = ns[_key].is_null();
-			if (isNull)
-			{
-				(*o_value) = _default;
-				return;
-			}
-			T value = ns[_key].get<T>();
-			(*o_value) = value;
+			return s_impl->_GetValue(_key, _default, o_value);
 		}
-		*/
+
 		template <typename T>
 		static void SetValue(const char* _key, T _value)
 		{
-			(*s_data)[(*s_namespace).c_str()][_key] = _value;
+			return s_impl->_SetValue(_key, _value);
 		}
 
+		static void SetNamespace(std::string _namespace);
+		static void Flush();
+
 	private:
-		static std::string* s_namespaceName;
-		static std::string* s_filepath;
-		static json* s_data;
-		static json s_namespace;
+		static DefaultsManager* s_impl;
+
+	////////////////////////////////////////////////////////////////////
+	// Private implementation
+	////////////////////////////////////////////////////////////////////
+	public:
+		DefaultsManager(std::string _filepath);
+		~DefaultsManager();
+
+	private:
+		void _Flush();
+		void _SetNamespace(std::string _namespace);
+
+		template <typename T>
+		void _GetValue(const char* _key, T _default, T* const o_value)
+		{
+			bool isNull = m_namespace[_key].is_null();
+			if (isNull)
+			{
+				m_namespace[_key] = _default;
+				(*o_value) = _default;
+				return;
+			}
+			T value = m_namespace[_key].get<T>();
+			(*o_value) = value;
+		}
+
+		template <typename T>
+		void _SetValue(const char* _key, T _value)
+		{
+			(*m_data)[(*m_namespaceName).c_str()][_key] = _value;
+		}
+
+	
+		std::string m_namespaceName;
+		std::string m_filepath;
+		json m_data;
+		json m_namespace;
 	};
 
 }

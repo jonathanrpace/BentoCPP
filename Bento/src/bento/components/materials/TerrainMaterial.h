@@ -21,6 +21,7 @@ namespace bento
 	public:
 		TerrainMaterial(std::string _name = "TerrainMaterial");
 
+		void ResetDefaults();
 		virtual void AddUIElements() override;
 
 		TextureSquare SomeTexture;

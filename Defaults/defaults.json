@@ -1,1 +1,30 @@
-{"TerrainMaterial":{"MapHeightOffset":0.00499999988824129,"ambientLightIntensity":1.20000004768372,"choppyLimit":1.0,"choppyPower":4.0,"directLightIntensity":1.0,"waterIndexOfRefraction":0.330000013113022,"waterSpecularPower":80.0,"waveAngle0":0.0,"waveAngle1":4.0,"waveAngle2":1.0,"waveAngle3":2.0,"waveEffectLimit":0.00100000004749745,"waveEffectStrength":0.0130000002682209,"waveScale0":1.0,"waveScale1":2.0,"waveScale2":4.0,"waveScale3":8.0,"waveStrength0":1.0,"waveStrength1":1.89999997615814,"waveStrength2":0.219999998807907,"waveStrength3":1.0},"global":{}}
+{
+    "TerrainMaterial": {
+        "MapHeightOffset": 0.00499999988824129,
+        "ambientLightIntensity": 1.20000004768372,
+        "choppyLimit": 1.0,
+        "choppyPower": 4.0,
+        "directLightIntensity": 1.0,
+        "waterIndexOfRefraction": 0.330000013113022,
+        "waterSpecularPower": 80.0,
+        "waveAngle0": 0.0,
+        "waveAngle1": 4.0,
+        "waveAngle2": 1.0,
+        "waveAngle3": 2.0,
+        "waveEffectLimit": 0.00100000004749745,
+        "waveEffectStrength": 0.0130000002682209,
+        "waveScale0": 1.0,
+        "waveScale1": 2.0,
+        "waveScale2": 4.0,
+        "waveScale3": 8.0,
+        "waveSpeed0": 8,
+        "waveSpeed1": 8,
+        "waveSpeed2": 8,
+        "waveSpeed3": 8,
+        "waveStrength0": 1.0,
+        "waveStrength1": 1.89999997615814,
+        "waveStrength2": 0.219999998807907,
+        "waveStrength3": 1.0
+    },
+    "global": {}
+}

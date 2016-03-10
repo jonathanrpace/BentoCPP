@@ -1,85 +1,97 @@
 #include "DefaultsManager.h"
 
+#include <assert.h>
 #include <bento/util/FileUtil.h>
 
 namespace bento
 {
-	std::string* DefaultsManager::s_namespaceName;
-	std::string* DefaultsManager::s_filepath;
-	json* DefaultsManager::s_data;
-	json DefaultsManager::s_namespace;
+	////////////////////////////////////////////////////////////////////
+	// STATIC
+	////////////////////////////////////////////////////////////////////
 
-	void bento::DefaultsManager::Init(std::string _filepath)
+	DefaultsManager* DefaultsManager::s_impl(nullptr);
+
+	void DefaultsManager::Init(std::string _filepath)
 	{
-		s_filepath = new std::string(_filepath);
-		s_namespace = json::object();
-		s_namespaceName = new std::string("global");
-		
-
-		SetNamespace("global");
-
-		char* defaultsFileContents;
-		unsigned long defaultsFileContentsLength;
-
-		int error = fileUtil::LoadFile((*s_filepath).c_str(), &defaultsFileContents, &defaultsFileContentsLength);
-
-		// File doesn't exist
-		if (error == -1)
-		{
-			s_data = json::object();
-			return;
-		}
-
-		auto tmp = json::parse(defaultsFileContents);
-		s_data = (json*)tmp;
-		delete[] defaultsFileContents;
-	}
-
-	void DefaultsManager::Flush()
-	{
-		SetNamespace("global");
-		std::string str = s_data.dump(4);
-		fileUtil::SaveFile((*s_filepath).c_str(), str.c_str(), str.size());
+		assert(s_impl == nullptr);
+		s_impl = new DefaultsManager(_filepath);
 	}
 
 	void DefaultsManager::Shutdown()
 	{
-		s_data.clear();
-		s_namespace.clear();
-		delete s_filepath;
-		delete s_namespaceName;
+		if (s_impl != nullptr) {
+			delete s_impl;
+		}
 	}
 
 	void DefaultsManager::SetNamespace(std::string _namespace)
 	{
-		// Before switching namespace, ensure the old one
-		// gets stashed
-		if (s_namespace.is_null() == false)
-		{
-			s_data[(*s_namespaceName).c_str()] = s_namespace;
-		}
-
-		delete s_namespaceName;
-		s_namespaceName = new std::string(_namespace);
-
-		s_namespace = s_data[(*s_namespaceName).c_str()];
-		if (s_namespace.is_null())
-		{
-			s_data[(*s_namespaceName).c_str()] = json::object();
-		}
+		return s_impl->_SetNamespace(_namespace);
 	}
 
-	void DefaultsManager::GetValue(const char* _key, float _default, float* o_value)
+	void DefaultsManager::Flush()
 	{
-		bool isNull = s_namespace[_key].is_null();
-		if (isNull)
+		return s_impl->_Flush();
+	}
+
+	////////////////////////////////////////////////////////////////////
+	// Private implementation
+	////////////////////////////////////////////////////////////////////
+
+	DefaultsManager::DefaultsManager(std::string _filepath)
+		: m_filepath()
+		, m_namespaceName()
+		, m_data()
+		, m_namespace()
+	{
+		m_filepath = _filepath;
+
+		char* defaultsFileContents;
+		unsigned long defaultsFileContentsLength;
+
+		int error = fileUtil::LoadFile(m_filepath.c_str(), &defaultsFileContents, &defaultsFileContentsLength);
+
+		// File doesn't exist
+		if (error == -1)
 		{
-			s_namespace[_key] = _default;
-			(*o_value) = _default;
+			m_data.clear();
+			_SetNamespace("global");
 			return;
 		}
-		float value = s_namespace[_key].get<float>();
-		(*o_value) = value;
+
+		m_data = json::parse(defaultsFileContents);
+		delete[] defaultsFileContents;
+	}
+
+	DefaultsManager::~DefaultsManager()
+	{
+		m_data.clear();
+		m_namespace.clear();
+	}
+
+	void DefaultsManager::_Flush()
+	{
+		_SetNamespace("global");
+		std::string str = m_data.dump(4);
+		fileUtil::SaveFile(m_filepath.c_str(), str.c_str(), str.size());
+	}
+
+	void DefaultsManager::_SetNamespace(std::string _namespace)
+	{
+		// Before switching namespace, ensure the old one
+		// gets stashed
+		if (m_namespace.is_null() == false)
+		{
+			m_data[m_namespaceName.c_str()] = m_namespace;
+		}
+
+		m_namespaceName = std::string(_namespace);
+
+		m_namespace = m_data[m_namespaceName.c_str()];
+		if (m_namespace.is_null())
+		{
+			m_namespace = json::object();
+		}
 	}
 
 }
