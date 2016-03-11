@@ -10,18 +10,20 @@
 #include <bento/core/SharedObject.h>
 #include <bento/components/textures/TextureSquare.h>
 #include <bento/core/IInspectable.h>
-#include <bento/core/InspectableBase.h>
+#include <bento/core/SerializableBase.h>
 
 namespace bento
 {
 	class TerrainMaterial
 		: public Component
 		, public SharedObject<TerrainMaterial>
-		, public InspectableBase
+		, public SerializableBase
 		, public IInspectable
 	{
 	public:
 		TerrainMaterial(std::string _name = "TerrainMaterial");
+
+		virtual void AddUIElements() override;
 
 		TextureSquare someTexture;
 		float mapHeightOffset;

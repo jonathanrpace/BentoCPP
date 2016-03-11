@@ -135,8 +135,6 @@ int main(int argc, char **argv)
 	bento::Config::Init("../../../../Resources/", "../../../../Defaults/");
 	bento::DefaultsManager::Init("../../../../Defaults/defaults.json");
 
-	//bento::DefaultsManager::SetValue("someFloat", 0.5f);
-
 	mainLoop(window);
 
 	bento::Config::Shutdown();

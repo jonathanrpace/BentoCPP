@@ -65,7 +65,7 @@ namespace bento
 		template <typename T>
 		void _SetValue(const char* _key, T _value)
 		{
-			(*m_data)[(*m_namespaceName).c_str()][_key] = _value;
+			m_namespace[_key] = _value;
 		}
 
 	
