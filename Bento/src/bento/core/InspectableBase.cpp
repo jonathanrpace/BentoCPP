@@ -1,11 +1,13 @@
 #include "InspectableBase.h"
 
 #include <imgui.h>
+#include <bento/core/DefaultsManager.h>
 
 namespace bento
 {
-	InspectableBase::InspectableBase()
-		: m_inspectableNames()
+	InspectableBase::InspectableBase(char * const _namespace)
+		: m_namespace(_namespace)
+		, m_inspectableNames()
 		, m_inspectableTypes()
 		, m_sliderParams()
 		, m_numInspectables(0)
@@ -47,7 +49,35 @@ namespace bento
 				ImGui::SliderFloat(name, params.ptr, params.min, params.max);
 				break;
 			}
+		}
 
+		if (ImGui::Button("Save"))
+		{
+			DefaultsManager::Flush();
+		}
+
+		if (ImGui::Button("Revert"))
+		{
+			ResetInspectableMembersToDefaults();
+		}
+	}
+
+	void InspectableBase::ResetInspectableMembersToDefaults()
+	{
+		DefaultsManager::SetNamespace(m_namespace);
+
+		for (int i = 0; i < m_numInspectables; i++)
+		{
+			char const * name = m_inspectableNames[i];
+			InspectableType type = m_inspectableTypes[i];
+
+			switch (type)
+			{
+				case eInspectableType_slider:
+					SliderParams params = m_sliderParams[i];
+					DefaultsManager::GetValue(name, params.default, params.ptr);
+					break;
+			}
 		}
 	}
 

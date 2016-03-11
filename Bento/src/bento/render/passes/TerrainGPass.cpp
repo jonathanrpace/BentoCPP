@@ -23,7 +23,7 @@ namespace bento
 		//SetUniform("u_modelMatrix", RenderParams::ModelMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 		//SetUniform("u_normalModelViewMatrix", RenderParams::NormalModelViewMatrix());
-		SetUniform("u_mapHeightOffset", _material->MapHeightOffset);
+		SetUniform("u_mapHeightOffset", _material->mapHeightOffset);
 
 		//SetTexture("s_diffuseMap", &(_material->SomeTexture));
 
@@ -69,7 +69,7 @@ namespace bento
 		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
 
 		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
-		SetTexture("s_diffuseMap", &(_material->SomeTexture));
+		SetTexture("s_diffuseMap", &(_material->someTexture));
 		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 
 		

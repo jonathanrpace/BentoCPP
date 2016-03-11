@@ -279,7 +279,7 @@ namespace bento
 			fragShader.SetTexture("s_waterNormalData", &_geom.WaterNormalData());
 
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
-			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
+			fragShader.SetTexture("s_diffuseMap", &_material.someTexture);
 			
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
@@ -359,7 +359,7 @@ namespace bento
 			fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
 			fragShader.SetTexture("s_waterFluxData", &_geom.WaterFluxDataRead());
 			fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
-			fragShader.SetTexture("s_diffuseMap", &_material.SomeTexture);
+			fragShader.SetTexture("s_diffuseMap", &_material.someTexture);
 			
 			fragShader.SetUniform("u_numHeightMips", _geom.RockDataRead().GetNumMipMaps());
 
@@ -374,7 +374,7 @@ namespace bento
 			fragShader.SetUniform("u_cycleSpeed", m_textureCycleSpeed);
 			fragShader.SetUniform("u_cellSize", cellSize);
 
-			fragShader.SetUniform("u_mapHeightOffset", _material.MapHeightOffset);
+			fragShader.SetUniform("u_mapHeightOffset", _material.mapHeightOffset);
 
 			fragShader.SetUniform("u_mousePos", normalisedMousePos);
 			fragShader.SetUniform("u_mouseVolumeStrength", moltenVolumeAmount);

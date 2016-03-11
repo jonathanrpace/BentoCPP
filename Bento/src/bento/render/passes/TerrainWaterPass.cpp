@@ -40,7 +40,7 @@ namespace bento
 		SetTexture("s_waterFluxData", &(_geometry->WaterFluxDataRead()));
 		SetTexture("s_waterNormalData", &(_geometry->WaterNormalData()));
 		SetTexture("s_rockNormalData", &(_geometry->RockNormalData()));
-		SetTexture("s_diffuseMap", &(_material->SomeTexture));
+		SetTexture("s_diffuseMap", &(_material->someTexture));
 
 		_geometry->SwapRockData();
 		_geometry->SwapRockFluxData();
@@ -79,7 +79,7 @@ namespace bento
 		SetTexture("s_waterFluxData", &_geometry->WaterFluxDataRead());
 		SetTexture("s_mappingData", &_geometry->MappingDataRead());
 		SetTexture("s_foamData", &_geometry->WaterFoamData());
-		SetTexture("s_diffuseMap", &_material->SomeTexture);
+		SetTexture("s_diffuseMap", &_material->someTexture);
 	}
 
 	////////////////////////////////////////////
