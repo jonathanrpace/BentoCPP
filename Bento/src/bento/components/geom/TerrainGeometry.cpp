@@ -28,7 +28,6 @@ namespace bento
 		, m_waterFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_waterFoamData(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterDataRead(&m_waterDataA)
 		, m_waterDataWrite(&m_waterDataB)
 		, m_waterFluxDataRead(&m_waterFluxDataA)
@@ -39,6 +38,8 @@ namespace bento
 		, m_mappingDataRead(&m_mappingDataA)
 		, m_mappingDataWrite(&m_mappingDataB)
 		, m_terrainMousePos()
+
+		, m_waterFoamData(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);

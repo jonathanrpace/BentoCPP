@@ -155,6 +155,7 @@
     <ClInclude Include="src\bento\core\ITextureSquare.h" />
     <ClInclude Include="src\bento\core\NodeGroupProcess.h" />
     <ClInclude Include="src\bento\core\Reflection.h" />
+    <ClInclude Include="src\bento\core\SerializableBase.h" />
     <ClInclude Include="src\bento\render\DefaultRenderer.h" />
     <ClInclude Include="src\bento\render\RenderParams.h" />
     <ClInclude Include="src\bento\core\RenderPhase.h" />
@@ -210,6 +211,7 @@
   <ItemGroup>
     <ClCompile Include="src\bento\core\DefaultsManager.cpp" />
     <ClCompile Include="src\bento\components\geom\FoamParticleGeom.cpp" />
+    <ClCompile Include="src\bento\core\SerializableBase.cpp" />
     <ClCompile Include="src\bento\render\DefaultRenderer.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainFoamPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainWaterPass.cpp" />

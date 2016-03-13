@@ -53,12 +53,15 @@ uniform float u_erosionFluxMax;
 uniform float u_depositionSpeed;
 
 // Waves
-uniform float u_phase;
-uniform vec4 u_wave;
-uniform vec4 u_wave0;
-uniform vec4 u_wave1;
-uniform vec4 u_wave2;
-uniform vec4 u_wave3;
+uniform float u_wavePhase;
+uniform float u_waveFrequency;
+uniform float u_waveFrequencyLacunarity;
+uniform float u_waveAmplitude;
+uniform float u_waveAmplitudeLacunarity;
+uniform float u_waveChoppy;
+uniform float u_waveChoppyEase;
+uniform int u_waveOctavesNum;
+uniform float u_waveDepthMax;
 
 
 // Buffers
@@ -81,23 +84,28 @@ layout( location = 1 ) out vec4 out_waterData;
 // Functions
 ////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////
+//
 float hash( vec2 p ) 
 {
 	float h = dot(p,vec2(127.1,311.7));	
     return fract(sin(h)*43758.5453123);
 }
 
+////////////////////////////////////////////////////////////////
+//
 float noise( in vec2 p ) 
 {
     vec2 i = floor( p );
     vec2 f = fract( p );	
 	vec2 u = f*f*(3.0-2.0*f);
-    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
-						hash( i + vec2(1.0,0.0) ), u.x),
-                mix( hash( i + vec2(0.0,1.0) ), 
-                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
+	float ret = mix( mix( hash( i + vec2(0.0,0.0) ), hash( i + vec2(1.0,0.0) ), u.x),
+                     mix( hash( i + vec2(0.0,1.0) ), hash( i + vec2(1.0,1.0) ), u.x), u.y);
+	return -1.0+2.0*ret;
 }
 
+////////////////////////////////////////////////////////////////
+//
 float waveOctave(vec2 uv, float choppy)
 {
     uv += noise(uv);        
@@ -107,92 +115,50 @@ float waveOctave(vec2 uv, float choppy)
     return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
 }
 
+////////////////////////////////////////////////////////////////
+//
 mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
 float waveNoise(vec2 p) 
 {
-    float freq = u_wave0.y;
+    float freq = u_waveFrequency;
     float amp = 1.0;
-    float choppy = u_wave.w;
+    float choppy = u_waveChoppy;
     
     float d;
-	float h = 0.0;  
+	float h = 0.0; 
 
-    for(int i = 0; i < 8; i++) 
+    for(int i = 0; i < u_waveOctavesNum; i++) 
 	{        
-    	d = waveOctave((p+u_phase)*freq,choppy);
-    	d += waveOctave((p-u_phase)*freq,choppy);
+    	d = waveOctave((p+u_wavePhase)*freq,choppy);
+    	d += waveOctave((p-u_wavePhase)*freq,choppy);
         h += d * amp;
     	p *= octave_m; 
-		freq *= u_wave1.x; 
-		amp *= u_wave2.x;
-        choppy = mix(choppy,1.0,0.2);
+		freq *= u_waveFrequencyLacunarity;
+		amp *= u_waveAmplitudeLacunarity;
+        choppy = mix(choppy,1.0,u_waveChoppyEase);
     }
+
     return (h-0.5)*2.0;
 }
 
-/*
-float waveOctave( vec2 uv, vec4 params, float effectScalar )
-{
-	float strength = params.x;
-	float scale = params.y;
-	float angle = params.z;
-	float speed = params.w;
-
-	float choppyLimit = u_wave.z;
-	float choppyPower = u_wave.w;
-
-	vec2 waveUV = uv * scale;
-	float sinTheta = sin(angle);
-	float cosTheta = cos(angle);
-	waveUV = vec2(waveUV.x * cosTheta - waveUV.y * sinTheta, waveUV.y * cosTheta + waveUV.x * sinTheta);
-	waveUV += u_phase * speed;
-
-	float value = texture( s_diffuseMap, waveUV ).z * strength;
-	
-	// Make it choppy (pow it)
-	float choppyRatio = min( (value*effectScalar) / choppyLimit, 1.0);
-	value = pow( value, 1.0f + choppyRatio * choppyPower );
-
-	return value;
-}
-
-float waveNoise(vec2 uv, float waterHeight, float fluxChange)
-{
-	float effectStrength = u_wave.x;
-	float effectLimit = u_wave.y;
-	
-	float effectFluxRatio = pow( min( abs(fluxChange) / effectLimit, 1.0 ), 0.8  );
-	float effectRatio = smoothstep( 0.0, 1.0, effectFluxRatio );
-	effectRatio = mix( 0.2, 1.0, effectRatio );
-
-	float effectScalar = effectRatio * effectStrength;
-
-	float outValue = 0.0;
-	outValue += waveOctave( uv, u_wave0, effectScalar ) - 0.5;
-	outValue += waveOctave( uv, u_wave1, effectScalar ) - 0.5;
-	outValue += waveOctave( uv, u_wave2, effectScalar ) - 0.5;
-	outValue += waveOctave( uv, u_wave3, effectScalar ) - 0.5;
-
-	// Normalise the summed octaves so it ranges from [-0.5, 0.5]
-	float totalOctaveStrength = u_wave0.x + u_wave1.x + u_wave2.x + u_wave3.x;
-	outValue /= totalOctaveStrength;
-	
-	return outValue * effectScalar;
-}
-*/
-
+////////////////////////////////////////////////////////////////
+//
 vec2 GetMousePos()
 {
 	vec2 mousePos = vec2( mouseBufferU, mouseBufferV ) / 255;
 	return mousePos;
 }
 
+////////////////////////////////////////////////////////////////
+//
 float CalcViscosity( float _heat, float _viscosityScalar )
 {
 	float viscosity = mix( u_viscosityMin, u_viscosityMax, 1.0f-_viscosityScalar );
 	return pow(smoothstep( 0.0f, 1.0f, clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f)), u_heatViscosityPower) * viscosity;
 }
 
+////////////////////////////////////////////////////////////////
+//
 vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 fluxD, vec2 texelSize, float viscosity )
 {
 	vec2 velocity = vec2(	(fluxL.y + fluxC.y) - (fluxR.x + fluxC.x), 
@@ -328,11 +294,10 @@ void main(void)
 		////////////////////////////////////////////////////////////////
 
 		waveNoiseHeight = waveNoise(in_uv);
-		waveNoiseHeight *= u_wave.x;
-		float effectFluxRatio = pow( min( abs(fluxChange) / u_wave.y, 1.0 ), 0.8  );
-		float effectRatio = smoothstep( 0.0, 1.0, effectFluxRatio );
-		effectRatio = mix( 0.2, 1.0, effectRatio );
-		waveNoiseHeight *= effectRatio;
+		waveNoiseHeight *= u_waveAmplitude;
+
+		float heightRatio = min( newWaterHeight/u_waveDepthMax, 1.0 );
+		waveNoiseHeight *= heightRatio;
 	}
 
 	////////////////////////////////////////////////////////////////

@@ -34,31 +34,18 @@ namespace bento
 		float waterSpecularPower;
 		float waterIndexOfRefraction;
 
-		float waveStrength0;
-		float waveStrength1;
-		float waveStrength2;
-		float waveStrength3;
+		float waveSpeed;
+		float waveFrequency;
+		float waveFrequencyLacunarity;
+		float waveAmplitude;
+		float waveAmplitudeLacunarity;
+		float waveChoppy;
+		float waveChoppyEase;
+		int waveOctavesNum;
 
-		float waveAngle0;
-		float waveAngle1;
-		float waveAngle2;
-		float waveAngle3;
-
-		int waveSpeed0;
-		int waveSpeed1;
-		int waveSpeed2;
-		int waveSpeed3;
-
-		float waveScale0;
-		float waveScale1;
-		float waveScale2;
-		float waveScale3;
-
-		float choppyPower;
-		float choppyLimit;
-		float waveEffectLimit;
-		float waveEffectStrength;
-
+		float waveDepthMax;
+		//float waveEffectStrength;
+		
 		// Lighting
 		float lightAzimuth;
 		float lightAltitude;
