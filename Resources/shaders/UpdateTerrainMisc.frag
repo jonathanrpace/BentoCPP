@@ -123,7 +123,6 @@ void main(void)
 	// value
 	//////////////////////////////////////////////////////////////////////////////////
 	{
-
 		vec4 fluxC  = texelFetch(s_rockFluxData, texelCoordC, 0);
 		vec4 fluxL  = texelFetch(s_rockFluxData, texelCoordL, 0);
 		vec4 fluxR  = texelFetch(s_rockFluxData, texelCoordR, 0);
@@ -196,6 +195,19 @@ void main(void)
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
 		waterNormal = -cross(va,vb);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// Choppyness
+	//////////////////////////////////////////////////////////////////////////////////
+	{
+		vec4 fluxC  = texelFetch(s_waterFluxData, texelCoordC, 0);
+
+		float choppyness = mappingDataC.z;
+		choppyness *= 0.99;
+		choppyness += (fluxC.x + fluxC.y + fluxC.z + fluxC.w) * 2.0;
+		choppyness = min(choppyness, 1.0);
+		mappingDataC.z = choppyness;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////

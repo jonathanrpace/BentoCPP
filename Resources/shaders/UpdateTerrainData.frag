@@ -298,6 +298,8 @@ void main(void)
 
 		float heightRatio = min( newWaterHeight/u_waveDepthMax, 1.0 );
 		waveNoiseHeight *= heightRatio;
+
+		waveNoiseHeight *= mappingDataC.z;
 	}
 
 	////////////////////////////////////////////////////////////////
