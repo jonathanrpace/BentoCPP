@@ -40,7 +40,7 @@ void main(void)
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
 
-	float spawnThreshold = pow( in_properties.w, 2.0 );
+	float spawnThreshold = mix( 0.2, 0.9, in_properties.w );
 	vec4 mappingData = texture2D( s_mappingData, in_properties.xy );
 	float foamSpawnStrength = mappingData.w;
 
@@ -48,22 +48,24 @@ void main(void)
 	{
 		if ( foamSpawnStrength > spawnThreshold )
 		{
-			life = 0.5 + foamSpawnStrength * 0.5;
+			life = pow( mix(0.5, 1.0, foamSpawnStrength), 2.0 );
 			position.x = in_properties.x;
 			position.z = in_properties.y;
 		}
 	}
 	else
 	{
-		life -= (1.0/400.0);
-		life = max(0,life);
-
 		// Speed up death if needed back home
 		if ( life > 0.0 && foamSpawnStrength > spawnThreshold )
 		{
-			life -= (1.0f/60.0);
-			life = max(0,life);
+			life -= (1.0f/400.0);
 		}
+		else
+		{
+			life -= (1.0/800.0);
+		}
+
+		life = max(0,life);
 	}
 
 	velocity.y = 0;
@@ -72,7 +74,7 @@ void main(void)
 	position.xyz += velocity;
 	position.y = waterSurfaceHeight;
 
-	float speed = 0.00015;
+	float speed = 0.0001;
 	velocity.x += waterNormal.x * speed;
 	velocity.z += waterNormal.z * speed;
 

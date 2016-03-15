@@ -177,7 +177,7 @@ void main(void)
 
 		vec3 foamDiffuse = vec3( diffuse(in_waterNormal.xyz, u_lightDir, 4.0f) * u_lightIntensity );
 		foamDiffuse += u_ambientLightIntensity;
-		foamDiffuse *= vec3(0.2);	// Albedo
+		foamDiffuse *= vec3(0.7);	// Albedo
 
 		outColor = mix(outColor, foamDiffuse, foamSample.w * 0.75);
 	}

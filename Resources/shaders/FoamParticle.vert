@@ -31,5 +31,5 @@ void main(void)
 	gl_Position = screenPos;
 
 	float life = in_velocity.w;
-	out_color = vec4(vec3(1.0), pow(life,2.0));
+	out_color = vec4(vec3(1.0), pow(life,0.6)*0.4);
 } 

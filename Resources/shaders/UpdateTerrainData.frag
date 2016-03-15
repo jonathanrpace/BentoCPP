@@ -296,9 +296,11 @@ void main(void)
 		waveNoiseHeight = waveNoise(in_uv);
 		waveNoiseHeight *= u_waveAmplitude;
 
-		float heightRatio = min( newWaterHeight/u_waveDepthMax, 1.0 );
+		float mippedWaterHeight = texture2D(s_waterData, in_uv, 4).y;
+		float heightRatio = smoothstep( 0.0, u_waveDepthMax, mippedWaterHeight);
 		waveNoiseHeight *= heightRatio;
 
+		// Scale by choppyness
 		waveNoiseHeight *= mappingDataC.z;
 	}
 
