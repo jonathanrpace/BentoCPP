@@ -242,6 +242,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		fragShader.SetUniform("u_rockFluxDamping", m_rockFluxDamping);
 		fragShader.SetUniform("u_waterFluxDamping", m_waterFluxDamping);
+		fragShader.SetUniform("u_heatViscosityBias", m_rockMeltingPoint);
 
 		m_screenQuadGeom.Draw();
 

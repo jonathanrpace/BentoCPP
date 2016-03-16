@@ -14,6 +14,7 @@ in Varying
 
 uniform float u_rockFluxDamping;
 uniform float u_waterFluxDamping;
+uniform float u_heatViscosityBias;
 
 // Outputs
 layout( location = 0 ) out vec4 out_rockFluxData;
@@ -51,6 +52,8 @@ void main(void)
 	vec4 iceHeightN = vec4(waterDataL.x, waterDataR.x, waterDataU.x, waterDataD.x);
 	vec4 waterHeightN = vec4(waterDataL.y, waterDataR.y, waterDataU.y, waterDataD.y);
 
+	float rockHeatC = rockDataC.z;
+
 	// Molten flux
 	{
 		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC;
@@ -65,7 +68,7 @@ void main(void)
 		limit = smoothstep(0,1,limit);
 		rockFluxC *= limit;
 
-		rockFluxC *= u_rockFluxDamping;
+		rockFluxC *= u_rockFluxDamping * step( u_heatViscosityBias, rockHeatC );
 
 		out_rockFluxData = rockFluxC;
 	}
