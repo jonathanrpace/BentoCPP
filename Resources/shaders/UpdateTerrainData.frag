@@ -308,21 +308,19 @@ void main(void)
 	// Exchange heat/volume between layers
 	////////////////////////////////////////////////////////////////
 	{
-		float moltenToSolid = 0.0f;
-		if ( newMoltenHeat < u_heatViscosityBias )
-		{
-			moltenToSolid += min( moltenHeight, u_condenseSpeed * moltenHeight );
-		}
+		float maxTemp = u_heatViscosityBias * 5.0;
 
-		float meltStrength = max(newMoltenHeat-u_heatViscosityBias, 0.0f) * u_meltSpeed;// * length(moltenVelocity);
-		float solidToMolten = min(solidHeight, meltStrength);
+		float moltenToSolid = smoothstep(u_heatViscosityBias, maxTemp, newMoltenHeat) * u_meltSpeed;
+		moltenToSolid = min(moltenToSolid, newMoltenHeight);
 
-		float solidToMoltenRatio = solidToMolten / (newMoltenHeight + 0.0001f);
-		solidToMoltenRatio = clamp(solidToMoltenRatio, 0.0f, 1.0f);
+		float solidToMolten = smoothstep(0, u_heatViscosityBias, newMoltenHeat) * u_condenseSpeed;
+		solidToMolten = min(solidToMolten, solidHeight);
 
-		newMoltenHeat *= (1.0f-solidToMoltenRatio);
-		solidHeight += moltenToSolid - solidToMolten;
-		newMoltenHeight  += solidToMolten - moltenToSolid;
+		solidHeight -= solidToMolten;
+		solidHeight += moltenToSolid;
+
+		newMoltenHeight  -= moltenToSolid;
+		newMoltenHeight  += solidToMolten;
 	}
 	
 	////////////////////////////////////////////////////////////////
