@@ -114,7 +114,7 @@ namespace bento
 		float m_rockMeltingPoint = 0.3f;
 
 		float m_textureScrollSpeed = 0.04f;
-		float m_textureCycleSpeed = 0.05f;
+		float m_textureCycleSpeed = 0.003f;
 
 		float m_heatAdvectSpeed = 1.0f;
 		float m_heatSmoothingStrength = 0.002f;
