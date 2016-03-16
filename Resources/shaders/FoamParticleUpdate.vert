@@ -48,7 +48,7 @@ void main(void)
 	{
 		if ( foamSpawnStrength > spawnThreshold )
 		{
-			life = pow( mix(0.5, 1.0, foamSpawnStrength), 2.0 );
+			life = pow( mix(0.7, 1.0, foamSpawnStrength), 0.8 );
 			position.x = in_properties.x;
 			position.z = in_properties.y;
 		}
@@ -69,12 +69,14 @@ void main(void)
 	}
 
 	velocity.y = 0;
-	velocity *= 0.8;
+
+	float damping = mix( 0.85, 0.75, in_properties.z );
+	velocity *= damping;
 
 	position.xyz += velocity;
 	position.y = waterSurfaceHeight;
 
-	float speed = 0.0001;
+	float speed = mix(0.00006, 0.00014, in_properties.z);
 	velocity.x += waterNormal.x * speed;
 	velocity.z += waterNormal.z * speed;
 
