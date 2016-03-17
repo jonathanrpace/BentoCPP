@@ -10,6 +10,8 @@ namespace bento
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR)
 		, waterColor(0.219f, 0.286f, 0.278f)
 		, waterTranslucentColor(0.219f, 0.411f, 0.392f)
+		, fogColorAway(0.5f, 0.6f, 0.7f)
+		, fogColorTowards(1.0f, 0.9f, 0.7f)
 	{
 		someTexture.TexImage2D("textures/DataMap.png");
 
@@ -33,6 +35,9 @@ namespace bento
 		SerializableMember("lightAltitude", (float)-M_PI * 0.5f, &lightAltitude);
 		SerializableMember("directLightIntensity", 1.0f, &directLightIntensity);
 		SerializableMember("ambientLightIntensity", 1.2f, &ambientLightIntensity);
+
+		SerializableMember("fogDensity", 0.2f, &fogDensity);
+		SerializableMember("fogHeight", 0.2f, &fogHeight);
 
 		ResetToDefaults();
 	}
@@ -73,6 +78,14 @@ namespace bento
 		ImGui::SliderAngle("Altitude", &lightAltitude, -180.0f, 0.0f);
 		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 2.0f);
 		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 2.0f);
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::Text("Fog");
+		ImGui::SliderFloat("FogDensity", &fogDensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("FogHeight", &fogHeight, 0.0f, 2.0f);
+		ImGui::ColorEdit3("FogColorAway", glm::value_ptr(fogColorAway));
+		ImGui::ColorEdit3("FogColorTowards", glm::value_ptr(fogColorTowards));
 		ImGui::Spacing();
 
 		if (ImGui::Button("Reset"))

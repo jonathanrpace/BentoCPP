@@ -15,7 +15,7 @@ namespace bento
 	OrbitCamera::OrbitCamera(std::string _name)
 		: Process(_name, typeid(OrbitCamera))
 		, m_mouseIsDown(false)
-		, m_dolly(2.0f)
+		, m_dolly(1.5f)
 		, m_dollyTarget(2.0f)
 		, m_dollySpeed(0.1f)
 		, m_dollyEase(0.1f)

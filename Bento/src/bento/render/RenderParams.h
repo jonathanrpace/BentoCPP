@@ -30,7 +30,9 @@ public:
 	static mat4 InvModelViewProjectionMatrix()	{ return s_invModelViewProjectionMatrix; }
 
 	static mat4 PrevViewProjectionMatrix()		{ return s_prevViewProjectionMatrix; }
-	static mat4 PrevInvViewProjectionMatrix()	{ return s_prevInvViewProjectionMatrix; }
+	static mat4 PrevInvViewProjectionMatrix() { return s_prevInvViewProjectionMatrix; }
+
+	static vec3 ViewPosition() { return s_cameraPos; }
 
 	int BackBufferWidth() const { return s_backBufferWidth; }
 	int BackBufferHeight() const { return s_backBufferHeight; }
@@ -51,6 +53,8 @@ public:
 		s_invViewMatrix = inverse(s_viewMatrix);
 		s_invNormalViewMatrix = inverse(s_normalViewMatrix);
 		s_invProjectionMatrix = inverse(s_projectionMatrix);
+
+		s_cameraPos = vec3(s_viewMatrix * vec4(0.0f));
 	}
 
 	static void SetModelMatrix(mat4 _modelMatrix)
@@ -102,5 +106,7 @@ private:
 		 
 	static mat4 s_prevViewProjectionMatrix;
 	static mat4 s_prevInvViewProjectionMatrix;
+
+	static vec3 s_cameraPos;
 };
 }

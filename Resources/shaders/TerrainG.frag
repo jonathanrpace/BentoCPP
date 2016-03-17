@@ -27,6 +27,12 @@ uniform vec3 u_lightDir;
 uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
+uniform vec3 u_fogColorAway;
+uniform vec3 u_fogColorTowards;
+uniform float u_fogHeight;
+uniform float u_fogDensity;
+uniform vec3 u_cameraPos;
+
 // Textures
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_mappingData;
@@ -56,6 +62,20 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
+
+vec3 ApplyFog( in vec3  rgb,      // original color of the pixel
+               in float distance, // camera to point distance
+               in vec3  rayDir,   // camera to point vector
+			   in vec3  cameraPos,
+               in vec3  sunDir )  // sun light direction
+{
+    float fogAmount = u_fogDensity * exp(-cameraPos.y*u_fogHeight) * (1.0-exp( -distance*rayDir.y*u_fogHeight ))/rayDir.y;
+    float sunDot = max( dot( rayDir, sunDir ), 0.0 );
+    vec3  fogColor  = mix( u_fogColorAway,
+                           u_fogColorTowards,
+                           pow(sunDot,8.0) );
+    return mix( rgb, fogColor, fogAmount );
+}
 
 void UpdateMousePosition()
 {
@@ -124,6 +144,10 @@ void main(void)
 
 	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
+
+	outColor = ApplyFog( outColor, length(in_viewPosition.xyz), -normalize(in_viewPosition.xyz), u_cameraPos, -u_lightDir );
+
+	outColor = u_cameraPos;//normalize(in_viewPosition.xyz);
 
 	out_viewPosition = in_viewPosition;
 	out_viewNormal = vec4( normalize( in_waterNormal.xyz * mat3(u_viewMatrix) ), 1.0f );

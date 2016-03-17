@@ -51,5 +51,11 @@ namespace bento
 		float lightAltitude;
 		float directLightIntensity;
 		float ambientLightIntensity;
+
+		// Fog
+		float fogDensity;
+		float fogHeight;
+		vec3 fogColorAway;
+		vec3 fogColorTowards;
 	};
 }

@@ -67,7 +67,15 @@ namespace bento
 		SetTexture("s_diffuseMap", &(_material->someTexture));
 		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 
-		
+		SetUniform("u_fogDensity", _material->fogDensity);
+		SetUniform("u_fogHeight", _material->fogHeight);
+		SetUniform("u_fogColorAway", _material->fogColorAway);
+		SetUniform("u_fogColorTowards", _material->fogColorTowards);
+
+		SetUniform("u_cameraPos", RenderParams::ViewPosition());
+
+		PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::ViewPosition().x, RenderParams::ViewPosition().y, RenderParams::ViewPosition().z);
+
 		TerrainMousePos terrainMousePos = _geometry->GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(terrainMousePos), &terrainMousePos, GL_DYNAMIC_COPY);
