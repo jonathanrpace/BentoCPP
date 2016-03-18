@@ -69,12 +69,13 @@ namespace bento
 
 		SetUniform("u_fogDensity", _material->fogDensity);
 		SetUniform("u_fogHeight", _material->fogHeight);
+		SetUniform("u_fogFalloff", _material->fogFalloff);
 		SetUniform("u_fogColorAway", _material->fogColorAway);
 		SetUniform("u_fogColorTowards", _material->fogColorTowards);
 
-		SetUniform("u_cameraPos", RenderParams::ViewPosition());
+		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
-		PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::ViewPosition().x, RenderParams::ViewPosition().y, RenderParams::ViewPosition().z);
+		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
 		TerrainMousePos terrainMousePos = _geometry->GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;
@@ -107,7 +108,7 @@ namespace bento
 			normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
 			normalisedMousePos.y = 1.0f - normalisedMousePos.y;
 			vec2 mouseScreenPos = (normalisedMousePos - vec2(0.5f)) * vec2(2.0f);
-			PRINTF("mouseScreenPos %2f, %2f\n", mouseScreenPos.x, mouseScreenPos.y);
+			//PRINTF("mouseScreenPos %2f, %2f\n", mouseScreenPos.x, mouseScreenPos.y);
 			m_shader.FragmentShader().SetUniform("u_mouseScreenPos", mouseScreenPos);
 
 			m_shader.FragmentShader().SetUniform("u_windowSize", m_scene->GetWindow()->GetWindowSize());

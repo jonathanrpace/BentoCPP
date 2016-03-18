@@ -31,6 +31,7 @@ uniform vec3 u_fogColorAway;
 uniform vec3 u_fogColorTowards;
 uniform float u_fogHeight;
 uniform float u_fogDensity;
+uniform float u_fogFalloff;
 uniform vec3 u_cameraPos;
 
 // Textures
@@ -62,18 +63,59 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
+/*
+vec3 rayDir = pos - vCamPosition;
+float dist = length(rayDir); // distance is a keyword in GLSL
+ 
+const float maxFogHeight = 900; // higher the fog won't go
+const float c = 0.1;
+const float b = 0.2;
+ 
+// if this is not done, the result will look awful
+if(pos.z >= maxFogHeight - 1 / c)
+{		
+    return;
+}
+ 
+// distance in fog is calculated with a simple intercept theorem
+float distInFog = dist * (maxFogHeight - pos.z) / (pos.z - vCamPosition.z);
+ 
+// when dist is 0, log(dist) is 1, so subtract this
+float fogAmount = (log(distInFog * c) - 1) * b;
+ 
+// at the top border, the value can get greater than 1, so clamp
+fogAmount = clamp(fogAmount, 0, 1);
+ 
+// final mix of colors
+gl_FragColor = mix(gl_FragColor, fogColor, fogAmount);
+
+*/
 
 vec3 ApplyFog( in vec3  rgb,      // original color of the pixel
-               in float distance, // camera to point distance
+               in float dist, // camera to point distance
                in vec3  rayDir,   // camera to point vector
 			   in vec3  cameraPos,
+			   in vec3  fragPos,
                in vec3  sunDir )  // sun light direction
 {
-    float fogAmount = u_fogDensity * exp(-cameraPos.y*u_fogHeight) * (1.0-exp( -distance*rayDir.y*u_fogHeight ))/rayDir.y;
-    float sunDot = max( dot( rayDir, sunDir ), 0.0 );
+	// if this is not done, the result will look awful
+	if(fragPos.y >= u_fogHeight - 1 / u_fogFalloff)
+	{		
+		return rgb;
+	}
+
+	float sunDot = max( dot( rayDir, sunDir ), 0.0 );
     vec3  fogColor  = mix( u_fogColorAway,
                            u_fogColorTowards,
-                           pow(sunDot,8.0) );
+                           pow(sunDot,4.0) );
+
+	float distInFog = dist * (u_fogHeight - fragPos.y) / (cameraPos.y-fragPos.y);
+	float fogAmount = (log(distInFog * u_fogFalloff) - 1) * u_fogDensity;
+	fogAmount = clamp(fogAmount, 0, 1);
+
+    //float fogAmount = exp(-cameraPos.y*u_fogDensity);
+	//fogAmount = (1.0-exp( -dist*-rayDir.y )) / (-rayDir.y*u_fogHeight);
+
     return mix( rgb, fogColor, fogAmount );
 }
 
@@ -145,9 +187,13 @@ void main(void)
 	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
 
-	outColor = ApplyFog( outColor, length(in_viewPosition.xyz), -normalize(in_viewPosition.xyz), u_cameraPos, -u_lightDir );
 
-	outColor = u_cameraPos;//normalize(in_viewPosition.xyz);
+	mat4 invViewMatrix = inverse(u_viewMatrix);
+	vec3 worldPosition = vec3( invViewMatrix * vec4(in_viewPosition.xyz,1) );
+	vec3 cameraRay = worldPosition-u_cameraPos;
+	outColor = ApplyFog( outColor, length(worldPosition-u_cameraPos), cameraRay, u_cameraPos, worldPosition, u_lightDir );
+
+	//outColor = vec3(cameraRay.y);
 
 	out_viewPosition = in_viewPosition;
 	out_viewNormal = vec4( normalize( in_waterNormal.xyz * mat3(u_viewMatrix) ), 1.0f );

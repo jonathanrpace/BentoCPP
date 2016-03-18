@@ -38,6 +38,7 @@ namespace bento
 
 		SerializableMember("fogDensity", 0.2f, &fogDensity);
 		SerializableMember("fogHeight", 0.2f, &fogHeight);
+		SerializableMember("fogFalloff", 1.0f, &fogFalloff);
 
 		ResetToDefaults();
 	}
@@ -82,8 +83,9 @@ namespace bento
 
 		ImGui::Spacing();
 		ImGui::Text("Fog");
-		ImGui::SliderFloat("FogDensity", &fogDensity, 0.0f, 1.0f);
-		ImGui::SliderFloat("FogHeight", &fogHeight, 0.0f, 2.0f);
+		ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("Height", &fogHeight, 0.0f, 20.0f);
+		ImGui::SliderFloat("Falloff", &fogFalloff, 0.0f, 20.0f);
 		ImGui::ColorEdit3("FogColorAway", glm::value_ptr(fogColorAway));
 		ImGui::ColorEdit3("FogColorTowards", glm::value_ptr(fogColorTowards));
 		ImGui::Spacing();

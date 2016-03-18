@@ -6,6 +6,7 @@
         "choppyPower": 4.0,
         "directLightIntensity": 1.11000001430511,
         "fogDensity": 0.200000002980232,
+        "fogFalloff": 1.0,
         "fogHeight": 0.200000002980232,
         "lightAltitude": -0.733038306236267,
         "lightAzimuth": 0.0,

@@ -55,6 +55,7 @@ namespace bento
 		// Fog
 		float fogDensity;
 		float fogHeight;
+		float fogFalloff;
 		vec3 fogColorAway;
 		vec3 fogColorTowards;
 	};
