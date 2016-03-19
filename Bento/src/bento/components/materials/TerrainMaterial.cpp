@@ -83,9 +83,9 @@ namespace bento
 
 		ImGui::Spacing();
 		ImGui::Text("Fog");
-		ImGui::SliderFloat("Density", &fogDensity, 0.0f, 1.0f);
-		ImGui::SliderFloat("Height", &fogHeight, 0.0f, 20.0f);
-		ImGui::SliderFloat("Falloff", &fogFalloff, 0.0f, 20.0f);
+		ImGui::SliderFloat("Density", &fogDensity, 0.0f, 100.0f);
+		ImGui::SliderFloat("Height", &fogHeight, 0.0f, 0.5f);
+		ImGui::SliderFloat("Falloff", &fogFalloff, 0.0f, 1000.0f);
 		ImGui::ColorEdit3("FogColorAway", glm::value_ptr(fogColorAway));
 		ImGui::ColorEdit3("FogColorTowards", glm::value_ptr(fogColorTowards));
 		ImGui::Spacing();
