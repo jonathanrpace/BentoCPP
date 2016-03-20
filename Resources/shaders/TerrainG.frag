@@ -137,7 +137,7 @@ void main(void)
 	vec3 diffuse = vec3(0.035f);
 	diffuse += mappingDataC.y * 0.025;
 
-	diffuse = mix( diffuse, vec3(0.15,0.2,0.0), smoothstep(0.01, 0.015, dirtHeight));
+	diffuse = mix( diffuse, vec3(0.2,0.2,0.0), smoothstep(0.0, 0.1, dirtHeight) * 0.2 );
 	
 
 	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.0f)*0.05f);		// Scorch

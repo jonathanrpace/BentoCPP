@@ -309,25 +309,28 @@ void main(void)
 		vec2 waterVelocity = VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, u_waterViscosity );
 		float waterSpeed = length(waterVelocity);
 
-		float rockToDirt = min( waterSpeed * u_erosionSpeed * solidHeight * newWaterHeight, solidHeight );
+		//float rockToDirt = min( waterSpeed * u_erosionSpeed * solidHeight * newWaterHeight, solidHeight );
+		float rockToDirt = smoothstep( u_erosionFluxMin, u_erosionFluxMax, waterSpeed ) * u_erosionSpeed * solidHeight;
 		solidHeight -= rockToDirt;
 		newDirtHeight += rockToDirt;
 
+		const float EPSILON = 0.00000001;
+
 		// Update dirt height based on water flux
-		float toLeft  = min( max( -waterVelocity.x, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeight*0.25 );
-		float toRight = min( max(  waterVelocity.x, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeight*0.25 );
-		float toAbove = min( max( -waterVelocity.y, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeight*0.25 );
-		float toBelow = min( max(  waterVelocity.y, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeight*0.25 );
+		float toLeft  = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.x, 0.0 ) ) * dirtHeight*0.25 * u_depositionSpeed;
+		float toRight = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.x, 0.0 ) ) * dirtHeight*0.25 * u_depositionSpeed;
+		float toAbove = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.y, 0.0 ) ) * dirtHeight*0.25 * u_depositionSpeed;
+		float toBelow = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.y, 0.0 ) ) * dirtHeight*0.25 * u_depositionSpeed;
 
 		float dirtHeightL = texelFetch(s_rockData, texelCoordL, 0).w;
 		float dirtHeightR = texelFetch(s_rockData, texelCoordR, 0).w;
 		float dirtHeightU = texelFetch(s_rockData, texelCoordU, 0).w;
 		float dirtHeightD = texelFetch(s_rockData, texelCoordD, 0).w;
-		Smoothstep this stuff?
-		float fromLeft  = min( max(  waterVelocity.x, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeightL*0.25 );
-		float fromRight = min( max( -waterVelocity.x, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeightR*0.25 );
-		float fromAbove = min( max(  waterVelocity.y, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeightU*0.25 );
-		float fromBelow = min( max( -waterVelocity.y, 0.0 ) * u_depositionSpeed * newWaterHeight, dirtHeightD*0.25 );
+
+		float fromLeft  = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.x, 0.0 ) ) * dirtHeightL*0.25 * u_depositionSpeed;
+		float fromRight = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.x, 0.0 ) ) * dirtHeightR*0.25 * u_depositionSpeed;
+		float fromAbove = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.y, 0.0 ) ) * dirtHeightU*0.25 * u_depositionSpeed;
+		float fromBelow = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.y, 0.0 ) ) * dirtHeightD*0.25 * u_depositionSpeed;
 
 		newDirtHeight -= (toLeft+toRight+toAbove+toBelow);
 		newDirtHeight += (fromLeft+fromRight+fromAbove+fromBelow);
