@@ -16,7 +16,7 @@ namespace bento
 		: Process(_name, typeid(OrbitCamera))
 		, m_mouseIsDown(false)
 		, m_dolly(1.5f)
-		, m_dollyTarget(2.0f)
+		, m_dollyTarget(1.5f)
 		, m_dollySpeed(0.1f)
 		, m_dollyEase(0.1f)
 		, m_dollyMin(0.1f)

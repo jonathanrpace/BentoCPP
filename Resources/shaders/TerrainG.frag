@@ -129,11 +129,18 @@ void main(void)
 	float moltenBump = mappingDataC.y;
 	float heat = in_rockData.z;
 	float occlusion = 1.0f - in_rockNormal.w;
+	float dirtHeight = in_rockData.w;
+	float rockHeight = in_rockData.x;
 
 	// Diffuse
-	float diffuseScalar = moltenPhase;//texture(s_diffuseMap, vec2(moltenPhase,0)).x;
-	vec3 diffuse = vec3(0.05f);// + vec3(diffuseScalar) * 0.05f;
-	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.0f)*0.05f);		// Scortch
+	float diffuseScalar = moltenPhase;
+	vec3 diffuse = vec3(0.035f);
+	diffuse += mappingDataC.y * 0.025;
+
+	diffuse = mix( diffuse, vec3(0.15,0.2,0.0), smoothstep(0.01, 0.015, dirtHeight));
+	
+
+	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.0f)*0.05f);		// Scorch
 
 	// Direct light
 	vec3 directLight = vec3( max( dot(in_rockNormal.xyz, u_lightDir), 0.0f ) * u_lightIntensity );
@@ -157,15 +164,19 @@ void main(void)
 	emissive.x = heatColor0;
 	emissive.y = heatColor1;
 
+
+
 	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
-
 
 	mat4 invViewMatrix = inverse(u_viewMatrix);
 	vec3 worldPosition = vec3( invViewMatrix * vec4(in_viewPosition.xyz,1) );
 	vec3 cameraRay = worldPosition-u_cameraPos;
 
 	outColor = ApplyFog( outColor, u_cameraPos, worldPosition, u_lightDir );
+
+
+
 
 	//outColor = vec3(cameraRay.y);
 

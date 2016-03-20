@@ -130,7 +130,7 @@ namespace bento
 		float m_waterBoilingPoint = 0.1f;
 		float m_waterFreezingPoint = 0.0f;
 
-		float m_erosionSpeed = 0.01f;
+		float m_erosionSpeed = 0.0000f;
 		float m_erosionFluxMin = 0.01f;
 		float m_erosionFluxMax = 0.05f;
 		float m_depositionSpeed = 0.01f;

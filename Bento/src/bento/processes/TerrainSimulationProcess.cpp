@@ -147,10 +147,8 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Spacing();
-	ImGui::SliderFloat("ErosionSpeed", &m_erosionSpeed, 0.0f, 0.05f);
-	ImGui::SliderFloat("ErosionFluxMin", &m_erosionFluxMin, 0.0f, 0.5f);
-	ImGui::SliderFloat("ErosionFluxMax", &m_erosionFluxMax, 0.0f, 0.5f);
-	ImGui::SliderFloat("DepositionSpeed", &m_depositionSpeed, 0.0f, 0.05f);
+	ImGui::SliderFloat("ErosionSpeed", &m_erosionSpeed, 0.0f, 0.001f, "%.7f");
+	ImGui::SliderFloat("DepositionSpeed", &m_depositionSpeed, 0.0f, 5.0f);
 	ImGui::Spacing();
 
 

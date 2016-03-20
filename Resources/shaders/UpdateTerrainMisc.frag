@@ -254,11 +254,11 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	vec3 rockNormal;
 	{
-		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + mappingDataR.y * u_mapHeightOffset;
-		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + mappingDataL.y * u_mapHeightOffset;
-		float heightU = rockDataU.x + rockDataU.y + rockDataU.w + mappingDataU.y * u_mapHeightOffset;
-		float heightD = rockDataD.x + rockDataD.y + rockDataD.w + mappingDataD.y * u_mapHeightOffset;
-		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + mappingDataC.y * u_mapHeightOffset;
+		float heightR = rockDataR.x + rockDataR.y + rockDataR.w;// + mappingDataR.y * u_mapHeightOffset;
+		float heightL = rockDataL.x + rockDataL.y + rockDataL.w;// + mappingDataL.y * u_mapHeightOffset;
+		float heightU = rockDataU.x + rockDataU.y + rockDataU.w;// + mappingDataU.y * u_mapHeightOffset;
+		float heightD = rockDataD.x + rockDataD.y + rockDataD.w;// + mappingDataD.y * u_mapHeightOffset;
+		float heightC = rockDataC.x + rockDataC.y + rockDataC.w;// + mappingDataC.y * u_mapHeightOffset;
 
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));

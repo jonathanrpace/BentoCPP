@@ -76,7 +76,7 @@ void main(void)
 	//position.y += waterHeight;
 
 	float heat = rockDataC.z;
-	position.y += mappingDataC.y * u_mapHeightOffset * (1.0f - min(heat,1.0f));
+	//position.y += mappingDataC.y * u_mapHeightOffset * (1.0f - min(heat,1.0f));
 
 	out_uv = in_uv;
 	out_viewNormal = vec3(0.0f, 1.0f, 0.0f);

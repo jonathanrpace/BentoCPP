@@ -66,7 +66,7 @@ namespace bento
 
 			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjA));
 			GL_CHECK(glGenVertexArrays(1, &m_vertexArrayA));
-			GL_CHECK(glGenBuffers(1, &m_positionBufferA))
+			GL_CHECK(glGenBuffers(1, &m_positionBufferA));
 			GL_CHECK(glGenBuffers(1, &m_velocityBufferA));
 			GL_CHECK(glGenBuffers(1, &m_propertiesBufferA));
 
