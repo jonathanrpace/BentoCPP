@@ -131,7 +131,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Spacing();
-	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.05f, "%.5f");
+	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
 	ImGui::Spacing();
@@ -141,16 +141,17 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("TextureCycleSpeed", &m_textureCycleSpeed, 0.0f, 0.5f);
 	ImGui::Spacing();
 
+	ImGui::Spacing();
 	ImGui::Text("Water");
 	ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
 	ImGui::SliderFloat("Viscosity2", &m_waterViscosity, 0.01f, 0.5f);
 	ImGui::Spacing();
-
-	ImGui::Spacing();
-	ImGui::SliderFloat("ErosionSpeed", &m_erosionSpeed, 0.0f, 0.001f, "%.7f");
-	ImGui::SliderFloat("DepositionSpeed", &m_depositionSpeed, 0.0f, 1.0f);
-	ImGui::SliderFloat("SpeedMin", &m_erosionFluxMin, 0.0f, 1.0f);
-	ImGui::SliderFloat("SpeedMax", &m_erosionFluxMax, 0.0f, 1.0f);
+	ImGui::Text("Erosion");
+	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.001f, "%.7f");
+	ImGui::SliderFloat("MaxDepth", &m_erosionMaxDepth, 0.0f, 0.1f);
+	ImGui::SliderFloat("Transport", &m_dirtTransportStrength, 0.0f, 2.0f);
+	ImGui::SliderFloat("SpeedMin", &m_erosionFluxMin, 0.0f, 0.5);
+	ImGui::SliderFloat("SpeedMax", &m_erosionFluxMax, 0.0f, 0.1);
 	ImGui::Spacing();
 
 
@@ -301,10 +302,11 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
 
 		fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
-		fragShader.SetUniform("u_erosionSpeed", m_erosionSpeed);
+		fragShader.SetUniform("u_erosionStrength", m_erosionStrength);
 		fragShader.SetUniform("u_erosionFluxMin", m_erosionFluxMin);
 		fragShader.SetUniform("u_erosionFluxMax", m_erosionFluxMax);
-		fragShader.SetUniform("u_depositionSpeed", m_depositionSpeed);
+		fragShader.SetUniform("u_dirtTransportStrength", m_dirtTransportStrength);
+		fragShader.SetUniform("u_erosionMaxDepth", m_erosionMaxDepth);
 
 		// Waves
 		float phase = fmod((float)glfwGetTime()*_material.waveSpeed, 1.0f);

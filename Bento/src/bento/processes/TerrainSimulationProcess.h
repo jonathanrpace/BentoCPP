@@ -102,7 +102,7 @@ namespace bento
 
 		// Input
 		float m_mouseRadius = 0.1f;
-		float m_mouseMoltenVolumeStrength = 0.005f;
+		float m_mouseMoltenVolumeStrength = 0.001f;
 		float m_mouseHeatStrength = 0.3f;
 
 		// Molten
@@ -130,10 +130,11 @@ namespace bento
 		float m_waterBoilingPoint = 0.1f;
 		float m_waterFreezingPoint = 0.0f;
 
-		float m_erosionSpeed = 0.0001f;
+		float m_erosionStrength = 0.00001f;
+		float m_dirtTransportStrength = 0.5f;
 		float m_erosionFluxMin = 0.01f;
-		float m_erosionFluxMax = 0.1f;
-		float m_depositionSpeed = 0.12f;
+		float m_erosionFluxMax = 0.05f;
+		float m_erosionMaxDepth = 0.01f;
 
 		// Global
 		float m_ambientTemperature = 0.05f;
