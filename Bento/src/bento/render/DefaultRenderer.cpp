@@ -137,8 +137,9 @@ namespace bento
 		glDepthMask(GL_TRUE);
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
-		//GL.Enable( EnableCap.FramebufferSrgb );
+		glEnable( GL_FRAMEBUFFER_SRGB );
 		m_rectTextureToScreenShader.Render(m_deferredRenderTarget.OutputTextureB());
+		glDisable(GL_FRAMEBUFFER_SRGB);
 
 		// UI-Pass
 		RenderPassesInPhase(eRenderPhase_UI, dt);

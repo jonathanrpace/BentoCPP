@@ -64,7 +64,7 @@ namespace bento
 		//ImGui::Text("Wave Strength");
 		ImGui::SliderInt("Num octaves", &waveOctavesNum, 1, 16);
 		ImGui::SliderFloat("Speed", &waveSpeed, 0.0f, 0.1f);
-		ImGui::SliderFloat("Frequency", &waveFrequency, 0.0f, 8.0f);
+		ImGui::SliderFloat("Frequency", &waveFrequency, 0.0f, 16.0f);
 		ImGui::SliderFloat("Frq Lac", &waveFrequencyLacunarity, 0.0f, 8.0f);
 		ImGui::SliderFloat("Amplitude", &waveAmplitude, 0.0f, 0.1f);
 		ImGui::SliderFloat("Amp Lac", &waveAmplitudeLacunarity, 0.0f, 2.0f);

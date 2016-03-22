@@ -150,8 +150,8 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.005f, "%.7f");
 	ImGui::SliderFloat("MaxDepth", &m_erosionMaxDepth, 0.0f, 0.1f);
 	ImGui::SliderFloat("Transport", &m_dirtTransportStrength, 0.0f, 2.0f);
-	ImGui::SliderFloat("SpeedMin", &m_erosionFluxMin, 0.0f, 0.5);
-	ImGui::SliderFloat("SpeedMax", &m_erosionFluxMax, 0.0f, 0.1);
+	ImGui::SliderFloat("SpeedMin", &m_erosionFluxMin, 0.0f, 0.5f);
+	ImGui::SliderFloat("SpeedMax", &m_erosionFluxMax, 0.0f, 0.1f);
 	ImGui::Spacing();
 
 

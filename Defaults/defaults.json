@@ -1,11 +1,11 @@
 {
     "TerrainMaterial": {
         "MapHeightOffset": 0.00499999988824129,
-        "ambientLightIntensity": 2.0,
+        "ambientLightIntensity": 0.824000060558319,
         "choppyLimit": 1.0,
         "choppyPower": 4.0,
-        "directLightIntensity": 2.0,
-        "fogDensity": 10.1350002288818,
+        "directLightIntensity": 1.08100008964539,
+        "fogDensity": 0.0,
         "fogFalloff": 1000.00006103516,
         "fogHeight": 0.230000004172325,
         "lightAltitude": -0.41887903213501,
