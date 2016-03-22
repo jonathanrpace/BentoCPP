@@ -1,0 +1,4 @@
+Propogate heat, volume and scroll texture the same way (need to introduce direction for heat)
+
+Shadows
+

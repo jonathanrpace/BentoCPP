@@ -108,8 +108,8 @@ namespace bento
 		// Molten
 		float m_rockFluxDamping = 0.99f;
 
-		float m_viscosityMin = 0.01f;
-		float m_viscosityMax = 0.4f;
+		float m_viscosityMin = 0.05f;
+		float m_viscosityMax = 0.2f;
 		float m_heatViscosityPower = 1.5f;
 		float m_rockMeltingPoint = 0.3f;
 
@@ -126,14 +126,14 @@ namespace bento
 		// Water
 		float m_waterFluxDamping = 0.99f;
 
-		float m_waterViscosity = 0.5f;
+		float m_waterViscosity = 0.25f;
 		float m_waterBoilingPoint = 0.1f;
 		float m_waterFreezingPoint = 0.0f;
 
-		float m_erosionStrength = 0.00001f;
+		float m_erosionStrength = 0.00004f;
 		float m_dirtTransportStrength = 0.5f;
 		float m_erosionFluxMin = 0.01f;
-		float m_erosionFluxMax = 0.05f;
+		float m_erosionFluxMax = 0.02f;
 		float m_erosionMaxDepth = 0.01f;
 
 		// Global

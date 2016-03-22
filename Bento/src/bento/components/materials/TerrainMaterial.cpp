@@ -10,7 +10,7 @@ namespace bento
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR)
 		, waterColor(0.219f, 0.286f, 0.278f)
 		, waterTranslucentColor(0.219f, 0.411f, 0.392f)
-		, fogColorAway(0.5f, 0.6f, 0.7f)
+		, fogColorAway(0.7f, 0.7f, 0.7f)
 		, fogColorTowards(1.0f, 0.9f, 0.7f)
 	{
 		someTexture.TexImage2D("textures/DataMap.png");

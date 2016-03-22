@@ -134,12 +134,12 @@ void main(void)
 
 	// Diffuse
 	float diffuseScalar = moltenPhase;
-	vec3 diffuse = vec3(0.035f);
-	diffuse += mappingDataC.y * 0.025;
+	vec3 diffuse = vec3(0.04f);
+	diffuse += mappingDataC.y * 0.04;
 
 	float dirtScalar = clamp( dot(vec3(0.0,1.0,0.0), in_rockNormal.xyz), 0.0, 1.0 );
-	dirtScalar = smoothstep( 0.7, 1.0, dirtScalar );
-	diffuse = mix( diffuse, vec3(0.2,0.2,0.0), smoothstep(0.0, 0.01, dirtHeight) * 0.2 * dirtScalar );
+	dirtScalar = smoothstep( 0.5, 1.0, dirtScalar );
+	diffuse = mix( diffuse, vec3(0.3,0.2,0.0), smoothstep(0.0, 0.01, dirtHeight) * 0.25 * dirtScalar );
 	
 
 	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.0f)*0.05f);		// Scorch
