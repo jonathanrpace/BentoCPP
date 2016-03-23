@@ -166,8 +166,9 @@ void main(void)
 		
 		float samplePos = newPhase;
 
-		float diffuseSampleA = texture(s_diffuseMap, pullUV).y;
-		samplePos += diffuseSampleA * 0.05;// * (1.0f - clamp((heat-u_heatViscosityBias)*0.5f, 0.0f, 1.0f)) * 0.05f;
+		float diffuseSampleA = texture(s_diffuseMap, pullUV).z;
+
+		samplePos += diffuseSampleA * 0.3f;// * (1.0f - min(heat/u_heatViscosityBias, 1.0f));
 		float newBump = texture(s_diffuseMap, vec2(samplePos,0)).x;
 		
 
