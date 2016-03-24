@@ -134,15 +134,18 @@ void main(void)
 
 	// Diffuse
 	float diffuseScalar = moltenPhase;
-	vec3 diffuse = vec3(0.02f);
+	vec3 diffuse = vec3(0.00f);
 	diffuse += mappingDataC.y * 0.04;
 
 	float dirtScalar = clamp( dot(vec3(0.0,1.0,0.0), in_rockNormal.xyz), 0.0, 1.0 );
-	dirtScalar = smoothstep( 0.5, 1.0, dirtScalar );
-	diffuse = mix( diffuse, vec3(0.3,0.3,0.0), smoothstep(0.0, 0.01, dirtHeight) * 0.25 * dirtScalar );
+	dirtScalar = smoothstep( 0.0, 1.0, dirtScalar );
+	//const vec3 dirtColor = vec3(0.2,0.15,0.1);
+	const vec3 dirtColor = vec3(1.0,0.0,0.0);
+
+	diffuse = mix( diffuse, dirtColor, smoothstep(0.0, 0.01, dirtHeight) );
 	
 
-	diffuse = max(vec3(0.0f), diffuse-max(0.0f,heat-0.0f)*0.1f);		// Scorch
+	diffuse = max(vec3(0.0f), diffuse-min(heat,1.0)*0.05f);		// Scorch
 
 	// Direct light
 	vec3 directLight = vec3( max( dot(in_rockNormal.xyz, u_lightDir), 0.0f ) * u_lightIntensity );

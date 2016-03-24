@@ -148,11 +148,12 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 	ImGui::Text("Erosion");
 	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.001f, "%.7f");
-	ImGui::SliderFloat("MaxDepth", &m_erosionMaxDepth, 0.0f, 0.1f);
-	ImGui::SliderFloat("SpeedMin", &m_erosionFluxMin, 0.0f, 100.0f);
-	ImGui::SliderFloat("SpeedMax", &m_erosionFluxMax, 0.0f, 100.0f);
-	ImGui::SliderFloat("AirErosion", &m_airErosionStrength, 0.0f, 0.05f);
-	ImGui::SliderFloat("AirErosionMinDiff", &m_airErosionMinDiff, 0.0f, 0.5f, "%.7f");
+	ImGui::SliderFloat("MaxDepth", &m_erosionMaxDepth, 0.0f, 0.03f);
+	ImGui::SliderFloat("SpeedMin", &m_erosionFluxMin, 0.0f, 1.0f);
+	ImGui::SliderFloat("SpeedMax", &m_erosionFluxMax, 0.0f, 1.0f);
+	ImGui::SliderFloat("AirErosion", &m_airErosionStrength, 0.0f, 0.01f, "%.7f");
+	ImGui::SliderFloat("AirErosionMinDiff", &m_airErosionMinDiff, 0.0f, 0.01f, "%.7f");
+	ImGui::SliderFloat("DirtTransportSpeed", &m_dirtTransportSpeed, 0.0f, 0.2f);
 	ImGui::Spacing();
 
 
@@ -309,6 +310,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_airErosionStrength", m_airErosionStrength);
 		fragShader.SetUniform("u_erosionMaxDepth", m_erosionMaxDepth);
 		fragShader.SetUniform("u_airErosionMinDiff", m_airErosionMinDiff);
+		fragShader.SetUniform("u_dirtTransportSpeed", m_dirtTransportSpeed);
 
 		// Waves
 		float phase = fmod((float)glfwGetTime()*_material.waveSpeed, 1.0f);

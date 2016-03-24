@@ -131,11 +131,12 @@ namespace bento
 		float m_waterFreezingPoint = 0.0f;
 
 		float m_erosionStrength = 0.00004f;
-		float m_airErosionStrength = 0.001f;
-		float m_airErosionMinDiff = 0.001f;
+		float m_airErosionStrength = 0.0001f;
+		float m_airErosionMinDiff = 0.005f;
 		float m_erosionFluxMin = 0.01f;
 		float m_erosionFluxMax = 0.02f;
 		float m_erosionMaxDepth = 0.01f;
+		float m_dirtTransportSpeed = 0.01f;
 
 		// Global
 		float m_ambientTemperature = 0.05f;

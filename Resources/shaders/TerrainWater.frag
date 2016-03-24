@@ -179,7 +179,7 @@ void main(void)
 		foamDiffuse += u_ambientLightIntensity;
 		foamDiffuse *= vec3(0.7);	// Albedo
 
-		outColor = mix(outColor, foamDiffuse, foamSample.w * 0.75);
+		outColor = mix(outColor, foamDiffuse, foamSample.w * 0.75 * waterAlpha);
 	}
 
 

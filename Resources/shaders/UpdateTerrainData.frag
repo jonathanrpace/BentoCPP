@@ -53,6 +53,7 @@ uniform float u_erosionFluxMax;
 uniform float u_airErosionStrength;
 uniform float u_erosionMaxDepth;
 uniform float u_airErosionMinDiff;
+uniform float u_dirtTransportSpeed;
 
 // Waves
 uniform float u_wavePhase;
@@ -161,14 +162,10 @@ float CalcViscosity( float _heat, float _viscosityScalar )
 
 ////////////////////////////////////////////////////////////////
 //
-vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 fluxD, vec2 texelSize, float viscosity )
+vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 fluxD, float viscosity )
 {
-	vec2 velocity = vec2(	(fluxL.y + fluxC.y) - (fluxR.x + fluxC.x), 
-							(fluxU.w + fluxC.w) - (fluxD.z + fluxC.z) );
-	velocity /= texelSize;
-	velocity *= viscosity;
-
-	return velocity;
+	return vec2((fluxL.y + fluxC.y) - (fluxR.x + fluxC.x), 
+				(fluxU.w + fluxC.w) - (fluxD.z + fluxC.z) ) * viscosity;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -308,45 +305,58 @@ void main(void)
 		////////////////////////////////////////////////////////////////
 		// Dirt transport
 		////////////////////////////////////////////////////////////////
-		vec2 waterVelocity = VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, texelSize, u_waterViscosity );
+		vec2 waterVelocity = VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity );
 
-		float waterSpeedL = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.x, 0.0 ) );
-		float waterSpeedR = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.x, 0.0 ) );
-		float waterSpeedU = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.y, 0.0 ) );
-		float waterSpeedD = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.y, 0.0 ) );
+		float waterVolumeScalar = min(newWaterHeight / 0.01, 1.0);
+		waterVelocity *= waterVolumeScalar;
 
-		float availableDirtC = dirtHeight*0.25;	// A quarter, so each direction can get its fair share
+		//float waterSpeedL = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.x, 0.0 ) );
+		//float waterSpeedR = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.x, 0.0 ) );
+		//float waterSpeedU = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.y, 0.0 ) );
+		//float waterSpeedD = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.y, 0.0 ) );
 
-		float toLeft  = waterSpeedL * availableDirtC;
-		float toRight = waterSpeedR * availableDirtC;
-		float toAbove = waterSpeedU * availableDirtC;
-		float toBelow = waterSpeedD * availableDirtC;
+		float waterSpeedL = clamp( -waterVelocity.x / u_erosionFluxMax, 0.0, 1.0 );
+		float waterSpeedR = clamp(  waterVelocity.x / u_erosionFluxMax, 0.0, 1.0 );
+		float waterSpeedU = clamp( -waterVelocity.y / u_erosionFluxMax, 0.0, 1.0 );
+		float waterSpeedD = clamp(  waterVelocity.y / u_erosionFluxMax, 0.0, 1.0 );
+
+		float availableDirtC = newDirtHeight*0.25;	// A quarter, so each direction can get its fair share
+
+		float toLeft  = min( waterSpeedL * u_dirtTransportSpeed, availableDirtC );
+		float toRight = min( waterSpeedR * u_dirtTransportSpeed, availableDirtC );
+		float toAbove = min( waterSpeedU * u_dirtTransportSpeed, availableDirtC );
+		float toBelow = min( waterSpeedD * u_dirtTransportSpeed, availableDirtC );
 
 		float availableDirtL = texelFetch(s_rockData, texelCoordL, 0).w * 0.25;
 		float availableDirtR = texelFetch(s_rockData, texelCoordR, 0).w * 0.25;
 		float availableDirtU = texelFetch(s_rockData, texelCoordU, 0).w * 0.25;
 		float availableDirtD = texelFetch(s_rockData, texelCoordD, 0).w * 0.25;
 
-		float fromLeft  = waterSpeedR * availableDirtL;
-		float fromRight = waterSpeedL * availableDirtR;
-		float fromAbove = waterSpeedD * availableDirtU;
-		float fromBelow = waterSpeedU * availableDirtD;
+		float fromLeft  = min( waterSpeedR * u_dirtTransportSpeed, availableDirtL );
+		float fromRight = min( waterSpeedL * u_dirtTransportSpeed, availableDirtR );
+		float fromAbove = min( waterSpeedD * u_dirtTransportSpeed, availableDirtU );
+		float fromBelow = min( waterSpeedU * u_dirtTransportSpeed, availableDirtD );
 													  
 		newDirtHeight -= (toLeft+toRight+toAbove+toBelow);
 		newDirtHeight += (fromLeft+fromRight+fromAbove+fromBelow);
 
 		////////////////////////////////////////////////////////////////
-		// Erosion
+		// Water erosion
 		////////////////////////////////////////////////////////////////
 		float waterSpeed = length(waterVelocity);
-		float erosionDepthScalar = 1.0 - smoothstep( 0.0, u_erosionMaxDepth, newDirtHeight );
-		float rockToDirt = smoothstep( u_erosionFluxMin, u_erosionFluxMax, waterSpeed ) * u_erosionStrength * solidHeight * erosionDepthScalar;
+		//float erosionDepthScalar = 1.0 - smoothstep( 0.0, u_erosionMaxDepth, newDirtHeight );
+		//float erosionSpeedScalar = smoothstep( u_erosionFluxMin, u_erosionFluxMax, waterSpeed );
+		float erosionDepthScalar = 1.0 - min(newDirtHeight / u_erosionMaxDepth, 1.0);
+		float erosionSpeedScalar = min(waterSpeed / u_erosionFluxMax, 1.0);
+		float rockToDirt = erosionSpeedScalar * u_erosionStrength * solidHeight * erosionDepthScalar;
 
 		solidHeight -= rockToDirt;
 		newDirtHeight += rockToDirt;
 
 
-		// Erode rock with air
+		////////////////////////////////////////////////////////////////
+		// Air erosion
+		////////////////////////////////////////////////////////////////
 		vec4 rockDataL = texelFetch(s_rockData, texelCoordL, 0);
 		vec4 rockDataR = texelFetch(s_rockData, texelCoordR, 0);
 		vec4 rockDataU = texelFetch(s_rockData, texelCoordU, 0);
@@ -356,9 +366,10 @@ void main(void)
 		float heightR = rockDataR.x;
 		float heightU = rockDataU.x;
 		float heightD = rockDataD.x;
-		float diff = max(heightC-heightL,0.0) + max(heightC-heightR,0.0) + max(heightC-heightU,0.0) + max(heightC+heightD,0.0);
-		float maxDiff = max( diff-u_airErosionMinDiff, 0.0 );
-		solidHeight -= maxDiff * u_airErosionStrength;
+
+		float smallestDiff = min( min(heightC-heightL, heightC-heightR), min(heightC-heightU, heightC-heightD ) );
+		float scalar = step( u_airErosionMinDiff, abs(smallestDiff) );
+		solidHeight -= smallestDiff * u_airErosionStrength * scalar;
 	}
 
 	////////////////////////////////////////////////////////////////
