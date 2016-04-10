@@ -57,11 +57,6 @@ namespace bento
 		ImGui::ColorEdit3("WaterColor", glm::value_ptr(waterColor));
 		ImGui::ColorEdit3("WaterTranslucentColor", glm::value_ptr(waterTranslucentColor));
 		ImGui::Text("Waves");
-		//ImGui::SliderFloat("Effect strength", &waveEffectStrength, 0.0f, 0.05f);
-		//ImGui::SliderFloat("Effect limit", &waveEffectLimit, 0.0f, 0.01f, "%.4f");
-		//ImGui::SliderFloat("Choppy limit", &choppyLimit, 0.0f, 0.5f);
-		//ImGui::SliderFloat("Choppy power", &choppyPower, 0.0f, 8.0f);
-		//ImGui::Text("Wave Strength");
 		ImGui::SliderInt("Num octaves", &waveOctavesNum, 1, 16);
 		ImGui::SliderFloat("Speed", &waveSpeed, 0.0f, 0.1f);
 		ImGui::SliderFloat("Frequency", &waveFrequency, 0.0f, 16.0f);
