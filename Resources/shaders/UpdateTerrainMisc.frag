@@ -24,8 +24,7 @@ uniform float u_mapHeightOffset;
 
 uniform float u_viscosityMin;
 uniform float u_viscosityMax;
-uniform float u_heatViscosityPower;
-uniform float u_heatViscosityBias;
+uniform float u_rockMeltingPoint;
 
 uniform float u_waterViscosity;
 uniform float u_mouseRadius;
@@ -56,7 +55,7 @@ layout( location = 2 ) out vec4 out_waterNormal;
 float CalcViscosity( float _heat, float _viscosityScalar )
 {
 	float viscosity = mix( u_viscosityMin, u_viscosityMax, 1.0f-_viscosityScalar );
-	return pow(smoothstep( 0.0f, 1.0f, clamp(_heat-u_heatViscosityBias, 0.0f, 1.0f)), u_heatViscosityPower) * viscosity;
+	return smoothstep( 0.0f, 1.0f, clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0f)) * viscosity;
 }
 
 vec2 GetMousePos()
@@ -166,9 +165,9 @@ void main(void)
 		
 		float samplePos = newPhase;
 
-		float diffuseSampleA = texture(s_diffuseMap, pullUV).z;
+		//float diffuseSampleA = texture(s_diffuseMap, pullUV).z;
+		//samplePos += diffuseSampleA * 0.3f;// * (1.0f - min(heat/u_rockMeltingPoint, 1.0f));
 
-		samplePos += diffuseSampleA * 0.3f;// * (1.0f - min(heat/u_heatViscosityBias, 1.0f));
 		float newBump = texture(s_diffuseMap, vec2(samplePos,0)).x;
 		
 
@@ -187,11 +186,11 @@ void main(void)
 		float noiseU = waterDataU.w;
 		float noiseD = waterDataD.w;
 
-		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + waterDataR.y + noiseR;
-		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + waterDataL.y + noiseL;
-		float heightU = rockDataU.x + rockDataU.y + rockDataU.w + waterDataU.x + waterDataU.y + noiseU;
-		float heightD = rockDataD.x + rockDataD.y + rockDataD.w + waterDataD.x + waterDataD.y + noiseD;
-		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y + noiseC;
+		float heightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + noiseR;
+		float heightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + noiseL;
+		float heightU = rockDataU.x + rockDataU.y + rockDataU.w + waterDataU.x + noiseU;
+		float heightD = rockDataD.x + rockDataD.y + rockDataD.w + waterDataD.x + noiseD;
+		float heightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + noiseC;
 		
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
@@ -205,8 +204,8 @@ void main(void)
 		vec4 fluxC  = texelFetch(s_waterFluxData, texelCoordC, 0);
 
 		float choppyness = mappingDataC.z;
-		choppyness *= 0.99;
-		choppyness += (fluxC.x + fluxC.y + fluxC.z + fluxC.w) * 2.0;
+		choppyness *= 0.999;
+		choppyness += (fluxC.x + fluxC.y + fluxC.z + fluxC.w) * 4.0;
 		choppyness = min(choppyness, 1.0);
 		mappingDataC.z = choppyness;
 	}
@@ -243,9 +242,6 @@ void main(void)
 
 		// Scale to an appropriate range
 		heightDifferenceTotal /= 0.01;
-
-		// Reduce when no water.
-		//heightDifferenceTotal *= min(waterDataC.y / 0.01, 1);
 
 		mappingDataC.w = clamp( heightDifferenceTotal, 0.0, 1.0 );
 	}

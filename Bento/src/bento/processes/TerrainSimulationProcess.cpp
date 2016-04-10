@@ -62,6 +62,7 @@ FoamFrag::FoamFrag() : ShaderStageBase("shaders/FoamParticle.frag", false)
 	
 TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	: Process(_name, typeid(TerrainSimulationProcess))
+	, SerializableBase("TerrainSimulationProcess")
 	, m_updateFluxShader()
 	, m_updateDataShader()
 	, m_updateMiscShader()
@@ -74,6 +75,35 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 {
 	m_nodeGroup.NodeAdded += OnNodeAddedDelegate;
 	m_nodeGroup.NodeRemoved += OnNodeRemovedDelegate;
+	
+	// Molten
+	SerializableMember("mouseRadius",			0.1f,		&m_mouseRadius);
+	SerializableMember("mouseVolumeStrength",	0.002f,		&m_mouseVolumeStrength);
+	SerializableMember("mouseHeatStrength",		0.08f,		&m_mouseHeatStrength);
+	SerializableMember("moltenFluxDamping",		0.99f,		&m_moltenFluxDamping);
+	SerializableMember("moltenViscosityMin",	0.05f,		&m_moltenViscosityMin);
+	SerializableMember("moltenViscosityMax",	0.2f,		&m_moltenViscosityMax);
+	SerializableMember("rockMeltingPoint",		0.3f,		&m_rockMeltingPoint);
+	SerializableMember("textureScrollSpeed",	0.04f,		&m_textureScrollSpeed);
+	SerializableMember("textureCycleSpeed",		0.003f,		&m_textureCycleSpeed);
+	SerializableMember("heatAdvectSpeed",		0.5f,		&m_heatAdvectSpeed);
+	SerializableMember("meltSpeed",				0.00001f,	&m_meltSpeed);
+	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
+	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
+
+	// Water
+	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
+	SerializableMember("waterViscosity",		0.25f,		&m_waterViscosity);
+	SerializableMember("waterBoilingPoint",		0.1f,		&m_waterBoilingPoint);
+	SerializableMember("waterFreezingPoint",	0.0f,		&m_waterFreezingPoint);
+
+	// Erosion
+	SerializableMember("erosionStrength",		0.0f,		&m_erosionStrength);
+	SerializableMember("erosionMaxDepth",		0.01f,		&m_erosionMaxDepth);
+	SerializableMember("dirtTransportSpeed",	0.0f,		&m_dirtTransportSpeed);
+
+	// Global
+	SerializableMember("ambientTemperature",	0.05f,		&m_ambientTemperature);
 }
 
 TerrainSimulationProcess::~TerrainSimulationProcess()
@@ -105,7 +135,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 	ImGui::Text("Input");
 	ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
-	ImGui::SliderFloat("MouseVolumeStrength", &m_mouseMoltenVolumeStrength, 0.00f, 0.01f, "%.5f");
+	ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
 	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 1.0f, "%.2f");
 	ImGui::Spacing();
 
@@ -115,19 +145,14 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Text("Molten");
-	ImGui::SliderFloat("FluxDamping", &m_rockFluxDamping, 0.9f, 1.0f);
+	ImGui::SliderFloat("FluxDamping", &m_moltenFluxDamping, 0.9f, 1.0f);
 	ImGui::Spacing();
 
 	ImGui::Spacing();
-	ImGui::SliderFloat("ViscosityMin", &m_viscosityMin, 0.01f, 0.5f);
-	ImGui::SliderFloat("ViscosityMax", &m_viscosityMax, 0.01f, 0.5f);
-	ImGui::SliderFloat("HeatViscosityPower", &m_heatViscosityPower, 0.1f, 10.0f);
-	ImGui::SliderFloat("HeatViscosityBias", &m_rockMeltingPoint, 0.0f, 2.0f);
-	ImGui::Spacing();
-
-	ImGui::Spacing();
+	ImGui::SliderFloat("ViscosityMin", &m_moltenViscosityMin, 0.01f, 0.5f);
+	ImGui::SliderFloat("ViscosityMax", &m_moltenViscosityMax, 0.01f, 0.5f);
+	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
 	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 5.0f);
-	ImGui::SliderFloat("HeatSmoothing", &m_heatSmoothingStrength, 0.0f, 0.5f, "%.4f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -144,19 +169,22 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 	ImGui::Text("Water");
 	ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
-	ImGui::SliderFloat("Viscosity2", &m_waterViscosity, 0.01f, 0.5f);
+	ImGui::SliderFloat("Viscosity", &m_waterViscosity, 0.01f, 0.5f);
 	ImGui::Spacing();
 	ImGui::Text("Erosion");
-	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.001f, "%.7f");
+	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.01f, "%.7f");
 	ImGui::SliderFloat("MaxDepth", &m_erosionMaxDepth, 0.0f, 0.03f);
-	ImGui::SliderFloat("SpeedMin", &m_erosionFluxMin, 0.0f, 1.0f);
-	ImGui::SliderFloat("SpeedMax", &m_erosionFluxMax, 0.0f, 1.0f);
-	ImGui::SliderFloat("AirErosion", &m_airErosionStrength, 0.0f, 0.01f, "%.7f");
-	ImGui::SliderFloat("AirErosionMinDiff", &m_airErosionMinDiff, 0.0f, 0.01f, "%.7f");
-	ImGui::SliderFloat("DirtTransportSpeed", &m_dirtTransportSpeed, 0.0f, 0.2f);
+	ImGui::SliderFloat("DirtTransportSpeed", &m_dirtTransportSpeed, 0.0f, 0.1f, "%.7f");
 	ImGui::Spacing();
 
-
+	if (ImGui::Button("Reset"))
+	{
+		ResetToDefaults();
+	}
+	if (ImGui::Button("Save"))
+	{
+		FlushChanges();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -179,11 +207,11 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	bool mouseIsDown = m_scene->GetInputManager()->IsMouseDown(1);
 
 	float moltenScalar = m_scene->GetInputManager()->IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 0.0f : 1.0f;
-	float moltenVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseMoltenVolumeStrength * moltenScalar;
+	float moltenVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * moltenScalar;
 	float heatChangeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseHeatStrength * moltenScalar;
 
 	float waterScalar = m_scene->GetInputManager()->IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f;
-	float waterVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseMoltenVolumeStrength * waterScalar;
+	float waterVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * waterScalar;
 
 		
 
@@ -243,9 +271,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
 		fragShader.SetTexture("s_waterFluxData", &_geom.WaterFluxDataRead());
 
-		fragShader.SetUniform("u_rockFluxDamping", m_rockFluxDamping);
+		fragShader.SetUniform("u_rockFluxDamping", m_moltenFluxDamping);
 		fragShader.SetUniform("u_waterFluxDamping", m_waterFluxDamping);
-		fragShader.SetUniform("u_heatViscosityBias", m_rockMeltingPoint);
+		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
 
 		m_screenQuadGeom.Draw();
 
@@ -293,10 +321,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			
 		fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
 
-		fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
-		fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
-		fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
-		fragShader.SetUniform("u_heatViscosityBias", m_rockMeltingPoint);
+		fragShader.SetUniform("u_viscosityMin", m_moltenViscosityMin);
+		fragShader.SetUniform("u_viscosityMax", m_moltenViscosityMin);
+		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
 
 		fragShader.SetUniform("u_ambientTemp", m_ambientTemperature);
 		fragShader.SetUniform("u_tempChangeSpeed", m_tempChangeSpeed);
@@ -305,11 +332,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
 		fragShader.SetUniform("u_erosionStrength", m_erosionStrength);
-		fragShader.SetUniform("u_erosionFluxMin", m_erosionFluxMin);
-		fragShader.SetUniform("u_erosionFluxMax", m_erosionFluxMax);
-		fragShader.SetUniform("u_airErosionStrength", m_airErosionStrength);
 		fragShader.SetUniform("u_erosionMaxDepth", m_erosionMaxDepth);
-		fragShader.SetUniform("u_airErosionMinDiff", m_airErosionMinDiff);
 		fragShader.SetUniform("u_dirtTransportSpeed", m_dirtTransportSpeed);
 
 		// Waves
@@ -375,10 +398,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			
 		fragShader.SetUniform("u_numHeightMips", _geom.RockDataRead().GetNumMipMaps());
 
-		fragShader.SetUniform("u_viscosityMin", m_viscosityMin);
-		fragShader.SetUniform("u_viscosityMax", m_viscosityMax);
-		fragShader.SetUniform("u_heatViscosityPower", m_heatViscosityPower);
-		fragShader.SetUniform("u_heatViscosityBias", m_rockMeltingPoint);
+		fragShader.SetUniform("u_viscosityMin", m_moltenViscosityMin);
+		fragShader.SetUniform("u_viscosityMax", m_moltenViscosityMin);
+		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
 
 		fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
 

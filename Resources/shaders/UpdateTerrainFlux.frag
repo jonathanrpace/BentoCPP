@@ -43,14 +43,12 @@ void main(void)
 	vec4 rockHeightC = vec4(rockDataC.x);
 	vec4 dirtHeightC = vec4(rockDataC.w);
 	vec4 moltenHeightC = vec4(rockDataC.y);
-	vec4 iceHeightC = vec4(waterDataC.x);
-	vec4 waterHeightC = vec4(waterDataC.y);
+	vec4 waterHeightC = vec4(waterDataC.x);
 	
 	vec4 rockHeightN = vec4(rockDataL.x, rockDataR.x, rockDataU.x, rockDataD.x);
 	vec4 dirtHeightN = vec4(rockDataL.w, rockDataR.w, rockDataU.w, rockDataD.w);
 	vec4 moltenHeightN = vec4(rockDataL.y, rockDataR.y, rockDataU.y, rockDataD.y);
-	vec4 iceHeightN = vec4(waterDataL.x, waterDataR.x, waterDataU.x, waterDataD.x);
-	vec4 waterHeightN = vec4(waterDataL.y, waterDataR.y, waterDataU.y, waterDataD.y);
+	vec4 waterHeightN = vec4(waterDataL.x, waterDataR.x, waterDataU.x, waterDataD.x);
 
 	float rockHeatC = rockDataC.z;
 
@@ -74,8 +72,8 @@ void main(void)
 	}
 	// Water flux
 	{
-		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + iceHeightC + waterHeightC;
-		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + iceHeightN + waterHeightN;
+		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC;
+		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + waterHeightN;
 		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) );
 
 		vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);

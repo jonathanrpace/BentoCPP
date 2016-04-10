@@ -38,8 +38,7 @@ uniform float u_ambientTemp;
 uniform float u_heatAdvectSpeed;
 uniform float u_viscosityMin;
 uniform float u_viscosityMax;
-uniform float u_heatViscosityPower;
-uniform float u_heatViscosityBias;
+uniform float u_rockMeltingPoint;
 
 uniform float u_tempChangeSpeed;
 uniform float u_condenseSpeed;
@@ -48,11 +47,7 @@ uniform float u_meltSpeed;
 // Water
 uniform float u_waterViscosity;
 uniform float u_erosionStrength;
-uniform float u_erosionFluxMin;
-uniform float u_erosionFluxMax;
-uniform float u_airErosionStrength;
 uniform float u_erosionMaxDepth;
-uniform float u_airErosionMinDiff;
 uniform float u_dirtTransportSpeed;
 
 // Waves
@@ -157,7 +152,7 @@ vec2 GetMousePos()
 float CalcViscosity( float _heat, float _viscosityScalar )
 {
 	float viscosity = mix( u_viscosityMin, u_viscosityMax, 1.0-_viscosityScalar );
-	return pow(smoothstep( 0.0f, 1.0f, clamp(_heat-u_heatViscosityBias, 0.0f, 1.0)), u_heatViscosityPower) * viscosity;
+	return smoothstep( 0.0f, 1.0f, clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0)) * viscosity;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -195,8 +190,7 @@ void main(void)
 	float dirtHeight = rockDataC.w;
 	float moltenHeight = rockDataC.y;
 	float moltenHeat = rockDataC.z;
-	float iceHeight = waterDataC.x;
-	float waterHeight = waterDataC.y;
+	float waterHeight = waterDataC.x;
 
 	float moltenViscosityScalar = mappingDataC.y;
 	float moltenViscosity = CalcViscosity(moltenHeat, moltenViscosityScalar);
@@ -209,7 +203,6 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	float newMoltenHeight = moltenHeight;
 	float newMoltenHeat = moltenHeat;
-
 	{
 		vec4 fluxC = texelFetch(s_rockFluxData, texelCoordC, 0);
 		vec4 fluxL = texelFetch(s_rockFluxData, texelCoordL, 0);
@@ -295,93 +288,65 @@ void main(void)
 		waveNoiseHeight = waveNoise(in_uv);
 		waveNoiseHeight *= u_waveAmplitude;
 
-		float mippedWaterHeight = texture2D(s_waterData, in_uv, 4).y;
+		float mippedWaterHeight = texture2D(s_waterData, in_uv, 4).x;
 		float heightRatio = smoothstep( 0.0, u_waveDepthMax, mippedWaterHeight);
 		waveNoiseHeight *= heightRatio;
 
 		// Scale by choppyness
 		waveNoiseHeight *= mappingDataC.z;
 
+
+		////////////////////////////////////////////////////////////////
+		// Water erosion
+		////////////////////////////////////////////////////////////////
+		float waterSpeed = length(waterDataC.yz);
+		float erosionDepthScalar = 1.0 - min(newDirtHeight / u_erosionMaxDepth, 1.0);
+		float rockToDirt = min( waterSpeed * u_erosionStrength * erosionDepthScalar, solidHeight );
+		solidHeight -= rockToDirt;
+		newDirtHeight += rockToDirt;
+
 		////////////////////////////////////////////////////////////////
 		// Dirt transport
 		////////////////////////////////////////////////////////////////
-		vec2 waterVelocity = VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity );
 
-		float waterVolumeScalar = min(newWaterHeight / 0.01, 1.0);
-		waterVelocity *= waterVolumeScalar;
+		vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
+		vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
+		vec4 waterDataU = texelFetch(s_waterData, texelCoordU, 0);
+		vec4 waterDataD = texelFetch(s_waterData, texelCoordD, 0);
 
-		//float waterSpeedL = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.x, 0.0 ) );
-		//float waterSpeedR = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.x, 0.0 ) );
-		//float waterSpeedU = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max( -waterVelocity.y, 0.0 ) );
-		//float waterSpeedD = smoothstep( u_erosionFluxMin, u_erosionFluxMax, max(  waterVelocity.y, 0.0 ) );
-
-		float waterSpeedL = clamp( -waterVelocity.x / u_erosionFluxMax, 0.0, 1.0 );
-		float waterSpeedR = clamp(  waterVelocity.x / u_erosionFluxMax, 0.0, 1.0 );
-		float waterSpeedU = clamp( -waterVelocity.y / u_erosionFluxMax, 0.0, 1.0 );
-		float waterSpeedD = clamp(  waterVelocity.y / u_erosionFluxMax, 0.0, 1.0 );
-
-		float availableDirtC = newDirtHeight*0.25;	// A quarter, so each direction can get its fair share
-
-		float toLeft  = min( waterSpeedL * u_dirtTransportSpeed, availableDirtC );
-		float toRight = min( waterSpeedR * u_dirtTransportSpeed, availableDirtC );
-		float toAbove = min( waterSpeedU * u_dirtTransportSpeed, availableDirtC );
-		float toBelow = min( waterSpeedD * u_dirtTransportSpeed, availableDirtC );
-
+		float availableDirtC = newDirtHeight * 0.25;
 		float availableDirtL = texelFetch(s_rockData, texelCoordL, 0).w * 0.25;
 		float availableDirtR = texelFetch(s_rockData, texelCoordR, 0).w * 0.25;
 		float availableDirtU = texelFetch(s_rockData, texelCoordU, 0).w * 0.25;
 		float availableDirtD = texelFetch(s_rockData, texelCoordD, 0).w * 0.25;
 
-		float fromLeft  = min( waterSpeedR * u_dirtTransportSpeed, availableDirtL );
-		float fromRight = min( waterSpeedL * u_dirtTransportSpeed, availableDirtR );
-		float fromAbove = min( waterSpeedD * u_dirtTransportSpeed, availableDirtU );
-		float fromBelow = min( waterSpeedU * u_dirtTransportSpeed, availableDirtD );
-													  
-		newDirtHeight -= (toLeft+toRight+toAbove+toBelow);
-		newDirtHeight += (fromLeft+fromRight+fromAbove+fromBelow);
 
-		////////////////////////////////////////////////////////////////
-		// Water erosion
-		////////////////////////////////////////////////////////////////
-		float waterSpeed = length(waterVelocity);
-		//float erosionDepthScalar = 1.0 - smoothstep( 0.0, u_erosionMaxDepth, newDirtHeight );
-		//float erosionSpeedScalar = smoothstep( u_erosionFluxMin, u_erosionFluxMax, waterSpeed );
-		float erosionDepthScalar = 1.0 - min(newDirtHeight / u_erosionMaxDepth, 1.0);
-		float erosionSpeedScalar = min(waterSpeed / u_erosionFluxMax, 1.0);
-		float rockToDirt = erosionSpeedScalar * u_erosionStrength * solidHeight * erosionDepthScalar;
+		float transferedAway =	min( max(-waterDataL.y, 0.0) * u_dirtTransportSpeed, availableDirtC ) + 
+								min( max( waterDataR.y, 0.0) * u_dirtTransportSpeed, availableDirtC ) +
+								min( max(-waterDataU.z, 0.0) * u_dirtTransportSpeed, availableDirtC ) +
+								min( max( waterDataD.z, 0.0) * u_dirtTransportSpeed, availableDirtC );
+		
+		float transferedIn =	min( max( waterDataC.y, 0.0) * u_dirtTransportSpeed, availableDirtL ) + 
+								min( max(-waterDataC.y, 0.0) * u_dirtTransportSpeed, availableDirtR ) +
+								min( max( waterDataC.z, 0.0) * u_dirtTransportSpeed, availableDirtU ) +
+								min( max(-waterDataC.z, 0.0) * u_dirtTransportSpeed, availableDirtD );
+		
+		newDirtHeight -= transferedAway;
+		newDirtHeight += transferedIn;
 
-		solidHeight -= rockToDirt;
-		newDirtHeight += rockToDirt;
-
-
-		////////////////////////////////////////////////////////////////
-		// Air erosion
-		////////////////////////////////////////////////////////////////
-		vec4 rockDataL = texelFetch(s_rockData, texelCoordL, 0);
-		vec4 rockDataR = texelFetch(s_rockData, texelCoordR, 0);
-		vec4 rockDataU = texelFetch(s_rockData, texelCoordU, 0);
-		vec4 rockDataD = texelFetch(s_rockData, texelCoordD, 0);
-		float heightC = solidHeight;
-		float heightL = rockDataL.x;
-		float heightR = rockDataR.x;
-		float heightU = rockDataU.x;
-		float heightD = rockDataD.x;
-
-		float smallestDiff = min( min(heightC-heightL, heightC-heightR), min(heightC-heightU, heightC-heightD ) );
-		float scalar = step( u_airErosionMinDiff, abs(smallestDiff) );
-		solidHeight -= smallestDiff * u_airErosionStrength * scalar;
+		waterDataC.yz = VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity );
 	}
 
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
 	{
-		float maxTemp = u_heatViscosityBias * 5.0;
+		float maxTemp = u_rockMeltingPoint * 5.0;
 
-		float solidToMolten = smoothstep(u_heatViscosityBias, maxTemp, newMoltenHeat) * u_meltSpeed;
+		float solidToMolten = smoothstep(u_rockMeltingPoint, maxTemp, newMoltenHeat) * u_meltSpeed;
 		solidToMolten = min(solidToMolten, solidHeight);
 
-		float moltenToSolid = (1.0-smoothstep(0, u_heatViscosityBias, newMoltenHeat)) * u_condenseSpeed;
+		float moltenToSolid = (1.0-smoothstep(0, u_rockMeltingPoint, newMoltenHeat)) * u_condenseSpeed;
 		moltenToSolid = min(moltenToSolid, newMoltenHeight);
 
 		solidHeight -= solidToMolten;
@@ -394,8 +359,9 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Output
 	////////////////////////////////////////////////////////////////
+	
 	out_rockData = vec4(solidHeight, newMoltenHeight, newMoltenHeat, newDirtHeight);
-	out_waterData = vec4(0.0, newWaterHeight, 0.0, waveNoiseHeight);
+	out_waterData = vec4(newWaterHeight, waterDataC.yz, waveNoiseHeight);
 }
 
 

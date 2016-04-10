@@ -16,6 +16,7 @@
 #include <bento/components/geom/FoamParticleGeom.h>
 #include <bento/components/materials/TerrainMaterial.h>
 #include <bento/components/Transform.h>
+#include <bento/core/SerializableBase.h>
 
 namespace bento
 {
@@ -74,6 +75,7 @@ namespace bento
 		: NodeGroupProcess<TerrainSimPassNode>
 		, SharedObject<TerrainSimulationProcess>
 		, IInspectable
+		, SerializableBase
 	{
 		TerrainSimulationProcess(std::string _name = "TerrainSimulationPass");
 		~TerrainSimulationProcess();
@@ -102,41 +104,31 @@ namespace bento
 
 		// Input
 		float m_mouseRadius = 0.1f;
-		float m_mouseMoltenVolumeStrength = 0.002f;
+		float m_mouseVolumeStrength = 0.002f;
 		float m_mouseHeatStrength = 0.08f;
 
 		// Molten
-		float m_rockFluxDamping = 0.99f;
-
-		float m_viscosityMin = 0.05f;
-		float m_viscosityMax = 0.2f;
-		float m_heatViscosityPower = 1.5f;
+		float m_moltenFluxDamping = 0.99f;
+		float m_moltenViscosityMin = 0.05f;
+		float m_moltenViscosityMax = 0.2f;
 		float m_rockMeltingPoint = 0.3f;
-
 		float m_textureScrollSpeed = 0.04f;
 		float m_textureCycleSpeed = 0.003f;
-
-		float m_heatAdvectSpeed = 1.0f;
-		float m_heatSmoothingStrength = 0.002f;
-
+		float m_heatAdvectSpeed = 0.5f;
 		float m_meltSpeed = 0.00001f;
 		float m_condenseSpeed = 0.01f;
 		float m_tempChangeSpeed = 0.002f;
 
 		// Water
 		float m_waterFluxDamping = 0.99f;
-
 		float m_waterViscosity = 0.25f;
 		float m_waterBoilingPoint = 0.1f;
 		float m_waterFreezingPoint = 0.0f;
 
-		float m_erosionStrength = 0.00004f;
-		float m_airErosionStrength = 0.0001f;
-		float m_airErosionMinDiff = 0.005f;
-		float m_erosionFluxMin = 0.01f;
-		float m_erosionFluxMax = 0.02f;
+		// Erosion
+		float m_erosionStrength = 0.0f;
 		float m_erosionMaxDepth = 0.01f;
-		float m_dirtTransportSpeed = 0.01f;
+		float m_dirtTransportSpeed = 0.0f;
 
 		// Global
 		float m_ambientTemperature = 0.05f;
