@@ -134,18 +134,17 @@ void main(void)
 
 	// Diffuse
 	float diffuseScalar = moltenPhase;
-	vec3 diffuse = vec3(0.00f);
-	diffuse += mappingDataC.y * 0.04;
+	vec3 diffuse = mix( vec3(0.03f), vec3(0.02f), mappingDataC.y );
 
 	float dirtScalar = clamp( dot(vec3(0.0,1.0,0.0), in_rockNormal.xyz), 0.0, 1.0 );
 	dirtScalar = smoothstep( 0.0, 1.0, dirtScalar );
 	//const vec3 dirtColor = vec3(0.2,0.15,0.1);
 	const vec3 dirtColor = vec3(1.0,0.0,0.0);
 
-	diffuse = mix( diffuse, dirtColor, smoothstep(0.0, 0.01, dirtHeight) );
+	diffuse = mix( diffuse, dirtColor, smoothstep(0.0, 0.03, dirtHeight) );
 	
-
-	diffuse = max(vec3(0.0f), diffuse-min(heat,1.0)*0.05f);		// Scorch
+	float scorchAmount = min( max(heat-0.3, 0.0) / 0.2, 1.0 );
+	diffuse -= scorchAmount * diffuse * 0.9;
 
 	// Direct light
 	vec3 directLight = vec3( max( dot(in_rockNormal.xyz, u_lightDir), 0.0f ) * u_lightIntensity );
@@ -181,7 +180,8 @@ void main(void)
 	outColor = ApplyFog( outColor, u_cameraPos, worldPosition, u_lightDir );
 
 
-
+	//outColor = vec3( 0.0, 0.0, dirtHeight / 0.2 );
+	//outColor += vec3(in_waterData.yz*20.0, 0.0);
 
 	//outColor = vec3(cameraRay.y);
 

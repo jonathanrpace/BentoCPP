@@ -66,17 +66,11 @@ void main(void)
 	float moltenHeight = rockDataC.y;
 	float dirtHeight = rockDataC.w;
 	float waterHeight = waterDataC.x;
-	float iceHeight = waterDataC.y;
 	
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += solidHeight;
 	position.y += moltenHeight;
 	position.y += dirtHeight;
-	//position.y += iceHeight;
-	//position.y += waterHeight;
-
-	float heat = rockDataC.z;
-	//position.y += mappingDataC.y * u_mapHeightOffset * (1.0f - min(heat,1.0f));
 
 	out_uv = in_uv;
 	out_viewNormal = vec3(0.0f, 1.0f, 0.0f);
