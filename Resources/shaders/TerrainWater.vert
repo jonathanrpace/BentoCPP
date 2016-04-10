@@ -61,15 +61,13 @@ void main(void)
 	float solidHeight = rockDataC.x;
 	float moltenHeight = rockDataC.y;
 	float dirtHeight = rockDataC.w;
-	float waterHeight = waterDataC.y;
-	float iceHeight = waterDataC.x;
+	float waterHeight = waterDataC.x;
 	float waveNoiseHeight = waterDataC.w;
 	
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += solidHeight;
 	position.y += moltenHeight;
 	position.y += dirtHeight;
-	position.y += iceHeight;
 	position.y += waterHeight;
 	position.y += waveNoiseHeight;
 

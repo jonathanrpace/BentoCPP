@@ -34,7 +34,7 @@ uniform float u_phase;
 
 // Material
 uniform float u_specularPower;
-uniform float u_fresnelPower = 1.5f;
+uniform float u_fresnelPower = 4.0f;
 uniform vec3 u_waterColor;
 uniform vec3 u_waterTranslucentColor;
 uniform float u_indexOfRefraction;
@@ -80,15 +80,21 @@ void main(void)
 	vec4 waterDataSample = texture2D( s_waterData, in_uv );
 	float fresnel = 1.0f - clamp(dot(in_waterNormal.xyz,eye), 0.0f, 1.0f);
 	fresnel = pow( fresnel, u_fresnelPower );
+	fresnel = mix( 0.02, 1.0, fresnel );
 
 	vec4 mappingDataC = texture2D( s_mappingData, in_uv );
+
+
 
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
 	if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 	viewDepth = clamp(viewDepth, 0.0, 0.05);
-	float waterAlpha = min(1.0f, viewDepth / 0.01 );
-	waterAlpha = pow( waterAlpha, 0.8 );
+
+	float waterAlpha = min( waterDataSample.x / 0.01, 1.0 );
+
+	//float waterAlpha = min(1.0f, viewDepth / 0.01 );
+	//waterAlpha = pow( waterAlpha, 0.8 );
 
 	////////////////////////////////////////////////////////////////
 	// Refraction
@@ -164,9 +170,8 @@ void main(void)
 		outColor += waterSpecular * fresnel * waterAlpha;
 
 		// Sky
-		float skyReflect = clamp(dot(in_waterNormal.xyz,eye), 0.0f, 1.0f);
-		skyReflect = smoothstep(0.45f, 0.55f, fresnel);
-		outColor += skyReflect * vec3(pow(fresnel, 1.5f)) * 0.15f * waterAlpha;
+		float skyReflect = clamp( (dot(reflect(-eye, in_waterNormal.xyz), vec3(0.0,1.0,0.0)) + 1.0) * 0.5, 0.0, 1.0 );
+		outColor += skyReflect * waterAlpha * fresnel;
 	}
 	
 	////////////////////////////////////////////////////////////////
