@@ -69,7 +69,7 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 	position.y += waterHeight;
-	position.y += waveNoiseHeight;
+	//position.y += waveNoiseHeight;
 
 	out_uv = in_uv;
 	out_rockData = rockDataC;

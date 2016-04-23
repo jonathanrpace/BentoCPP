@@ -23,32 +23,24 @@ namespace bento
 		TerrainGeometry(std::string _name = "TerrainGeometry");
 		~TerrainGeometry();
 
-		TextureSquare& RockDataA() { return m_rockDataA; }
-		TextureSquare& RockDataB() { return m_rockDataB; }
-		TextureSquare& RockFluxDataA() { return m_rockFluxDataA; }
-		TextureSquare& RockFluxDataB() { return m_rockFluxDataB; }
-		
-		TextureSquare& RockNormalData() { return m_rockNormalData; }
-		TextureSquare& WaterFoamData() { return m_waterFoamData; }
-		
 		TextureSquare& RockDataRead() { return *m_rockDataRead; }
 		TextureSquare& RockDataWrite() { return m_rockDataRead == &m_rockDataA ? m_rockDataB : m_rockDataA; }
-		TextureSquare& RockFluxDataRead() { return *m_rockFluxDataRead; }
-		
 
-		TextureSquare& WaterDataA() { return m_waterDataA; }
-		TextureSquare& WaterDataB() { return m_waterDataB; }
-		TextureSquare& WaterFluxDataA() { return m_waterFluxDataA; }
-		TextureSquare& WaterFluxDataB() { return m_waterFluxDataB; }
-		TextureSquare& WaterNormalData() { return m_waterNormalData; }
+		TextureSquare& RockFluxDataRead() { return *m_rockFluxDataRead; }
+		TextureSquare& RockFluxDataWrite() { return m_rockFluxDataRead == &m_rockFluxDataA ? m_rockFluxDataB : m_rockFluxDataA; }
 
 		TextureSquare& WaterDataRead() { return *m_waterDataRead; }
 		TextureSquare& WaterDataWrite() { return m_waterDataRead == &m_waterDataA ? m_waterDataB : m_waterDataA; }
-		TextureSquare& WaterFluxDataRead() { return *m_waterFluxDataRead; }
 
-		TextureSquare& MappingDataA() { return m_mappingDataA; }
-		TextureSquare& MappingDataB() { return m_mappingDataB; }
+		TextureSquare& WaterFluxDataRead() { return *m_waterFluxDataRead; }
+		TextureSquare& WaterFluxDataWrite() { return m_waterFluxDataRead == &m_waterFluxDataA ? m_waterFluxDataB : m_waterFluxDataA; }
+		
 		TextureSquare& MappingDataRead() { return *m_mappingDataRead; }
+		TextureSquare& MappingDataWrite() { return m_mappingDataRead == &m_mappingDataA ? m_mappingDataB : m_mappingDataA; }
+
+		TextureSquare& RockNormalData() { return m_rockNormalData; }
+		TextureSquare& WaterNormalData() { return m_waterNormalData; }
+		TextureSquare& WaterFoamData() { return m_waterFoamData; }
 
 		void SwapRockData()
 		{

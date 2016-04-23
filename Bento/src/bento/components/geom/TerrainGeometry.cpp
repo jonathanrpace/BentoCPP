@@ -12,7 +12,7 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
-		, m_numVerticesPerDimension(1024)
+		, m_numVerticesPerDimension(512)
 		, m_rockDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -128,10 +128,10 @@ namespace bento
 				uvs[float2Index + 0] = xRatio;
 				uvs[float2Index + 1] = zRatio;
 
-				heightData[float4Index + 0] = 0.0f;
-				heightData[float4Index + 1] = 0.0f;
-				heightData[float4Index + 2] = 0.0f;
-				heightData[float4Index + 3] = 0.0f;
+				heightData[float4Index + 0] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
+				heightData[float4Index + 1] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
+				heightData[float4Index + 2] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
+				heightData[float4Index + 3] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 			
 				fluxData[float4Index + 0] = 0.0f;
 				fluxData[float4Index + 1] = 0.0f;
@@ -192,23 +192,35 @@ namespace bento
 
 		m_rockDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_rockDataA.GenerateMipMaps();
+
 		m_rockDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_rockDataB.GenerateMipMaps();
 
 		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_rockFluxDataA.GenerateMipMaps();
+
 		m_rockFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_rockFluxDataB.GenerateMipMaps();
 
 		m_waterDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_waterDataA.GenerateMipMaps();
+
 		m_waterDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_waterDataB.GenerateMipMaps();
 
 		m_waterFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_waterFluxDataA.GenerateMipMaps();
+
 		m_waterFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_waterFluxDataB.GenerateMipMaps();
 
 		m_mappingDataA.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
 		m_mappingDataB.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);

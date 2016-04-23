@@ -118,6 +118,18 @@ void UpdateMousePosition()
 		atomicExchange(mouseBufferV, fragUV.y);
 	}
 }
+/*
+void main(void)
+{
+	
+
+	out_viewPosition = in_viewPosition;
+	out_viewNormal = vec4(0.0);
+	out_albedo = vec4(0.0);
+	out_material = vec4( 0.0, 0.0, 0.0, 0.0 );	// roughness, reflectivity, emissive, nowt
+	out_forward = in_rockData;
+}
+*/
 
 void main(void)
 {
@@ -136,12 +148,13 @@ void main(void)
 	float diffuseScalar = moltenPhase;
 	vec3 diffuse = mix( vec3(0.03f), vec3(0.02f), mappingDataC.y );
 
-	float dirtScalar = clamp( dot(vec3(0.0,1.0,0.0), in_rockNormal.xyz), 0.0, 1.0 );
-	dirtScalar = smoothstep( 0.0, 1.0, dirtScalar );
-	//const vec3 dirtColor = vec3(0.2,0.15,0.1);
-	const vec3 dirtColor = vec3(1.0,0.0,0.0);
+	//float dirtScalar = clamp( dot(vec3(0.0,1.0,0.0), in_rockNormal.xyz), 0.0, 1.0 );
+	//dirtScalar = smoothstep( 0.0, 1.0, dirtScalar );
 
-	diffuse = mix( diffuse, dirtColor, smoothstep(0.0, 0.03, dirtHeight) );
+	const vec3 dirtColor = vec3(0.2,0.15,0.1);
+	//const vec3 dirtColor = vec3(0.0,0.0,1.0);
+
+	diffuse = mix( diffuse, dirtColor, smoothstep(0.0, 0.01, dirtHeight) );
 	
 	float scorchAmount = min( max(heat-0.3, 0.0) / 0.2, 1.0 );
 	diffuse -= scorchAmount * diffuse * 0.9;

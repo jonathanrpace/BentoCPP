@@ -25,9 +25,19 @@ namespace bento
 		UpdateTerrainFluxFrag();
 	};
 
+	struct UpdateTerrainFluxOneAxisFrag : ShaderStageBase
+	{
+		UpdateTerrainFluxOneAxisFrag();
+	};
+
 	struct UpdateTerrainDataFrag : ShaderStageBase
 	{
 		UpdateTerrainDataFrag();
+	};
+
+	struct UpdateTerrainHeightsFrag : ShaderStageBase
+	{
+		UpdateTerrainHeightsFrag();
 	};
 
 	struct UpdateTerrainMiscFrag : ShaderStageBase
@@ -56,13 +66,15 @@ namespace bento
 		DiffuseHeightFrag();
 	};
 
-	struct UpdateTerrainFluxShader : ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
-	struct UpdateTerrainDataShader : ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
-	struct UpdateTerrainMiscShader : ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
-	struct FoamParticleUpdateShader : ShaderBase<FoamParticleUpdateVert, NullFrag> {};
-	struct FoamShader : ShaderBase<FoamVert, FoamFrag> {};
-	struct DiffuseHeightShader : ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
-
+	struct UpdateTerrainFluxShader			: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
+	struct UpdateTerrainFluxOneAxisShader	: ShaderBase<ScreenQuadVert, UpdateTerrainFluxOneAxisFrag> {};
+	struct UpdateTerrainDataShader			: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
+	struct UpdateTerrainHeightsShader		: ShaderBase<ScreenQuadVert, UpdateTerrainHeightsFrag> {};
+	struct UpdateTerrainMiscShader			: ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
+	struct FoamParticleUpdateShader			: ShaderBase<FoamParticleUpdateVert, NullFrag> {};
+	struct DiffuseHeightShader				: ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
+	struct FoamShader						: ShaderBase<FoamVert, FoamFrag> {};
+	
 	DEFINE_NODE_3
 	(
 		TerrainSimPassNode,
@@ -92,10 +104,11 @@ namespace bento
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
 
-		bool m_switch;
 		ScreenQuadGeometry m_screenQuadGeom;
 		UpdateTerrainFluxShader m_updateFluxShader;
+		UpdateTerrainFluxOneAxisShader m_updateFluxOneAxisShader;
 		UpdateTerrainDataShader m_updateDataShader;
+		UpdateTerrainHeightsShader m_updateHeightsShader;
 		UpdateTerrainMiscShader m_updateMiscShader;
 		FoamParticleUpdateShader m_foamParticleUpdateShader;
 		FoamShader m_foamShader;
@@ -110,27 +123,30 @@ namespace bento
 		// Molten
 		float m_moltenFluxDamping = 0.99f;
 		float m_moltenViscosityMin = 0.05f;
-		float m_moltenViscosityMax = 0.2f;
-		float m_rockMeltingPoint = 0.3f;
-		float m_textureScrollSpeed = 0.04f;
-		float m_textureCycleSpeed = 0.003f;
-		float m_heatAdvectSpeed = 0.5f;
-		float m_meltSpeed = 0.00001f;
-		float m_condenseSpeed = 0.01f;
-		float m_tempChangeSpeed = 0.002f;
+		float m_moltenViscosityMax;
+		float m_rockMeltingPoint;
+		float m_textureScrollSpeed;
+		float m_textureCycleSpeed;
+		float m_heatAdvectSpeed;
+		float m_meltSpeed;
+		float m_condenseSpeed;
+		float m_tempChangeSpeed;
 
 		// Water
-		float m_waterFluxDamping = 0.99f;
-		float m_waterViscosity = 0.25f;
-		float m_waterBoilingPoint = 0.1f;
-		float m_waterFreezingPoint = 0.0f;
+		float m_waterFluxDamping;
+		float m_waterViscosity;
+		float m_waterBoilingPoint;
+		float m_waterFreezingPoint;
+		float m_evapourationRate;
+		float m_rainRate;
 
 		// Erosion
-		float m_erosionStrength = 0.0f;
-		float m_erosionMaxDepth = 0.01f;
-		float m_dirtTransportSpeed = 0.0f;
+		float m_erosionStrength;
+		float m_erosionMaxDepth;
+		float m_dirtTransportSpeed;
+		float m_maxErosionWaterVelocity;
 
 		// Global
-		float m_ambientTemperature = 0.05f;
+		float m_ambientTemperature;
 	};
 }

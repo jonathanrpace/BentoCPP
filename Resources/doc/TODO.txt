@@ -1,4 +1,8 @@
-Propogate heat, volume and scroll texture the same way (need to introduce direction for heat)
 
-Shadows
+Split update data into two phases. One for X, one for Y
+
+Store velocity maps for both lava and water
+
+
+Propogate heat, volume and scroll texture the same way (need to introduce direction for heat)
 

@@ -31,10 +31,9 @@ void main(void)
 	float moltenHeight = rockData.y;
 	float dirtHeight = rockData.w;
 	float waterHeight = waterData.x;
-	float iceHeight = waterData.y;
 	float waveHeight = waterData.w;
 
-	float waterSurfaceHeight = solidHeight + moltenHeight + dirtHeight + waterHeight + iceHeight + waveHeight;
+	float waterSurfaceHeight = solidHeight + moltenHeight + dirtHeight + waterHeight + waveHeight;
 
 	float life = in_velocity.w;
 	vec4 position = in_position;
@@ -70,7 +69,7 @@ void main(void)
 
 	velocity.y = 0;
 
-	float damping = mix( 0.85, 0.75, in_properties.z );
+	float damping = mix( 0.95, 0.9, in_properties.z );
 	velocity *= damping;
 
 	position.xyz += velocity;

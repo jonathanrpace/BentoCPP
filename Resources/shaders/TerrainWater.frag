@@ -116,7 +116,7 @@ void main(void)
 
 		outColor = texture2DRect(s_output, samplePos.xy * dimensions).xyz;
 	}
-
+	/*
 	////////////////////////////////////////////////////////////////
 	// Filter
 	////////////////////////////////////////////////////////////////
@@ -186,6 +186,11 @@ void main(void)
 
 		outColor = mix(outColor, foamDiffuse, foamSample.w * 0.75 * waterAlpha);
 	}
+	*/
+
+	vec2 velocityColor = (clamp(in_waterData.yz, vec2(-1.0), vec2(1.0))+1.0) * 0.5;
+
+	outColor = mix(outColor, vec3(velocityColor,0.0), waterAlpha);
 
 
 	//outColor += vec3(mappingDataC.w,0,0);

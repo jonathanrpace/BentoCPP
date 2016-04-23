@@ -16,6 +16,7 @@ uniform float u_strength = 0.5;
 
 // Outputs
 layout( location = 0 ) out vec4 out_waterData;
+layout( location = 1 ) out vec4 out_rockData;
 
 void main(void)
 {
@@ -31,18 +32,36 @@ void main(void)
 	vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
 	vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
 	
-	float waterHeightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x + waterDataC.y;
-	float waterHeightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x + waterDataL.y;
-	float waterHeightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x + waterDataR.y;
+	{
+		float waterHeightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x;
+		float waterHeightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x;
+		float waterHeightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x;
 
-	float diffL = waterHeightL - waterHeightC;
-	float diffR = waterHeightR - waterHeightC;
+		float diffL = waterHeightL - waterHeightC;
+		float diffR = waterHeightR - waterHeightC;
 
-	float waterVolumeC = waterDataC.y;
-	waterVolumeC += clamp(diffL*0.25, -waterDataC.y*0.25, waterDataL.y*0.25);
-	waterVolumeC += clamp(diffR*0.25, -waterDataC.y*0.25, waterDataR.y*0.25);
+		float waterVolumeC = waterDataC.x;
+		waterVolumeC += clamp(diffL*0.25, -waterDataC.x*0.25, waterDataL.x*0.25);
+		waterVolumeC += clamp(diffR*0.25, -waterDataC.x*0.25, waterDataR.x*0.25);
 
-	out_waterData = vec4(waterDataC.x, waterVolumeC, waterDataC.zw);
+		out_waterData = vec4(waterVolumeC, waterDataC.yzw);
+	}
+
+	{
+		float dirtHeightC = rockDataC.x + rockDataC.y + rockDataC.w;
+		float dirtHeightL = rockDataL.x + rockDataL.y + rockDataL.w;
+		float dirtHeightR = rockDataR.x + rockDataR.y + rockDataR.w;
+
+		float diffL = (dirtHeightL - dirtHeightC) * 0.1;
+		float diffR = (dirtHeightR - dirtHeightC) * 0.1;
+
+		float dirtVolumeC = rockDataC.w;
+		dirtVolumeC += clamp(diffL*0.25, -rockDataC.w*0.25, rockDataL.w*0.25);
+		dirtVolumeC += clamp(diffR*0.25, -rockDataC.w*0.25, rockDataR.w*0.25);
+
+		out_rockData = vec4(rockDataC.xyz, dirtVolumeC);
+	}
+
 }
 
 

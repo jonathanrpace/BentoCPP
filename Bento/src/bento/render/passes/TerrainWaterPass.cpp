@@ -30,10 +30,10 @@ namespace bento
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 
-		_geometry->SwapRockData();
-		_geometry->SwapRockFluxData();
-		_geometry->SwapWaterData();
-		_geometry->SwapWaterFluxData();
+		//_geometry->SwapRockData();
+		//_geometry->SwapRockFluxData();
+		//_geometry->SwapWaterData();
+		//_geometry->SwapWaterFluxData();
 
 		SetTexture("s_rockData", &(_geometry->RockDataRead()));
 		SetTexture("s_waterData", &(_geometry->WaterDataRead()));
@@ -42,10 +42,10 @@ namespace bento
 		SetTexture("s_rockNormalData", &(_geometry->RockNormalData()));
 		SetTexture("s_diffuseMap", &(_material->someTexture));
 
-		_geometry->SwapRockData();
-		_geometry->SwapRockFluxData();
-		_geometry->SwapWaterData();
-		_geometry->SwapWaterFluxData();
+		//_geometry->SwapRockData();
+		//_geometry->SwapRockFluxData();
+		//_geometry->SwapWaterData();
+		//_geometry->SwapWaterFluxData();
 	}
 
 	////////////////////////////////////////////

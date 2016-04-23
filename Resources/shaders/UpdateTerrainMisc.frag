@@ -54,7 +54,7 @@ layout( location = 2 ) out vec4 out_waterNormal;
 
 float CalcViscosity( float _heat, float _viscosityScalar )
 {
-	float viscosity = mix( u_viscosityMin, u_viscosityMax, 1.0f-_viscosityScalar );
+	float viscosity = u_viscosityMin;//mix( u_viscosityMin, u_viscosityMax, 1.0f-_viscosityScalar );
 	return smoothstep( 0.0f, 1.0f, clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0f)) * viscosity;
 }
 
