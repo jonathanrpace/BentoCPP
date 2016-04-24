@@ -12,7 +12,8 @@ in Varying
 
 uniform ivec2 u_axis;
 
-uniform float u_strength = 0.5;
+uniform float u_dirtDiffuseStrength;
+uniform float u_waterDiffuseStrength;
 
 // Outputs
 layout( location = 0 ) out vec4 out_waterData;
@@ -33,12 +34,12 @@ void main(void)
 	vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
 	
 	{
-		float waterHeightC = rockDataC.x + rockDataC.y + rockDataC.w + waterDataC.x;
-		float waterHeightL = rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x;
-		float waterHeightR = rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x;
+		float waterHeightC = waterDataC.x;
+		float waterHeightL = waterDataL.x;
+		float waterHeightR = waterDataR.x;
 
-		float diffL = waterHeightL - waterHeightC;
-		float diffR = waterHeightR - waterHeightC;
+		float diffL = (waterHeightL - waterHeightC) * u_waterDiffuseStrength;
+		float diffR = (waterHeightR - waterHeightC) * u_waterDiffuseStrength;
 
 		float waterVolumeC = waterDataC.x;
 		waterVolumeC += clamp(diffL*0.25, -waterDataC.x*0.25, waterDataL.x*0.25);
@@ -47,21 +48,34 @@ void main(void)
 		out_waterData = vec4(waterVolumeC, waterDataC.yzw);
 	}
 
+	float newDirtHeight = rockDataC.w;
 	{
 		float dirtHeightC = rockDataC.x + rockDataC.y + rockDataC.w;
 		float dirtHeightL = rockDataL.x + rockDataL.y + rockDataL.w;
 		float dirtHeightR = rockDataR.x + rockDataR.y + rockDataR.w;
 
-		float diffL = (dirtHeightL - dirtHeightC) * 0.1;
-		float diffR = (dirtHeightR - dirtHeightC) * 0.1;
+		float diffL = (dirtHeightL - dirtHeightC) * u_dirtDiffuseStrength;
+		float diffR = (dirtHeightR - dirtHeightC) * u_dirtDiffuseStrength;
 
-		float dirtVolumeC = rockDataC.w;
-		dirtVolumeC += clamp(diffL*0.25, -rockDataC.w*0.25, rockDataL.w*0.25);
-		dirtVolumeC += clamp(diffR*0.25, -rockDataC.w*0.25, rockDataR.w*0.25);
-
-		out_rockData = vec4(rockDataC.xyz, dirtVolumeC);
+		newDirtHeight += clamp(diffL*0.25, -rockDataC.w*0.25, rockDataL.w*0.25);
+		newDirtHeight += clamp(diffR*0.25, -rockDataC.w*0.25, rockDataR.w*0.25);
 	}
+	float newRockHeight =rockDataC.x;
+	/*
+	
+	{
+		float heightC = rockDataC.x;
+		float heightL = rockDataL.x;
+		float heightR = rockDataR.x;
 
+		float diffL = (heightL - heightC) * u_rockDiffuseStrength;
+		float diffR = (heightR - heightC) * u_rockDiffuseStrength;
+
+		newRockHeight += clamp(diffL*0.25, -rockDataC.x*0.25, rockDataL.x*0.25);
+		newRockHeight += clamp(diffR*0.25, -rockDataC.x*0.25, rockDataR.x*0.25);
+	}
+	*/
+	out_rockData = vec4(newRockHeight, rockDataC.yz, newDirtHeight);
 }
 
 

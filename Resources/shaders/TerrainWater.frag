@@ -91,7 +91,7 @@ void main(void)
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 	viewDepth = clamp(viewDepth, 0.0, 0.05);
 
-	float waterAlpha = min( waterDataSample.x / 0.01, 1.0 );
+	float waterAlpha = min( waterDataSample.x / 0.005, 1.0 );
 
 	//float waterAlpha = min(1.0f, viewDepth / 0.01 );
 	//waterAlpha = pow( waterAlpha, 0.8 );
@@ -173,7 +173,9 @@ void main(void)
 		float skyReflect = clamp( (dot(reflect(-eye, in_waterNormal.xyz), vec3(0.0,1.0,0.0)) + 1.0) * 0.5, 0.0, 1.0 );
 		outColor += skyReflect * waterAlpha * fresnel;
 	}
-	
+	*/
+
+	/*
 	////////////////////////////////////////////////////////////////
 	// Foam
 	////////////////////////////////////////////////////////////////

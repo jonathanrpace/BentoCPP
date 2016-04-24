@@ -139,12 +139,16 @@ namespace bento
 		float m_waterFreezingPoint;
 		float m_evapourationRate;
 		float m_rainRate;
+		float m_waterVelocityScalar;
+		float m_waterVelocityDamping;
 
 		// Erosion
 		float m_erosionStrength;
 		float m_erosionMaxDepth;
 		float m_dirtTransportSpeed;
 		float m_maxErosionWaterVelocity;
+		float m_dirtDiffuseStrength;
+		float m_waterDiffuseStrength;
 
 		// Global
 		float m_ambientTemperature;

@@ -52,6 +52,8 @@ uniform float u_erosionStrength;
 uniform float u_erosionMaxDepth;
 uniform float u_dirtTransportSpeed;
 uniform float u_maxErosionWaterVelocity;
+uniform float u_waterVelocityScalar;
+uniform float u_waterVelocityDamping;
 
 // Waves
 uniform float u_wavePhase;
@@ -235,8 +237,8 @@ void main(void)
 		vec4 fluxN = vec4(fluxL.y, fluxR.x, fluxU.w, fluxD.z);
 
 		// Update molten height based on flux
-		//float fluxChange = ((fluxN.x+fluxN.y+fluxN.z+fluxN.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
-		//newMoltenHeight = moltenHeight + fluxChange * moltenViscosity;
+		float fluxChange = ((fluxN.x+fluxN.y+fluxN.z+fluxN.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
+		newMoltenHeight = moltenHeight + fluxChange * moltenViscosity;
 		
 		// What proportion of our volume did we lose to neighbours?
 		// If we lose half our volume, we also lose half our heat.
@@ -275,8 +277,8 @@ void main(void)
 		// Add some lava near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
-		newMoltenHeat	+= ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.1, 1.0, mouseTextureScalar) ) / (1.0001+moltenHeat*5.0);
-		newMoltenHeight += ( pow(mouseRatio, 1.5) * u_mouseMoltenVolumeStrength * mix(0.9, 1.0, mouseTextureScalar2) );// / (1.0001+newMoltenHeight);
+		newMoltenHeat	+= ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.0, 1.0, mouseTextureScalar) ) / (1.0001+moltenHeat*5.0);
+		newMoltenHeight += ( pow(mouseRatio, 1.5) * u_mouseMoltenVolumeStrength * mix(0.0, 1.0, mouseTextureScalar2) ) / (1.0001+newMoltenHeight);
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -333,8 +335,8 @@ void main(void)
 
 		waterVelocity = waterDataC.yz;;
 
-		waterVelocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity ) * 4.0;
-		waterVelocity *= 0.9999;
+		waterVelocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity ) * u_waterVelocityScalar;
+		waterVelocity *= u_waterVelocityDamping;
 
 		vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
 		vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
@@ -357,11 +359,17 @@ void main(void)
 		// Water erosion
 		////////////////////////////////////////////////////////////////
 		//vec2 velocityC = NormalizeVelocityToLimit( waterDataC.yz, u_maxErosionWaterVelocity ) * waterDataC.x;
+		const float EPSILON = 0.00001;
 
 		float waterSpeed = max( length(waterVelocity), 0.0 );
+		vec4 rockNormalDataC = texelFetch(s_rockNormalData, texelCoordC, 0);
+		float occlusion = rockNormalDataC.w;
 
+		// Occluded areas get eroded less (or, inverseley, sticking out bits get eroded more)
 		float erosionDepthScalar = 1.0 - min(newDirtHeight / u_erosionMaxDepth, 1.0);
-		float rockToDirt = min( waterSpeed * u_erosionStrength * erosionDepthScalar, solidHeight );
+		erosionDepthScalar *= mix(1.0, 0.0, occlusion);
+
+		float rockToDirt = min( waterSpeed * u_erosionStrength * erosionDepthScalar * waterDataC.x, solidHeight );
 		solidHeight -= rockToDirt;
 		newDirtHeight += rockToDirt;
 
@@ -384,11 +392,6 @@ void main(void)
 		//vec2 velocityD = NormalizeVelocityToLimit( vec2(waterDataD.y, waterDataD.z), u_maxErosionWaterVelocity ) * waterDataD.x;
 		
 		
-		float diffL = (rockDataL.x + rockDataL.w + waterDataL.x) - (rockDataC.x + rockDataC.w + waterDataC.x);
-		float diffR = (rockDataR.x + rockDataR.w + waterDataR.x) - (rockDataC.x + rockDataC.w + waterDataC.x);
-		float diffU = (rockDataU.x + rockDataU.w + waterDataU.x) - (rockDataC.x + rockDataC.w + waterDataC.x);
-		float diffD = (rockDataD.x + rockDataD.w + waterDataD.x) - (rockDataC.x + rockDataC.w + waterDataC.x);
-		
 
 		float transferedAwayX = min( abs(waterDataC.y) * u_dirtTransportSpeed * waterDataC.x, availableDirtC * 0.5 );
 		float transferedAwayY = min( abs(waterDataC.z) * u_dirtTransportSpeed * waterDataC.x, availableDirtC * 0.5 );
@@ -409,10 +412,10 @@ void main(void)
         );
 		*/
 		
-		float transferedInL = min( max( waterDataL.y,0.0) * waterDataL.x * u_dirtTransportSpeed, availableDirtL * 0.25 );
-		float transferedInR = min( max(-waterDataR.y,0.0) * waterDataR.x * u_dirtTransportSpeed, availableDirtR * 0.25 );
-		float transferedInU = min( max( waterDataU.y,0.0) * waterDataU.x * u_dirtTransportSpeed, availableDirtU * 0.25 );
-		float transferedInD = min( max(-waterDataD.y,0.0) * waterDataD.x * u_dirtTransportSpeed, availableDirtD * 0.25 );
+		float transferedInL = min( max( waterDataL.y,0.0) * u_dirtTransportSpeed * waterDataL.x, availableDirtL * 0.25 );
+		float transferedInR = min( max(-waterDataR.y,0.0) * u_dirtTransportSpeed * waterDataR.x, availableDirtR * 0.25 );
+		float transferedInU = min( max( waterDataU.y,0.0) * u_dirtTransportSpeed * waterDataU.x, availableDirtU * 0.25 );
+		float transferedInD = min( max(-waterDataD.y,0.0) * u_dirtTransportSpeed * waterDataD.x, availableDirtD * 0.25 );
 
 		float transferedIn = transferedInL + transferedInR + transferedInU + transferedInD;
 
@@ -435,7 +438,7 @@ void main(void)
 								min( max( velocityC.y, 0.0) * u_dirtTransportSpeed, availableDirtU ) +
 								min( max(-velocityC.y, 0.0) * u_dirtTransportSpeed, availableDirtD );
 		*/
-		newDirtHeight += (transferedIn - transferedAway) * 0.1;
+		newDirtHeight += (transferedIn - transferedAway) * 0.01;
 	}
 
 	////////////////////////////////////////////////////////////////
