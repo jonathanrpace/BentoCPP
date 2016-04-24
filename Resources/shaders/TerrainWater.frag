@@ -91,7 +91,7 @@ void main(void)
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 	viewDepth = clamp(viewDepth, 0.0, 0.05);
 
-	float waterAlpha = min( waterDataSample.x / 0.005, 1.0 );
+	float waterAlpha = min( waterDataSample.x / 0.01, 1.0 );
 
 	//float waterAlpha = min(1.0f, viewDepth / 0.01 );
 	//waterAlpha = pow( waterAlpha, 0.8 );
@@ -191,8 +191,10 @@ void main(void)
 	*/
 
 	vec2 velocityColor = (clamp(in_waterData.yz, vec2(-1.0), vec2(1.0))+1.0) * 0.5;
+	float dissolvedDirtProp = min( in_waterData.w / 0.01, 1.0 );
 
-	outColor = mix(outColor, vec3(velocityColor,0.0), waterAlpha);
+	//outColor += vec3(dissolvedDirtProp, length(in_waterData.yz), waterAlpha);
+	outColor = mix(outColor, vec3(dissolvedDirtProp, 0.0, length(in_waterData.yz)), waterAlpha);
 
 
 	//outColor += vec3(mappingDataC.w,0,0);
