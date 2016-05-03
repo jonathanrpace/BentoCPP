@@ -1,8 +1,1 @@
-
-Split update data into two phases. One for X, one for Y
-
-Store velocity maps for both lava and water
-
-
-Propogate heat, volume and scroll texture the same way (need to introduce direction for heat)
-
+Apply dirt volume scalar - a little bit of rock inflates into more dirt (avoids needing large gorges to get interesting dirt distribution)

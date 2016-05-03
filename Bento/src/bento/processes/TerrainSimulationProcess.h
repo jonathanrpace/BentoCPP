@@ -144,14 +144,19 @@ namespace bento
 
 		// Erosion
 		float m_erosionStrength;
-		float m_erosionMaxDepth;
+		float m_erosionWaterSpeedMax;
+		float m_erosionWaterDepthMin;
+		float m_erosionWaterDepthMax;
+		float m_erosionDirtDepthMax;
+
+		float m_dirtErodeSpeedMax;
+
 		float m_dirtTransportSpeed;
-		float m_dirtPickupAndDepositSpeed;
+		float m_dirtPickupSpeed;
+		float m_dirtDepositSpeed;
 		float m_dirtDiffuseStrength;
 		float m_waterDiffuseStrength;
-		float m_maxDissolvedDirt;
-		float m_dirtErodeSpeedMin;
-		float m_dirtErodeSpeedMax;
+		
 
 		// Global
 		float m_ambientTemperature;

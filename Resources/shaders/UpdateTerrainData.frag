@@ -54,11 +54,14 @@ uniform float u_rainRate;
 // Erosion
 uniform float u_erosionStrength;
 uniform float u_erosionMaxDepth;
+uniform float u_erosionWaterDepthMin;
+uniform float u_erosionWaterDepthMax;
+uniform float u_erosionWaterSpeedMax;
+
+// Dirt transport
 uniform float u_dirtTransportSpeed;
-uniform float u_dirtPickupAndDespositSpeed;
-uniform float u_maxErosionWaterVelocity;
-uniform float u_maxDissolvedDirt;
-uniform float u_dirtErodeSpeedMin;
+uniform float u_dirtPickupSpeed;
+uniform float u_dirtDepositSpeed;
 uniform float u_dirtErodeSpeedMax;
 
 // Waves
@@ -346,54 +349,45 @@ void main(void)
 		const float EPSILON = 0.00001;
 		
 		// Only erode up to a certain depth
-		float erosionDepthScalar = 1.0 - min(newDirtHeight / u_erosionMaxDepth, 1.0);
+		float erosionDirtDepthScalar = 1.0 - min(newDirtHeight / u_erosionMaxDepth, 1.0);
 
-		// Occluded areas get eroded less (or, inverseley, sticking out bits get eroded more)
-		vec4 rockNormalDataC = texelFetch(s_rockNormalData, texelCoordC, 0);
-		float occlusion = rockNormalDataC.w;
-		//erosionDepthScalar *= mix(1.0, 0.0, occlusion);
+		// Erode more as water depth increases from zero, up to a point, then diminish.
+		float erosionWaterDepthScalar =        smoothstep(0.0,                    u_erosionWaterDepthMin, newWaterHeight) 
+										* (1.0-smoothstep(u_erosionWaterDepthMin, u_erosionWaterDepthMax, newWaterHeight));
 
 		// Erode more if water is moving fast
 		float waterSpeedC = length(waterVelocity);
 		if ( isnan(waterSpeedC) ) waterSpeedC = 0.0;
 		if ( isinf(waterSpeedC) ) waterSpeedC = 0.0;
+		float erosionWaterSpeedScalar = smoothstep( 0.0, u_erosionWaterSpeedMax, waterSpeedC );
 
-		float rockToDirt = min( waterSpeedC * u_erosionStrength * erosionDepthScalar * waterDataC.x, solidHeight );
+		float rockToDirt = min( erosionDirtDepthScalar * erosionWaterDepthScalar * erosionWaterSpeedScalar * u_erosionStrength, solidHeight );
 		solidHeight -= rockToDirt;
 		newDirtHeight += rockToDirt;
 		
 		////////////////////////////////////////////////////////////////
-		// Deposit any dirt over our capacity
+		// Deposit some of the dissolved dirt
 		////////////////////////////////////////////////////////////////
-		float maxDissolvedDirt = u_maxDissolvedDirt * waterHeight + EPSILON;
-		float dissolvedDirtC = waterDataC.w;
-
-		float dirtOverCapacity = max(dissolvedDirtC - maxDissolvedDirt, 0) * u_dirtPickupAndDespositSpeed;
-		//newDirtHeight += dirtOverCapacity;
-		//newDissolvedDirt -= dirtOverCapacity;
+		float amountDeposited = newDissolvedDirt * u_dirtDepositSpeed;
+		
+		newDirtHeight += amountDeposited;
+		newDissolvedDirt -= amountDeposited;
+		newDissolvedDirt = max(0.0,newDissolvedDirt);
 
 		////////////////////////////////////////////////////////////////
 		// Pickup dirt and dissolve it in water
 		////////////////////////////////////////////////////////////////
-		float pickUpRate = smoothstep( u_dirtErodeSpeedMin, u_dirtErodeSpeedMax, waterSpeedC );
-		float capacityScalar = 1.0 - smoothstep( 0.0, maxDissolvedDirt, dissolvedDirtC );
+		float pickUpRate = pow( min( waterSpeedC / u_dirtErodeSpeedMax, 1.0 ), 1.2 );
+		float amountPickedUp = min( pickUpRate * u_dirtPickupSpeed, newDirtHeight );
 
-		float amountPickedUp = min( pickUpRate * capacityScalar * u_dirtPickupAndDespositSpeed, newDirtHeight );
 		newDirtHeight -= amountPickedUp;
 		newDissolvedDirt += amountPickedUp;
-
-		////////////////////////////////////////////////////////////////
-		// Deposit any dissolved dirt if moving slow enough
-		////////////////////////////////////////////////////////////////
-		float depositRate = 1.0 - smoothstep( 0.0, u_dirtErodeSpeedMin, waterSpeedC );
-		float amountDeposited = min( depositRate * u_dirtPickupAndDespositSpeed, newDissolvedDirt );
-
-		newDissolvedDirt -= amountDeposited;
-		newDirtHeight += amountDeposited;
+		newDissolvedDirt = max(0.0,newDissolvedDirt);
 
 		////////////////////////////////////////////////////////////////
 		// Move dissolved dirt between cells
 		////////////////////////////////////////////////////////////////
+		float dissolvedDirtC = waterDataC.w;
 		float dissolvedDirtL = waterDataL.w;
 		float dissolvedDirtR = waterDataR.w;
 		float dissolvedDirtU = waterDataU.w;
@@ -408,9 +402,18 @@ void main(void)
 		float transferedInU = min( max( waterDataU.z,0.0) * u_dirtTransportSpeed, dissolvedDirtU * 0.25 );
 		float transferedInD = min( max(-waterDataD.z,0.0) * u_dirtTransportSpeed, dissolvedDirtD * 0.25 );
 
+		/*
+		vec4 diff = vec4(	(rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x) - waterHeight,
+							(rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x) - waterHeight,
+							(rockDataU.x + rockDataU.y + rockDataU.w + waterDataU.x) - waterHeight,
+							(rockDataD.x + rockDataD.y + rockDataD.w + waterDataD.x) - waterHeight );
+							*/
+		//diff = smoothstep( 0.0, 0.01, diff );
+
+		//float transferedIn = transferedInL*diff.x + transferedInR*diff.y + transferedInU*diff.z + transferedInD*diff.w;
 		float transferedIn = transferedInL + transferedInR + transferedInU + transferedInD;
 
-		newDissolvedDirt += (transferedIn - transferedAway);// * 0.01;
+		newDissolvedDirt += (transferedIn - transferedAway) * 0.1;
 
 		newDissolvedDirt = max(0.0,newDissolvedDirt);
 	}

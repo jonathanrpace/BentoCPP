@@ -146,7 +146,8 @@ void main(void)
 
 	// Diffuse
 	float diffuseScalar = moltenPhase;
-	vec3 diffuse = mix( vec3(0.03f), vec3(0.02f), mappingDataC.y );
+	vec3 diffuse = mix( vec3(0.2f), vec3(0.3f), mappingDataC.y );
+	diffuse = pow(diffuse, vec3(2.2));
 
 	//float dirtScalar = clamp( dot(vec3(0.0,1.0,0.0), in_rockNormal.xyz), 0.0, 1.0 );
 	//dirtScalar = smoothstep( 0.0, 1.0, dirtScalar );
@@ -181,6 +182,7 @@ void main(void)
 	emissive.x = heatColor0;
 	emissive.y = heatColor1;
 
+	emissive = pow(emissive, vec3(2.2));
 
 
 	// Bing it all together

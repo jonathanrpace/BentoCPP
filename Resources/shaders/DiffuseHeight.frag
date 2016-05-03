@@ -34,6 +34,7 @@ void main(void)
 	vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
 	
 	float newWaterHeight = waterDataC.x;
+	/*
 	{
 		float waterHeightC = waterDataC.x;
 		float waterHeightL = waterDataL.x;
@@ -45,7 +46,7 @@ void main(void)
 		newWaterHeight += clamp(diffL*0.25, -waterDataC.x*0.25, waterDataL.x*0.25);
 		newWaterHeight += clamp(diffR*0.25, -waterDataC.x*0.25, waterDataR.x*0.25);
 	}
-
+	*/
 	float newDirtHeight = rockDataC.w;
 	{
 		float dirtHeightC = rockDataC.x + rockDataC.y + rockDataC.w;
@@ -57,6 +58,19 @@ void main(void)
 
 		newDirtHeight += clamp(diffL*0.25, -rockDataC.w*0.25, rockDataL.w*0.25);
 		newDirtHeight += clamp(diffR*0.25, -rockDataC.w*0.25, rockDataR.w*0.25);
+	}
+
+	float newDissolvedDirt = waterDataC.w;
+	{
+		float dissolvedDirtHeightC = waterDataC.w;
+		float dissolvedDirtHeightL = waterDataL.w;
+		float dissolvedDirtHeightR = waterDataR.w;
+
+		float diffL = (dissolvedDirtHeightL - dissolvedDirtHeightC) * u_waterDiffuseStrength;
+		float diffR = (dissolvedDirtHeightR - dissolvedDirtHeightC) * u_waterDiffuseStrength;
+
+		newDissolvedDirt += clamp(diffL*0.25, -waterDataC.w*0.25, waterDataL.w*0.25);
+		newDissolvedDirt += clamp(diffR*0.25, -waterDataC.w*0.25, waterDataR.w*0.25);
 	}
 
 
@@ -76,10 +90,9 @@ void main(void)
 		newRockHeight += clamp(diffR*0.25, -rockDataC.x*0.25, rockDataR.x*0.25);
 	}
 	*/
-
-
+	
 	vec2 newWaterVelocity = waterDataC.yz;
-	if ( false )
+	/*
 	{
 		vec2 diffL = (waterDataL.yz - waterDataC.yz) * u_dirtDiffuseStrength;
 		vec2 diffR = (waterDataR.yz - waterDataC.yz) * u_dirtDiffuseStrength;
@@ -87,8 +100,8 @@ void main(void)
 		newWaterVelocity += diffL * 0.5;
 		newWaterVelocity += diffR * 0.5;
 	}
-
-	out_waterData = vec4(newWaterHeight, newWaterVelocity, waterDataC.w);
+	*/
+	out_waterData = vec4(newWaterHeight, newWaterVelocity, newDissolvedDirt);
 	out_rockData = vec4(newRockHeight, rockDataC.yz, newDirtHeight);
 }
 

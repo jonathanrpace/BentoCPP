@@ -116,13 +116,17 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 
 	// Erosion
 	SerializableMember("erosionStrength",		0.0f,		&m_erosionStrength);
-	SerializableMember("erosionMaxDepth", 0.01f, &m_erosionMaxDepth);
-	SerializableMember("maxDissolvedDirt", 0.01f, &m_maxDissolvedDirt);
-	SerializableMember("dirtErodeSpeedMin", 0.2f, &m_dirtErodeSpeedMin);
+	SerializableMember("erosionDirtDepthMax",	0.01f,		&m_erosionDirtDepthMax);
+	SerializableMember("erosionWaterDepthMin",	0.01f,		&m_erosionWaterDepthMin);
+	SerializableMember("erosionWaterDepthMax", 0.01f, &m_erosionWaterDepthMax);
+	SerializableMember("erosionWaterSpeedMax", 0.01f, &m_erosionWaterSpeedMax);
+
+
 	SerializableMember("dirtErodeSpeedMax", 1.0f, &m_dirtErodeSpeedMax);
 
 	SerializableMember("dirtTransportSpeed", 0.0f, &m_dirtTransportSpeed);
-	SerializableMember("dirtPickuptAndDepositSpeed", 0.0f, &m_dirtPickupAndDepositSpeed);
+	SerializableMember("dirtPickupSpeed", 0.0f, &m_dirtPickupSpeed);
+	SerializableMember("dirtDepositSpeed", 0.0f, &m_dirtDepositSpeed);
 	SerializableMember("dirtDiffuseStrength", 0.05f, &m_dirtDiffuseStrength);
 	SerializableMember("waterDiffuseStrength", 0.00f, &m_waterDiffuseStrength);
 
@@ -197,21 +201,25 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
 	ImGui::SliderFloat("Viscosity", &m_waterViscosity, 0.01f, 0.5f);
 	ImGui::SliderFloat("EvapourationRate", &m_evapourationRate, 0.00f, 0.0001f, "%.8f");
-	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.000001f, "%.8f");
-	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 20.0f, "%.2f");
-	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.9f, 1.0f, "%.3f");
+	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.0000025f, "%.8f");
+	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 100.0f, "%.2f");
+	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.95f, 1.0f, "%.3f");
 	ImGui::Spacing();
-	ImGui::Text("Erosion");
-	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.1f, "%.7f");
-	ImGui::SliderFloat("MaxDepth", &m_erosionMaxDepth, 0.0f, 0.01f);
-	ImGui::SliderFloat("MaxDissolvedDirt", &m_maxDissolvedDirt, 0.0f, 0.1f);
-	ImGui::SliderFloat("DirtErodeSpeedMin", &m_dirtErodeSpeedMin, 0.0f, 1.0f);
-	ImGui::SliderFloat("DirtErodeSpeedMax", &m_dirtErodeSpeedMax, 0.0f, 1.0f);
 
-	ImGui::SliderFloat("DirtTransportSpeed", &m_dirtTransportSpeed, 0.0f, 0.001f, "%.7f");
-	ImGui::SliderFloat("DirtPickupAndDepositSpeed", &m_dirtPickupAndDepositSpeed, 0.0f, 0.0001f, "%.7f");
-	ImGui::SliderFloat("DirtDiffuseStrength", &m_dirtDiffuseStrength, 0.0f, 0.01f, "%.5f");
-	ImGui::SliderFloat("WaterDiffuseStrength", &m_waterDiffuseStrength, 0.0f, 1.0f, "%.5f");
+	ImGui::Text("Erosion");
+	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.0001f, "%.6f");
+	ImGui::SliderFloat("DirtDepthMax", &m_erosionDirtDepthMax, 0.0f, 0.01f, "%.4f");
+	ImGui::SliderFloat("WaterDepthMin", &m_erosionWaterDepthMin, 0.0f, 0.001f, "%.5f");
+	ImGui::SliderFloat("WaterDepthMax", &m_erosionWaterDepthMax, 0.0f, 0.001f, "%.5f");
+	ImGui::SliderFloat("WaterSpeedMax", &m_erosionWaterSpeedMax, 0.0f, 0.1f, "%.3f");
+
+	ImGui::Text("Dirt Transport");
+	ImGui::SliderFloat("TransportSpeed", &m_dirtTransportSpeed, 0.0f, 1.0f, "%.5f");
+	ImGui::SliderFloat("DirtErodeSpeedMax", &m_dirtErodeSpeedMax, 0.0f, 1.0f);
+	ImGui::SliderFloat("PickupSpeed", &m_dirtPickupSpeed, 0.0f, 0.0001f, "%.7f");
+	ImGui::SliderFloat("DepositSpeed", &m_dirtDepositSpeed, 0.0f, 0.01f, "%.7f");
+	ImGui::SliderFloat("DirtSmoothing", &m_dirtDiffuseStrength, 0.0f, 0.1f, "%.5f");
+	ImGui::SliderFloat("DissolvedDirtSmoothing", &m_waterDiffuseStrength, 0.0f, 0.1f, "%.5f");
 	ImGui::Spacing();
 
 	if (ImGui::Button("Reset"))
@@ -330,15 +338,19 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
 		fragShader.SetUniform("u_evapourationRate", m_evapourationRate);
 		fragShader.SetUniform("u_rainRate", m_rainRate);
+
 		fragShader.SetUniform("u_erosionStrength", m_erosionStrength);
-		fragShader.SetUniform("u_erosionMaxDepth", m_erosionMaxDepth);
+		fragShader.SetUniform("u_erosionMaxDepth", m_erosionDirtDepthMax);
+		fragShader.SetUniform("u_erosionWaterDepthMin", m_erosionWaterDepthMin);
+		fragShader.SetUniform("u_erosionWaterDepthMax", m_erosionWaterDepthMax);
+		fragShader.SetUniform("u_erosionWaterSpeedMax", m_erosionWaterSpeedMax);
+
+
 		fragShader.SetUniform("u_dirtTransportSpeed", m_dirtTransportSpeed);
-		fragShader.SetUniform("u_dirtPickupAndDespositSpeed", m_dirtPickupAndDepositSpeed);
+		fragShader.SetUniform("u_dirtPickupSpeed", m_dirtPickupSpeed);
+		fragShader.SetUniform("u_dirtDepositSpeed", m_dirtDepositSpeed);
 		fragShader.SetUniform("u_waterVelocityScalar", m_waterVelocityScalar);
 		fragShader.SetUniform("u_waterVelocityDamping", m_waterVelocityDamping);
-
-		fragShader.SetUniform("u_maxDissolvedDirt", m_maxDissolvedDirt);
-		fragShader.SetUniform("u_dirtErodeSpeedMin", m_dirtErodeSpeedMin);
 		fragShader.SetUniform("u_dirtErodeSpeedMax", m_dirtErodeSpeedMax);
 
 		// Waves
