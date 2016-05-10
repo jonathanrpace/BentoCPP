@@ -122,8 +122,7 @@ namespace bento
 
 		// Molten
 		float m_moltenFluxDamping = 0.99f;
-		float m_moltenViscosityMin = 0.05f;
-		float m_moltenViscosityMax;
+		float m_moltenViscosity = 0.05f;
 		float m_rockMeltingPoint;
 		float m_textureScrollSpeed;
 		float m_textureCycleSpeed;

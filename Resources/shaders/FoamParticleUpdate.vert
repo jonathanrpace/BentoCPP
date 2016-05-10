@@ -9,7 +9,6 @@ layout(location = 2) in vec4 in_properties;
 uniform sampler2D s_waterNormalData;
 uniform sampler2D s_waterData;
 uniform sampler2D s_rockData;
-uniform sampler2D s_mappingData;
 uniform float u_terrainSize = 1.5;
 
 // Outputs
@@ -39,21 +38,31 @@ void main(void)
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
 
-	float spawnThreshold = mix( 0.2, 0.9, in_properties.w );
-	vec4 mappingData = texture2D( s_mappingData, in_properties.xy );
-	float foamSpawnStrength = mappingData.w;
+	float spawnThreshold = mix( 0.2, 0.5, in_properties.w );
+	vec2 waterVelocity = waterData.yz;
+	float waterSpeed = length(waterVelocity);
+	if (isnan(waterSpeed))
+		waterSpeed = 0.0;
+	if (isinf(waterSpeed))
+		waterSpeed = 0.0;
+
+	float foamSpawnStrength = waterSpeed;
 
 	if ( life <= 0.0 )
 	{
 		if ( foamSpawnStrength > spawnThreshold )
 		{
-			life = pow( mix(0.7, 1.0, foamSpawnStrength), 0.8 );
+			life = 1.0;//pow( mix(0.7, 1.0, foamSpawnStrength), 0.8 );
 			position.x = in_properties.x;
 			position.z = in_properties.y;
 		}
 	}
 	else
 	{
+		float lifeFrames = mix( 200, 400, in_properties.w );
+
+		life -= (1.0/lifeFrames);
+		/*
 		// Speed up death if needed back home
 		if ( life > 0.0 && foamSpawnStrength > spawnThreshold )
 		{
@@ -63,21 +72,21 @@ void main(void)
 		{
 			life -= (1.0/800.0);
 		}
-
+		*/
 		life = max(0,life);
 	}
 
 	velocity.y = 0;
 
-	float damping = mix( 0.95, 0.9, in_properties.z );
+	float damping = mix( 0.1, 0.101, in_properties.z );
 	velocity *= damping;
 
 	position.xyz += velocity;
 	position.y = waterSurfaceHeight;
 
-	float speed = mix(0.00006, 0.00014, in_properties.z);
-	velocity.x += waterNormal.x * speed;
-	velocity.z += waterNormal.z * speed;
+	float speed = mix(0.0002, 0.00201, in_properties.z);
+	velocity.x += waterVelocity.x * speed;
+	velocity.z += waterVelocity.y * speed;
 
 	out_position = position;
 	out_velocity = vec4(velocity, life);

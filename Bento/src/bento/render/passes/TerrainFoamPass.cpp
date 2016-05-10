@@ -51,6 +51,9 @@ namespace bento
 		glEnable(GL_BLEND);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDisable(GL_DEPTH_TEST);
+
+		glPointSize(1.0f);
 
 		for (auto node : m_nodeGroup.Nodes())
 		{
@@ -69,13 +72,13 @@ namespace bento
 			m_shader.VertexShader().SetUniform("u_lightIntensity", node->material->directLightIntensity);
 			m_shader.VertexShader().SetUniform("u_ambientLightIntensity", node->material->ambientLightIntensity);
 
-			glEnable(GL_PROGRAM_POINT_SIZE);
+			//glEnable(GL_PROGRAM_POINT_SIZE);
 			GL_CHECK(glDrawArrays(GL_POINTS, 0, node->foamGeom->NumParticles()));
-			glDisable(GL_PROGRAM_POINT_SIZE);
+			//glDisable(GL_PROGRAM_POINT_SIZE);
 
 			glBindVertexArray(GL_NONE);
 		}
-
+		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 	}
 }

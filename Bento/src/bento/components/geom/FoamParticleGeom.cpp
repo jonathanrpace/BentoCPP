@@ -10,7 +10,7 @@ namespace bento
 		: Component(_name, typeid(FoamParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(100000)
+		m_numParticles(500000)
 	{
 
 	}
@@ -46,7 +46,7 @@ namespace bento
 			velocities[float4Index + 0] = 0.0f;
 			velocities[float4Index + 1] = 0.0f;
 			velocities[float4Index + 2] = 0.0f;
-			velocities[float4Index + 3] = 0.0f;	// Life
+			velocities[float4Index + 3] = -0.1f;	// Life
 
 			float fi = (float)i;
 			float xRatio = std::fmod( fi / numParticlesPerDimension, 1.0f );

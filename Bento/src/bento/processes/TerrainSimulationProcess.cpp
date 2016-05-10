@@ -94,8 +94,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("mouseVolumeStrength",	0.002f,		&m_mouseVolumeStrength);
 	SerializableMember("mouseHeatStrength",		0.08f,		&m_mouseHeatStrength);
 	SerializableMember("moltenFluxDamping",		0.99f,		&m_moltenFluxDamping);
-	SerializableMember("moltenViscosityMin",	0.05f,		&m_moltenViscosityMin);
-	SerializableMember("moltenViscosityMax",	0.2f,		&m_moltenViscosityMax);
+	SerializableMember("moltenViscosity",		0.5f,		&m_moltenViscosity);
 	SerializableMember("rockMeltingPoint",		0.3f,		&m_rockMeltingPoint);
 	SerializableMember("textureScrollSpeed",	0.04f,		&m_textureScrollSpeed);
 	SerializableMember("textureCycleSpeed",		0.003f,		&m_textureCycleSpeed);
@@ -109,26 +108,26 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("waterViscosity",		0.25f,		&m_waterViscosity);
 	SerializableMember("waterBoilingPoint",		0.1f,		&m_waterBoilingPoint);
 	SerializableMember("waterFreezingPoint",	0.0f,		&m_waterFreezingPoint);
-	SerializableMember("evapourationRate", 0.0f, &m_evapourationRate);
-	SerializableMember("rainRate", 0.0f, &m_rainRate);
-	SerializableMember("waterVelocityScalar", 1.0f, &m_waterVelocityScalar);
-	SerializableMember("waterVelocityDamping", 0.99f, &m_waterVelocityDamping);
+	SerializableMember("evapourationRate",		0.0f,		&m_evapourationRate);
+	SerializableMember("rainRate",				0.0f,		&m_rainRate);
+	SerializableMember("waterVelocityScalar",	1.0f,		&m_waterVelocityScalar);
+	SerializableMember("waterVelocityDamping",	0.99f,		&m_waterVelocityDamping);
 
 	// Erosion
 	SerializableMember("erosionStrength",		0.0f,		&m_erosionStrength);
 	SerializableMember("erosionDirtDepthMax",	0.01f,		&m_erosionDirtDepthMax);
 	SerializableMember("erosionWaterDepthMin",	0.01f,		&m_erosionWaterDepthMin);
-	SerializableMember("erosionWaterDepthMax", 0.01f, &m_erosionWaterDepthMax);
-	SerializableMember("erosionWaterSpeedMax", 0.01f, &m_erosionWaterSpeedMax);
+	SerializableMember("erosionWaterDepthMax",	0.01f,		&m_erosionWaterDepthMax);
+	SerializableMember("erosionWaterSpeedMax",	0.01f,		&m_erosionWaterSpeedMax);
 
 
-	SerializableMember("dirtErodeSpeedMax", 1.0f, &m_dirtErodeSpeedMax);
+	SerializableMember("dirtErodeSpeedMax",		1.0f,		&m_dirtErodeSpeedMax);
 
-	SerializableMember("dirtTransportSpeed", 0.0f, &m_dirtTransportSpeed);
-	SerializableMember("dirtPickupSpeed", 0.0f, &m_dirtPickupSpeed);
-	SerializableMember("dirtDepositSpeed", 0.0f, &m_dirtDepositSpeed);
-	SerializableMember("dirtDiffuseStrength", 0.05f, &m_dirtDiffuseStrength);
-	SerializableMember("waterDiffuseStrength", 0.00f, &m_waterDiffuseStrength);
+	SerializableMember("dirtTransportSpeed",	0.0f,		&m_dirtTransportSpeed);
+	SerializableMember("dirtPickupSpeed",		0.0f,		&m_dirtPickupSpeed);
+	SerializableMember("dirtDepositSpeed",		0.0f,		&m_dirtDepositSpeed);
+	SerializableMember("dirtDiffuseStrength",	0.05f,		&m_dirtDiffuseStrength);
+	SerializableMember("waterDiffuseStrength",	0.00f,		&m_waterDiffuseStrength);
 
 	// Global
 	SerializableMember("ambientTemperature",	0.05f,		&m_ambientTemperature);
@@ -179,15 +178,14 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Spacing();
-	ImGui::SliderFloat("ViscosityMin", &m_moltenViscosityMin, 0.01f, 0.5f);
-	ImGui::SliderFloat("ViscosityMax", &m_moltenViscosityMax, 0.01f, 0.5f);
+	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 0.5f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
-	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 5.0f);
+	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 0.5f);
 	ImGui::Spacing();
 
 	ImGui::Spacing();
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.001f, "%.5f");
+	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.0001f, "%.5f");
 	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
 	ImGui::Spacing();
 
@@ -326,8 +324,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		
 		fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
 
-		fragShader.SetUniform("u_viscosityMin", m_moltenViscosityMin);
-		fragShader.SetUniform("u_viscosityMax", m_moltenViscosityMin);
+		fragShader.SetUniform("u_moltenViscosity", m_moltenViscosity);
 		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
 
 		fragShader.SetUniform("u_ambientTemp", m_ambientTemperature);
@@ -443,8 +440,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			
 		fragShader.SetUniform("u_numHeightMips", _geom.RockDataRead().GetNumMipMaps());
 
-		fragShader.SetUniform("u_viscosityMin", m_moltenViscosityMin);
-		fragShader.SetUniform("u_viscosityMax", m_moltenViscosityMin);
+		fragShader.SetUniform("u_moltenViscosity", m_moltenViscosity);
 		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
 
 		fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
@@ -492,8 +488,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		vertexShader.SetTexture("s_waterNormalData", &_geom.WaterNormalData());
 		vertexShader.SetTexture("s_waterData", &_geom.WaterDataRead());
 		vertexShader.SetTexture("s_rockData", &_geom.RockDataRead());
-		vertexShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
-
 
 		GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
 
@@ -503,7 +497,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		_foamParticleGeom.Switch(!_foamParticleGeom.Switch());
 	}
-
+	/*
 	// Render foam particles to map
 	{
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.WaterFoamData());
@@ -535,6 +529,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		_geom.WaterFoamData().GenerateMipMaps();
 	}
+	*/
 }
 
 void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

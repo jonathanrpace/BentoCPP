@@ -172,10 +172,10 @@ void main(void)
 	float heatColor0 = max(0.0f, heatForColor0 - moltenBump * 0.5f );
 	heatColor0 = pow(heatColor0, 2.0f);
 
-	float heatForColor1 = heat * 0.8f;
+	float heatForColor1 = heat * 0.5f;
 	float heatColor1 = max(0.0f, heatForColor1 - moltenBump * 0.25f);
 	heatColor1 = min(1.0f,heatColor1);
-	heatColor1 = pow(heatColor1, 5.0f);
+	heatColor1 = pow(heatColor1, 2.0f);
 
 	heatColor0 += heatColor1;
 

@@ -64,6 +64,7 @@ void mainLoop(GLFWwindow* window)
 		renderer->AddRenderPass(bento::GPass::Create());
 		renderer->AddRenderPass(bento::TerrainGPass::Create());
 		renderer->AddRenderPass(bento::TerrainWaterPass::Create());
+		renderer->AddRenderPass(bento::TerrainFoamPass::Create());
 		renderer->AddRenderPass(bento::IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);

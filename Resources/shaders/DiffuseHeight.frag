@@ -73,26 +73,7 @@ void main(void)
 		newDissolvedDirt += clamp(diffR*0.25, -waterDataC.w*0.25, waterDataR.w*0.25);
 	}
 
-
-
-	float newRockHeight = rockDataC.x;
-	/*
-	
-	{
-		float heightC = rockDataC.x;
-		float heightL = rockDataL.x;
-		float heightR = rockDataR.x;
-
-		float diffL = (heightL - heightC) * u_rockDiffuseStrength;
-		float diffR = (heightR - heightC) * u_rockDiffuseStrength;
-
-		newRockHeight += clamp(diffL*0.25, -rockDataC.x*0.25, rockDataL.x*0.25);
-		newRockHeight += clamp(diffR*0.25, -rockDataC.x*0.25, rockDataR.x*0.25);
-	}
-	*/
-	
 	vec2 newWaterVelocity = waterDataC.yz;
-	/*
 	{
 		vec2 diffL = (waterDataL.yz - waterDataC.yz) * u_dirtDiffuseStrength;
 		vec2 diffR = (waterDataR.yz - waterDataC.yz) * u_dirtDiffuseStrength;
@@ -100,9 +81,9 @@ void main(void)
 		newWaterVelocity += diffL * 0.5;
 		newWaterVelocity += diffR * 0.5;
 	}
-	*/
+
 	out_waterData = vec4(newWaterHeight, newWaterVelocity, newDissolvedDirt);
-	out_rockData = vec4(newRockHeight, rockDataC.yz, newDirtHeight);
+	out_rockData = vec4(rockDataC.xyz, newDirtHeight);
 }
 
 

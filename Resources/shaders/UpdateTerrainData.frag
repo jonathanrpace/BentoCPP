@@ -36,8 +36,7 @@ uniform float u_ambientTemp;
 
 // Molten
 uniform float u_heatAdvectSpeed;
-uniform float u_viscosityMin;
-uniform float u_viscosityMax;
+uniform float u_moltenViscosity;
 uniform float u_rockMeltingPoint;
 
 uniform float u_tempChangeSpeed;
@@ -163,10 +162,16 @@ vec2 GetMousePos()
 
 ////////////////////////////////////////////////////////////////
 //
-float CalcViscosity( float _heat, float _viscosityScalar )
+float CalcMoltenViscosity( float _heat )
 {
-	float viscosity = u_viscosityMin;//mix( u_viscosityMin, u_viscosityMax, 1.0-_viscosityScalar );
-	return smoothstep( 0.0f, 1.0f, clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0)) * viscosity;
+	return smoothstep( 0.0f, 1.0f, clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0)) * u_moltenViscosity;
+}
+
+////////////////////////////////////////////////////////////////
+//
+vec4 CalcMoltenViscosity( vec4 _heat )
+{
+	return smoothstep( vec4(0.0f), vec4(1.0f), clamp(_heat-vec4(u_rockMeltingPoint), vec4(0.0f), vec4(1.0))) * vec4(u_moltenViscosity);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -192,10 +197,6 @@ void main(void)
 	ivec2 texelCoordR = texelCoordC + ivec2(1,0);
 	ivec2 texelCoordU = texelCoordC - ivec2(0,1);
 	ivec2 texelCoordD = texelCoordC + ivec2(0,1);
-	ivec2 texelCoordUL = texelCoordC + ivec2(-1,-1);
-	ivec2 texelCoordUR = texelCoordC + ivec2(1,-1);
-	ivec2 texelCoordDL = texelCoordC + ivec2(-1,1);
-	ivec2 texelCoordDR = texelCoordC + ivec2(1,1);
 
 	// Shared data samples
 	vec4 rockDataC = texelFetch(s_rockData, texelCoordC, 0);
@@ -215,8 +216,7 @@ void main(void)
 	float moltenHeat = rockDataC.z;
 	float waterHeight = waterDataC.x;
 
-	float moltenViscosityScalar = mappingDataC.y;
-	float moltenViscosity = CalcViscosity(moltenHeat, moltenViscosityScalar);
+	float moltenViscosity = CalcMoltenViscosity(moltenHeat);
 
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
@@ -247,20 +247,9 @@ void main(void)
 		// For each neighbour, determine what proportion of their volume we have gained.
 		// We also want to grab the same proportion of their heat.
 		// Essentially the inverse of above.
-		
-		vec4 mappingDataL = texelFetch(s_mappingData, texelCoordL, 0);
-		vec4 mappingDataR = texelFetch(s_mappingData, texelCoordR, 0);
-		vec4 mappingDataU = texelFetch(s_mappingData, texelCoordU, 0);
-		vec4 mappingDataD = texelFetch(s_mappingData, texelCoordD, 0);
-
 		vec4 neighbourHeat = vec4(rockDataL.z, rockDataR.z, rockDataU.z, rockDataD.z);
 		vec4 neighbourHeight = vec4(rockDataL.y, rockDataR.y, rockDataU.y, rockDataD.y);
-		vec4 neighbourViscosity = vec4( 
-			CalcViscosity(neighbourHeat.x, mappingDataL.y), 
-			CalcViscosity(neighbourHeat.y, mappingDataR.y), 
-			CalcViscosity(neighbourHeat.z, mappingDataU.y), 
-			CalcViscosity(neighbourHeat.w, mappingDataD.y) 
-		);
+		vec4 neighbourViscosity = CalcMoltenViscosity(neighbourHeat);
 		vec4 volumeGainProp = (fluxN * neighbourViscosity) / (neighbourHeight + EPSILON);
 		volumeGainProp = min( vec4(1.0), volumeGainProp );
 		vec4 heatGain = volumeGainProp * neighbourHeat;
@@ -275,7 +264,7 @@ void main(void)
 		// Add some lava near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
-		newMoltenHeat	+= ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.05, 1.0, mouseTextureScalar) ) / (1.0001+moltenHeat*5.0);
+		newMoltenHeat	+= ( pow(mouseRatio, 0.5) * u_mouseMoltenHeatStrength   * mix(0.05, 1.0, mouseTextureScalar) ) / (1.0001+moltenHeat*5.0);
 		newMoltenHeight += ( pow(mouseRatio, 1.5) * u_mouseMoltenVolumeStrength * mix(0.05, 1.0, mouseTextureScalar2) ) / (1.0001+newMoltenHeight);
 	}
 
@@ -327,21 +316,12 @@ void main(void)
 		////////////////////////////////////////////////////////////////
 		waterVelocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity ) * u_waterVelocityScalar;
 		waterVelocity *= u_waterVelocityDamping;
-
+		
 		// Gaussian blur the velocity
 		vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
 		vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
 		vec4 waterDataU = texelFetch(s_waterData, texelCoordU, 0);
 		vec4 waterDataD = texelFetch(s_waterData, texelCoordD, 0);
-		vec4 waterDataUL = texelFetch(s_waterData, texelCoordUL, 0);
-		vec4 waterDataUR = texelFetch(s_waterData, texelCoordUR, 0);
-		vec4 waterDataDL = texelFetch(s_waterData, texelCoordDL, 0);
-		vec4 waterDataDR = texelFetch(s_waterData, texelCoordDR, 0);
-		waterVelocity = 
-			waterDataUL.yz * 1.0 + waterDataU.yz * 1.4    + waterDataUR.yz * 1.0 +
-			waterDataL.yz  * 1.4 + waterVelocity * 300.0  + waterDataR.yz  * 1.4 +
-			waterDataDL.yz * 1.0 + waterDataD.yz * 1.4    + waterDataDR.yz * 1.0;
-		waterVelocity *= 0.98 *(1.0/(300.0+1.4*4.0+4.0));
 
 		////////////////////////////////////////////////////////////////
 		// Water erosion
@@ -402,19 +382,9 @@ void main(void)
 		float transferedInU = min( max( waterDataU.z,0.0) * u_dirtTransportSpeed, dissolvedDirtU * 0.25 );
 		float transferedInD = min( max(-waterDataD.z,0.0) * u_dirtTransportSpeed, dissolvedDirtD * 0.25 );
 
-		/*
-		vec4 diff = vec4(	(rockDataL.x + rockDataL.y + rockDataL.w + waterDataL.x) - waterHeight,
-							(rockDataR.x + rockDataR.y + rockDataR.w + waterDataR.x) - waterHeight,
-							(rockDataU.x + rockDataU.y + rockDataU.w + waterDataU.x) - waterHeight,
-							(rockDataD.x + rockDataD.y + rockDataD.w + waterDataD.x) - waterHeight );
-							*/
-		//diff = smoothstep( 0.0, 0.01, diff );
-
-		//float transferedIn = transferedInL*diff.x + transferedInR*diff.y + transferedInU*diff.z + transferedInD*diff.w;
 		float transferedIn = transferedInL + transferedInR + transferedInU + transferedInD;
 
 		newDissolvedDirt += (transferedIn - transferedAway) * 0.1;
-
 		newDissolvedDirt = max(0.0,newDissolvedDirt);
 	}
 
