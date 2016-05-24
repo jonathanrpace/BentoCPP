@@ -8,11 +8,10 @@
 in Varying
 {
 	vec2 in_uv;
-	vec4 in_rockData;
-	vec4 in_waterData;
-	vec4 in_waterNormal;
-	vec4 in_rockNormal;
-	vec4 in_waterFluxData;
+	vec4 in_heightData;
+	vec4 in_velocityData;
+	vec4 in_miscData;
+	vec4 in_normalData;
 	vec4 in_viewPosition;
 	vec4 in_worldPosition;
 	vec4 in_screenPosition;
@@ -40,12 +39,7 @@ uniform vec3 u_waterTranslucentColor;
 uniform float u_indexOfRefraction;
 
 // Samplers
-uniform sampler2D s_rockData;
-uniform sampler2D s_waterData;
-uniform sampler2D s_waterFluxData;
-uniform sampler2D s_mappingData;
 uniform sampler2D s_diffuseMap;
-uniform sampler2D s_foamData;
 uniform sampler2DRect s_output;
 uniform sampler2DRect s_positionBuffer;
 
@@ -58,6 +52,13 @@ layout( location = 0 ) out vec4 out_forwad;
 ////////////////////////////////////////////////////////////////
 // Main
 ////////////////////////////////////////////////////////////////
+
+vec3 reconstructNormal( vec2 normal2 )
+{
+	float len = length(normal2);
+	vec3 normal3 = vec3(normal2.x, 1.0-len, normal2.y);
+	return normalize(normal3);
+}
 
 
 // lighting
@@ -74,27 +75,21 @@ float specular(vec3 n, vec3 l, vec3 e, float s)
 void main(void)
 {
 	// Grab a load of commonly used values
-	float occlusion = 1.0f - in_rockNormal.w;
+	float occlusion = 1.0f - in_miscData.w;
 	vec3 eye = -normalize( in_viewPosition.xyz * mat3(u_viewMatrix) );
-	vec4 rockDataSample = texture2D( s_rockData, in_uv );
-	vec4 waterDataSample = texture2D( s_waterData, in_uv );
-	float fresnel = 1.0f - clamp(dot(in_waterNormal.xyz,eye), 0.0f, 1.0f);
+	
+	vec3 waterNormal = reconstructNormal(in_normalData.xy);
+
+	float fresnel = 1.0f - clamp(dot(waterNormal,eye), 0.0f, 1.0f);
 	fresnel = pow( fresnel, u_fresnelPower );
 	fresnel = mix( 0.02, 1.0, fresnel );
-
-	vec4 mappingDataC = texture2D( s_mappingData, in_uv );
-
-
 
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
 	if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 	viewDepth = clamp(viewDepth, 0.0, 0.05);
 
-	float waterAlpha = min( waterDataSample.x / 0.0001, 1.0 );
-
-	//float waterAlpha = min(1.0f, viewDepth / 0.01 );
-	//waterAlpha = pow( waterAlpha, 0.8 );
+	float waterAlpha = min( in_heightData.w / 0.0001, 1.0 );
 
 	////////////////////////////////////////////////////////////////
 	// Refraction
@@ -102,8 +97,7 @@ void main(void)
 	vec3 outColor = vec3(0.0f);
 	{
 		// We do this first as we need to know what pixel in the frame-buffer we're blending with
-
-		vec3 refractVec = refract(-eye, in_waterNormal.xyz, u_indexOfRefraction);
+		vec3 refractVec = refract(-eye, waterNormal, u_indexOfRefraction);
 		
 		vec4 samplePos = vec4( in_worldPosition );
 		samplePos.xyz += refractVec * viewDepth;
@@ -191,9 +185,9 @@ void main(void)
 	*/
 
 	//vec2 velocityColor = (clamp(in_waterData.yz, vec2(-1.0), vec2(1.0))+1.0) * 0.5;
-	float dissolvedDirtProp = min( in_waterData.w / 0.01, 1.0 );
+	float dissolvedDirtProp = min( in_miscData.z / 0.01, 1.0 );
 
-	float speed = length(in_waterData.yz);
+	float speed = length(in_velocityData.xy);
 	vec2 velocityColor = mix( vec2( 0.0, 0.2 ), vec2( 0.1, 0.6 ), speed );
 	
 	vec3 waterColor = mix( vec3( 0.0, velocityColor ), vec3(1.0, 0.0, 0.0), dissolvedDirtProp );

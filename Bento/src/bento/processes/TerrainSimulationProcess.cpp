@@ -16,26 +16,8 @@ UpdateTerrainFluxFrag::UpdateTerrainFluxFrag()
 }
 
 //////////////////////////////////////////////////////////////////////////
-UpdateTerrainFluxOneAxisFrag::UpdateTerrainFluxOneAxisFrag()
-	: ShaderStageBase("shaders/UpdateTerrainFluxOneAxis.frag")
-{
-}
-
-//////////////////////////////////////////////////////////////////////////
 UpdateTerrainDataFrag::UpdateTerrainDataFrag()
 	: ShaderStageBase("shaders/UpdateTerrainData.frag")
-{
-}
-
-//////////////////////////////////////////////////////////////////////////
-UpdateTerrainMiscFrag::UpdateTerrainMiscFrag()
-	: ShaderStageBase("shaders/UpdateTerrainMisc.frag")
-{
-}
-
-//////////////////////////////////////////////////////////////////////////
-UpdateTerrainHeightsFrag::UpdateTerrainHeightsFrag()
-	: ShaderStageBase("shaders/UpdateTerrainHeightsOneAxis.frag")
 {
 }
 
@@ -76,10 +58,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	: Process(_name, typeid(TerrainSimulationProcess))
 	, SerializableBase("TerrainSimulationProcess")
 	, m_updateFluxShader()
-	, m_updateFluxOneAxisShader()
 	, m_updateDataShader()
-	, m_updateHeightsShader()
-	, m_updateMiscShader()
 	, m_foamParticleUpdateShader()
 	, m_foamShader()
 	, m_diffuseHeightShader()
@@ -258,25 +237,20 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 	vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 
-	
-
 	// Update Flux
-	if ( true )
 	{
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.RockFluxDataWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.WaterFluxDataWrite());
 
-		static GLenum fluxDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		_renderTarget.SetDrawBuffers(fluxDrawBuffers, sizeof(fluxDrawBuffers) / sizeof(fluxDrawBuffers[0]));
-
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 		m_updateFluxShader.BindPerPass();
 		auto fragShader = m_updateFluxShader.FragmentShader();
 
-		fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
+		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+		fragShader.SetTexture("s_miscData", &_geom.MiscDataRead());
 		fragShader.SetTexture("s_rockFluxData", &_geom.RockFluxDataRead());
-
-		fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
 		fragShader.SetTexture("s_waterFluxData", &_geom.WaterFluxDataRead());
 
 		fragShader.SetUniform("u_rockFluxDamping", m_moltenFluxDamping);
@@ -298,171 +272,147 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		m_updateDataShader.BindPerPass();
 		auto fragShader = m_updateDataShader.FragmentShader();
 
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.RockDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.WaterDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.MiscDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, &_geom.NormalDataWrite());
 
-		static GLenum heightDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		_renderTarget.SetDrawBuffers(heightDrawBuffers, sizeof(heightDrawBuffers) / sizeof(heightDrawBuffers[0]));
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 			
+		// Samplers
+		fragShader.SetTexture("s_heightData",					&_geom.HeightDataRead());
+		fragShader.SetTexture("s_velocityData",					&_geom.VelocityDataRead());
+		fragShader.SetTexture("s_miscData",						&_geom.MiscDataRead());
+		fragShader.SetTexture("s_normalData",					&_geom.NormalDataRead());
+		fragShader.SetTexture("s_waterFluxData",				&_geom.WaterFluxDataRead());
+		fragShader.SetTexture("s_rockFluxData",					&_geom.RockFluxDataRead());
+		fragShader.SetTexture("s_diffuseMap",					&_material.someTexture);
+
+		// Mouse
+		fragShader.SetUniform("u_mousePos",						normalisedMousePos);
+		fragShader.SetUniform("u_mouseRadius",					m_mouseRadius);
+		fragShader.SetUniform("u_mouseMoltenVolumeStrength",	moltenVolumeAmount);
+		fragShader.SetUniform("u_mouseMoltenHeatStrength",		heatChangeAmount);
+		fragShader.SetUniform("u_mouseWaterVolumeStrength",		waterVolumeAmount);
 		
-		fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
-		fragShader.SetTexture("s_rockFluxData", &_geom.RockFluxDataRead());
-		fragShader.SetTexture("s_rockNormalData", &_geom.RockNormalData());
+		// Environment
+		fragShader.SetUniform("u_ambientTemp",					m_ambientTemperature);
 
-		fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
-		fragShader.SetTexture("s_waterFluxData", &_geom.WaterFluxDataRead());
-		fragShader.SetTexture("s_waterNormalData", &_geom.WaterNormalData());
+		// Molten
+		fragShader.SetUniform("u_heatAdvectSpeed",				m_heatAdvectSpeed);
+		fragShader.SetUniform("u_moltenViscosity",				m_moltenViscosity);
+		fragShader.SetUniform("u_rockMeltingPoint",				m_rockMeltingPoint);
+		fragShader.SetUniform("u_tempChangeSpeed",				m_tempChangeSpeed);
+		fragShader.SetUniform("u_condenseSpeed",				m_condenseSpeed);
+		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
+		fragShader.SetUniform("u_moltenVelocityScalar",			1.0f);
+		fragShader.SetUniform("u_moltenVelocityDamping",		0.9f);
 
-		fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
-		fragShader.SetTexture("s_diffuseMap", &_material.someTexture);
-			
-		fragShader.SetUniform("u_mousePos", normalisedMousePos);
-		fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
-		fragShader.SetUniform("u_mouseMoltenVolumeStrength", moltenVolumeAmount);
-		fragShader.SetUniform("u_mouseMoltenHeatStrength", heatChangeAmount);
-		fragShader.SetUniform("u_mouseWaterVolumeStrength", waterVolumeAmount);
-		
-		fragShader.SetUniform("u_heatAdvectSpeed", m_heatAdvectSpeed);
+		// Water
+		fragShader.SetUniform("u_waterViscosity",				m_waterViscosity);
+		fragShader.SetUniform("u_waterVelocityScalar",			m_waterVelocityScalar);
+		fragShader.SetUniform("u_waterVelocityDamping",			m_waterVelocityDamping);
+		fragShader.SetUniform("u_evapourationRate",				m_evapourationRate);
+		fragShader.SetUniform("u_rainRate",						m_rainRate);
 
-		fragShader.SetUniform("u_moltenViscosity", m_moltenViscosity);
-		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
+		// Erosion
+		fragShader.SetUniform("u_erosionStrength",				m_erosionStrength);
+		fragShader.SetUniform("u_erosionMaxDepth",				m_erosionDirtDepthMax);
+		fragShader.SetUniform("u_erosionWaterDepthMin",			m_erosionWaterDepthMin);
+		fragShader.SetUniform("u_erosionWaterDepthMax",			m_erosionWaterDepthMax);
+		fragShader.SetUniform("u_erosionWaterSpeedMax",			m_erosionWaterSpeedMax);
 
-		fragShader.SetUniform("u_ambientTemp", m_ambientTemperature);
-		fragShader.SetUniform("u_tempChangeSpeed", m_tempChangeSpeed);
-		fragShader.SetUniform("u_meltSpeed", m_meltSpeed);
-		fragShader.SetUniform("u_condenseSpeed", m_condenseSpeed);
-
-		fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
-		fragShader.SetUniform("u_evapourationRate", m_evapourationRate);
-		fragShader.SetUniform("u_rainRate", m_rainRate);
-
-		fragShader.SetUniform("u_erosionStrength", m_erosionStrength);
-		fragShader.SetUniform("u_erosionMaxDepth", m_erosionDirtDepthMax);
-		fragShader.SetUniform("u_erosionWaterDepthMin", m_erosionWaterDepthMin);
-		fragShader.SetUniform("u_erosionWaterDepthMax", m_erosionWaterDepthMax);
-		fragShader.SetUniform("u_erosionWaterSpeedMax", m_erosionWaterSpeedMax);
-
-
-		fragShader.SetUniform("u_dirtTransportSpeed", m_dirtTransportSpeed);
-		fragShader.SetUniform("u_dirtPickupSpeed", m_dirtPickupSpeed);
-		fragShader.SetUniform("u_dirtDepositSpeed", m_dirtDepositSpeed);
-		fragShader.SetUniform("u_waterVelocityScalar", m_waterVelocityScalar);
-		fragShader.SetUniform("u_waterVelocityDamping", m_waterVelocityDamping);
-		fragShader.SetUniform("u_dirtErodeSpeedMax", m_dirtErodeSpeedMax);
+		// Dirt transport
+		fragShader.SetUniform("u_dirtTransportSpeed",			m_dirtTransportSpeed);
+		fragShader.SetUniform("u_dirtPickupSpeed",				m_dirtPickupSpeed);
+		fragShader.SetUniform("u_dirtDepositSpeed",				m_dirtDepositSpeed);
+		fragShader.SetUniform("u_dirtErodeSpeedMax",			m_dirtErodeSpeedMax);
 
 		// Waves
 		float phase = fmod((float)glfwGetTime()*_material.waveSpeed, 1.0f);
 		phase *= 3.14159265359f * 2.0f;
-		fragShader.SetUniform("u_wavePhase", phase);
-		fragShader.SetUniform("u_waveFrequency", _material.waveFrequency);
-		fragShader.SetUniform("u_waveFrequencyLacunarity", _material.waveFrequencyLacunarity);
-		fragShader.SetUniform("u_waveAmplitude", _material.waveAmplitude);
-		fragShader.SetUniform("u_waveAmplitudeLacunarity", _material.waveAmplitudeLacunarity);
-		fragShader.SetUniform("u_waveChoppy", _material.waveChoppy);
-		fragShader.SetUniform("u_waveChoppyEase", _material.waveChoppyEase);
-		fragShader.SetUniform("u_waveOctavesNum", _material.waveOctavesNum);
-		fragShader.SetUniform("u_waveDepthMax", _material.waveDepthMax);
+		fragShader.SetUniform("u_wavePhase",					phase);
+		fragShader.SetUniform("u_waveFrequency",				_material.waveFrequency);
+		fragShader.SetUniform("u_waveFrequencyLacunarity",		_material.waveFrequencyLacunarity);
+		fragShader.SetUniform("u_waveAmplitude",				_material.waveAmplitude);
+		fragShader.SetUniform("u_waveAmplitudeLacunarity",		_material.waveAmplitudeLacunarity);
+		fragShader.SetUniform("u_waveChoppy",					_material.waveChoppy);
+		fragShader.SetUniform("u_waveChoppyEase",				_material.waveChoppyEase);
+		fragShader.SetUniform("u_waveOctavesNum",				_material.waveOctavesNum);
+		fragShader.SetUniform("u_waveDepthMax",					_material.waveDepthMax);
 
-
+		// Misc
+		fragShader.SetUniform("u_textureScrollSpeed",			m_textureScrollSpeed);
+		fragShader.SetUniform("u_cycleSpeed",					m_textureCycleSpeed);
+		fragShader.SetUniform("u_cellSize",						cellSize);
+		fragShader.SetUniform("u_numHeightMips",				_geom.HeightDataRead().GetNumMipMaps());
 		
 
 		// Pass through the mouse position buffer
-
 		TerrainMousePos mousePos;
 		glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(mousePos), &mousePos);
-		PRINTF("mouse pos %d, %d, %d\n", mousePos.z, mousePos.u, mousePos.v);
-
+		//PRINTF("mouse pos %d, %d, %d\n", mousePos.z, mousePos.u, mousePos.v);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer());
 
 		m_screenQuadGeom.Draw();
 
-		_geom.RockDataWrite().GenerateMipMaps();
-		_geom.WaterDataWrite().GenerateMipMaps();
-		_geom.SwapRockData();
-		_geom.SwapWaterData();
+		_geom.HeightDataWrite().GenerateMipMaps();
+
+		_geom.SwapHeightData();
+		_geom.SwapVelocityData();
+		_geom.SwapMiscData();
+		_geom.SwapNormalData();
 	}
 
 	
 	// Diffuse height
+	/*
 	{
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.WaterDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.RockDataWrite());
-		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
 		m_diffuseHeightShader.BindPerPass();
 		auto fragShader = m_diffuseHeightShader.FragmentShader();
 
+		// Shared Uniforms
 		fragShader.SetUniform("u_dirtDiffuseStrength", m_dirtDiffuseStrength);
 		fragShader.SetUniform("u_waterDiffuseStrength", m_waterDiffuseStrength);
 
-		fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
-		fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
-		fragShader.SetUniform("u_axis", ivec2(1, 0));
-		m_screenQuadGeom.Draw();
+		// X Pass
 
-		_geom.SwapWaterData();
-		_geom.SwapRockData();
-
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.WaterDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.RockDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
-		fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
-		fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
-		fragShader.SetUniform("u_axis", ivec2(0, 1));
+		// Uniforms
+		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+		fragShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
+		fragShader.SetUniform("u_axis", ivec2(1, 0));
+
 		m_screenQuadGeom.Draw();
 
-		_geom.SwapWaterData();
-		_geom.SwapRockData();
-	}
-	
-	// Update Misc
-	{
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.MappingDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.RockNormalData());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.WaterNormalData());
+		_geom.HeightDataWrite().GenerateMipMaps();
+		_geom.SwapHeightData();
+		_geom.SwapVelocityData();
 		
+		// Y Pass
 
-		static GLenum velocityDrawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-		_renderTarget.SetDrawBuffers(velocityDrawBuffers, sizeof(velocityDrawBuffers) / sizeof(velocityDrawBuffers[0]));
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
+		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
-		m_updateMiscShader.BindPerPass();
-		auto fragShader = m_updateMiscShader.FragmentShader();
-
-		fragShader.SetTexture("s_rockData", &_geom.RockDataRead());
-		fragShader.SetTexture("s_rockFluxData", &_geom.RockFluxDataRead());
-		fragShader.SetTexture("s_waterData", &_geom.WaterDataRead());
-		fragShader.SetTexture("s_waterFluxData", &_geom.WaterFluxDataRead());
-		fragShader.SetTexture("s_mappingData", &_geom.MappingDataRead());
-		fragShader.SetTexture("s_diffuseMap", &_material.someTexture);
-			
-		fragShader.SetUniform("u_numHeightMips", _geom.RockDataRead().GetNumMipMaps());
-
-		fragShader.SetUniform("u_moltenViscosity", m_moltenViscosity);
-		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
-
-		fragShader.SetUniform("u_waterViscosity", m_waterViscosity);
-
-		fragShader.SetUniform("u_textureScrollSpeed", m_textureScrollSpeed);
-		fragShader.SetUniform("u_cycleSpeed", m_textureCycleSpeed);
-		fragShader.SetUniform("u_cellSize", cellSize);
-
-		fragShader.SetUniform("u_mapHeightOffset", _material.mapHeightOffset);
-
-		fragShader.SetUniform("u_mousePos", normalisedMousePos);
-		fragShader.SetUniform("u_mouseVolumeStrength", moltenVolumeAmount);
-		fragShader.SetUniform("u_mouseHeatStrength", heatChangeAmount);
-		fragShader.SetUniform("u_mouseRadius", m_mouseRadius);
-
-		GL_CHECK(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer()));
+		// Uniforms
+		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+		fragShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
+		fragShader.SetUniform("u_axis", ivec2(0, 1));
 
 		m_screenQuadGeom.Draw();
 
-		_geom.SwapMappingData();
+		_geom.HeightDataWrite().GenerateMipMaps();
+		_geom.SwapHeightData();
+		_geom.SwapVelocityData();
 	}
-	
+	*/
+
 	// Update foam particles
 	{
 		glBindProgramPipeline(GL_NONE);
@@ -485,9 +435,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		auto vertexShader = m_foamParticleUpdateShader.VertexShader();
 
-		vertexShader.SetTexture("s_waterNormalData", &_geom.WaterNormalData());
-		vertexShader.SetTexture("s_waterData", &_geom.WaterDataRead());
-		vertexShader.SetTexture("s_rockData", &_geom.RockDataRead());
+		vertexShader.SetTexture("s_heightData", &_geom.HeightDataRead());
+		vertexShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
 
 		GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
 
@@ -497,39 +446,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		_foamParticleGeom.Switch(!_foamParticleGeom.Switch());
 	}
-	/*
-	// Render foam particles to map
-	{
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.WaterFoamData());
-		static GLenum foamDrawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		_renderTarget.SetDrawBuffers(foamDrawBuffers, sizeof(foamDrawBuffers) / sizeof(foamDrawBuffers[0]));
-
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		m_foamShader.BindPerPass();
-
-		GLuint vertexArray = _foamParticleGeom.Switch() ? _foamParticleGeom.VertexArrayA() : _foamParticleGeom.VertexArrayB();
-		GL_CHECK(glBindVertexArray(vertexArray));
-
-		m_foamShader.BindPerPass();
-		m_foamShader.VertexShader().SetTexture("s_rockData", &_geom.RockDataRead());
-		m_foamShader.VertexShader().SetTexture("s_waterData", &_geom.WaterDataRead());
-
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glPointSize(1.0f);
-
-		GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
-
-		glDisable(GL_BLEND);
-
-		glBindVertexArray(GL_NONE);
-
-		_geom.WaterFoamData().GenerateMipMaps();
-	}
-	*/
 }
 
 void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

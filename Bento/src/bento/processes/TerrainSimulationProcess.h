@@ -25,24 +25,14 @@ namespace bento
 		UpdateTerrainFluxFrag();
 	};
 
-	struct UpdateTerrainFluxOneAxisFrag : ShaderStageBase
-	{
-		UpdateTerrainFluxOneAxisFrag();
-	};
-
 	struct UpdateTerrainDataFrag : ShaderStageBase
 	{
 		UpdateTerrainDataFrag();
 	};
 
-	struct UpdateTerrainHeightsFrag : ShaderStageBase
+	struct DiffuseHeightFrag : ShaderStageBase
 	{
-		UpdateTerrainHeightsFrag();
-	};
-
-	struct UpdateTerrainMiscFrag : ShaderStageBase
-	{
-		UpdateTerrainMiscFrag();
+		DiffuseHeightFrag();
 	};
 
 	struct FoamParticleUpdateVert : ShaderStageBase
@@ -61,16 +51,8 @@ namespace bento
 		struct FoamFrag();
 	};
 
-	struct DiffuseHeightFrag : ShaderStageBase
-	{
-		DiffuseHeightFrag();
-	};
-
 	struct UpdateTerrainFluxShader			: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
-	struct UpdateTerrainFluxOneAxisShader	: ShaderBase<ScreenQuadVert, UpdateTerrainFluxOneAxisFrag> {};
 	struct UpdateTerrainDataShader			: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
-	struct UpdateTerrainHeightsShader		: ShaderBase<ScreenQuadVert, UpdateTerrainHeightsFrag> {};
-	struct UpdateTerrainMiscShader			: ShaderBase<ScreenQuadVert, UpdateTerrainMiscFrag> {};
 	struct FoamParticleUpdateShader			: ShaderBase<FoamParticleUpdateVert, NullFrag> {};
 	struct DiffuseHeightShader				: ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
 	struct FoamShader						: ShaderBase<FoamVert, FoamFrag> {};
@@ -106,10 +88,7 @@ namespace bento
 
 		ScreenQuadGeometry m_screenQuadGeom;
 		UpdateTerrainFluxShader m_updateFluxShader;
-		UpdateTerrainFluxOneAxisShader m_updateFluxOneAxisShader;
 		UpdateTerrainDataShader m_updateDataShader;
-		UpdateTerrainHeightsShader m_updateHeightsShader;
-		UpdateTerrainMiscShader m_updateMiscShader;
 		FoamParticleUpdateShader m_foamParticleUpdateShader;
 		FoamShader m_foamShader;
 		DiffuseHeightShader m_diffuseHeightShader;

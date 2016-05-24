@@ -20,32 +20,12 @@ namespace bento
 	void TerrainGVert::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
-		//SetUniform("u_modelMatrix", RenderParams::ModelMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
-		//SetUniform("u_normalModelViewMatrix", RenderParams::NormalModelViewMatrix());
-		//SetUniform("u_mapHeightOffset", _material->mapHeightOffset);
 
-		//SetTexture("s_diffuseMap", &(_material->SomeTexture));
-
-		//_geometry->SwapRockData();
-		//_geometry->SwapRockFluxData();
-		//_geometry->SwapWaterData();
-		//_geometry->SwapWaterFluxData();
-
-		SetTexture("s_rockData", &(_geometry->RockDataRead()));
-		SetTexture("s_rockFluxData", &(_geometry->RockFluxDataRead()));
-		SetTexture("s_rockNormalData", &(_geometry->RockNormalData()));
-
-		SetTexture("s_waterData", &(_geometry->WaterDataRead()));
-		SetTexture("s_waterFluxData", &(_geometry->WaterFluxDataRead()));
-		SetTexture("s_waterNormalData", &(_geometry->WaterNormalData()));
-
-		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
-
-		//_geometry->SwapRockData();
-		//_geometry->SwapRockFluxData();
-		//_geometry->SwapWaterData();
-		//_geometry->SwapWaterFluxData();
+		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
+		SetTexture("s_velocityData", &(_geometry->RockFluxDataRead()));
+		SetTexture("s_miscData", &(_geometry->MiscDataRead()));
+		SetTexture("s_normalData", &(_geometry->NormalDataRead()));
 	}
 
 	////////////////////////////////////////////
@@ -63,7 +43,6 @@ namespace bento
 		SetUniform("u_lightIntensity", _material->directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
 
-		SetTexture("s_mappingData", &(_geometry->MappingDataRead()));
 		SetTexture("s_diffuseMap", &(_material->someTexture));
 		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 

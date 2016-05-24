@@ -1,9 +1,9 @@
 #version 330 core
 
 // Samplers
-uniform sampler2D s_rockData;
+uniform sampler2D s_heightData;
+uniform sampler2D s_miscData;
 uniform sampler2D s_rockFluxData;
-uniform sampler2D s_waterData;
 uniform sampler2D s_waterFluxData;
 
 // Inputs
@@ -28,31 +28,23 @@ void main(void)
 	ivec2 texelCoordU = texelCoordC - ivec2(0,1);
 	ivec2 texelCoordD = texelCoordC + ivec2(0,1);
 
-	vec4 rockDataC = texelFetch(s_rockData, texelCoordC, 0);
-	vec4 rockDataL = texelFetch(s_rockData, texelCoordL, 0);
-	vec4 rockDataR = texelFetch(s_rockData, texelCoordR, 0);
-	vec4 rockDataU = texelFetch(s_rockData, texelCoordU, 0);
-	vec4 rockDataD = texelFetch(s_rockData, texelCoordD, 0);
+	vec4 heightDataC = texelFetch(s_heightData, texelCoordC, 0);
+	vec4 heightDataL = texelFetch(s_heightData, texelCoordL, 0);
+	vec4 heightDataR = texelFetch(s_heightData, texelCoordR, 0);
+	vec4 heightDataU = texelFetch(s_heightData, texelCoordU, 0);
+	vec4 heightDataD = texelFetch(s_heightData, texelCoordD, 0);
 
-	vec4 waterDataC = texelFetch(s_waterData, texelCoordC, 0);
-	vec4 waterDataL = texelFetch(s_waterData, texelCoordL, 0);
-	vec4 waterDataR = texelFetch(s_waterData, texelCoordR, 0);
-	vec4 waterDataU = texelFetch(s_waterData, texelCoordU, 0);
-	vec4 waterDataD = texelFetch(s_waterData, texelCoordD, 0);
+	vec4 miscDataC = texelFetch(s_miscData, texelCoordC, 0);
 
-	vec4 rockHeightC = vec4(rockDataC.x);
-	vec4 dirtHeightC = vec4(rockDataC.w);
-	vec4 moltenHeightC = vec4(rockDataC.y);
-	vec4 waterHeightC = vec4(waterDataC.x);
-	vec4 dissolvedDirtHeightC = vec4(waterDataC.w);
+	vec4 rockHeightC   = vec4(heightDataC.x);
+	vec4 moltenHeightC = vec4(heightDataC.y);
+	vec4 dirtHeightC   = vec4(heightDataC.z);
+	vec4 waterHeightC  = vec4(heightDataC.w);
 	
-	vec4 rockHeightN = vec4(rockDataL.x, rockDataR.x, rockDataU.x, rockDataD.x);
-	vec4 dirtHeightN = vec4(rockDataL.w, rockDataR.w, rockDataU.w, rockDataD.w);
-	vec4 moltenHeightN = vec4(rockDataL.y, rockDataR.y, rockDataU.y, rockDataD.y);
-	vec4 waterHeightN = vec4(waterDataL.x, waterDataR.x, waterDataU.x, waterDataD.x);
-	vec4 dissolvedDirtHeightN = vec4(waterDataL.w, waterDataR.w, waterDataU.w, waterDataD.w);
-
-	float rockHeatC = rockDataC.z;
+	vec4 rockHeightN   = vec4(heightDataL.x, heightDataR.x, heightDataU.x, heightDataD.x);
+	vec4 moltenHeightN = vec4(heightDataL.y, heightDataR.y, heightDataU.y, heightDataD.y);
+	vec4 dirtHeightN   = vec4(heightDataL.z, heightDataR.z, heightDataU.z, heightDataD.z);
+	vec4 waterHeightN  = vec4(heightDataL.w, heightDataR.w, heightDataU.w, heightDataD.w);
 
 	// Molten flux
 	{
@@ -68,14 +60,15 @@ void main(void)
 		limit = smoothstep(0,1,limit);
 		rockFluxC *= limit;
 
-		rockFluxC *= u_rockFluxDamping * step( u_heatViscosityBias, rockHeatC );
+		float heat = miscDataC.x;
+		rockFluxC *= u_rockFluxDamping * step( u_heatViscosityBias, heat );
 
 		out_rockFluxData = rockFluxC;
 	}
 	// Water flux
 	{
-		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC;// + dissolvedDirtHeightC;
-		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + waterHeightN;// + dissolvedDirtHeightN;
+		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC;
+		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + waterHeightN;
 		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) );
 
 		vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
@@ -84,9 +77,7 @@ void main(void)
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
 		float totalOutflow = waterFluxC.x + waterFluxC.y + waterFluxC.z + waterFluxC.w + 0.000001;
 		float limit = min(1.0f, waterHeightC.x / totalOutflow );
-		//limit = smoothstep(0,1,limit);
 		waterFluxC *= limit;
-
 		waterFluxC *= u_waterFluxDamping;
 
 		out_waterFluxData = waterFluxC;

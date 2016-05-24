@@ -10,11 +10,10 @@ in Varying
 	vec2 in_uv;
 	vec3 in_viewNormal;
 	vec4 in_viewPosition;
-	vec4 in_rockData;
-	vec4 in_waterData;
-	vec4 in_rockNormal;
-	vec4 in_waterNormal;
-	vec4 in_waterFluxData;
+	vec4 in_heightData;
+	vec4 in_velocityData;
+	vec4 in_miscData;
+	vec4 in_normalData;
 };
 
 // Uniforms
@@ -36,7 +35,6 @@ uniform vec3 u_cameraPos;
 
 // Textures
 uniform sampler2D s_diffuseMap;
-uniform sampler2D s_mappingData;
 
 
 ////////////////////////////////////////////////////////////////
@@ -64,6 +62,12 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 // Functions
 ////////////////////////////////////////////////////////////////
 
+vec3 reconstructNormal( vec2 normal2 )
+{
+	float len = length(normal2);
+	vec3 normal3 = vec3(normal2.x, 1.0-len, normal2.y);
+	return normalize(normal3);
+}
 
 vec3 ApplyFog( vec3 rgb, vec3 c, vec3 p, vec3 sunDir )
 {
@@ -118,50 +122,32 @@ void UpdateMousePosition()
 		atomicExchange(mouseBufferV, fragUV.y);
 	}
 }
-/*
-void main(void)
-{
-	
-
-	out_viewPosition = in_viewPosition;
-	out_viewNormal = vec4(0.0);
-	out_albedo = vec4(0.0);
-	out_material = vec4( 0.0, 0.0, 0.0, 0.0 );	// roughness, reflectivity, emissive, nowt
-	out_forward = in_rockData;
-}
-*/
 
 void main(void)
 {
 	UpdateMousePosition();
 
-	vec4 mappingDataC = texture(s_mappingData, in_uv, 0 );
+	float moltenPhase = in_miscData.y;
+	float moltenPhaseMapped = texture( s_diffuseMap, vec2(moltenPhase,0.0) ).x;
 
-	float moltenPhase = mappingDataC.x;
-	float moltenBump = mappingDataC.y;
-	float heat = in_rockData.z;
-	float occlusion = 1.0f - in_rockNormal.w;
-	float dirtHeight = in_rockData.w;
-	float rockHeight = in_rockData.x;
-
+	float heat = in_miscData.x;
+	float occlusion = 1.0f - in_miscData.w;
+	float rockHeight = in_heightData.x;
+	float dirtHeight = in_heightData.z;
+	vec3 rockNormal = reconstructNormal(in_normalData.zw);
+	
 	// Diffuse
-	float diffuseScalar = moltenPhase;
-	vec3 diffuse = mix( vec3(0.2f), vec3(0.3f), mappingDataC.y );
-	diffuse = pow(diffuse, vec3(2.2));
-
-	//float dirtScalar = clamp( dot(vec3(0.0,1.0,0.0), in_rockNormal.xyz), 0.0, 1.0 );
-	//dirtScalar = smoothstep( 0.0, 1.0, dirtScalar );
+	vec3 rockColor = mix( vec3(0.2f), vec3(0.3f), moltenPhaseMapped );
+	rockColor = pow(rockColor, vec3(2.2));	// Gamma correct
 
 	const vec3 dirtColor = vec3(0.2,0.15,0.1);
-	//const vec3 dirtColor = vec3(0.0,0.0,1.0);
-
-	diffuse = mix( diffuse, dirtColor, smoothstep(0.0, 0.01, dirtHeight) );
+	vec3 diffuse = mix( rockColor, dirtColor, smoothstep(0.0, 0.01, dirtHeight) );
 	
 	float scorchAmount = min( max(heat-0.3, 0.0) / 0.2, 1.0 );
 	diffuse -= scorchAmount * diffuse * 0.9;
 
 	// Direct light
-	vec3 directLight = vec3( max( dot(in_rockNormal.xyz, u_lightDir), 0.0f ) * u_lightIntensity );
+	vec3 directLight = vec3( max( dot(rockNormal, u_lightDir), 0.0f ) * u_lightIntensity );
 
 	// Ambient light
 	vec3 ambientlight = vec3( u_ambientLightIntensity * occlusion );
@@ -169,11 +155,11 @@ void main(void)
 	// Emissive
 	vec3 emissive = vec3(0.0f);
 	float heatForColor0 = min(1.0f,heat);
-	float heatColor0 = max(0.0f, heatForColor0 - moltenBump * 0.5f );
+	float heatColor0 = max(0.0f, heatForColor0 - moltenPhaseMapped * 0.5f );
 	heatColor0 = pow(heatColor0, 2.0f);
 
 	float heatForColor1 = heat * 0.5f;
-	float heatColor1 = max(0.0f, heatForColor1 - moltenBump * 0.25f);
+	float heatColor1 = max(0.0f, heatForColor1 - moltenPhaseMapped * 0.25f);
 	heatColor1 = min(1.0f,heatColor1);
 	heatColor1 = pow(heatColor1, 2.0f);
 
@@ -197,11 +183,10 @@ void main(void)
 
 	//outColor = vec3( 0.0, 0.0, dirtHeight / 0.2 );
 	//outColor += vec3(in_waterData.yz*20.0, 0.0);
-
 	//outColor = vec3(cameraRay.y);
 
 	out_viewPosition = in_viewPosition;
-	out_viewNormal = vec4( normalize( in_waterNormal.xyz * mat3(u_viewMatrix) ), 1.0f );
+	out_viewNormal = vec4( normalize( rockNormal * mat3(u_viewMatrix) ), 1.0f );
 	out_albedo = vec4( 0.0f );
 	out_material = vec4( 0.0f, 0.0f, 0.0f, 0.0f );	// roughness, reflectivity, emissive, nowt
 	out_forward = vec4(outColor, 1.0f);

@@ -13,33 +13,35 @@ namespace bento
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
 		, m_numVerticesPerDimension(512)
-		, m_rockDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_rockDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_rockFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_rockFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_rockNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_rockDataRead(&m_rockDataA)
-		, m_rockDataWrite(&m_rockDataB)
-		, m_rockFluxDataRead(&m_rockFluxDataA)
-		, m_rockFluxDataWrite(&m_rockFluxDataB)
-
-		, m_waterDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_waterDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_waterNormalData(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_waterDataRead(&m_waterDataA)
-		, m_waterDataWrite(&m_waterDataB)
-		, m_waterFluxDataRead(&m_waterFluxDataA)
-		, m_waterFluxDataWrite(&m_waterFluxDataB)
-
-		, m_mappingDataA(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_mappingDataB(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_mappingDataRead(&m_mappingDataA)
-		, m_mappingDataWrite(&m_mappingDataB)
 		, m_terrainMousePos()
 
-		, m_waterFoamData(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_heightDataA		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_heightDataB		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_velocityDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_velocityDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_normalDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_normalDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+
+		, m_rockFluxDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_rockFluxDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+
+		, m_heightDataRead(&m_heightDataA)
+		, m_heightDataWrite(&m_heightDataB)
+		, m_velocityDataRead(&m_velocityDataA)
+		, m_velocityDataWrite(&m_velocityDataB)
+		, m_miscDataRead(&m_miscDataA)
+		, m_miscDataWrite(&m_miscDataB)
+		, m_normalDataRead(&m_normalDataA)
+		, m_normalDataWrite(&m_normalDataA)
+
+		, m_rockFluxDataRead(&m_rockFluxDataA)
+		, m_rockFluxDataWrite(&m_rockFluxDataB)
+		, m_waterFluxDataRead(&m_waterFluxDataA)
+		, m_waterFluxDataWrite(&m_waterFluxDataB)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
@@ -75,7 +77,7 @@ namespace bento
 		glGenVertexArrays(1, &m_vertexArrayName);
 		GL_CHECK(glBindVertexArray(m_vertexArrayName));
 
-		
+
 		SetVertexFormatf(0, 3);	// Position;
 		SetVertexFormatf(1, 2);	// UV;
 
@@ -90,8 +92,8 @@ namespace bento
 		std::vector<int> indices(m_numIndices);
 
 		std::vector<float> heightData(m_numVertices * 4);
-		std::vector<float> fluxData(m_numVertices * 4);
-		std::vector<float> mappingData(m_numVertices * 4);
+		//std::vector<float> fluxData(m_numVertices * 4);
+		//std::vector<float> mappingData(m_numVertices * 4);
 
 		std::srand(0);
 
@@ -132,7 +134,7 @@ namespace bento
 				heightData[float4Index + 1] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 2] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 3] = 0.0f;// (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.001f;
-			
+				/*
 				fluxData[float4Index + 0] = 0.0f;
 				fluxData[float4Index + 1] = 0.0f;
 				fluxData[float4Index + 2] = 0.0f;
@@ -142,7 +144,7 @@ namespace bento
 				mappingData[float4Index + 1] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
 				mappingData[float4Index + 2] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
 				mappingData[float4Index + 3] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
-
+				*/
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
 					if (hexGrid)
@@ -190,41 +192,48 @@ namespace bento
 			}
 		}
 
-		m_rockDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_rockDataA.GenerateMipMaps();
+		m_heightDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_heightDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_heightDataA.GenerateMipMaps();
+		m_heightDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_heightDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_heightDataB.GenerateMipMaps();
 
-		m_rockDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_rockDataB.GenerateMipMaps();
+		m_velocityDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_velocityDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_velocityDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_velocityDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+
+		m_miscDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_miscDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_miscDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_miscDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+
+		m_normalDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_normalDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_normalDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_normalDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		
+		
 
 		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_rockFluxDataA.GenerateMipMaps();
 
 		m_rockFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_rockFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_rockFluxDataB.GenerateMipMaps();
 
-		m_waterDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_waterDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
-		m_waterDataA.GenerateMipMaps();
-
-		m_waterDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_waterDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
-		m_waterDataB.GenerateMipMaps();
-
 		m_waterFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_waterFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_waterFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_waterFluxDataA.GenerateMipMaps();
 
 		m_waterFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_waterFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &fluxData[0]);
+		m_waterFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_waterFluxDataB.GenerateMipMaps();
 
-		m_mappingDataA.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
-		m_mappingDataB.TexImage2D(GL_RGBA, GL_FLOAT, &mappingData[0]);
 		
+
 		BufferVertexData(0, &positions[0], positions.size());
 		BufferVertexData(1, &uvs[0], uvs.size());
 		BufferIndexData(0, &indices[0], indices.size());

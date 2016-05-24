@@ -26,26 +26,13 @@ namespace bento
 
 	void TerrainWaterVert::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
-		
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 
-		//_geometry->SwapRockData();
-		//_geometry->SwapRockFluxData();
-		//_geometry->SwapWaterData();
-		//_geometry->SwapWaterFluxData();
-
-		SetTexture("s_rockData", &(_geometry->RockDataRead()));
-		SetTexture("s_waterData", &(_geometry->WaterDataRead()));
-		SetTexture("s_waterFluxData", &(_geometry->WaterFluxDataRead()));
-		SetTexture("s_waterNormalData", &(_geometry->WaterNormalData()));
-		SetTexture("s_rockNormalData", &(_geometry->RockNormalData()));
-		SetTexture("s_diffuseMap", &(_material->someTexture));
-
-		//_geometry->SwapRockData();
-		//_geometry->SwapRockFluxData();
-		//_geometry->SwapWaterData();
-		//_geometry->SwapWaterFluxData();
+		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
+		SetTexture("s_velocityData", &(_geometry->VelocityDataRead()));
+		SetTexture("s_miscData", &(_geometry->MiscDataRead()));
+		SetTexture("s_normalData", &(_geometry->NormalDataRead()));
 	}
 
 	////////////////////////////////////////////
@@ -74,11 +61,10 @@ namespace bento
 		SetTexture("s_output", RenderParams::DeferedRenderTarget->OutputTextureA());
 		SetTexture("s_positionBuffer", RenderParams::DeferedRenderTarget->PositionTexture());
 
-		SetTexture("s_rockData", &_geometry->RockDataRead());
-		SetTexture("s_waterData", &_geometry->WaterDataRead());
+		SetTexture("s_heightData", &_geometry->HeightDataRead());
+		SetTexture("s_waterData", &_geometry->VelocityDataRead());
 		SetTexture("s_waterFluxData", &_geometry->WaterFluxDataRead());
-		SetTexture("s_mappingData", &_geometry->MappingDataRead());
-		SetTexture("s_foamData", &_geometry->WaterFoamData());
+		SetTexture("s_mappingData", &_geometry->MiscDataRead());
 		SetTexture("s_diffuseMap", &_material->someTexture);
 	}
 

@@ -10,9 +10,6 @@ layout(location = 3) in vec3 in_normal;
 uniform mat4 u_mvpMatrix;
 uniform float u_terrainSize = 1.5;
 
-uniform sampler2D s_waterData; 
-uniform sampler2D s_rockData; 
-
 // Outputs
 out gl_PerVertex 
 {
@@ -47,5 +44,5 @@ void main(void)
 
 	float alpha = sin(life*3.142);
 
-	out_color = vec4(vec3(1.0), alpha);
+	out_color = vec4(vec3(1.0), alpha * 0.05);
 } 

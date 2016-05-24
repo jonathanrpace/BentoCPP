@@ -65,8 +65,6 @@ namespace bento
 
 			m_shader.BindPerPass();
 			m_shader.VertexShader().SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
-			m_shader.VertexShader().SetTexture("s_rockData", &node->geom->RockDataRead());
-			m_shader.VertexShader().SetTexture("s_waterData", &node->geom->WaterDataRead());
 
 			m_shader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(node->material->lightAltitude, node->material->lightAzimuth)));
 			m_shader.VertexShader().SetUniform("u_lightIntensity", node->material->directLightIntensity);
