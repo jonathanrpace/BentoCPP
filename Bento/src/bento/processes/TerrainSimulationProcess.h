@@ -14,6 +14,7 @@
 #include <bento/components/geom/TerrainGeometry.h>
 #include <bento/components/geom/ScreenQuadGeometry.h>
 #include <bento/components/geom/FoamParticleGeom.h>
+#include <bento/components/geom/MoltenParticleGeom.h>
 #include <bento/components/materials/TerrainMaterial.h>
 #include <bento/components/Transform.h>
 #include <bento/core/SerializableBase.h>
@@ -51,18 +52,37 @@ namespace bento
 		struct FoamFrag();
 	};
 
+	struct MoltenParticleUpdateVert : ShaderStageBase
+	{
+		MoltenParticleUpdateVert();
+		virtual void OnPreLink() override;
+	};
+	/*
+	struct MoltenVert : ShaderStageBase
+	{
+		MoltenVert();
+	};
+
+	struct MoltenFrag : ShaderStageBase
+	{
+		struct MoltenFrag();
+	};
+	*/
 	struct UpdateTerrainFluxShader			: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader			: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct FoamParticleUpdateShader			: ShaderBase<FoamParticleUpdateVert, NullFrag> {};
+	struct MoltenParticleUpdateShader		: ShaderBase<MoltenParticleUpdateVert, NullFrag> {};
 	struct DiffuseHeightShader				: ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
 	struct FoamShader						: ShaderBase<FoamVert, FoamFrag> {};
+	//struct MoltenParticleShader				: ShaderBase<MoltenVert, MoltenFrag> {};
 	
-	DEFINE_NODE_3
+	DEFINE_NODE_4
 	(
 		TerrainSimPassNode,
 		TerrainGeometry, geom,
 		TerrainMaterial, material,
-		FoamParticleGeom, foamGeom
+		FoamParticleGeom, foamGeom,
+		MoltenParticleGeom, moltenParticleGeom
 	)
 
 	struct TerrainSimulationProcess
@@ -81,7 +101,7 @@ namespace bento
 		virtual void AddUIElements() override;
 
 	private:
-		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, FoamParticleGeom & _foamParticleGeom);
+		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, FoamParticleGeom & _foamParticleGeom, MoltenParticleGeom & _moltenParticleGeom);
 
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
@@ -90,6 +110,7 @@ namespace bento
 		UpdateTerrainFluxShader m_updateFluxShader;
 		UpdateTerrainDataShader m_updateDataShader;
 		FoamParticleUpdateShader m_foamParticleUpdateShader;
+		MoltenParticleUpdateShader m_moltenParticleUpdateShader;
 		FoamShader m_foamShader;
 		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;

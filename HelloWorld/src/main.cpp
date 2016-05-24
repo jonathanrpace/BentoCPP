@@ -25,6 +25,7 @@
 #include <bento/render/passes/TerrainGPass.h>
 #include <bento/render/passes/TerrainWaterPass.h>
 #include <bento/render/passes/TerrainFoamPass.h>
+#include <bento/render/passes/MoltenParticlePass.h>
 #include <bento/processes/TerrainSimulationProcess.h>
 #include <bento/processes/OrbitCamera.h>
 #include <bento/util/GLErrorUtil.h>
@@ -51,6 +52,8 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(material, entity);
 		auto foamParticleGeom = bento::FoamParticleGeom::Create();
 		scene.AddComponentToEntity(foamParticleGeom, entity);
+		auto moltenParticleGeom = bento::MoltenParticleGeom::Create();
+		scene.AddComponentToEntity(moltenParticleGeom, entity);
 	}
 
 	// Processes
@@ -64,7 +67,8 @@ void mainLoop(GLFWwindow* window)
 		renderer->AddRenderPass(bento::GPass::Create());
 		renderer->AddRenderPass(bento::TerrainGPass::Create());
 		renderer->AddRenderPass(bento::TerrainWaterPass::Create());
-		renderer->AddRenderPass(bento::TerrainFoamPass::Create());
+		//renderer->AddRenderPass(bento::TerrainFoamPass::Create());
+		renderer->AddRenderPass(bento::MoltenParticlePass::Create());
 		renderer->AddRenderPass(bento::IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);
