@@ -4,44 +4,36 @@
 layout(location = 0) in vec4 in_position;
 layout(location = 1) in vec4 in_properties;
 
-// Uniforms
-uniform mat4 u_mvpMatrix;
-uniform float u_terrainSize = 1.5;
-
 // Outputs
 out gl_PerVertex 
 {
 	vec4 gl_Position;
+	float gl_PointSize;
 };
 
 out Varying
 {
 	vec4 out_color;
+	float out_angle;
 };
 
 void main(void)
 {
-	vec4 position = in_position;
-	position.xz *= u_terrainSize;
-	position.xz -= u_terrainSize*0.5;
-	position.y += 0.002;
-	position.w = 1.0;
-
-	vec4 screenPos = u_mvpMatrix * position;
-
-	gl_Position = screenPos;
-
-	/*
 	vec4 screenPos = vec4(in_position.x, in_position.z, 1.0, 1.0);
 	screenPos.xy -= 0.5;
 	screenPos.xy *= 2.0;
 	gl_Position = screenPos;
-	*/
 
 	float life = in_position.w;
 	float alpha = sin(life*3.142);
 
-	alpha *= alpha;
+	//alpha *= mix( 0.8, 1.0, in_properties.w );
 
-	out_color = vec4(vec3(1.0), alpha * 0.05);
+	//gl_PointSize = mix(baseSize, baseSize*scalar, pow(in_properties.w, 1.5));
+	gl_PointSize = 48;//mix(20.0, 64.0, life);
+
+	
+
+	out_color = vec4(vec3(1.0), alpha);
+	out_angle = in_properties.z * 3.142 * 2.0;
 } 

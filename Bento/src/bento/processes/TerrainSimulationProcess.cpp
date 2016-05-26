@@ -12,26 +12,22 @@ namespace bento
 //////////////////////////////////////////////////////////////////////////
 UpdateTerrainFluxFrag::UpdateTerrainFluxFrag()
 	: ShaderStageBase("shaders/UpdateTerrainFlux.frag")
-{
-}
+{}
 
 //////////////////////////////////////////////////////////////////////////
 UpdateTerrainDataFrag::UpdateTerrainDataFrag()
 	: ShaderStageBase("shaders/UpdateTerrainData.frag")
-{
-}
+{}
 
 //////////////////////////////////////////////////////////////////////////
 DiffuseHeightFrag::DiffuseHeightFrag()
 	: ShaderStageBase("shaders/DiffuseHeight.frag")
-{
-}
+{}
 
 //////////////////////////////////////////////////////////////////////////
 FoamParticleUpdateVert::FoamParticleUpdateVert()
 	: ShaderStageBase("shaders/FoamParticleUpdate.vert", false)
-{
-}
+{}
 
 void FoamParticleUpdateVert::OnPreLink()
 {
@@ -42,38 +38,34 @@ void FoamParticleUpdateVert::OnPreLink()
 //////////////////////////////////////////////////////////////////////////
 FoamVert::FoamVert()
 	: ShaderStageBase("shaders/FoamParticle.vert", false)
-{
-}
+{}
 
 //////////////////////////////////////////////////////////////////////////
-FoamFrag::FoamFrag() : ShaderStageBase("shaders/FoamParticle.frag", false)
-{
-}
-
+FoamFrag::FoamFrag() 
+	: ShaderStageBase("shaders/FoamParticle.frag", false)
+{}
 
 //////////////////////////////////////////////////////////////////////////
 MoltenParticleUpdateVert::MoltenParticleUpdateVert()
 	: ShaderStageBase("shaders/MoltenParticleUpdate.vert", false)
-{
-}
+{}
 
 void MoltenParticleUpdateVert::OnPreLink()
 {
 	const char * varyings[] = { "out_position" };
 	GL_CHECK(glTransformFeedbackVaryings(m_programName, 1, varyings, GL_SEPARATE_ATTRIBS));
 }
-/*
-//////////////////////////////////////////////////////////////////////////
-MoltenVert::MoltenVert()
-	: ShaderStageBase("shaders/MoltenParticle.vert", false)
-{
-}
 
 //////////////////////////////////////////////////////////////////////////
-MoltenFrag::MoltenFrag() : ShaderStageBase("shaders/MoltenParticle.frag", false)
-{
-}
-*/
+MoltenMapVert::MoltenMapVert()
+	: ShaderStageBase("shaders/MoltenMap.vert", false)
+{}
+
+//////////////////////////////////////////////////////////////////////////
+MoltenMapFrag::MoltenMapFrag() 
+	: ShaderStageBase("shaders/MoltenMap.frag", false)
+{}
+
 
 //////////////////////////////////////////////////////////////////////////
 // TerrainSimulationPass
@@ -86,6 +78,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	, m_updateDataShader()
 	, m_foamParticleUpdateShader()
 	, m_moltenParticleUpdateShader()
+	, m_moltenMapShader()
 	, m_foamShader()
 	, m_diffuseHeightShader()
 	, m_screenQuadGeom()
@@ -107,6 +100,8 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("meltSpeed",				0.00001f,	&m_meltSpeed);
 	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
+	SerializableMember("moltenVelocityScalar",	1.0f,		&m_moltenVelocityScalar);
+	SerializableMember("moltenVelocityDamping",	0.9f,		&m_moltenVelocityDamping);
 
 	// Water
 	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
@@ -180,12 +175,14 @@ void TerrainSimulationProcess::AddUIElements()
 
 	ImGui::Text("Molten");
 	ImGui::SliderFloat("FluxDamping", &m_moltenFluxDamping, 0.9f, 1.0f);
+	ImGui::SliderFloat("MVelocityScalar", &m_moltenVelocityScalar, 0.0f, 4.0f);
+	ImGui::SliderFloat("MVelocityDamping", &m_moltenVelocityDamping, 0.8f, 1.0f);
 	ImGui::Spacing();
 
 	ImGui::Spacing();
 	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 0.5f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
-	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 0.5f);
+	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 2.0f);
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -314,6 +311,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_normalData",					&_geom.NormalDataRead());
 		fragShader.SetTexture("s_waterFluxData",				&_geom.WaterFluxDataRead());
 		fragShader.SetTexture("s_rockFluxData",					&_geom.RockFluxDataRead());
+		fragShader.SetTexture("s_moltenMapData",				&_geom.MoltenMapDataRead());
 		fragShader.SetTexture("s_diffuseMap",					&_material.someTexture);
 
 		// Mouse
@@ -333,8 +331,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_tempChangeSpeed",				m_tempChangeSpeed);
 		fragShader.SetUniform("u_condenseSpeed",				m_condenseSpeed);
 		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
-		fragShader.SetUniform("u_moltenVelocityScalar",			1.0f);
-		fragShader.SetUniform("u_moltenVelocityDamping",		0.9f);
+		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
+		fragShader.SetUniform("u_moltenVelocityDamping",		m_moltenVelocityDamping);
 
 		// Water
 		fragShader.SetUniform("u_waterViscosity",				m_waterViscosity);
@@ -506,6 +504,37 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		glUseProgram(GL_NONE);
 
 		_moltenParticleGeom.Switch(!_moltenParticleGeom.Switch());
+	}
+
+	// Render molten particles to a map
+	{
+		m_moltenMapShader.BindPerPass();
+		auto fragShader = m_moltenMapShader.FragmentShader();
+		auto vertShader = m_moltenMapShader.VertexShader();
+
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.MoltenMapDataWrite());
+
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		glEnable(GL_BLEND);
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glBlendEquation(GL_MAX);
+		glBlendFunc(GL_ONE, GL_ONE);
+
+		fragShader.SetTexture("s_texture", &_material.moltenPlatesTexture);
+
+		//glPointSize(16.0f);
+
+		GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
+
+		glDisable(GL_BLEND);
+		glDisable(GL_PROGRAM_POINT_SIZE);
+
+		_geom.SwapMoltenMapData();
 	}
 }
 

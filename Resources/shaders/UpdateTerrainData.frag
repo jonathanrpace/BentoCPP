@@ -23,7 +23,9 @@ uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_waterFluxData;
 uniform sampler2D s_rockFluxData;
+uniform sampler2D s_moltenMapData;
 uniform sampler2D s_diffuseMap;
+
 
 // Mouse
 uniform vec2 u_mousePos;
@@ -227,6 +229,7 @@ void main(void)
 	out_heightData = heightDataC;
 	out_velocityData = velocityDataC;
 	out_miscData = miscDataC;
+	out_normalData = vec4(0.0);
 
 	////////////////////////////////////////////////////////////////
 	// Update molten
@@ -280,21 +283,23 @@ void main(void)
 		out_miscData.x = heat;
 
 		//////////////////////////////////////////////////////////////////////////////////
-		// Update molten mapping
-		// Visit each 9 neighbours, and determine which ones will sample from within this.
-		// cell. Those that do exert a 'pull' on this cell from their direction. If this 
-		// pull is counteracted by another neighbour in the opposite direction then this 
-		// cell is being 'seperated' and should cycle its sampled colour so that 
-		// neighbours pulling this colour get fresh detail, rather than smearing a single 
-		// value
+		// MOLTEN MAPPING
 		//////////////////////////////////////////////////////////////////////////////////
 		{
 			vec2 velocity = velocityDataC.xy;
-			velocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity ) * u_moltenVelocityScalar;
+			velocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, viscosity ) * u_moltenVelocityScalar;
 			velocity *= u_moltenVelocityDamping;
+			out_velocityData.xy = velocity;
 
+			/*
 			////////////////////////////////////////////////////////////////
 			// SEPERATION
+			// Visit each 9 neighbours, and determine which ones will sample from within this.
+			// cell. Those that do exert a 'pull' on this cell from their direction. If this 
+			// pull is counteracted by another neighbour in the opposite direction then this 
+			// cell is being 'seperated' and should cycle its sampled colour so that 
+			// neighbours pulling this colour get fresh detail, rather than smearing a single 
+			// value
 			////////////////////////////////////////////////////////////////
 			float seperationAmount = 0.0f;
 			ivec2 coord = texelCoordC / 2;
@@ -311,16 +316,15 @@ void main(void)
 				coord /= 2;
 				strength *= 0.65f;
 			}
-			////////////////////////////////////////////////////////////////
-
+			
 			vec2 pullUV = in_uv - velocity * u_textureScrollSpeed;
-			float newPhase = texture(s_miscData, pullUV).y;
-
+			float newPhase = texture(s_moltenMapData, pullUV).x;
 			newPhase += min(u_cycleSpeed * seperationAmount, 0.1f);
 			newPhase = mod(newPhase, 1.0f);
-			
 			out_miscData.y = newPhase;
-			out_velocityData.xy = velocity;
+
+			////////////////////////////////////////////////////////////////
+			*/
 		}
 	}
 
@@ -464,11 +468,24 @@ void main(void)
 	// Rock normal
 	//////////////////////////////////////////////////////////////////////////////////
 	{
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z;
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z;
+		float moltenMapC = texelFetch(s_moltenMapData, texelCoordC, 0).x;
+		float moltenMapL = texelFetch(s_moltenMapData, texelCoordL, 0).x;
+		float moltenMapR = texelFetch(s_moltenMapData, texelCoordR, 0).x;
+		float moltenMapU = texelFetch(s_moltenMapData, texelCoordU, 0).x;
+		float moltenMapD = texelFetch(s_moltenMapData, texelCoordD, 0).x;
+
+		float moltenMapScalar = 0.001;
+		moltenMapC *= moltenMapScalar;
+		moltenMapL *= moltenMapScalar;
+		moltenMapR *= moltenMapScalar;
+		moltenMapU *= moltenMapScalar;
+		moltenMapD *= moltenMapScalar;
+
+		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + moltenMapR;
+		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + moltenMapL;
+		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + moltenMapU;
+		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + moltenMapD;
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + moltenMapC;
 
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));

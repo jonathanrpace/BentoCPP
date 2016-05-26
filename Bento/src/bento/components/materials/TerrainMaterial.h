@@ -26,6 +26,7 @@ namespace bento
 		virtual void AddUIElements() override;
 
 		TextureSquare someTexture;
+		TextureSquare moltenPlatesTexture;
 		float mapHeightOffset;
 
 		// Water

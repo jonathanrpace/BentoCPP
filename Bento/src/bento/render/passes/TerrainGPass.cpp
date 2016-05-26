@@ -26,6 +26,7 @@ namespace bento
 		SetTexture("s_velocityData", &(_geometry->RockFluxDataRead()));
 		SetTexture("s_miscData", &(_geometry->MiscDataRead()));
 		SetTexture("s_normalData", &(_geometry->NormalDataRead()));
+		SetTexture("s_moltenMapData", &(_geometry->MoltenMapDataRead()));
 	}
 
 	////////////////////////////////////////////
@@ -35,6 +36,7 @@ namespace bento
 	TerrainGFrag::TerrainGFrag() 
 		: ShaderStageBase("shaders/TerrainG.frag") 
 	{
+
 	}
 
 	void TerrainGFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
@@ -53,6 +55,7 @@ namespace bento
 		SetUniform("u_fogColorTowards", _material->fogColorTowards);
 
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
+
 
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 

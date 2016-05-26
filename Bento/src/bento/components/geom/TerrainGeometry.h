@@ -41,6 +41,10 @@ namespace bento
 		TextureSquare& WaterFluxDataRead() { return *m_waterFluxDataRead; }
 		TextureSquare& WaterFluxDataWrite() { return m_waterFluxDataRead == &m_waterFluxDataA ? m_waterFluxDataB : m_waterFluxDataA; }
 		
+		TextureSquare& MoltenMapDataRead() { return *m_moltenMapDataRead; }
+		TextureSquare& MoltenMapDataWrite() { return m_moltenMapDataRead == &m_moltenMapDataA ? m_moltenMapDataB : m_moltenMapDataA; }
+		
+
 		void SwapHeightData()
 		{
 			TextureSquare* tmp = m_heightDataRead;
@@ -81,6 +85,13 @@ namespace bento
 			TextureSquare* tmp = m_waterFluxDataRead;
 			m_waterFluxDataRead = m_waterFluxDataWrite;
 			m_waterFluxDataWrite = tmp;
+		}
+
+		void SwapMoltenMapData()
+		{
+			TextureSquare* tmp = m_moltenMapDataRead;
+			m_moltenMapDataRead = m_moltenMapDataWrite;
+			m_moltenMapDataWrite = tmp;
 		}
 
 		void ResetTerrainMousePos();
@@ -133,6 +144,8 @@ namespace bento
 		TextureSquare m_rockFluxDataB;
 		TextureSquare m_waterFluxDataA;
 		TextureSquare m_waterFluxDataB;
+		TextureSquare m_moltenMapDataA;
+		TextureSquare m_moltenMapDataB;
 
 		TextureSquare* m_heightDataRead;
 		TextureSquare* m_heightDataWrite;
@@ -146,5 +159,7 @@ namespace bento
 		TextureSquare* m_rockFluxDataWrite;
 		TextureSquare* m_waterFluxDataRead;
 		TextureSquare* m_waterFluxDataWrite;
+		TextureSquare* m_moltenMapDataRead;
+		TextureSquare* m_moltenMapDataWrite;
 	};
 }

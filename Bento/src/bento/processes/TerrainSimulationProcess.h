@@ -57,24 +57,24 @@ namespace bento
 		MoltenParticleUpdateVert();
 		virtual void OnPreLink() override;
 	};
-	/*
-	struct MoltenVert : ShaderStageBase
+	
+	struct MoltenMapVert : ShaderStageBase
 	{
-		MoltenVert();
+		MoltenMapVert();
 	};
 
-	struct MoltenFrag : ShaderStageBase
+	struct MoltenMapFrag : ShaderStageBase
 	{
-		struct MoltenFrag();
+		struct MoltenMapFrag();
 	};
-	*/
+	
 	struct UpdateTerrainFluxShader			: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader			: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct FoamParticleUpdateShader			: ShaderBase<FoamParticleUpdateVert, NullFrag> {};
 	struct MoltenParticleUpdateShader		: ShaderBase<MoltenParticleUpdateVert, NullFrag> {};
 	struct DiffuseHeightShader				: ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
 	struct FoamShader						: ShaderBase<FoamVert, FoamFrag> {};
-	//struct MoltenParticleShader				: ShaderBase<MoltenVert, MoltenFrag> {};
+	struct MoltenMapShader					: ShaderBase<MoltenMapVert, MoltenMapFrag> {};
 	
 	DEFINE_NODE_4
 	(
@@ -111,6 +111,7 @@ namespace bento
 		UpdateTerrainDataShader m_updateDataShader;
 		FoamParticleUpdateShader m_foamParticleUpdateShader;
 		MoltenParticleUpdateShader m_moltenParticleUpdateShader;
+		MoltenMapShader m_moltenMapShader;
 		FoamShader m_foamShader;
 		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
@@ -130,6 +131,8 @@ namespace bento
 		float m_meltSpeed;
 		float m_condenseSpeed;
 		float m_tempChangeSpeed;
+		float m_moltenVelocityScalar;
+		float m_moltenVelocityDamping;
 
 		// Water
 		float m_waterFluxDamping;

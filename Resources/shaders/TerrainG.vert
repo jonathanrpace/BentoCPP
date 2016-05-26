@@ -13,6 +13,7 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
+uniform sampler2D s_moltenMapData;
  
 // Uniforms
 uniform mat4 u_mvpMatrix;
@@ -40,6 +41,7 @@ out Varying
 	vec4 out_velocityData;
 	vec4 out_miscData;
 	vec4 out_normalData;
+	vec4 out_moltenMapData;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -53,6 +55,7 @@ void main(void)
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
 	vec4 normalDataC = texture(s_normalData, in_uv);
+	vec4 moltenMapData = texture(s_moltenMapData, in_uv);
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;
@@ -72,6 +75,7 @@ void main(void)
 	out_velocityData = velocityDataC;
 	out_miscData = miscDataC;
 	out_normalData = normalDataC;
+	out_moltenMapData = moltenMapData;
 	
 	vec4 screenPos = u_mvpMatrix * position;
 

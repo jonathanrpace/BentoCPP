@@ -12,7 +12,7 @@ namespace bento
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.5f)
-		, m_numVerticesPerDimension(512)
+		, m_numVerticesPerDimension(1024)
 		, m_terrainMousePos()
 
 		, m_heightDataA		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -23,6 +23,8 @@ namespace bento
 		, m_miscDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_normalDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_normalDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_moltenMapDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_moltenMapDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 
 		, m_rockFluxDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockFluxDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -36,7 +38,9 @@ namespace bento
 		, m_miscDataRead(&m_miscDataA)
 		, m_miscDataWrite(&m_miscDataB)
 		, m_normalDataRead(&m_normalDataA)
-		, m_normalDataWrite(&m_normalDataA)
+		, m_normalDataWrite(&m_normalDataB)
+		, m_moltenMapDataRead(&m_moltenMapDataA)
+		, m_moltenMapDataWrite(&m_moltenMapDataB)
 
 		, m_rockFluxDataRead(&m_rockFluxDataA)
 		, m_rockFluxDataWrite(&m_rockFluxDataB)
@@ -214,7 +218,10 @@ namespace bento
 		m_normalDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_normalDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		
-		
+		m_moltenMapDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_moltenMapDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_moltenMapDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_moltenMapDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
 		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);

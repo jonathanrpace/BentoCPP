@@ -3,6 +3,7 @@
 // Outputs
 layout( location = 0 ) out vec4 out_fragColor;
 
+
 in Varying
 {
 	vec4 in_color;

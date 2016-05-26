@@ -14,6 +14,7 @@ in Varying
 	vec4 in_velocityData;
 	vec4 in_miscData;
 	vec4 in_normalData;
+	vec4 in_moltenMapData;
 };
 
 // Uniforms
@@ -65,7 +66,7 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 vec3 reconstructNormal( vec2 normal2 )
 {
 	float len = length(normal2);
-	vec3 normal3 = vec3(normal2.x, 1.0-len, normal2.y);
+	vec3 normal3 = vec3(normal2.x, (1.0-len), normal2.y);
 	return normalize(normal3);
 }
 
@@ -127,17 +128,24 @@ void main(void)
 {
 	UpdateMousePosition();
 
-	float moltenPhase = in_miscData.y;
-	float moltenPhaseMapped = texture( s_diffuseMap, vec2(moltenPhase,0.0) ).x;
+	//float moltenPhase = in_miscData.y;
+	//float moltenPhaseMapped = texture( s_diffuseMap, vec2(moltenPhase,0.0) ).x;
 
 	float heat = in_miscData.x;
 	float occlusion = 1.0f - in_miscData.w;
 	float rockHeight = in_heightData.x;
 	float dirtHeight = in_heightData.z;
 	vec3 rockNormal = reconstructNormal(in_normalData.zw);
-	
+
+	float moltenPhaseMapped = 1.0f-in_moltenMapData.x;
+	//float moltenPhaseMapped = in_miscData.y;
+	//moltenPhaseMapped = pow(moltenPhaseMapped*1.0, 2.0);
+	//moltenPhaseMapped = min(moltenPhaseMapped,1.0);
+
+	moltenPhaseMapped = 1.0-moltenPhaseMapped;
+
 	// Diffuse
-	vec3 rockColor = mix( vec3(0.2f), vec3(0.3f), moltenPhaseMapped );
+	vec3 rockColor = mix( vec3(0.2f), vec3(0.2f), moltenPhaseMapped );
 	rockColor = pow(rockColor, vec3(2.2));	// Gamma correct
 
 	const vec3 dirtColor = vec3(0.2,0.15,0.1);
@@ -190,4 +198,6 @@ void main(void)
 	out_albedo = vec4( 0.0f );
 	out_material = vec4( 0.0f, 0.0f, 0.0f, 0.0f );	// roughness, reflectivity, emissive, nowt
 	out_forward = vec4(outColor, 1.0f);
+
+	//out_forward = vec4(moltenMap);
 }
