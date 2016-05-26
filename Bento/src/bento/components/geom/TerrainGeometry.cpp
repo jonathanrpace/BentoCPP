@@ -25,6 +25,8 @@ namespace bento
 		, m_normalDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_moltenMapDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_moltenMapDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_smudgeDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_smudgeDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 
 		, m_rockFluxDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockFluxDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -41,6 +43,8 @@ namespace bento
 		, m_normalDataWrite(&m_normalDataB)
 		, m_moltenMapDataRead(&m_moltenMapDataA)
 		, m_moltenMapDataWrite(&m_moltenMapDataB)
+		, m_smudgeDataRead(&m_smudgeDataA)
+		, m_smudgeDataWrite(&m_smudgeDataB)
 
 		, m_rockFluxDataRead(&m_rockFluxDataA)
 		, m_rockFluxDataWrite(&m_rockFluxDataB)
@@ -222,6 +226,11 @@ namespace bento
 		m_moltenMapDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_moltenMapDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_moltenMapDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+
+		m_smudgeDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_smudgeDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_smudgeDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_smudgeDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
 		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);

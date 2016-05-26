@@ -21,9 +21,10 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
+uniform sampler2D s_moltenMapData;
+uniform sampler2D s_smudgeData;
 uniform sampler2D s_waterFluxData;
 uniform sampler2D s_rockFluxData;
-uniform sampler2D s_moltenMapData;
 uniform sampler2D s_diffuseMap;
 
 
@@ -102,6 +103,7 @@ layout( location = 0 ) out vec4 out_heightData;
 layout( location = 1 ) out vec4 out_velocityData;
 layout( location = 2 ) out vec4 out_miscData;
 layout( location = 3 ) out vec4 out_normalData;
+layout( location = 4 ) out vec4 out_smudgeData;
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -219,6 +221,8 @@ void main(void)
 	vec4 miscDataD = texelFetch(s_miscData, texelCoordD, 0);
 
 	vec4 velocityDataC = texelFetch(s_velocityData, texelCoordC, 0);
+	vec4 smudgeDataC = texelFetch(s_smudgeData, texelCoordC, 0);
+
 	vec4 diffuseSampleC = texture(s_diffuseMap, in_uv);
 	
 	vec2 mousePos = GetMousePos();
@@ -230,6 +234,7 @@ void main(void)
 	out_velocityData = velocityDataC;
 	out_miscData = miscDataC;
 	out_normalData = vec4(0.0);
+	out_smudgeData = smudgeDataC;
 
 	////////////////////////////////////////////////////////////////
 	// Update molten
@@ -291,6 +296,29 @@ void main(void)
 			velocity *= u_moltenVelocityDamping;
 			out_velocityData.xy = velocity;
 
+			vec2 smudgeUV = smudgeDataC.xy;
+
+			// How much influence does the current velocity have on the existing smudge?
+			// Velocities pointing the same way have 0% influence, opposite = 100%
+
+			float influence = 1.0;
+			if ( length(velocity) > EPSILON.x )
+			{
+				if ( length(smudgeUV) > EPSILON.x )
+				{
+					influence = 1.0 - ((dot(normalize(smudgeUV), normalize(velocity)) + 1.0) * 0.5);
+				}
+				
+				influence *= length(velocity);
+			}
+
+			influence *= (1.0 - length(smudgeUV));
+
+			smudgeUV += velocity * influence;
+
+
+			out_smudgeData.xy = smudgeUV;
+			
 			/*
 			////////////////////////////////////////////////////////////////
 			// SEPERATION

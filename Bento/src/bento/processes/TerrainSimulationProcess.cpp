@@ -300,8 +300,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.MiscDataWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, &_geom.NormalDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, &_geom.SmudgeDataWrite());
 
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 			
 		// Samplers
@@ -309,9 +310,10 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_velocityData",					&_geom.VelocityDataRead());
 		fragShader.SetTexture("s_miscData",						&_geom.MiscDataRead());
 		fragShader.SetTexture("s_normalData",					&_geom.NormalDataRead());
+		fragShader.SetTexture("s_moltenMapData",				&_geom.MoltenMapDataRead());
+		fragShader.SetTexture("s_smudgeData",					&_geom.SmudgeDataRead());
 		fragShader.SetTexture("s_waterFluxData",				&_geom.WaterFluxDataRead());
 		fragShader.SetTexture("s_rockFluxData",					&_geom.RockFluxDataRead());
-		fragShader.SetTexture("s_moltenMapData",				&_geom.MoltenMapDataRead());
 		fragShader.SetTexture("s_diffuseMap",					&_material.someTexture);
 
 		// Mouse
@@ -388,6 +390,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.SwapVelocityData();
 		_geom.SwapMiscData();
 		_geom.SwapNormalData();
+		_geom.SwapSmudgeData();
 	}
 
 	

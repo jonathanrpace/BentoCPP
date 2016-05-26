@@ -46,6 +46,8 @@ namespace bento
 		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
 
 		SetTexture("s_diffuseMap", &(_material->someTexture));
+		SetTexture("s_smudgeData", &(_geometry->SmudgeDataRead()));
+
 		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 
 		SetUniform("u_fogDensity", _material->fogDensity);

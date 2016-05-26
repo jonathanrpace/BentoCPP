@@ -23,6 +23,7 @@ namespace bento
 		TerrainGeometry(std::string _name = "TerrainGeometry");
 		~TerrainGeometry();
 
+		// TODO: Make 'PingPongTexture' that wraps up two duplicate textures
 		TextureSquare& HeightDataRead() { return *m_heightDataRead; }
 		TextureSquare& HeightDataWrite() { return m_heightDataRead == &m_heightDataA ? m_heightDataB : m_heightDataA; }
 
@@ -35,16 +36,18 @@ namespace bento
 		TextureSquare& NormalDataRead() { return *m_normalDataRead; }
 		TextureSquare& NormalDataWrite() { return m_normalDataRead == &m_normalDataA ? m_normalDataB : m_normalDataA; }
 
+		TextureSquare& MoltenMapDataRead() { return *m_moltenMapDataRead; }
+		TextureSquare& MoltenMapDataWrite() { return m_moltenMapDataRead == &m_moltenMapDataA ? m_moltenMapDataB : m_moltenMapDataA; }
+
+		TextureSquare& SmudgeDataRead() { return *m_smudgeDataRead; }
+		TextureSquare& SmudgeDataWrite() { return m_smudgeDataRead == &m_smudgeDataA ? m_smudgeDataB : m_smudgeDataA; }
+
 		TextureSquare& RockFluxDataRead() { return *m_rockFluxDataRead; }
 		TextureSquare& RockFluxDataWrite() { return m_rockFluxDataRead == &m_rockFluxDataA ? m_rockFluxDataB : m_rockFluxDataA; }
 
 		TextureSquare& WaterFluxDataRead() { return *m_waterFluxDataRead; }
 		TextureSquare& WaterFluxDataWrite() { return m_waterFluxDataRead == &m_waterFluxDataA ? m_waterFluxDataB : m_waterFluxDataA; }
 		
-		TextureSquare& MoltenMapDataRead() { return *m_moltenMapDataRead; }
-		TextureSquare& MoltenMapDataWrite() { return m_moltenMapDataRead == &m_moltenMapDataA ? m_moltenMapDataB : m_moltenMapDataA; }
-		
-
 		void SwapHeightData()
 		{
 			TextureSquare* tmp = m_heightDataRead;
@@ -73,6 +76,20 @@ namespace bento
 			m_normalDataWrite = tmp;
 		}
 
+		void SwapMoltenMapData()
+		{
+			TextureSquare* tmp = m_moltenMapDataRead;
+			m_moltenMapDataRead = m_moltenMapDataWrite;
+			m_moltenMapDataWrite = tmp;
+		}
+
+		void SwapSmudgeData()
+		{
+			TextureSquare* tmp = m_smudgeDataRead;
+			m_smudgeDataRead = m_smudgeDataWrite;
+			m_smudgeDataWrite = tmp;
+		}
+
 		void SwapRockFluxData()
 		{
 			TextureSquare* tmp = m_rockFluxDataRead;
@@ -87,12 +104,7 @@ namespace bento
 			m_waterFluxDataWrite = tmp;
 		}
 
-		void SwapMoltenMapData()
-		{
-			TextureSquare* tmp = m_moltenMapDataRead;
-			m_moltenMapDataRead = m_moltenMapDataWrite;
-			m_moltenMapDataWrite = tmp;
-		}
+		
 
 		void ResetTerrainMousePos();
 
@@ -131,7 +143,6 @@ namespace bento
 		GLuint m_mousePositionBuffer;
 		TerrainMousePos m_terrainMousePos;
 		
-
 		TextureSquare m_heightDataA;
 		TextureSquare m_heightDataB;
 		TextureSquare m_velocityDataA;
@@ -140,12 +151,14 @@ namespace bento
 		TextureSquare m_miscDataB;
 		TextureSquare m_normalDataA;
 		TextureSquare m_normalDataB;
+		TextureSquare m_moltenMapDataA;
+		TextureSquare m_moltenMapDataB;
+		TextureSquare m_smudgeDataA;
+		TextureSquare m_smudgeDataB;
 		TextureSquare m_rockFluxDataA;
 		TextureSquare m_rockFluxDataB;
 		TextureSquare m_waterFluxDataA;
 		TextureSquare m_waterFluxDataB;
-		TextureSquare m_moltenMapDataA;
-		TextureSquare m_moltenMapDataB;
 
 		TextureSquare* m_heightDataRead;
 		TextureSquare* m_heightDataWrite;
@@ -155,11 +168,13 @@ namespace bento
 		TextureSquare* m_miscDataWrite;
 		TextureSquare* m_normalDataRead;
 		TextureSquare* m_normalDataWrite;
+		TextureSquare* m_moltenMapDataRead;
+		TextureSquare* m_moltenMapDataWrite;
+		TextureSquare* m_smudgeDataRead;
+		TextureSquare* m_smudgeDataWrite;
 		TextureSquare* m_rockFluxDataRead;
 		TextureSquare* m_rockFluxDataWrite;
 		TextureSquare* m_waterFluxDataRead;
 		TextureSquare* m_waterFluxDataWrite;
-		TextureSquare* m_moltenMapDataRead;
-		TextureSquare* m_moltenMapDataWrite;
 	};
 }
