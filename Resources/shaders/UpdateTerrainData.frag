@@ -298,25 +298,17 @@ void main(void)
 
 			vec2 smudgeUV = smudgeDataC.xy;
 
-			// How much influence does the current velocity have on the existing smudge?
-			// Velocities pointing the same way have 0% influence, opposite = 100%
+			float smudgeSpeed = length(smudgeUV) + EPSILON.x;
+			float moltenSpeed = length(velocity);
 
-			float influence = 1.0;
-			if ( length(velocity) > EPSILON.x )
-			{
-				if ( length(smudgeUV) > EPSILON.x )
-				{
-					influence = 1.0 - ((dot(normalize(smudgeUV), normalize(velocity)) + 1.0) * 0.5);
-				}
-				
-				influence *= length(velocity);
-			}
+			float speedDiff = max(moltenSpeed - smudgeSpeed, 0.0);
 
-			influence *= (1.0 - length(smudgeUV));
+			float influence = clamp( speedDiff / smudgeSpeed, 0.0, 1.0 );
+			influence = smoothstep(0.0, 1.0, influence);
 
-			smudgeUV += velocity * influence;
+			smudgeUV += velocity * influence * 0.005;
 
-
+			//smudgeUV = mix(smudgeUV, velocity, influence * 0.001);
 			out_smudgeData.xy = smudgeUV;
 			
 			/*
@@ -496,13 +488,29 @@ void main(void)
 	// Rock normal
 	//////////////////////////////////////////////////////////////////////////////////
 	{
-		float moltenMapC = texelFetch(s_moltenMapData, texelCoordC, 0).x;
-		float moltenMapL = texelFetch(s_moltenMapData, texelCoordL, 0).x;
-		float moltenMapR = texelFetch(s_moltenMapData, texelCoordR, 0).x;
-		float moltenMapU = texelFetch(s_moltenMapData, texelCoordU, 0).x;
-		float moltenMapD = texelFetch(s_moltenMapData, texelCoordD, 0).x;
+		vec2 texelSize = vec2(1.0) / vec2(textureSize(s_moltenMapData, 0));
 
-		float moltenMapScalar = 0.001;
+		vec2 uvC = in_uv;
+		vec2 uvL = in_uv - vec2(texelSize.x, 0.0);
+		vec2 uvR = in_uv + vec2(0.0, texelSize.y);
+		vec2 uvU = in_uv - vec2(0.0, texelSize.y);
+		vec2 uvD = in_uv + vec2(0.0, texelSize.y);
+
+		vec2 smudgeDataC = out_smudgeData.xy;
+		vec2 smudgeDataL = texture(s_smudgeData, uvL).xy;
+		vec2 smudgeDataR = texture(s_smudgeData, uvR).xy;
+		vec2 smudgeDataU = texture(s_smudgeData, uvU).xy;
+		vec2 smudgeDataD = texture(s_smudgeData, uvD).xy;
+
+		float smudgeAmount = 1.0;
+
+		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * smudgeAmount).x;
+		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL * smudgeAmount).x;
+		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR * smudgeAmount).x;
+		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * smudgeAmount).x;
+		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * smudgeAmount).x;
+
+		float moltenMapScalar = mix( 0.001, 0.02, length(smudgeDataC) );
 		moltenMapC *= moltenMapScalar;
 		moltenMapL *= moltenMapScalar;
 		moltenMapR *= moltenMapScalar;

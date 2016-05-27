@@ -37,6 +37,7 @@ uniform vec3 u_cameraPos;
 // Textures
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_smudgeData;
+uniform sampler2D s_moltenMapData;
 
 
 ////////////////////////////////////////////////////////////////
@@ -134,7 +135,15 @@ void main(void)
 	float rockHeight = in_heightData.x;
 	float dirtHeight = in_heightData.z;
 	vec3 rockNormal = reconstructNormal(in_normalData.zw);
-	float moltenPhaseMapped = in_moltenMapData.x;
+	//float moltenPhaseMapped = in_moltenMapData.x;
+
+
+	vec4 smudgeData = texture(s_smudgeData, in_uv);
+	vec2 smudgeUV = smudgeData.xy;
+
+	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV );
+	float moltenPhaseMapped = moltenMapData.x;
+
 
 	// Diffuse
 	vec3 rockColor = mix( vec3(0.2f), vec3(0.2f), moltenPhaseMapped );
@@ -191,9 +200,9 @@ void main(void)
 	out_material = vec4( 0.0f, 0.0f, 0.0f, 0.0f );	// roughness, reflectivity, emissive, nowt
 	out_forward = vec4(outColor, 1.0f);
 
-	vec4 smudgeData = texture(s_smudgeData, in_uv);
-	smudgeData.z = 0.1;
-	smudgeData.xy += 1.0;
-	smudgeData.xy *= 0.5;
-	out_forward = smudgeData;
+	
+	//smudgeData.z = 0.1;
+	//smudgeData.xy += 1.0;
+	//smudgeData.xy *= 0.5;
+	//out_forward = smudgeData;
 }

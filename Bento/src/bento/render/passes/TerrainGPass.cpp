@@ -47,6 +47,7 @@ namespace bento
 
 		SetTexture("s_diffuseMap", &(_material->someTexture));
 		SetTexture("s_smudgeData", &(_geometry->SmudgeDataRead()));
+		SetTexture("s_moltenMapData", &(_geometry->MoltenMapDataRead()));
 
 		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 
