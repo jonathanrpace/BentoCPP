@@ -25,9 +25,30 @@ namespace bento
 
 		virtual void AddUIElements() override;
 
+		// Textures
 		TextureSquare someTexture;
 		TextureSquare moltenPlatesTexture;
-		float mapHeightOffset;
+
+		// Rock
+		vec3 rockColorA;
+		vec3 rockColorB;
+		float rockRoughnessA;
+		float rockRoughnessB;
+		float rockFresnelA;
+		float rockFresnelB;
+
+		// Hot rock
+		vec3 hotRockColorA;
+		vec3 hotRockColorB;
+		float hotRockRoughnessA;
+		float hotRockRoughnessB;
+		float hotRockFresnelA;
+		float hotRockFresnelB;
+
+		// Molten
+		vec3 moltenColor;
+		float moltenRoughness;
+		float moltenFresnel;
 
 		// Water
 		vec3 waterColor;
@@ -35,18 +56,6 @@ namespace bento
 		float waterSpecularPower;
 		float waterIndexOfRefraction;
 
-		float waveSpeed;
-		float waveFrequency;
-		float waveFrequencyLacunarity;
-		float waveAmplitude;
-		float waveAmplitudeLacunarity;
-		float waveChoppy;
-		float waveChoppyEase;
-		int waveOctavesNum;
-
-		float waveDepthMax;
-		//float waveEffectStrength;
-		
 		// Lighting
 		float lightAzimuth;
 		float lightAltitude;
