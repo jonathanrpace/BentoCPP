@@ -1,13 +1,15 @@
 #pragma once
 
 #include <vector>
+#include <bento.h>
 
 namespace bento
 {
 	enum SerializableType
 	{
 		eSerializableType_float,
-		eSerializableType_int
+		eSerializableType_int,
+		eSerializableType_vec3,
 	};
 
 	class SerializableBase
@@ -18,6 +20,7 @@ namespace bento
 	protected:
 		void SerializableMember(char const * _name, float _default, float* _ptr);
 		void SerializableMember(char const * _name, int _default, int* _ptr);
+		void SerializableMember(char const * _name, vec3 _default, vec3* _ptr);
 		void ResetToDefaults();
 		void FlushChanges();
 
@@ -32,5 +35,8 @@ namespace bento
 
 		std::vector<int> m_intDefaults;
 		std::vector<int*> m_intPointers;
+
+		std::vector<vec3> m_vec3Defaults;
+		std::vector<vec3*> m_vec3Pointers;
 	};
 }
