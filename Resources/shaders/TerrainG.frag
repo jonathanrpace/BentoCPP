@@ -1,6 +1,92 @@
 #version 430 core
 
 ////////////////////////////////////////////////////////////////
+// Lighting lib
+////////////////////////////////////////////////////////////////
+
+float lightingVis(float dotNV, float k)
+{
+	return 1.0f/(dotNV*(1.0f-k)+k);
+}
+
+float lightingAngularDot( vec3 A, vec3 B, in float angularSize )
+{
+	float dotValue = clamp( dot( A, B ), 0.0f, 1.0f );
+	float pi = 3.14159f;
+
+	float angle = 1.0f - acos(dotValue) * (2.0f / pi);
+	angle = min( angle, angularSize );
+	angle *= ( 1 / angularSize );
+
+	float ret = sin( angle * pi * 0.5f );
+	
+	return ret;
+}
+
+float lightingFresnel( float dotNV, float F0 )
+{
+	float dotNVPow = pow(1.0f-dotNV,2);
+	float F = F0 + (1.0-F0)*(dotNVPow);
+	return F;
+}
+
+float lightingGGXAngular( vec3 N, vec3 V, vec3 L, float roughness, float F0, float angularSize )
+{
+	float alpha = roughness*roughness;
+
+	vec3 H = normalize(V+L);
+
+	float dotNL = lightingAngularDot(N,L,angularSize);
+	float dotNV = clamp(dot(N,V), 0.0f, 1.0f);
+	float dotNH = lightingAngularDot(N,H,angularSize);
+	float dotLH = clamp(dot(L,H), 0.0f, 1.0f);
+
+	// D
+	float alphaSqr = alpha*alpha;
+	float pi = 3.14159f;
+	float denom = dotNH * dotNH *(alphaSqr-1.0) + 1.0f;
+	float D = alphaSqr/(pi * denom * denom);
+
+	// F
+	float F = lightingFresnel(dotNV, F0);
+
+	// V
+	float k = alpha/2.0f;
+	float vis = lightingVis(dotNL,k)*lightingVis(dotNV,k);
+
+	return min( 10.0f, dotNL * D * F * vis );
+}
+
+float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 )
+{
+	float alpha = roughness*roughness;
+
+	vec3 H = normalize(V+L);
+
+	float dotNL = clamp(dot(N,L), 0.0f, 1.0f);
+	float dotNV = clamp(dot(N,V), 0.0f, 1.0f);
+	float dotNH = clamp(dot(N,H), 0.0f, 1.0f);
+	float dotLH = clamp(dot(L,H), 0.0f, 1.0f);
+
+	// D
+	float alphaSqr = alpha*alpha;
+	float pi = 3.14159f;
+	float denom = dotNH * dotNH *(alphaSqr-1.0) + 1.0f;
+	float D = alphaSqr/(pi * denom * denom);
+
+	// F
+	float F = lightingFresnel(dotNV, F0);
+
+	// V
+	float k = alpha/2.0f;
+	float vis = lightingVis(dotNL,k)*lightingVis(dotNV,k);
+
+	return min( 10.0f, dotNL * D * F * vis );
+}
+
+////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////
 // Inputs
 ////////////////////////////////////////////////////////////////
 
@@ -130,45 +216,53 @@ void main(void)
 {
 	UpdateMousePosition();
 
+	// Common values
 	float heat = in_miscData.x;
 	float occlusion = 1.0f - in_miscData.w;
 	float rockHeight = in_heightData.x;
 	float dirtHeight = in_heightData.z;
 	vec3 rockNormal = reconstructNormal(in_normalData.zw);
-	//float moltenPhaseMapped = in_moltenMapData.x;
-
-
 	vec4 smudgeData = texture(s_smudgeData, in_uv);
 	vec2 smudgeUV = smudgeData.xy;
-
 	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV );
-	float moltenPhaseMapped = moltenMapData.x;
+	float moltenMapValue = moltenMapData.x;
+	vec3 viewDir = normalize(u_cameraPos);
+
+	// Rock
+	vec3 diffuse = vec3(0.0);
+	float roughness = 0.5;
+	float fresnel = 1.0;
 
 
-	// Diffuse
-	vec3 rockColor = mix( vec3(0.2f), vec3(0.2f), moltenPhaseMapped );
-	rockColor = pow(rockColor, vec3(2.2));	// Gamma correct
+	vec3 rockDiffuse = mix( vec3(0.18f), vec3(0.2f), moltenMapValue );
+	const vec3 dirtDiffuse = vec3(0.2,0.15,0.1);
 
-	const vec3 dirtColor = vec3(0.2,0.15,0.1);
-	vec3 diffuse = mix( rockColor, dirtColor, smoothstep(0.0, 0.01, dirtHeight) );
+	diffuse = mix( rockDiffuse, dirtDiffuse, smoothstep(0.0, 0.01, dirtHeight) );
 	
 	float scorchAmount = min( max(heat-0.3, 0.0) / 0.2, 1.0 );
 	diffuse -= scorchAmount * diffuse * 0.9;
 
+	diffuse = pow(diffuse, vec3(2.2));	// Gamma correct
+
+	roughness = 0.9;//mix( 1.0, 0.0, clamp(heat, 0.0, 1.0) );
+
 	// Direct light
-	vec3 directLight = vec3( max( dot(rockNormal, u_lightDir), 0.0f ) * u_lightIntensity );
+	//vec3 directLight = vec3( max( dot(rockNormal, u_lightDir), 0.0f ) * u_lightIntensity );
+	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
 
 	// Ambient light
-	vec3 ambientlight = vec3( u_ambientLightIntensity * occlusion );
+	//vec3 ambientlight = vec3( u_ambientLightIntensity * occlusion );
+	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * occlusion;
+	
 
 	// Emissive
 	vec3 emissive = vec3(0.0f);
 	float heatForColor0 = min(1.0f,heat);
-	float heatColor0 = max(0.0f, heatForColor0 - moltenPhaseMapped * 0.5f );
+	float heatColor0 = max(0.0f, heatForColor0 - moltenMapValue * 0.5f );
 	heatColor0 = pow(heatColor0, 2.0f);
 
 	float heatForColor1 = heat * 0.5f;
-	float heatColor1 = max(0.0f, heatForColor1 - moltenPhaseMapped * 0.25f);
+	float heatColor1 = max(0.0f, heatForColor1 - moltenMapValue * 0.25f);
 	heatColor1 = min(1.0f,heatColor1);
 	heatColor1 = pow(heatColor1, 2.0f);
 
