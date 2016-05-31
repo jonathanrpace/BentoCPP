@@ -146,7 +146,7 @@ void main(void)
 
 
 	// Diffuse
-	vec3 rockColor = mix( vec3(0.1f), vec3(0.15f), moltenPhaseMapped );
+	vec3 rockColor = mix( vec3(0.2f), vec3(0.2f), moltenPhaseMapped );
 	rockColor = pow(rockColor, vec3(2.2));	// Gamma correct
 
 	const vec3 dirtColor = vec3(0.2,0.15,0.1);

@@ -276,14 +276,13 @@ void main(void)
 		// Cooling
 		// Occluded areas cool slower
 		float occlusion = miscDataC.w;
-		float occludedTempChangeSpeed = mix(0.1, 1.0, 1.0-occlusion);
-		heat += (u_ambientTemp - heat) * u_tempChangeSpeed * occludedTempChangeSpeed;
+		heat += (u_ambientTemp - heat) * u_tempChangeSpeed * (1.0-occlusion);
 
 		// Add some lava near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
 		heat   += ( pow(mouseRatio, 0.5) * u_mouseMoltenHeatStrength   * mix(1.00, 1.0, mouseTextureScalar) ) / (1.0001+heat*5.0);
-		height += ( pow(mouseRatio, 1.5) * u_mouseMoltenVolumeStrength * mix(0.9, 1.0, mouseTextureScalar2) ) / (1.0001+height);
+		height += ( pow(mouseRatio, 1.5) * u_mouseMoltenVolumeStrength * mix(0.05, 1.0, mouseTextureScalar2) ) / (1.0001+height);
 
 		out_heightData.y = height;
 		out_miscData.x = heat;
@@ -293,7 +292,7 @@ void main(void)
 		//////////////////////////////////////////////////////////////////////////////////
 		{
 			vec2 velocity = velocityDataC.xy;
-			velocity = VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, viscosity ) * u_moltenVelocityScalar;
+			velocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, viscosity ) * u_moltenVelocityScalar;
 			velocity *= u_moltenVelocityDamping;
 			out_velocityData.xy = velocity;
 
@@ -307,7 +306,7 @@ void main(void)
 			float influence = clamp( speedDiff / smudgeSpeed, 0.0, 1.0 );
 			influence = smoothstep(0.0, 1.0, influence);
 
-			smudgeUV += velocity * influence * 0.002;
+			smudgeUV += velocity * influence * 0.005;
 
 			//smudgeUV = mix(smudgeUV, velocity, influence * 0.001);
 			out_smudgeData.xy = smudgeUV;
@@ -511,7 +510,7 @@ void main(void)
 		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * smudgeAmount).x;
 		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * smudgeAmount).x;
 
-		float moltenMapScalar = mix( 0.0005, 0.1, length(smudgeDataC) );
+		float moltenMapScalar = mix( 0.001, 0.02, length(smudgeDataC) );
 		moltenMapC *= moltenMapScalar;
 		moltenMapL *= moltenMapScalar;
 		moltenMapR *= moltenMapScalar;
