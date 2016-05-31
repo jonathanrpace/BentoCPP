@@ -1,11 +1,15 @@
 ﻿#version 440 core
 
-float G1V(float dotNV, float k)
+////////////////////////////////////////////////////////////////
+// Lighting lib
+////////////////////////////////////////////////////////////////
+
+float lightingVis(float dotNV, float k)
 {
 	return 1.0f/(dotNV*(1.0f-k)+k);
 }
 
-float angularDot( vec3 A, vec3 B, in float angularSize )
+float lightingAngularDot( vec3 A, vec3 B, in float angularSize )
 {
 	float dotValue = clamp( dot( A, B ), 0.0f, 1.0f );
 	float pi = 3.14159f;
@@ -19,22 +23,22 @@ float angularDot( vec3 A, vec3 B, in float angularSize )
 	return ret;
 }
 
-float Fresnel( float dotNV, float F0 )
+float lightingFresnel( float dotNV, float F0 )
 {
 	float dotNVPow = pow(1.0f-dotNV,2);
 	float F = F0 + (1.0-F0)*(dotNVPow);
 	return F;
 }
 
-float LightingFuncGGXAngular( vec3 N, vec3 V, vec3 L, float roughness, float F0, float angularSize )
+float lightingGGXAngular( vec3 N, vec3 V, vec3 L, float roughness, float F0, float angularSize )
 {
 	float alpha = roughness*roughness;
 
 	vec3 H = normalize(V+L);
 
-	float dotNL = angularDot(N,L,angularSize);
+	float dotNL = lightingAngularDot(N,L,angularSize);
 	float dotNV = clamp(dot(N,V), 0.0f, 1.0f);
-	float dotNH = angularDot(N,H,angularSize);
+	float dotNH = lightingAngularDot(N,H,angularSize);
 	float dotLH = clamp(dot(L,H), 0.0f, 1.0f);
 
 	// D
@@ -44,16 +48,16 @@ float LightingFuncGGXAngular( vec3 N, vec3 V, vec3 L, float roughness, float F0,
 	float D = alphaSqr/(pi * denom * denom);
 
 	// F
-	float F = Fresnel(dotNV, F0);
+	float F = lightingFresnel(dotNV, F0);
 
 	// V
 	float k = alpha/2.0f;
-	float vis = G1V(dotNL,k)*G1V(dotNV,k);
+	float vis = lightingVis(dotNL,k)*lightingVis(dotNV,k);
 
 	return min( 10.0f, dotNL * D * F * vis );
 }
 
-float LightingFuncGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 )
+float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 )
 {
 	float alpha = roughness*roughness;
 
@@ -71,12 +75,13 @@ float LightingFuncGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 )
 	float D = alphaSqr/(pi * denom * denom);
 
 	// F
-	float F = Fresnel(dotNV, F0);
+	float F = lightingFresnel(dotNV, F0);
 
 	// V
 	float k = alpha/2.0f;
-	float vis = G1V(dotNL,k)*G1V(dotNV,k);
+	float vis = lightingVis(dotNL,k)*lightingVis(dotNV,k);
 
 	return min( 10.0f, dotNL * D * F * vis );
 }
 
+////////////////////////////////////////////////////////////////
