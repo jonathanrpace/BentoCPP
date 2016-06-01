@@ -94,4 +94,32 @@ namespace bento
 		}
 	}
 
+	void DefaultsManager::_GetValue(const char* _key,vec3 _default,vec3* const o_value)
+	{
+		bool isNull = m_namespace[_key].is_null();
+		if (isNull)
+		{
+			auto defaultObj = json::object();
+			defaultObj["x"] = _default.x;
+			defaultObj["y"] = _default.y;
+			defaultObj["z"] = _default.z;
+			m_namespace[_key] = defaultObj;
+			(*o_value) = _default;
+			return;
+		}
+
+		auto value = m_namespace[_key];
+		vec3 out = vec3(value["x"],value["y"],value["z"]);
+		(*o_value) = out;
+	}
+
+	void DefaultsManager::_SetValue(const char* _key,vec3 _value)
+	{
+		auto obj = json::object();
+		obj["x"] = _value.x;
+		obj["y"] = _value.y;
+		obj["z"] = _value.z;
+		m_namespace[_key] = obj;
+	}
+
 }

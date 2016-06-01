@@ -5,14 +5,69 @@
         "choppyLimit": 1.0,
         "choppyPower": 4.0,
         "directLightIntensity": 1.6100001335144,
+        "fogColorAway": {
+            "x": 0.699999988079071,
+            "y": 0.699999988079071,
+            "z": 0.699999988079071
+        },
+        "fogColorTowards": {
+            "x": 1.0,
+            "y": 0.899999976158142,
+            "z": 0.699999988079071
+        },
         "fogDensity": 0.0,
         "fogFalloff": 1000.00006103516,
         "fogHeight": 0.274000018835068,
+        "hotRockColorA": {
+            "x": 0.100000001490116,
+            "y": 0.100000001490116,
+            "z": 0.100000001490116
+        },
+        "hotRockColorB": {
+            "x": 0.100000001490116,
+            "y": 0.100000001490116,
+            "z": 0.100000001490116
+        },
+        "hotRockFresnelA": 1.0,
+        "hotRockFresnelB": 1.0,
+        "hotRockRoughnessA": 0.0,
+        "hotRockRoughnessB": 0.100000001490116,
         "lightAltitude": -1.5358898639679,
         "lightAzimuth": -1.64060962200165,
         "mapHeightOffset": 0.00499999988824129,
+        "moltenColor": {
+            "x": 1.0,
+            "y": 0.5,
+            "z": 0.00999999977648258
+        },
+        "moltenFresnel": 1.0,
+        "moltenRoughness": 1.0,
+        "rockColorA": {
+            "x": 0.701960802078247,
+            "y": 0.355109602212906,
+            "z": 0.355109602212906
+        },
+        "rockColorB": {
+            "x": 0.100000001490116,
+            "y": 0.100000001490116,
+            "z": 0.100000001490116
+        },
+        "rockFresnelA": 1.0,
+        "rockFresnelB": 1.0,
+        "rockRoughnessA": 0.100000001490116,
+        "rockRoughnessB": 0.0,
+        "waterColor": {
+            "x": 0.218999996781349,
+            "y": 0.28600001335144,
+            "z": 0.277999997138977
+        },
         "waterIndexOfRefraction": 1.0,
         "waterSpecularPower": 84.7260055541992,
+        "waterTranslucentColor": {
+            "x": 0.218999996781349,
+            "y": 0.41100001335144,
+            "z": 0.391999989748001
+        },
         "waveAmplitude": 0.00100000004749745,
         "waveAmplitudeLacunarity": 0.351000010967255,
         "waveAngle0": 0.0,

@@ -357,17 +357,17 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_dirtErodeSpeedMax",			m_dirtErodeSpeedMax);
 
 		// Waves
-		float phase = fmod((float)glfwGetTime()*_material.waveSpeed, 1.0f);
-		phase *= 3.14159265359f * 2.0f;
-		fragShader.SetUniform("u_wavePhase",					phase);
-		fragShader.SetUniform("u_waveFrequency",				_material.waveFrequency);
-		fragShader.SetUniform("u_waveFrequencyLacunarity",		_material.waveFrequencyLacunarity);
-		fragShader.SetUniform("u_waveAmplitude",				_material.waveAmplitude);
-		fragShader.SetUniform("u_waveAmplitudeLacunarity",		_material.waveAmplitudeLacunarity);
-		fragShader.SetUniform("u_waveChoppy",					_material.waveChoppy);
-		fragShader.SetUniform("u_waveChoppyEase",				_material.waveChoppyEase);
-		fragShader.SetUniform("u_waveOctavesNum",				_material.waveOctavesNum);
-		fragShader.SetUniform("u_waveDepthMax",					_material.waveDepthMax);
+		//float phase = fmod((float)glfwGetTime()*_material.waveSpeed, 1.0f);
+		//phase *= 3.14159265359f * 2.0f;
+		//fragShader.SetUniform("u_wavePhase",					phase);
+		//fragShader.SetUniform("u_waveFrequency",				_material.waveFrequency);
+		//fragShader.SetUniform("u_waveFrequencyLacunarity",		_material.waveFrequencyLacunarity);
+		//fragShader.SetUniform("u_waveAmplitude",				_material.waveAmplitude);
+		//fragShader.SetUniform("u_waveAmplitudeLacunarity",		_material.waveAmplitudeLacunarity);
+		//fragShader.SetUniform("u_waveChoppy",					_material.waveChoppy);
+		//fragShader.SetUniform("u_waveChoppyEase",				_material.waveChoppyEase);
+		//fragShader.SetUniform("u_waveOctavesNum",				_material.waveOctavesNum);
+		//fragShader.SetUniform("u_waveDepthMax",					_material.waveDepthMax);
 
 		// Misc
 		fragShader.SetUniform("u_textureScrollSpeed",			m_textureScrollSpeed);

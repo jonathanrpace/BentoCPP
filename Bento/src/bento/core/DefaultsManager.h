@@ -62,6 +62,8 @@ namespace bento
 			(*o_value) = value;
 		}
 
+		void _GetValue(const char* _key, vec3 _default, vec3* const o_value);
+
 		template <typename T>
 		void _SetValue(const char* _key, T _value)
 		{
@@ -69,6 +71,8 @@ namespace bento
 		}
 
 	
+		void _SetValue( const char* _key, vec3 _value);
+
 		std::string m_namespaceName;
 		std::string m_filepath;
 		json m_data;
