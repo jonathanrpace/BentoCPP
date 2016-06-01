@@ -1,22 +1,22 @@
 #include "SerializableBase.h"
 
-#define VECTOR_SIZE 64
-
 #include <bento/core/DefaultsManager.h>
+
+#define MAX_MEMBERS 128
 
 namespace bento
 {
 	SerializableBase::SerializableBase(char * const _namespace)
 		: m_namespace(_namespace)
 		, m_numMembers(0)
-		, m_names(VECTOR_SIZE)
-		, m_types(VECTOR_SIZE)
-		, m_floatDefaults(VECTOR_SIZE)
-		, m_floatPointers(VECTOR_SIZE)
-		, m_intDefaults(VECTOR_SIZE)
-		, m_intPointers(VECTOR_SIZE)
-		, m_vec3Defaults(VECTOR_SIZE)
-		, m_vec3Pointers(VECTOR_SIZE)
+		, m_names(MAX_MEMBERS)
+		, m_types(MAX_MEMBERS)
+		, m_floatDefaults(MAX_MEMBERS)
+		, m_floatPointers(MAX_MEMBERS)
+		, m_intDefaults(MAX_MEMBERS)
+		, m_intPointers(MAX_MEMBERS)
+		, m_vec3Defaults(MAX_MEMBERS)
+		, m_vec3Pointers(MAX_MEMBERS)
 	{
 	}
 
@@ -64,9 +64,6 @@ namespace bento
 				case eSerializableType_int:
 					DefaultsManager::GetValue(name, m_intDefaults[i], m_intPointers[i]);
 					break;
-				case eSerializableType_vec3:
-					DefaultsManager::GetValue(name, m_vec3Defaults[i], m_vec3Pointers[i]);
-					break;
 			}
 		}
 	}
@@ -89,10 +86,6 @@ namespace bento
 			case eSerializableType_int:
 				m_intDefaults[i] = *m_intPointers[i];
 				DefaultsManager::SetValue(name, *m_intPointers[i]);
-				break;
-			case eSerializableType_vec3:
-				m_vec3Defaults[i] = *m_vec3Pointers[i];
-				DefaultsManager::SetValue(name, *m_vec3Pointers[i]);
 				break;
 			}
 		}
