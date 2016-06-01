@@ -64,6 +64,9 @@ namespace bento
 				case eSerializableType_int:
 					DefaultsManager::GetValue(name, m_intDefaults[i], m_intPointers[i]);
 					break;
+				case eSerializableType_vec3:
+					DefaultsManager::GetValue(name, m_vec3Defaults[i], m_vec3Pointers[i]);
+					break;
 			}
 		}
 	}
@@ -86,6 +89,10 @@ namespace bento
 			case eSerializableType_int:
 				m_intDefaults[i] = *m_intPointers[i];
 				DefaultsManager::SetValue(name, *m_intPointers[i]);
+				break;
+			case eSerializableType_vec3:
+				m_vec3Defaults[i] = *m_vec3Pointers[i];
+				DefaultsManager::SetValue(name, *m_vec3Pointers[i]);
 				break;
 			}
 		}
