@@ -59,6 +59,19 @@ namespace bento
 
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
+		SetUniform("u_rockColorA", _material->rockColorA);
+		SetUniform("u_rockColorB", _material->rockColorB);
+		SetUniform("u_rockRoughnessA", _material->rockRoughnessA);
+		SetUniform("u_rockRoughnessB", _material->rockRoughnessB);
+		SetUniform("u_rockFresnelA", _material->rockFresnelA);
+		SetUniform("u_rockFresnelB", _material->rockFresnelB);
+
+		SetUniform("u_hotRockColorA", _material->hotRockColorA);
+		SetUniform("u_hotRockColorB", _material->hotRockColorB);
+		SetUniform("u_hotRockRoughnessA", _material->hotRockRoughnessA);
+		SetUniform("u_hotRockRoughnessB", _material->hotRockRoughnessB);
+		SetUniform("u_hotRockFresnelA", _material->hotRockFresnelA);
+		SetUniform("u_hotRockFresnelB", _material->hotRockFresnelB);
 
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 

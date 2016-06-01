@@ -120,6 +120,20 @@ uniform float u_fogDensity;
 uniform float u_fogFalloff;
 uniform vec3 u_cameraPos;
 
+uniform vec3 u_rockColorA;
+uniform vec3 u_rockColorB;
+uniform float u_rockRoughnessA;
+uniform float u_rockRoughnessB;
+uniform float u_rockFresnelA;
+uniform float u_rockFresnelB;
+
+uniform vec3 u_hotRockColorA;
+uniform vec3 u_hotRockColorB;
+uniform float u_hotRockRoughnessA;
+uniform float u_hotRockRoughnessB;
+uniform float u_hotRockFresnelA;
+uniform float u_hotRockFresnelB;
+
 // Textures
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_smudgeData;
@@ -229,32 +243,36 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos);
 
 	// Rock
-	vec3 diffuse = vec3(0.0);
-	float roughness = 0.5;
-	float fresnel = 1.0;
-
-
-	vec3 rockDiffuse = mix( vec3(0.18f), vec3(0.2f), moltenMapValue );
-	const vec3 dirtDiffuse = vec3(0.2,0.15,0.1);
-
-	diffuse = mix( rockDiffuse, dirtDiffuse, smoothstep(0.0, 0.01, dirtHeight) );
 	
-	float scorchAmount = min( max(heat-0.3, 0.0) / 0.2, 1.0 );
-	diffuse -= scorchAmount * diffuse * 0.9;
+	
 
-	diffuse = pow(diffuse, vec3(2.2));	// Gamma correct
+	// Rock material
+	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, moltenMapValue ), vec3(2.2) );
+	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, moltenMapValue );
+	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, moltenMapValue );
 
-	roughness = 0.9;//mix( 1.0, 0.0, clamp(heat, 0.0, 1.0) );
+	// Hot rock material
+	vec3 hotRockDiffuse = pow( mix( u_hotRockColorA, u_hotRockColorB, moltenMapValue ), vec3(2.2) );
+	float hotRockRoughness = mix( u_hotRockRoughnessA, u_hotRockRoughnessB, moltenMapValue );
+	float hotRockFresnel = mix( u_hotRockFresnelA, u_hotRockFresnelB, moltenMapValue );
+	
+	// Mix rock and hot rock together
+	float hotRockMaterialLerp = clamp( heat, 0.0, 1.0 );
+
+	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp );
+	float roughness = mix( rockRoughness, hotRockRoughness, hotRockMaterialLerp );
+	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
+
+	// Dirt
+	//const vec3 dirtDiffuse = vec3(0.2,0.15,0.1);
+	//diffuse = mix( rockDiffuse, dirtDiffuse, smoothstep(0.0, 0.01, dirtHeight) );
 
 	// Direct light
-	//vec3 directLight = vec3( max( dot(rockNormal, u_lightDir), 0.0f ) * u_lightIntensity );
 	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
 
 	// Ambient light
-	//vec3 ambientlight = vec3( u_ambientLightIntensity * occlusion );
-	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * occlusion;
+	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * occlusion;
 	
-
 	// Emissive
 	vec3 emissive = vec3(0.0f);
 	float heatForColor0 = min(1.0f,heat);
@@ -275,7 +293,9 @@ void main(void)
 
 
 	// Bing it all together
-	vec3 outColor = (diffuse * (directLight + ambientlight)) + emissive;
+	vec3 outColor = (diffuse * (directLight + ambientlight));
+
+	outColor = mix( outColor, emissive, emissive.x );
 
 	mat4 invViewMatrix = inverse(u_viewMatrix);
 	vec3 worldPosition = vec3( invViewMatrix * vec4(in_viewPosition.xyz,1) );

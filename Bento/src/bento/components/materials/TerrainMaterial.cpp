@@ -70,6 +70,16 @@ namespace bento
 		ImGui::SliderFloat("Fresnel B##rock", &rockFresnelB, 0.0f, 1.0f);
 
 		ImGui::Spacing();
+		ImGui::Text("Hot rock");
+		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
+		ImGui::ColorEdit3("Color B##hotRock", glm::value_ptr(hotRockColorB));
+		ImGui::ColorEdit3("Color A##hotRock", glm::value_ptr(hotRockColorA));
+		ImGui::SliderFloat("Roughness A##hotRock", &hotRockRoughnessA, 0.0f, 1.0f);
+		ImGui::SliderFloat("Roughness B##hotRock", &hotRockRoughnessB, 0.0f, 1.0f);
+		ImGui::SliderFloat("Fresnel A##hotRock", &hotRockFresnelA, 0.0f, 1.0f);
+		ImGui::SliderFloat("Fresnel B##hotRock", &hotRockFresnelB, 0.0f, 1.0f);
+
+		ImGui::Spacing();
 		ImGui::Text("Water");
 		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 1.0f, 200.0f);
 		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.0f, 2.0f);

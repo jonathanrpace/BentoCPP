@@ -100,7 +100,7 @@ void main(void)
 		vec3 refractVec = refract(-eye, waterNormal, u_indexOfRefraction);
 		
 		vec4 samplePos = vec4( in_worldPosition );
-		samplePos.xyz += refractVec * viewDepth;
+		//samplePos.xyz += refractVec * viewDepth;
 		samplePos *= u_mvpMatrix;
 		samplePos.xyz /= samplePos.w;
 		samplePos.xy += 1.0;
