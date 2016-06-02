@@ -304,10 +304,10 @@ void main(void)
 
 			float speedDiff = max(moltenSpeed - smudgeSpeed, 0.0);
 
-			float influence = clamp( speedDiff / smudgeSpeed, 0.0, 1.0 );
-			influence = smoothstep(0.0, 1.0, influence);
+			float influence = pow( clamp( speedDiff / smudgeSpeed, 0.0, 1.0 ), 0.5 );
+			//influence = smoothstep(0.0, 1.0, influence);
 
-			smudgeUV += velocity * influence * 0.01;
+			smudgeUV += velocity * influence * 0.002;
 
 			//smudgeUV = mix(smudgeUV, velocity, influence * 0.001);
 			out_smudgeData.xy = smudgeUV;
@@ -503,13 +503,13 @@ void main(void)
 		vec2 smudgeDataU = texture(s_smudgeData, uvU).xy;
 		vec2 smudgeDataD = texture(s_smudgeData, uvD).xy;
 
-		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC).x;
-		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL).x;
-		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR).x;
-		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU).x;
-		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD).x;
+		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * 0.5).x;
+		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL * 0.5).x;
+		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR * 0.5).x;
+		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * 0.5).x;
+		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * 0.5).x;
 
-		float moltenMapScalar = mix( 0.001, 0.2, length(smudgeDataC) );
+		float moltenMapScalar = mix( 0.003, 0.4, length(smudgeDataC) );
 		moltenMapC *= moltenMapScalar;
 		moltenMapL *= moltenMapScalar;
 		moltenMapR *= moltenMapScalar;

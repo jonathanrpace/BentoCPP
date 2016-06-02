@@ -1,10 +1,10 @@
 {
     "TerrainMaterial": {
         "MapHeightOffset": 0.00499999988824129,
-        "ambientLightIntensity": 0.986000061035156,
+        "ambientLightIntensity": 2.0,
         "choppyLimit": 1.0,
         "choppyPower": 4.0,
-        "directLightIntensity": 0.973000049591064,
+        "directLightIntensity": 2.0,
         "fogColorAway": {
             "x": 0.699999988079071,
             "y": 0.699999988079071,
@@ -19,21 +19,21 @@
         "fogFalloff": 1000.00006103516,
         "fogHeight": 0.274000018835068,
         "hotRockColorA": {
-            "x": 0.105882354080677,
-            "y": 0.105882354080677,
-            "z": 0.105882354080677
+            "x": 0.084429070353508,
+            "y": 0.103969052433968,
+            "z": 0.117647059261799
         },
         "hotRockColorB": {
-            "x": 0.113725490868092,
-            "y": 0.113725490868092,
-            "z": 0.113725490868092
+            "x": 0.107958473265171,
+            "y": 0.13441888988018,
+            "z": 0.152941182255745
         },
         "hotRockFresnelA": 0.0,
         "hotRockFresnelB": 0.0,
-        "hotRockRoughnessA": 0.176000013947487,
-        "hotRockRoughnessB": 0.0880000069737434,
-        "lightAltitude": -0.523598790168762,
-        "lightAzimuth": -2.87979340553284,
+        "hotRockRoughnessA": 0.439000010490417,
+        "hotRockRoughnessB": 0.0410000011324883,
+        "lightAltitude": -1.15191733837128,
+        "lightAzimuth": -2.46091437339783,
         "mapHeightOffset": 0.00499999988824129,
         "moltenColor": {
             "x": 1.0,
@@ -41,23 +41,23 @@
             "z": 0.117647051811218
         },
         "moltenFresnel": 1.0,
-        "moltenMapAlphaPower": 0.805000066757202,
-        "moltenMapAlphaScalar": 1.18900001049042,
+        "moltenMapAlphaPower": 0.270000010728836,
+        "moltenMapAlphaScalar": 0.946000039577484,
         "moltenRoughness": 1.0,
         "rockColorA": {
-            "x": 0.156862750649452,
-            "y": 0.156862750649452,
-            "z": 0.156862750649452
+            "x": 0.0863052681088448,
+            "y": 0.0874038487672806,
+            "z": 0.0901960805058479
         },
         "rockColorB": {
-            "x": 0.160784319043159,
-            "y": 0.160784319043159,
-            "z": 0.160784319043159
+            "x": 0.164705887436867,
+            "y": 0.164705887436867,
+            "z": 0.164705887436867
         },
-        "rockFresnelA": 1.0,
-        "rockFresnelB": 0.804000020027161,
+        "rockFresnelA": 0.959000051021576,
+        "rockFresnelB": 0.946000039577484,
         "rockRoughnessA": 1.0,
-        "rockRoughnessB": 0.973000049591064,
+        "rockRoughnessB": 0.736000061035156,
         "waterColor": {
             "x": 0.218999996781349,
             "y": 0.28600001335144,
@@ -117,23 +117,23 @@
         "erosionWaterDepthMin": 9.99999974737875e-06,
         "erosionWaterSpeedMax": 0.0120000001043081,
         "evapourationRate": 0.0,
-        "heatAdvectSpeed": 0.564999997615814,
+        "heatAdvectSpeed": 0.341000020503998,
         "maxDissolvedDirt": 0.0100000007078052,
         "maxErosionWaterVelocity": 0.0270000007003546,
         "meltSpeed": 9.99999974737875e-06,
-        "moltenFluxDamping": 0.900000035762787,
+        "moltenFluxDamping": 0.978000044822693,
         "moltenVelocityDamping": 0.833000063896179,
         "moltenVelocityScalar": 1.35500001907349,
         "moltenViscosity": 0.5,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 0.680000007152557,
-        "mouseRadius": 0.0220000017434359,
-        "mouseVolumeStrength": 0.00352999987080693,
+        "mouseHeatStrength": 0.0599999986588955,
+        "mouseRadius": 0.0470000021159649,
+        "mouseVolumeStrength": 0.000529999961145222,
         "rainRate": 0.0,
         "rockDiffuseStrength": 0.00499999988824129,
         "rockMeltingPoint": 0.300000011920929,
-        "tempChangeSpeed": 0.0008799999486655,
+        "tempChangeSpeed": 0.0,
         "textureCycleSpeed": 0.0,
         "textureScrollSpeed": 0.13400000333786,
         "waterBoilingPoint": 0.100000001490116,

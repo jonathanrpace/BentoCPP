@@ -242,7 +242,7 @@ void main(void)
 	vec3 rockNormal = reconstructNormal(in_normalData.zw);
 	vec4 smudgeData = texture(s_smudgeData, in_uv);
 	vec2 smudgeUV = smudgeData.xy;
-	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV );
+	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV * 0.5 );
 	float moltenMapValue = moltenMapData.x;
 	vec3 viewDir = normalize(u_cameraPos);
 
@@ -275,12 +275,12 @@ void main(void)
 	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
 
 	// Ambient light
-	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * occlusion;
+	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * occlusion;
 	
 	// Emissive
 
 	//vec4 emissive = vec4( u_moltenColor * heat, 0.0 );
-	float emissiveAlpha = max(0.0f, heat - pow( moltenMapValue * u_moltenAlphaScalar, u_moltenAlphaPower) );
+	float emissiveAlpha = max( min( max(heat-0.3, 0.0) * u_moltenAlphaScalar, 1.0 ) - (moltenMapValue * u_moltenAlphaPower), 0.0 );
 	vec3 emissiveColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, emissiveAlpha ), vec3(2.2) );
 
 	/*

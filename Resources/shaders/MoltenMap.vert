@@ -30,7 +30,7 @@ void main(void)
 	//alpha *= mix( 0.8, 1.0, in_properties.w );
 
 	//gl_PointSize = mix(baseSize, baseSize*scalar, pow(in_properties.w, 1.5));
-	gl_PointSize = 64;//mix(20.0, 64.0, life);
+	gl_PointSize = mix(32.0, 64.0, pow(in_properties.w, 2.0));
 
 	
 
