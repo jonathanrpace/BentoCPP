@@ -134,6 +134,10 @@ uniform float u_hotRockRoughnessB;
 uniform float u_hotRockFresnelA;
 uniform float u_hotRockFresnelB;
 
+uniform vec3 u_moltenColor;
+uniform float u_moltenAlphaScalar;
+uniform float u_moltenAlphaPower;
+
 // Textures
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_smudgeData;
@@ -274,28 +278,33 @@ void main(void)
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * occlusion;
 	
 	// Emissive
-	vec3 emissive = vec3(0.0f);
-	float heatForColor0 = min(1.0f,heat);
-	float heatColor0 = max(0.0f, heatForColor0 - moltenMapValue * 0.5f );
-	heatColor0 = pow(heatColor0, 2.0f);
 
+	//vec4 emissive = vec4( u_moltenColor * heat, 0.0 );
+	float emissiveAlpha = max(0.0f, heat - pow( moltenMapValue * u_moltenAlphaScalar, u_moltenAlphaPower) );
+	vec3 emissiveColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, emissiveAlpha ), vec3(2.2) );
+
+	/*
+	vec4 emissive = vec4(0.0f);
+	float heatForColor0 = min(1.0f,heat);
+	float heatColor0 = max(0.0f, heatForColor0 - moltenMapValue * 1.0f );
+	heatColor0 = pow(heatColor0, 2.0f);
 	float heatForColor1 = heat * 0.5f;
-	float heatColor1 = max(0.0f, heatForColor1 - moltenMapValue * 0.25f);
+	float heatColor1 = max(0.0f, heatForColor1 - moltenMapValue * 1.0f);
 	heatColor1 = min(1.0f,heatColor1);
 	heatColor1 = pow(heatColor1, 2.0f);
-
 	heatColor0 += heatColor1;
-
 	emissive.x = heatColor0;
 	emissive.y = heatColor1;
+	emissive.xyz = pow(emissive.xyz, vec3(2.2));
+	*/
 
-	emissive = pow(emissive, vec3(2.2));
+	//emissive.w = max(0.0f, heat - pow( moltenMapValue * u_moltenAlphaScalar, u_moltenAlphaPower) );
 
 
 	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
 
-	outColor = mix( outColor, emissive, emissive.x );
+	outColor = mix( outColor, emissiveColor, emissiveAlpha );
 
 	mat4 invViewMatrix = inverse(u_viewMatrix);
 	vec3 worldPosition = vec3( invViewMatrix * vec4(in_viewPosition.xyz,1) );

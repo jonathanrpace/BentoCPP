@@ -47,8 +47,8 @@ namespace bento
 
 		// Molten
 		vec3 moltenColor;
-		float moltenRoughness;
-		float moltenFresnel;
+		float moltenMapAlphaScalar;
+		float moltenMapAlphaPower;
 
 		// Water
 		vec3 waterColor;

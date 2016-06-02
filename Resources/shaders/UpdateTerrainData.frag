@@ -509,7 +509,7 @@ void main(void)
 		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU).x;
 		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD).x;
 
-		float moltenMapScalar = mix( 0.0, 0.1, length(smudgeDataC) );
+		float moltenMapScalar = mix( 0.001, 0.2, length(smudgeDataC) );
 		moltenMapC *= moltenMapScalar;
 		moltenMapL *= moltenMapScalar;
 		moltenMapR *= moltenMapScalar;

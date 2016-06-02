@@ -37,10 +37,12 @@
         "mapHeightOffset": 0.00499999988824129,
         "moltenColor": {
             "x": 1.0,
-            "y": 0.5,
-            "z": 0.00999999977648258
+            "y": 0.304498255252838,
+            "z": 0.117647051811218
         },
         "moltenFresnel": 1.0,
+        "moltenMapAlphaPower": 0.805000066757202,
+        "moltenMapAlphaScalar": 1.18900001049042,
         "moltenRoughness": 1.0,
         "rockColorA": {
             "x": 0.156862750649452,
