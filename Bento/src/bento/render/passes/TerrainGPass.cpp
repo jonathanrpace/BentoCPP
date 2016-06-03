@@ -19,45 +19,32 @@ namespace bento
 
 	void TerrainGVert::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
 	{
-		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
-		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
-
+		// Textures
 		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
 		SetTexture("s_velocityData", &(_geometry->RockFluxDataRead()));
 		SetTexture("s_miscData", &(_geometry->MiscDataRead()));
 		SetTexture("s_normalData", &(_geometry->NormalDataRead()));
 		SetTexture("s_moltenMapData", &(_geometry->MoltenMapDataRead()));
-	}
+		SetTexture("s_diffuseMap", &(_material->someTexture));
+		SetTexture("s_smudgeData", &(_geometry->SmudgeDataRead()));
 
-	////////////////////////////////////////////
-	// Fragment shader
-	////////////////////////////////////////////
+		// Matrices
+		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
+		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
+		SetUniform("u_viewMatrix", RenderParams::ViewMatrix() );
 
-	TerrainGFrag::TerrainGFrag() 
-		: ShaderStageBase("shaders/TerrainG.frag") 
-	{
+		// Uniforms
+		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
-	}
-
-	void TerrainGFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
-	{
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material->lightAltitude, _material->lightAzimuth)));
 		SetUniform("u_lightIntensity", _material->directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
-
-		SetTexture("s_diffuseMap", &(_material->someTexture));
-		SetTexture("s_smudgeData", &(_geometry->SmudgeDataRead()));
-		SetTexture("s_moltenMapData", &(_geometry->MoltenMapDataRead()));
-
-		SetUniform("u_numCells", ivec2(_geometry->NumVerticesPerDimension()));
 
 		SetUniform("u_fogDensity", _material->fogDensity);
 		SetUniform("u_fogHeight", _material->fogHeight);
 		SetUniform("u_fogFalloff", _material->fogFalloff);
 		SetUniform("u_fogColorAway", _material->fogColorAway);
 		SetUniform("u_fogColorTowards", _material->fogColorTowards);
-
-		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
 		SetUniform("u_rockColorA", _material->rockColorA);
 		SetUniform("u_rockColorB", _material->rockColorB);
@@ -76,7 +63,20 @@ namespace bento
 		SetUniform("u_moltenColor", _material->moltenColor);
 		SetUniform("u_moltenAlphaScalar", _material->moltenMapAlphaScalar);
 		SetUniform("u_moltenAlphaPower", _material->moltenMapAlphaPower);
+	}
 
+	////////////////////////////////////////////
+	// Fragment shader
+	////////////////////////////////////////////
+
+	TerrainGFrag::TerrainGFrag() 
+		: ShaderStageBase("shaders/TerrainG.frag") 
+	{
+
+	}
+
+	void TerrainGFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
+	{
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
 		TerrainMousePos terrainMousePos = _geometry->GetTerrainMousePos();
@@ -106,17 +106,16 @@ namespace bento
 			m_shader.VertexShader().BindPerModel(node->geom, node->material);
 			m_shader.FragmentShader().BindPerModel(node->geom, node->material);
 			
-			vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
-			normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
-			normalisedMousePos.y = 1.0f - normalisedMousePos.y;
-			vec2 mouseScreenPos = (normalisedMousePos - vec2(0.5f)) * vec2(2.0f);
-			//PRINTF("mouseScreenPos %2f, %2f\n", mouseScreenPos.x, mouseScreenPos.y);
-			m_shader.FragmentShader().SetUniform("u_mouseScreenPos", mouseScreenPos);
-
-			m_shader.FragmentShader().SetUniform("u_windowSize", m_scene->GetWindow()->GetWindowSize());
-
-			m_shader.FragmentShader().SetUniform("u_viewMatrix", RenderParams::ViewMatrix() );
-
+			// Mouse isect uniforms
+			{
+				vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
+				normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
+				normalisedMousePos.y = 1.0f - normalisedMousePos.y;
+				vec2 mouseScreenPos = (normalisedMousePos - vec2(0.5f)) * vec2(2.0f);
+				//PRINTF("mouseScreenPos %2f, %2f\n", mouseScreenPos.x, mouseScreenPos.y);
+				m_shader.FragmentShader().SetUniform("u_mouseScreenPos", mouseScreenPos);
+				m_shader.FragmentShader().SetUniform("u_windowSize", m_scene->GetWindow()->GetWindowSize());
+			}
 
 			node->geom->Draw();
 		}
