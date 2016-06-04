@@ -25,28 +25,29 @@ namespace bento
 
 		// TODO: Make 'PingPongTexture' that wraps up two duplicate textures
 		TextureSquare& HeightDataRead() { return *m_heightDataRead; }
-		TextureSquare& HeightDataWrite() { return m_heightDataRead == &m_heightDataA ? m_heightDataB : m_heightDataA; }
+		TextureSquare& HeightDataWrite() { return *m_heightDataWrite; }
 
 		TextureSquare& VelocityDataRead() { return *m_velocityDataRead; }
-		TextureSquare& VelocityDataWrite() { return m_velocityDataRead == &m_velocityDataA ? m_velocityDataB : m_velocityDataA; }
+		TextureSquare& VelocityDataWrite() { return *m_velocityDataWrite; }
 
 		TextureSquare& MiscDataRead() { return *m_miscDataRead; }
-		TextureSquare& MiscDataWrite() { return m_miscDataRead == &m_miscDataA ? m_miscDataB : m_miscDataA; }
+		TextureSquare& MiscDataWrite() { return *m_miscDataWrite; }
+		TextureSquare& MiscDataPrevious() { return *m_miscDataPrevious; }
 
 		TextureSquare& NormalDataRead() { return *m_normalDataRead; }
-		TextureSquare& NormalDataWrite() { return m_normalDataRead == &m_normalDataA ? m_normalDataB : m_normalDataA; }
+		TextureSquare& NormalDataWrite() { return *m_normalDataWrite; }
 
 		TextureSquare& MoltenMapDataRead() { return *m_moltenMapDataRead; }
-		TextureSquare& MoltenMapDataWrite() { return m_moltenMapDataRead == &m_moltenMapDataA ? m_moltenMapDataB : m_moltenMapDataA; }
+		TextureSquare& MoltenMapDataWrite() { return *m_moltenMapDataWrite; }
 
 		TextureSquare& SmudgeDataRead() { return *m_smudgeDataRead; }
-		TextureSquare& SmudgeDataWrite() { return m_smudgeDataRead == &m_smudgeDataA ? m_smudgeDataB : m_smudgeDataA; }
+		TextureSquare& SmudgeDataWrite() { return *m_smudgeDataWrite; }
 
 		TextureSquare& RockFluxDataRead() { return *m_rockFluxDataRead; }
-		TextureSquare& RockFluxDataWrite() { return m_rockFluxDataRead == &m_rockFluxDataA ? m_rockFluxDataB : m_rockFluxDataA; }
+		TextureSquare& RockFluxDataWrite() { return *m_rockFluxDataWrite; }
 
 		TextureSquare& WaterFluxDataRead() { return *m_waterFluxDataRead; }
-		TextureSquare& WaterFluxDataWrite() { return m_waterFluxDataRead == &m_waterFluxDataA ? m_waterFluxDataB : m_waterFluxDataA; }
+		TextureSquare& WaterFluxDataWrite() { return *m_waterFluxDataWrite; }
 		
 		void SwapHeightData()
 		{
@@ -66,6 +67,10 @@ namespace bento
 		{
 			TextureSquare* tmp = m_miscDataRead;
 			m_miscDataRead = m_miscDataWrite;
+			m_miscDataWrite = tmp;
+
+			tmp = m_miscDataPrevious;
+			m_miscDataPrevious = m_miscDataWrite;
 			m_miscDataWrite = tmp;
 		}
 
@@ -149,6 +154,7 @@ namespace bento
 		TextureSquare m_velocityDataB;
 		TextureSquare m_miscDataA;
 		TextureSquare m_miscDataB;
+		TextureSquare m_miscDataC;
 		TextureSquare m_normalDataA;
 		TextureSquare m_normalDataB;
 		TextureSquare m_moltenMapDataA;
@@ -166,6 +172,7 @@ namespace bento
 		TextureSquare* m_velocityDataWrite;
 		TextureSquare* m_miscDataRead;
 		TextureSquare* m_miscDataWrite;
+		TextureSquare* m_miscDataPrevious;
 		TextureSquare* m_normalDataRead;
 		TextureSquare* m_normalDataWrite;
 		TextureSquare* m_moltenMapDataRead;

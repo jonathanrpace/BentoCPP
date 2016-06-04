@@ -21,6 +21,7 @@ namespace bento
 		, m_velocityDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_miscDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_miscDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscDataC		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_normalDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_normalDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_moltenMapDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -39,6 +40,7 @@ namespace bento
 		, m_velocityDataWrite(&m_velocityDataB)
 		, m_miscDataRead(&m_miscDataA)
 		, m_miscDataWrite(&m_miscDataB)
+		, m_miscDataPrevious(&m_miscDataC)
 		, m_normalDataRead(&m_normalDataA)
 		, m_normalDataWrite(&m_normalDataB)
 		, m_moltenMapDataRead(&m_moltenMapDataA)
@@ -216,6 +218,8 @@ namespace bento
 		m_miscDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_miscDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_miscDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_miscDataC.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_miscDataC.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
 		m_normalDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_normalDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
