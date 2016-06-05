@@ -19,9 +19,9 @@ namespace bento
 		, m_heightDataB		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_velocityDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_velocityDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscDataC		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscDataC		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_normalDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_normalDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_moltenMapDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -216,10 +216,13 @@ namespace bento
 
 		m_miscDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_miscDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_miscDataA.GenerateMipMaps();
 		m_miscDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_miscDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_miscDataB.GenerateMipMaps();
 		m_miscDataC.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_miscDataC.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_miscDataC.GenerateMipMaps();
 
 		m_normalDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_normalDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);

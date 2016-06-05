@@ -42,6 +42,21 @@ void main(void)
 	out_velocityData = velocityDataC;
 	out_miscData = miscDataC;
 
+	// Heat
+	{
+		float c = miscDataC.x;
+		float l = miscDataL.x;
+		float r = miscDataR.x;
+
+		float diffL = (l - c) * u_waterDiffuseStrength;
+		float diffR = (r - c) * u_waterDiffuseStrength;
+
+		out_miscData.x += diffL * 0.5;
+		out_miscData.x += diffR * 0.5;
+		//out_miscData.x += clamp(diffR*0.25, -c*0.25, l*0.25);
+	}
+
+	/*
 	// Dirt
 	{
 		float c = heightDataC.x + heightDataC.y + heightDataC.z;
@@ -76,6 +91,7 @@ void main(void)
 		out_velocityData.zw += diffL * 0.5;
 		out_velocityData.zw += diffR * 0.5;
 	}
+	*/
 }
 
 

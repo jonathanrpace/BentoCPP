@@ -98,7 +98,7 @@ namespace bento
 		ImGui::Text("Lighting");
 		ImGui::SliderAngle("Azimuth", &lightAzimuth, -180.0f, 180.0f);
 		ImGui::SliderAngle("Altitude", &lightAltitude, -180.0f, 0.0f);
-		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 2.0f);
+		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 4.0f);
 		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 2.0f);
 		ImGui::Spacing();
 

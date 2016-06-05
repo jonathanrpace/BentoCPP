@@ -282,8 +282,8 @@ void main(void)
 		// Add some lava near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
-		heat   += ( pow(mouseRatio, 0.5) * u_mouseMoltenHeatStrength   * mix(1.00, 1.0, mouseTextureScalar) ) / (1.0001+heat*5.0);
-		height += ( pow(mouseRatio, 1.5) * u_mouseMoltenVolumeStrength * mix(0.95, 1.0, mouseTextureScalar2) ) / (1.0001+height);
+		heat   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.95, 1.0, mouseTextureScalar) ) / (1.0001+heat*5.0);
+		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(0.95, 1.0, mouseTextureScalar2) ) / (1.0001+height);
 
 		out_heightData.y = height;
 		out_miscData.x = heat;
@@ -304,10 +304,16 @@ void main(void)
 
 			float speedDiff = max(moltenSpeed - smudgeSpeed, 0.0);
 
-			float influence = pow( clamp( speedDiff / smudgeSpeed, 0.0, 1.0 ), 0.5 );
-			//influence = smoothstep(0.0, 1.0, influence);
+			//float influence = pow( clamp( speedDiff / smudgeSpeed, 0.0, 1.0 ), 0.5 ) * 0.002;
+			//float influence = min(moltenSpeed, 1.0) * 0.01;
 
-			smudgeUV += velocity * influence * 0.002;
+			float heat = miscDataC.x;
+
+			float influence = clamp(heat-0.3, 0.0, 1.0) * 0.01;
+
+
+			//smudgeUV += (velocity-smudgeUV) * influence;
+			smudgeUV += velocity * influence;
 
 			//smudgeUV = mix(smudgeUV, velocity, influence * 0.001);
 			out_smudgeData.xy = smudgeUV;
@@ -503,13 +509,14 @@ void main(void)
 		vec2 smudgeDataU = texture(s_smudgeData, uvU).xy;
 		vec2 smudgeDataD = texture(s_smudgeData, uvD).xy;
 
-		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * 0.5).x;
-		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL * 0.5).x;
-		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR * 0.5).x;
-		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * 0.5).x;
-		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * 0.5).x;
+		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * 0.25).x;
+		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL * 0.25).x;
+		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR * 0.25).x;
+		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * 0.25).x;
+		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * 0.25).x;
 
-		float moltenMapScalar = mix( 0.003, 0.4, length(smudgeDataC) );
+		float heat = miscDataC.x;
+		float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.002;
 		moltenMapC *= moltenMapScalar;
 		moltenMapL *= moltenMapScalar;
 		moltenMapR *= moltenMapScalar;
