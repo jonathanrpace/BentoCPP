@@ -10,7 +10,7 @@ namespace bento
 		: Component(_name, typeid(MoltenParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(12000)
+		m_numParticles(100000)
 	{
 
 	}

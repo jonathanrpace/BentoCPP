@@ -242,7 +242,7 @@ void main(void)
 	float hotRockFresnel = mix( u_hotRockFresnelA, u_hotRockFresnelB, moltenMapValue );
 	
 	// Mix rock and hot rock together
-	float hotRockMaterialLerp = clamp( heat, 0.0, 1.0 );
+	float hotRockMaterialLerp = min( max( heat-0.3, 0.0 ) / 0.5, 1.0 );
 
 	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp );
 	float roughness = mix( rockRoughness, hotRockRoughness, hotRockMaterialLerp );

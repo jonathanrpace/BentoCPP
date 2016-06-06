@@ -14,6 +14,7 @@ in Varying
 uniform ivec2 u_axis;
 uniform float u_dirtDiffuseStrength;
 uniform float u_waterDiffuseStrength;
+uniform float u_heatDiffuseStrength;
 
 // Outputs
 layout( location = 0 ) out vec4 out_heightData;
@@ -48,12 +49,11 @@ void main(void)
 		float l = miscDataL.x;
 		float r = miscDataR.x;
 
-		float diffL = (l - c) * u_waterDiffuseStrength;
-		float diffR = (r - c) * u_waterDiffuseStrength;
+		float diffL = (l - c) * u_heatDiffuseStrength * 0.5;
+		float diffR = (r - c) * u_heatDiffuseStrength * 0.5;
 
-		out_miscData.x += diffL * 0.5;
-		out_miscData.x += diffR * 0.5;
-		//out_miscData.x += clamp(diffR*0.25, -c*0.25, l*0.25);
+		out_miscData.x += diffL;
+		out_miscData.x += diffR;
 	}
 
 	/*

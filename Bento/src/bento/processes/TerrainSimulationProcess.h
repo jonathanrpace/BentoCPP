@@ -117,17 +117,18 @@ namespace bento
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
 		// Input
-		float m_mouseRadius = 0.1f;
-		float m_mouseVolumeStrength = 0.002f;
-		float m_mouseHeatStrength = 0.08f;
+		float m_mouseRadius;
+		float m_mouseVolumeStrength;
+		float m_mouseHeatStrength;
 
 		// Molten
-		float m_moltenFluxDamping = 0.99f;
-		float m_moltenViscosity = 0.05f;
+		float m_moltenFluxDamping;
+		float m_moltenViscosity;
 		float m_rockMeltingPoint;
 		float m_textureScrollSpeed;
 		float m_textureCycleSpeed;
 		float m_heatAdvectSpeed;
+		float m_heatDiffuseStrength;
 		float m_meltSpeed;
 		float m_condenseSpeed;
 		float m_tempChangeSpeed;

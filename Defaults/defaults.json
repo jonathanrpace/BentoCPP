@@ -4,7 +4,7 @@
         "ambientLightIntensity": 2.0,
         "choppyLimit": 1.0,
         "choppyPower": 4.0,
-        "directLightIntensity": 4.0,
+        "directLightIntensity": 1.64900004863739,
         "fogColorAway": {
             "x": 0.699999988079071,
             "y": 0.699999988079071,
@@ -19,21 +19,21 @@
         "fogFalloff": 1000.00006103516,
         "fogHeight": 0.274000018835068,
         "hotRockColorA": {
-            "x": 0.184313729405403,
-            "y": 0.184313729405403,
-            "z": 0.184313729405403
+            "x": 0.200000002980232,
+            "y": 0.200000002980232,
+            "z": 0.200000002980232
         },
         "hotRockColorB": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
+            "x": 0.23137255012989,
+            "y": 0.23137255012989,
+            "z": 0.23137255012989
         },
         "hotRockFresnelA": 1.0,
         "hotRockFresnelB": 1.0,
-        "hotRockRoughnessA": 0.601000010967255,
-        "hotRockRoughnessB": 0.520000040531158,
-        "lightAltitude": -0.698131740093231,
-        "lightAzimuth": 2.37364792823792,
+        "hotRockRoughnessA": 0.0,
+        "hotRockRoughnessB": 0.0,
+        "lightAltitude": 0.0,
+        "lightAzimuth": 0.471238911151886,
         "mapHeightOffset": 0.00499999988824129,
         "moltenColor": {
             "x": 1.0,
@@ -45,14 +45,14 @@
         "moltenMapAlphaScalar": 0.946000039577484,
         "moltenRoughness": 1.0,
         "rockColorA": {
-            "x": 0.0941176488995552,
-            "y": 0.0941176488995552,
-            "z": 0.0941176488995552
+            "x": 0.211764708161354,
+            "y": 0.211764708161354,
+            "z": 0.211764708161354
         },
         "rockColorB": {
-            "x": 0.160784319043159,
-            "y": 0.160784319043159,
-            "z": 0.160784319043159
+            "x": 0.117647059261799,
+            "y": 0.117647059261799,
+            "z": 0.117647059261799
         },
         "rockFresnelA": 1.0,
         "rockFresnelB": 1.0,
@@ -118,6 +118,7 @@
         "erosionWaterSpeedMax": 0.0120000001043081,
         "evapourationRate": 0.0,
         "heatAdvectSpeed": 0.495000034570694,
+        "heatDiffuseStrength": 0.5,
         "maxDissolvedDirt": 0.0100000007078052,
         "maxErosionWaterVelocity": 0.0270000007003546,
         "meltSpeed": 0.0,

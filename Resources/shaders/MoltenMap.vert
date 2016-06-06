@@ -27,12 +27,7 @@ void main(void)
 	float life = in_position.w;
 	float alpha = sin(life*3.142);
 
-	//alpha *= mix( 0.8, 1.0, in_properties.w );
-
-	//gl_PointSize = mix(baseSize, baseSize*scalar, pow(in_properties.w, 1.5));
-	gl_PointSize = mix(32.0, 64.0, pow(in_properties.w, 2.0));
-
-	
+	gl_PointSize = mix(12.0, 20.0, in_properties.w);
 
 	out_color = vec4(vec3(1.0), alpha);
 	out_angle = in_properties.z * 3.142 * 2.0;

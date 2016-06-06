@@ -97,6 +97,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("textureScrollSpeed",	0.04f,		&m_textureScrollSpeed);
 	SerializableMember("textureCycleSpeed",		0.003f,		&m_textureCycleSpeed);
 	SerializableMember("heatAdvectSpeed",		0.5f,		&m_heatAdvectSpeed);
+	SerializableMember("heatDiffuseStrength",	0.5f,		&m_heatDiffuseStrength);
 	SerializableMember("meltSpeed",				0.00001f,	&m_meltSpeed);
 	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
@@ -175,14 +176,15 @@ void TerrainSimulationProcess::AddUIElements()
 
 	ImGui::Text("Molten");
 	ImGui::SliderFloat("FluxDamping", &m_moltenFluxDamping, 0.9f, 1.0f);
-	ImGui::SliderFloat("MVelocityScalar", &m_moltenVelocityScalar, 0.0f, 4.0f);
-	ImGui::SliderFloat("MVelocityDamping", &m_moltenVelocityDamping, 0.8f, 1.0f);
+	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);
+	ImGui::SliderFloat("VelocityDamping##molten", &m_moltenVelocityDamping, 0.8f, 1.0f);
 	ImGui::Spacing();
 
 	ImGui::Spacing();
 	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 0.5f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
 	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 2.0f);
+	ImGui::SliderFloat("HeatDiffuseStrength", &m_heatDiffuseStrength, 0.0f, 1.0f);
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -403,6 +405,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		// Shared Uniforms
 		fragShader.SetUniform("u_dirtDiffuseStrength", m_dirtDiffuseStrength);
 		fragShader.SetUniform("u_waterDiffuseStrength", m_waterDiffuseStrength);
+		fragShader.SetUniform("u_heatDiffuseStrength", m_heatDiffuseStrength);
 
 		// X Pass
 
