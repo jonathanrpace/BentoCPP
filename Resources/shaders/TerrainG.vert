@@ -211,7 +211,7 @@ void main(void)
 	vec4 normalDataC = texture(s_normalData, in_uv);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	vec2 smudgeUV = smudgeDataC.xy;
-	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV * 0.25 );
+	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV * 0.1 );
 	
 	// Common values
 	float rockHeight = heightDataC.x;

@@ -527,13 +527,15 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT);
 
 		glEnable(GL_BLEND);
 		glEnable(GL_PROGRAM_POINT_SIZE);
-		glBlendEquation(GL_MAX);
-		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+		vertShader.SetTexture("s_velocityData", &_geom.VelocityDataRead() );
 
 		fragShader.SetTexture("s_texture", &_material.moltenPlatesTexture);
 

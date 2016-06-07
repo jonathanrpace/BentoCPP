@@ -309,7 +309,7 @@ void main(void)
 
 			float heat = miscDataC.x;
 
-			float influence = clamp(heat-0.3, 0.0, 1.0) * 0.01;
+			float influence = clamp(heat-0.3, 0.0, 1.0) * 0.005;
 
 
 			//smudgeUV += (velocity-smudgeUV) * influence;
@@ -509,11 +509,11 @@ void main(void)
 		vec2 smudgeDataU = texture(s_smudgeData, uvU).xy;
 		vec2 smudgeDataD = texture(s_smudgeData, uvD).xy;
 
-		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * 0.25).x;
-		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL * 0.25).x;
-		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR * 0.25).x;
-		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * 0.25).x;
-		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * 0.25).x;
+		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * 0.1).x;
+		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL * 0.1).x;
+		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR * 0.1).x;
+		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * 0.1).x;
+		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * 0.1).x;
 
 		float heat = miscDataC.x;
 		float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.002;
