@@ -387,6 +387,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		m_screenQuadGeom.Draw();
 
 		_geom.HeightDataWrite().GenerateMipMaps();
+		_geom.NormalDataWrite().GenerateMipMaps();
 
 		_geom.SwapHeightData();
 		_geom.SwapVelocityData();

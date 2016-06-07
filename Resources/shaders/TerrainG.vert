@@ -208,11 +208,19 @@ void main(void)
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
-	vec4 normalDataC = texture(s_normalData, in_uv);
+	
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	vec2 smudgeUV = smudgeDataC.xy;
 	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV * 0.1 );
 	
+	vec3 rockNormal = vec3(0.0);
+	for ( int i = 1; i < 5; i++ )
+	{
+		vec4 normalData = textureLod(s_normalData, in_uv, i);
+		rockNormal += reconstructNormal(normalData.zw);
+	}
+	rockNormal = normalize(rockNormal);
+
 	// Common values
 	float rockHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;
@@ -220,7 +228,6 @@ void main(void)
 	float waterHeight = heightDataC.w;
 	float heat = miscDataC.x;
 	float occlusion = 1.0f - miscDataC.w;
-	vec3 rockNormal = reconstructNormal(normalDataC.zw);
 	float moltenMapValue = moltenMapData.x;
 	vec3 viewDir = normalize(u_cameraPos);
 
@@ -228,6 +235,9 @@ void main(void)
 	position.y += rockHeight;
 	position.y += moltenHeight;
 	position.y += dirtHeight;
+
+	float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.012; // TODO share values with normal calculation in UpdateData
+	position.y += moltenMapValue * moltenMapScalar;
 
 	vec4 viewPosition = position * u_modelViewMatrix;
 
@@ -242,7 +252,7 @@ void main(void)
 	float hotRockFresnel = mix( u_hotRockFresnelA, u_hotRockFresnelB, moltenMapValue );
 	
 	// Mix rock and hot rock together
-	float hotRockMaterialLerp = min( max( heat-0.3, 0.0 ) / 0.5, 1.0 );
+	float hotRockMaterialLerp = min( max( heat-0.1, 0.0 ) / 0.3, 1.0 );
 
 	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp );
 	float roughness = mix( rockRoughness, hotRockRoughness, hotRockMaterialLerp );
@@ -259,11 +269,12 @@ void main(void)
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * occlusion;
 	
 	// Emissive
-	float emissiveAlpha = max( min( max(heat-0.3, 0.0) * u_moltenAlphaScalar, 1.0 ) - (moltenMapValue * u_moltenAlphaPower), 0.0 );
+	float emissiveAlpha = max( max(heat-0.3, 0.0) * u_moltenAlphaScalar - (moltenMapValue * u_moltenAlphaPower), 0.0 );
 	vec3 emissiveColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, emissiveAlpha ), vec3(2.2) );
 
 	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
+	outColor *= pow( clamp(1.0 - emissiveAlpha, 0.0, 1.0), 4.0 );
 	outColor = mix( outColor, emissiveColor, emissiveAlpha );
 
 	// Fog
