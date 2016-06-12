@@ -214,10 +214,12 @@ void main(void)
 	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV * 0.1 );
 	
 	vec3 rockNormal = vec3(0.0);
+	float strength = 1.0;
 	for ( int i = 1; i < 5; i++ )
 	{
 		vec4 normalData = textureLod(s_normalData, in_uv, i);
-		rockNormal += reconstructNormal(normalData.zw);
+		rockNormal += reconstructNormal(normalData.zw) * strength;
+		strength *= 0.5;
 	}
 	rockNormal = normalize(rockNormal);
 
@@ -236,7 +238,7 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 
-	float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.012; // TODO share values with normal calculation in UpdateData
+	float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.006; // TODO share values with normal calculation in UpdateData
 	position.y += moltenMapValue * moltenMapScalar;
 
 	vec4 viewPosition = position * u_modelViewMatrix;

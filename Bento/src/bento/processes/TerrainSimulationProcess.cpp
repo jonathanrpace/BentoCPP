@@ -399,7 +399,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	
 	// Diffuse height
 	{
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
 		m_diffuseHeightShader.BindPerPass();
 		auto fragShader = m_diffuseHeightShader.FragmentShader();
 
@@ -413,12 +413,14 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.MiscDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, &_geom.SmudgeDataWrite());
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 		// Uniforms
 		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 		fragShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
 		fragShader.SetTexture("s_miscData", &_geom.MiscDataRead());
+		fragShader.SetTexture("s_smudgeData", &_geom.SmudgeDataRead());
 		fragShader.SetUniform("u_axis", ivec2(1, 0));
 
 		m_screenQuadGeom.Draw();
@@ -427,18 +429,21 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.SwapHeightData();
 		_geom.SwapVelocityData();
 		_geom.SwapMiscData();
+		_geom.SwapSmudgeData();
 		
 		// Y Pass
 
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.MiscDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, &_geom.SmudgeDataWrite());
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 		// Uniforms
 		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
 		fragShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
 		fragShader.SetTexture("s_miscData", &_geom.MiscDataRead());
+		fragShader.SetTexture("s_smudgeData", &_geom.SmudgeDataRead());
 		fragShader.SetUniform("u_axis", ivec2(0, 1));
 
 		m_screenQuadGeom.Draw();
@@ -447,6 +452,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.SwapHeightData();
 		_geom.SwapVelocityData();
 		_geom.SwapMiscData();
+		_geom.SwapSmudgeData();
 	}
 
 	// Update foam particles
@@ -528,13 +534,13 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
-		//glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		//glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		glEnable(GL_BLEND);
 		glEnable(GL_PROGRAM_POINT_SIZE);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendEquation(GL_MAX);
+		glBlendFunc(GL_ONE, GL_ONE);
 
 		vertShader.SetTexture("s_velocityData", &_geom.VelocityDataRead() );
 

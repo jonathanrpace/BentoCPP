@@ -31,13 +31,15 @@ void main(void)
 	gl_Position = screenPos;
 
 	float life = in_position.w;
-	float alpha = 1.0-pow(life,0.5);//sin(life*3.142) * speed;
-	alpha *= speed;
+	//float alpha = 1.0-pow(life,0.5);//sin(life*3.142) * speed;
+	float alpha = sin(life*3.142);
+	//alpha *= speed;
 	alpha = clamp(alpha, 0.0, 1.0);
-	alpha *= 0.2;
+	//alpha *= 0.2;
 
 	gl_PointSize = mix(16.0, 24.0, in_properties.w);
 
-	out_color = vec4(vec3(in_properties.z), alpha);
+	//out_color = vec4(vec3(in_properties.z), alpha);
+	out_color = vec4(vec3(1.0), alpha);
 	out_angle = in_properties.z * 3.142 * 2.0;
 } 

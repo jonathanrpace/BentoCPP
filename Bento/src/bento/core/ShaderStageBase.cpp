@@ -82,12 +82,13 @@ namespace bento
 		this->OnPreLink();
 
 		glLinkProgram(m_programName);
+
+		CHECK_SHADER_COMPILATION(m_programName);
+
 		glDetachShader(m_programName, shader);
 		glDeleteShader(shader);
 
 		delete[] shaderSourcePtr;
-
-		CHECK_SHADER_COMPILATION(m_programName);
 	}
 
 	void ShaderStageBase::OnInvalidate()

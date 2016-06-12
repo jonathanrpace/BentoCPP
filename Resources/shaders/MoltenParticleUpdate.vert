@@ -18,8 +18,8 @@ void main(void)
 {
 	vec2 uv = vec2(in_position.x, in_position.z);
 
-	vec4 heightData = texture2D( s_heightData, uv );
-	vec2 moltenVelocity = texture2D( s_velocityData, uv ).xy;
+	vec4 heightData = texture( s_heightData, uv );
+	vec2 moltenVelocity = texture( s_velocityData, uv ).xy;
 
 	float solidHeight = heightData.x;
 	float moltenHeight = heightData.y;

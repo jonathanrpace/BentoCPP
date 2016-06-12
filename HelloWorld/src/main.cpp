@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	REQUIRE_CAPABILITY(GLEW_VERSION_4_5);
+	REQUIRE_CAPABILITY(GLEW_VERSION_4_3);
 	REQUIRE_CAPABILITY(GLEW_ARB_separate_shader_objects);
 
 	// Clear the GL error state. This is really horrible, but it seems 

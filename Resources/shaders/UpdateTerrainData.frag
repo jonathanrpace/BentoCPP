@@ -276,14 +276,14 @@ void main(void)
 		// Cooling
 		// Occluded areas cool slower
 		float occlusion = miscDataC.w;
-		float occlusionScalar = mix( 0.1, 1.0, (1.0-occlusion) );
+		float occlusionScalar = mix( 0.3, 1.0, (1.0-occlusion) );
 		heat += (u_ambientTemp - heat) * u_tempChangeSpeed * occlusionScalar;
 
 		// Add some lava near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
-		heat   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.95, 1.0, mouseTextureScalar) ) / (1.0001+heat*5.0);
-		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(0.95, 1.0, mouseTextureScalar2) ) / (1.0001+height);
+		heat   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.0, 1.0, mouseTextureScalar) ) / (1.0+heat*20.0);
+		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(0.0, 1.0, mouseTextureScalar2) ) / (1.0+height);
 
 		out_heightData.y = height;
 		out_miscData.x = heat;
@@ -302,20 +302,12 @@ void main(void)
 			float smudgeSpeed = length(smudgeUV) + EPSILON.x;
 			float moltenSpeed = length(velocity);
 
-			float speedDiff = max(moltenSpeed - smudgeSpeed, 0.0);
 
-			//float influence = pow( clamp( speedDiff / smudgeSpeed, 0.0, 1.0 ), 0.5 ) * 0.002;
-			//float influence = min(moltenSpeed, 1.0) * 0.01;
-
-			float heat = miscDataC.x;
-
-			float influence = clamp(heat-0.3, 0.0, 1.0) * 0.005;
+			float influence = min( 1.0, length(velocity) / 0.05 );
+			vec2 velocityN = min( velocity / (length(velocity) + 0.00001), vec2(1.0) );
+			smudgeUV += velocityN * influence * 0.001;
 
 
-			//smudgeUV += (velocity-smudgeUV) * influence;
-			smudgeUV += velocity * influence;
-
-			//smudgeUV = mix(smudgeUV, velocity, influence * 0.001);
 			out_smudgeData.xy = smudgeUV;
 			
 			/*
@@ -515,8 +507,9 @@ void main(void)
 		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * 0.1).x;
 		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * 0.1).x;
 
+		float smudgeScalar = min( 1.0, length(smudgeDataC) / 0.1 );
 		float heat = miscDataC.x;
-		float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.012;
+		float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.012 * smudgeScalar;
 		moltenMapC *= moltenMapScalar;
 		moltenMapL *= moltenMapScalar;
 		moltenMapR *= moltenMapScalar;

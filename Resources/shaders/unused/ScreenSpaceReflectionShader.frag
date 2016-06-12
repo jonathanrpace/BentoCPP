@@ -108,7 +108,7 @@ void main()
 	vec3 fragNormal = texture( s_normalBuffer, in_uv ).xyz;
 	
 	ivec2 randomTextureSize = textureSize( s_randomTexture, 0 );
-	vec4 randomSample = texture2D( s_randomTexture, (gl_FragCoord.xy / randomTextureSize) );
+	vec4 randomSample = texture( s_randomTexture, (gl_FragCoord.xy / randomTextureSize) );
 
 	vec3 randomDirection = randomSample.xyz;
 	fragNormal += randomDirection * roughness * u_roughnessJitter;

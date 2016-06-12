@@ -4,6 +4,7 @@
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
+uniform sampler2D s_smudgeData;
 
 // Inputs
 in Varying
@@ -20,6 +21,7 @@ uniform float u_heatDiffuseStrength;
 layout( location = 0 ) out vec4 out_heightData;
 layout( location = 1 ) out vec4 out_velocityData;
 layout( location = 2 ) out vec4 out_miscData;
+layout( location = 3 ) out vec4 out_smudgeData;
 
 void main(void)
 {
@@ -39,15 +41,33 @@ void main(void)
 	vec4 miscDataL = texelFetch(s_miscData, texelCoordL, 0);
 	vec4 miscDataR = texelFetch(s_miscData, texelCoordR, 0);
 
+	vec4 smudgeDataC = texelFetch(s_smudgeData, texelCoordC, 0);
+	vec4 smudgeDataL = texelFetch(s_smudgeData, texelCoordL, 0);
+	vec4 smudgeDataR = texelFetch(s_smudgeData, texelCoordR, 0);
+
 	out_heightData = heightDataC;
 	out_velocityData = velocityDataC;
 	out_miscData = miscDataC;
+	out_smudgeData = smudgeDataC;
 
 	// Heat
 	{
 		float c = miscDataC.x;
 		float l = miscDataL.x;
 		float r = miscDataR.x;
+
+		float diffL = (l - c) * u_heatDiffuseStrength * 0.5;
+		float diffR = (r - c) * u_heatDiffuseStrength * 0.5;
+
+		out_miscData.x += diffL;
+		out_miscData.x += diffR;
+	}
+
+	// Smudge
+	{
+		float c = smudgeDataC.x;
+		float l = smudgeDataL.x;
+		float r = smudgeDataR.x;
 
 		float diffL = (l - c) * u_heatDiffuseStrength * 0.5;
 		float diffR = (r - c) * u_heatDiffuseStrength * 0.5;

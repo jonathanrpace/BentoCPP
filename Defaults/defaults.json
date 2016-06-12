@@ -19,21 +19,21 @@
         "fogFalloff": 1000.00006103516,
         "fogHeight": 0.274000018835068,
         "hotRockColorA": {
-            "x": 0.266666680574417,
-            "y": 0.266666680574417,
-            "z": 0.266666680574417
+            "x": 0.0588235296308994,
+            "y": 0.0588235296308994,
+            "z": 0.0588235296308994
         },
         "hotRockColorB": {
-            "x": 0.298039227724075,
-            "y": 0.298039227724075,
-            "z": 0.298039227724075
+            "x": 0.062745101749897,
+            "y": 0.062745101749897,
+            "z": 0.062745101749897
         },
-        "hotRockFresnelA": 0.0740000009536743,
-        "hotRockFresnelB": 0.0740000009536743,
-        "hotRockRoughnessA": 0.547000050544739,
-        "hotRockRoughnessB": 0.547000050544739,
+        "hotRockFresnelA": 0.176000013947487,
+        "hotRockFresnelB": 0.216000005602837,
+        "hotRockRoughnessA": 0.311000019311905,
+        "hotRockRoughnessB": 0.439000010490417,
         "lightAltitude": 0.0,
-        "lightAzimuth": 0.471238911151886,
+        "lightAzimuth": -0.506145477294922,
         "mapHeightOffset": 0.00499999988824129,
         "moltenColor": {
             "x": 1.0,
@@ -45,18 +45,18 @@
         "moltenMapAlphaScalar": 1.97300004959106,
         "moltenRoughness": 1.0,
         "rockColorA": {
-            "x": 0.301960796117783,
-            "y": 0.301960796117783,
-            "z": 0.301960796117783
+            "x": 0.0565013475716114,
+            "y": 0.076116606593132,
+            "z": 0.0862745121121407
         },
         "rockColorB": {
-            "x": 0.270588248968124,
-            "y": 0.270588248968124,
-            "z": 0.270588248968124
+            "x": 0.207843139767647,
+            "y": 0.207843139767647,
+            "z": 0.207843139767647
         },
-        "rockFresnelA": 1.0,
-        "rockFresnelB": 1.0,
-        "rockRoughnessA": 1.0,
+        "rockFresnelA": 0.62200003862381,
+        "rockFresnelB": 0.811000049114227,
+        "rockRoughnessA": 0.682000041007996,
         "rockRoughnessB": 1.0,
         "waterColor": {
             "x": 0.218999996781349,
@@ -117,8 +117,8 @@
         "erosionWaterDepthMin": 9.99999974737875e-06,
         "erosionWaterSpeedMax": 0.0120000001043081,
         "evapourationRate": 9.99999974737875e-05,
-        "heatAdvectSpeed": 0.494000017642975,
-        "heatDiffuseStrength": 0.5,
+        "heatAdvectSpeed": 0.35300001502037,
+        "heatDiffuseStrength": 0.0970000028610229,
         "maxDissolvedDirt": 0.0100000007078052,
         "maxErosionWaterVelocity": 0.0270000007003546,
         "meltSpeed": 0.0,
@@ -128,7 +128,7 @@
         "moltenViscosity": 0.5,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 0.149999991059303,
+        "mouseHeatStrength": 0.589999973773956,
         "mouseRadius": 0.0650000050663948,
         "mouseVolumeStrength": 0.00358999986201525,
         "rainRate": 0.0,

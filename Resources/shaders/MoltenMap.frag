@@ -24,5 +24,5 @@ void main(void)
 	float alpha = textureSample.x;
 	alpha *= in_color.w;
 
-	out_fragColor = vec4(in_color.xyz*alpha, alpha);
+	out_fragColor = vec4(in_color.xyz*alpha, 1.0);
 } 
