@@ -261,8 +261,8 @@ void main(void)
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
 
 	// Dirt
-	//const vec3 dirtDiffuse = vec3(0.2,0.15,0.1);
-	//diffuse = mix( rockDiffuse, dirtDiffuse, smoothstep(0.0, 0.01, dirtHeight) );
+	const vec3 dirtDiffuse = vec3(0.2,0.15,0.1);
+	diffuse = mix( rockDiffuse, dirtDiffuse, smoothstep(0.0, 0.01, dirtHeight) );
 
 	// Direct light
 	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;

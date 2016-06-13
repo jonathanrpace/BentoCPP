@@ -282,8 +282,9 @@ void main(void)
 		// Add some lava near the mouse
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
+		float heightMin = 1.0 - min( 0.1 + heat * 3.0, 1.0 );
 		heat   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.0, 1.0, mouseTextureScalar) ) / (1.0+heat*20.0);
-		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(0.0, 1.0, mouseTextureScalar2) ) / (1.0+height);
+		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(heightMin, 1.0, mouseTextureScalar2) ) / (1.0+height);
 
 		out_heightData.y = height;
 		out_miscData.x = heat;
@@ -385,7 +386,7 @@ void main(void)
 		// Erosion
 		////////////////////////////////////////////////////////////////
 		// Only erode up to a certain depth
-		float dirtHeight = heightDataC.z;
+		float dirtHeight = out_heightData.z;
 		float erosionDirtDepthScalar = 1.0 - min(dirtHeight / u_erosionMaxDepth, 1.0);
 
 		// Erode more as water depth increases from zero, up to a point, then diminish.
@@ -399,20 +400,25 @@ void main(void)
 		if ( isinf(waterSpeedC) ) waterSpeedC = 0.0;
 		float erosionWaterSpeedScalar = smoothstep( 0.0, u_erosionWaterSpeedMax, waterSpeedC );
 
-		float solidHeight = heightDataC.x;
+		//erosionDirtDepthScalar = 1.0;
+		erosionWaterDepthScalar = 1.0;
+
+		float solidHeight = out_heightData.x;
 		float rockToDirt = min( erosionDirtDepthScalar * erosionWaterDepthScalar * erosionWaterSpeedScalar * u_erosionStrength, solidHeight );
 		solidHeight -= rockToDirt;
 		dirtHeight += rockToDirt;
 		
+		out_heightData.x = solidHeight;
+
 		////////////////////////////////////////////////////////////////
 		// Deposit some of the dissolved dirt
 		////////////////////////////////////////////////////////////////
 		float dissolvedDirt = miscDataC.z;
 		float amountDeposited = dissolvedDirt * u_dirtDepositSpeed;
 		
-		dirtHeight += amountDeposited;
-		dissolvedDirt -= amountDeposited;
-		dissolvedDirt = max(0.0,dissolvedDirt);
+		//dirtHeight += amountDeposited;
+		//dissolvedDirt -= amountDeposited;
+		//dissolvedDirt = max(0.0,dissolvedDirt);
 
 		////////////////////////////////////////////////////////////////
 		// Pickup dirt and dissolve it in water
@@ -420,9 +426,11 @@ void main(void)
 		float pickUpRate = pow( min( waterSpeedC / u_dirtErodeSpeedMax, 1.0 ), 1.2 );
 		float amountPickedUp = min( pickUpRate * u_dirtPickupSpeed, dirtHeight );
 
-		dirtHeight -= amountPickedUp;
-		dissolvedDirt += amountPickedUp;
-		dissolvedDirt = max(0.0,dissolvedDirt);
+		//dirtHeight -= amountPickedUp;
+		//dissolvedDirt += amountPickedUp;
+		//dissolvedDirt = max(0.0,dissolvedDirt);
+
+		out_heightData.z = dirtHeight;
 
 		////////////////////////////////////////////////////////////////
 		// Move dissolved dirt between cells
@@ -431,10 +439,10 @@ void main(void)
 		float transferedAwayY = min( abs(waterVelocity.y) * u_dirtTransportSpeed, dissolvedDirt * 0.25 );
 		float transferedAway = transferedAwayX + transferedAwayY;
 
-		float dissolvedDirtL = miscDataL.w;
-		float dissolvedDirtR = miscDataR.w;
-		float dissolvedDirtU = miscDataU.w;
-		float dissolvedDirtD = miscDataD.w;
+		float dissolvedDirtL = miscDataL.z;
+		float dissolvedDirtR = miscDataR.z;
+		float dissolvedDirtU = miscDataU.z;
+		float dissolvedDirtD = miscDataD.z;
 
 		vec2 waterVelocityL = texelFetch(s_velocityData, texelCoordL, 0).xy;
 		vec2 waterVelocityR = texelFetch(s_velocityData, texelCoordR, 0).xy;
@@ -448,8 +456,8 @@ void main(void)
 
 		float transferedIn = transferedInL + transferedInR + transferedInU + transferedInD;
 
-		dissolvedDirt += (transferedIn - transferedAway) * 0.1;
-		dissolvedDirt = max(0.0, dissolvedDirt);
+		//dissolvedDirt += (transferedIn - transferedAway) * 0.1;
+		//dissolvedDirt = max(0.0, dissolvedDirt);
 
 		out_miscData.z = dissolvedDirt;
 

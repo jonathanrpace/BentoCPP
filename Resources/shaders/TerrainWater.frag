@@ -181,23 +181,24 @@ void main(void)
 		foamDiffuse *= vec3(0.7);	// Albedo
 
 		outColor = mix(outColor, foamDiffuse, foamSample.w * 0.75 * waterAlpha);
-	}
+	} 
 	*/
 
 	//vec2 velocityColor = (clamp(in_waterData.yz, vec2(-1.0), vec2(1.0))+1.0) * 0.5;
-	float dissolvedDirtProp = min( in_miscData.z / 0.01, 1.0 );
-
-	float speed = length(in_velocityData.xy);
-	vec2 velocityColor = mix( vec2( 0.0, 0.2 ), vec2( 0.1, 0.6 ), speed );
 	
-	vec3 waterColor = mix( vec3( 0.0, velocityColor ), vec3(1.0, 0.0, 0.0), dissolvedDirtProp );
 
-	waterColor = pow(waterColor, vec3(2.2));
+	float speed = length(in_velocityData.zw);
+	vec3 velocityColor = mix( vec3( 0.0, 0.0, 0.2 ), vec3( 0.0, 0.1, 0.6 ), speed );
+	
+	float dissolvedDirtProp = 0.0;//min( in_miscData.z / 0.01, 1.0 );
+	vec3 waterColor = mix( velocityColor, vec3(1.0, 0.0, 0.0), dissolvedDirtProp );
 
-	//outColor += vec3(dissolvedDirtProp, length(in_waterData.yz), waterAlpha);
+	waterColor = pow(waterColor, vec3(2.2)); // Gamma correct
+
+
 	outColor = mix(outColor, waterColor, waterAlpha*1.0);
 
 
-	//outColor += vec3(mappingDataC.w,0,0);
+
 	out_forwad = vec4( outColor, 0.0f );
 }
