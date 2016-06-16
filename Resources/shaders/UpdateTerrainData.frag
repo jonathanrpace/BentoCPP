@@ -276,7 +276,7 @@ void main(void)
 		// Cooling
 		// Occluded areas cool slower
 		float occlusion = miscDataC.w;
-		float occlusionScalar = mix( 0.3, 1.0, (1.0-occlusion) );
+		float occlusionScalar = 1.0;//mix( 0.3, 1.0, clamp(1.0-occlusion, 0.0, 1.0) );
 		heat += (u_ambientTemp - heat) * u_tempChangeSpeed * occlusionScalar;
 
 		// Add some lava near the mouse
@@ -285,6 +285,8 @@ void main(void)
 		float heightMin = 1.0 - min( 0.1 + heat * 3.0, 1.0 );
 		heat   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.0, 1.0, mouseTextureScalar) ) / (1.0+heat*20.0);
 		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(heightMin, 1.0, mouseTextureScalar2) ) / (1.0+height);
+
+		heat = max(0.0, heat);
 
 		out_heightData.y = height;
 		out_miscData.x = heat;
@@ -416,9 +418,9 @@ void main(void)
 		float dissolvedDirt = miscDataC.z;
 		float amountDeposited = dissolvedDirt * u_dirtDepositSpeed;
 		
-		//dirtHeight += amountDeposited;
-		//dissolvedDirt -= amountDeposited;
-		//dissolvedDirt = max(0.0,dissolvedDirt);
+		dirtHeight += amountDeposited;
+		dissolvedDirt -= amountDeposited;
+		dissolvedDirt = max(0.0,dissolvedDirt);
 
 		////////////////////////////////////////////////////////////////
 		// Pickup dirt and dissolve it in water
@@ -426,9 +428,9 @@ void main(void)
 		float pickUpRate = pow( min( waterSpeedC / u_dirtErodeSpeedMax, 1.0 ), 1.2 );
 		float amountPickedUp = min( pickUpRate * u_dirtPickupSpeed, dirtHeight );
 
-		//dirtHeight -= amountPickedUp;
-		//dissolvedDirt += amountPickedUp;
-		//dissolvedDirt = max(0.0,dissolvedDirt);
+		dirtHeight -= amountPickedUp;
+		dissolvedDirt += amountPickedUp;
+		dissolvedDirt = max(0.0,dissolvedDirt);
 
 		out_heightData.z = dirtHeight;
 

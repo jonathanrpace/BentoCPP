@@ -238,7 +238,7 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 
-	float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.006; // TODO share values with normal calculation in UpdateData
+	float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.003; // TODO share values with normal calculation in UpdateData
 	position.y += moltenMapValue * moltenMapScalar;
 
 	vec4 viewPosition = position * u_modelViewMatrix;

@@ -190,7 +190,7 @@ void main(void)
 	float speed = length(in_velocityData.zw);
 	vec3 velocityColor = mix( vec3( 0.0, 0.0, 0.2 ), vec3( 0.0, 0.1, 0.6 ), speed );
 	
-	float dissolvedDirtProp = 0.0;//min( in_miscData.z / 0.01, 1.0 );
+	float dissolvedDirtProp = min( in_miscData.z / 0.01, 1.0 );
 	vec3 waterColor = mix( velocityColor, vec3(1.0, 0.0, 0.0), dissolvedDirtProp );
 
 	waterColor = pow(waterColor, vec3(2.2)); // Gamma correct
