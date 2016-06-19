@@ -14,6 +14,7 @@ in Varying
 
 uniform ivec2 u_axis;
 uniform float u_dirtDiffuseStrength;
+uniform float u_dissolvedDirtDiffuseStrength;
 uniform float u_waterDiffuseStrength;
 uniform float u_heatDiffuseStrength;
 
@@ -63,6 +64,9 @@ void main(void)
 		out_miscData.x += diffR;
 	}
 
+
+
+	/*
 	// Smudge
 	{
 		float c = smudgeDataC.x;
@@ -75,8 +79,9 @@ void main(void)
 		out_miscData.x += diffL;
 		out_miscData.x += diffR;
 	}
+	*/
 
-	/*
+	
 	// Dirt
 	{
 		float c = heightDataC.x + heightDataC.y + heightDataC.z;
@@ -90,19 +95,21 @@ void main(void)
 		out_heightData.z += clamp(diffR*0.25, -heightDataC.z*0.25, heightDataR.z*0.25);
 	}
 
+	
 	// Dissolved dirt
 	{
-		float c = miscDataC.y;
-		float l = miscDataL.y;
-		float r = miscDataR.y;
+		float c = miscDataC.z;
+		float l = miscDataL.z;
+		float r = miscDataR.z;
 
-		float diffL = (l - c) * u_waterDiffuseStrength;
-		float diffR = (r - c) * u_waterDiffuseStrength;
+		float diffL = (l - c) * u_dissolvedDirtDiffuseStrength;
+		float diffR = (r - c) * u_dissolvedDirtDiffuseStrength;
 
 		out_miscData.z += clamp(diffL*0.25, -c*0.25, l*0.25);
 		out_miscData.z += clamp(diffR*0.25, -c*0.25, l*0.25);
 	}
 
+	/*
 	// Water velocity
 	{
 		vec2 diffL = (velocityDataL.zw - velocityDataC.zw) * u_dirtDiffuseStrength;

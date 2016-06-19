@@ -403,7 +403,7 @@ void main(void)
 		float erosionWaterSpeedScalar = smoothstep( 0.0, u_erosionWaterSpeedMax, waterSpeedC );
 
 		//erosionDirtDepthScalar = 1.0;
-		erosionWaterDepthScalar = 1.0;
+		//erosionWaterDepthScalar = 1.0;
 
 		float solidHeight = out_heightData.x;
 		float rockToDirt = min( erosionDirtDepthScalar * erosionWaterDepthScalar * erosionWaterSpeedScalar * u_erosionStrength, solidHeight );
@@ -446,10 +446,10 @@ void main(void)
 		float dissolvedDirtU = miscDataU.z;
 		float dissolvedDirtD = miscDataD.z;
 
-		vec2 waterVelocityL = texelFetch(s_velocityData, texelCoordL, 0).xy;
-		vec2 waterVelocityR = texelFetch(s_velocityData, texelCoordR, 0).xy;
-		vec2 waterVelocityU = texelFetch(s_velocityData, texelCoordU, 0).xy;
-		vec2 waterVelocityD = texelFetch(s_velocityData, texelCoordD, 0).xy;
+		vec2 waterVelocityL = texelFetch(s_velocityData, texelCoordL, 0).zw;
+		vec2 waterVelocityR = texelFetch(s_velocityData, texelCoordR, 0).zw;
+		vec2 waterVelocityU = texelFetch(s_velocityData, texelCoordU, 0).zw;
+		vec2 waterVelocityD = texelFetch(s_velocityData, texelCoordD, 0).zw;
 
 		float transferedInL = min( max( waterVelocityL.x,0.0) * u_dirtTransportSpeed, dissolvedDirtL * 0.25 );
 		float transferedInR = min( max(-waterVelocityR.x,0.0) * u_dirtTransportSpeed, dissolvedDirtR * 0.25 );
@@ -458,8 +458,8 @@ void main(void)
 
 		float transferedIn = transferedInL + transferedInR + transferedInU + transferedInD;
 
-		//dissolvedDirt += (transferedIn - transferedAway) * 0.1;
-		//dissolvedDirt = max(0.0, dissolvedDirt);
+		dissolvedDirt += (transferedIn - transferedAway) * 0.1;
+		dissolvedDirt = max(0.0, dissolvedDirt);
 
 		out_miscData.z = dissolvedDirt;
 

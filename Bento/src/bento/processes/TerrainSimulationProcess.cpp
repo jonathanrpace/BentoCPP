@@ -407,6 +407,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_dirtDiffuseStrength", m_dirtDiffuseStrength);
 		fragShader.SetUniform("u_waterDiffuseStrength", m_waterDiffuseStrength);
 		fragShader.SetUniform("u_heatDiffuseStrength", m_heatDiffuseStrength);
+		fragShader.SetUniform("u_dissolvedDirtDiffuseStrength", m_waterDiffuseStrength);
 
 		// X Pass
 
