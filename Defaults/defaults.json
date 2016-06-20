@@ -5,6 +5,11 @@
         "choppyLimit": 1.0,
         "choppyPower": 4.0,
         "directLightIntensity": 4.0,
+        "dirtColor": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+        },
         "fogColorAway": {
             "x": 0.699999988079071,
             "y": 0.699999988079071,
@@ -54,16 +59,16 @@
             "y": 0.207843139767647,
             "z": 0.207843139767647
         },
-        "rockFresnelA": 0.723000049591064,
+        "rockFresnelA": 0.730000019073486,
         "rockFresnelB": 1.0,
-        "rockRoughnessA": 0.682000041007996,
-        "rockRoughnessB": 1.0,
+        "rockRoughnessA": 1.0,
+        "rockRoughnessB": 0.966000020503998,
         "waterColor": {
-            "x": 0.218999996781349,
-            "y": 0.28600001335144,
-            "z": 0.277999997138977
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
         },
-        "waterIndexOfRefraction": 1.0,
+        "waterIndexOfRefraction": 0.946000039577484,
         "waterSpecularPower": 84.7260055541992,
         "waterTranslucentColor": {
             "x": 0.218999996781349,
@@ -112,7 +117,7 @@
         "dirtTransportSpeed": 1.0,
         "erosionDirtDepthMax": 0.00500000035390258,
         "erosionMaxDepth": 0.00300000002607703,
-        "erosionStrength": 3.99999998990097e-06,
+        "erosionStrength": 4.99999987368938e-06,
         "erosionWaterDepthMax": 0.0007999999797903,
         "erosionWaterDepthMin": 9.99999974737875e-06,
         "erosionWaterSpeedMax": 0.0120000001043081,
@@ -128,9 +133,9 @@
         "moltenViscosity": 0.5,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 1.0,
-        "mouseRadius": 0.0760000050067902,
-        "mouseVolumeStrength": 0.000709999992977828,
+        "mouseHeatStrength": 0.140000000596046,
+        "mouseRadius": 0.0530000030994415,
+        "mouseVolumeStrength": 0.00219999998807907,
         "rainRate": 0.0,
         "rockDiffuseStrength": 0.00499999988824129,
         "rockMeltingPoint": 0.300000011920929,
@@ -139,7 +144,7 @@
         "textureScrollSpeed": 0.13400000333786,
         "waterBoilingPoint": 0.100000001490116,
         "waterDiffuseStrength": 0.435289978981018,
-        "waterFluxDamping": 0.99700003862381,
+        "waterFluxDamping": 0.991000056266785,
         "waterFreezingPoint": 0.0,
         "waterVelocityDamping": 0.995000064373016,
         "waterVelocityScalar": 11.289999961853,

@@ -203,7 +203,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
 	ImGui::SliderFloat("Viscosity", &m_waterViscosity, 0.01f, 0.5f);
 	ImGui::SliderFloat("EvapourationRate", &m_evapourationRate, 0.00f, 0.0001f, "%.8f");
-	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.0000025f, "%.8f");
+	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.0000005f, "%.8f");
 	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 100.0f, "%.2f");
 	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.95f, 1.0f, "%.3f");
 	ImGui::Spacing();

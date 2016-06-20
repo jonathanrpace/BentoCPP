@@ -51,6 +51,7 @@ namespace bento
 		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
 
 		SetUniform("u_waterColor", _material->waterColor);
+		SetUniform("u_dirtColor", _material->dirtColor);
 		SetUniform("u_waterTranslucentColor", _material->waterTranslucentColor);
 		SetUniform("u_specularPower", _material->waterSpecularPower);
 		SetUniform("u_indexOfRefraction", _material->waterIndexOfRefraction);

@@ -35,6 +35,7 @@ uniform float u_phase;
 uniform float u_specularPower;
 uniform float u_fresnelPower = 4.0f;
 uniform vec3 u_waterColor;
+uniform vec3 u_dirtColor;
 uniform vec3 u_waterTranslucentColor;
 uniform float u_indexOfRefraction;
 
@@ -87,7 +88,7 @@ void main(void)
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
 	if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
-	viewDepth = clamp(viewDepth, 0.0, 0.05);
+	viewDepth = clamp(viewDepth, 0.0, 0.2);
 
 	float waterAlpha = min( in_heightData.w / 0.0001, 1.0 );
 
@@ -100,7 +101,7 @@ void main(void)
 		vec3 refractVec = refract(-eye, waterNormal, u_indexOfRefraction);
 		
 		vec4 samplePos = vec4( in_worldPosition );
-		//samplePos.xyz += refractVec * viewDepth;
+		samplePos.xyz += refractVec * viewDepth * waterAlpha;
 		samplePos *= u_mvpMatrix;
 		samplePos.xyz /= samplePos.w;
 		samplePos.xy += 1.0;
@@ -110,22 +111,30 @@ void main(void)
 
 		outColor = texture2DRect(s_output, samplePos.xy * dimensions).xyz;
 	}
-	/*
+	
 	////////////////////////////////////////////////////////////////
 	// Filter
 	////////////////////////////////////////////////////////////////
 	{
-		vec3 waterDiffuse = vec3( diffuse(in_waterNormal.xyz, u_lightDir, 1.5f) * u_lightIntensity );
-		waterDiffuse += u_ambientLightIntensity;
-		waterDiffuse *= u_waterColor;
-
-		//waterColor = pow(waterColor, vec3(0.75f));
-		//waterColor *= waterAlpha;
-		
 		// Filter color behind water. The deeper the water, the more filter applied.
-		outColor *= mix( vec3(1.0f), waterDiffuse, waterAlpha );
+		outColor *= mix( vec3(1.0f), pow(u_waterColor, vec3(2.2)), waterAlpha );
 	}
 
+	////////////////////////////////////////////////////////////////
+	// Dissolved dirt
+	////////////////////////////////////////////////////////////////
+	{
+		float dissolvedDirtAlpha = min( in_miscData.z / 0.01, 1.0 );
+
+		vec3 waterDiffuse = vec3( diffuse(waterNormal.xyz, u_lightDir, 1.5f) * u_lightIntensity );
+		waterDiffuse += u_ambientLightIntensity;
+		waterDiffuse *= pow(u_dirtColor*0.5, vec3(2.2));
+
+		outColor = mix(outColor, waterDiffuse, dissolvedDirtAlpha);
+	}
+
+
+	/*
 	////////////////////////////////////////////////////////////////
 	// Translucency
 	////////////////////////////////////////////////////////////////
@@ -146,7 +155,7 @@ void main(void)
 		
 		// Reflect the water normal about the up vector
 		// From observation, this gives us a good enough approximation of the 'back face' normal. 
-		vec3 translucentVec = reflect(-in_waterNormal.xyz, vec3(0.0f,1.0f,0.0f));
+		vec3 translucentVec = reflect(-waterNormal.xyz, vec3(0.0f,1.0f,0.0f));
 
 		// We now take this vector and refract it backwards through the wave.
 		vec3 refractedLightDir = -refract(-u_lightDir, translucentVec, u_indexOfRefraction);
@@ -154,20 +163,21 @@ void main(void)
 
 		outColor += u_waterTranslucentColor * pow(translucentDot,0.5f) * translucency * u_lightIntensity * waterAlpha;
 	}
+	*/
+
 	
 	////////////////////////////////////////////////////////////////
 	// Reflections
 	////////////////////////////////////////////////////////////////
 	{
 		// Specular
-		vec3 waterSpecular = vec3( specular( in_waterNormal.xyz, u_lightDir, -eye, u_specularPower ) * u_lightIntensity );
+		vec3 waterSpecular = vec3( specular( waterNormal.xyz, u_lightDir, -eye, u_specularPower ) * u_lightIntensity );
 		outColor += waterSpecular * fresnel * waterAlpha;
 
 		// Sky
-		float skyReflect = clamp( (dot(reflect(-eye, in_waterNormal.xyz), vec3(0.0,1.0,0.0)) + 1.0) * 0.5, 0.0, 1.0 );
+		float skyReflect = clamp( (dot(reflect(-eye, waterNormal.xyz), vec3(0.0,1.0,0.0)) + 1.0) * 0.5, 0.0, 1.0 );
 		outColor += skyReflect * waterAlpha * fresnel;
 	}
-	*/
 
 	/*
 	////////////////////////////////////////////////////////////////
@@ -176,7 +186,7 @@ void main(void)
 	{
 		vec4 foamSample = texture2D( s_foamData, in_uv );
 
-		vec3 foamDiffuse = vec3( diffuse(in_waterNormal.xyz, u_lightDir, 4.0f) * u_lightIntensity );
+		vec3 foamDiffuse = vec3( diffuse(waterNormal.xyz, u_lightDir, 4.0f) * u_lightIntensity );
 		foamDiffuse += u_ambientLightIntensity;
 		foamDiffuse *= vec3(0.7);	// Albedo
 
@@ -184,9 +194,7 @@ void main(void)
 	} 
 	*/
 
-	//vec2 velocityColor = (clamp(in_waterData.yz, vec2(-1.0), vec2(1.0))+1.0) * 0.5;
-	
-
+	/*
 	float speed = length(in_velocityData.zw);
 	vec3 velocityColor = mix( vec3( 0.0, 0.0, 0.2 ), vec3( 0.0, 0.1, 0.6 ), speed );
 	
@@ -197,7 +205,7 @@ void main(void)
 
 
 	outColor = mix(outColor, waterColor, waterAlpha*1.0);
-
+	*/
 
 
 	out_forwad = vec4( outColor, 0.0f );

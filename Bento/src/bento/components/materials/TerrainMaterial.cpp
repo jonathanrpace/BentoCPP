@@ -41,6 +41,9 @@ namespace bento
 		SerializableMember("waterSpecularPower", 80.0f, &waterSpecularPower);
 		SerializableMember("waterIndexOfRefraction", 0.33f, &waterIndexOfRefraction);
 
+		// Dirt
+		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
+
 		// Lighting
 		SerializableMember("lightAzimuth", 0.0f, &lightAzimuth);
 		SerializableMember("lightAltitude", (float)-M_PI * 0.5f, &lightAltitude);
@@ -92,6 +95,11 @@ namespace bento
 		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.0f, 2.0f);
 		ImGui::ColorEdit3("WaterColor", glm::value_ptr(waterColor));
 		ImGui::ColorEdit3("WaterTranslucentColor", glm::value_ptr(waterTranslucentColor));
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::Text("Dirt");
+		ImGui::ColorEdit3("DirtColor", glm::value_ptr(dirtColor));
 		ImGui::Spacing();
 
 		ImGui::Spacing();

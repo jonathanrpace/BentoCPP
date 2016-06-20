@@ -50,6 +50,9 @@ namespace bento
 		float moltenMapAlphaScalar;
 		float moltenMapAlphaPower;
 
+		// Dir
+		vec3 dirtColor;
+
 		// Water
 		vec3 waterColor;
 		vec3 waterTranslucentColor;

@@ -63,6 +63,8 @@ namespace bento
 		SetUniform("u_moltenColor", _material->moltenColor);
 		SetUniform("u_moltenAlphaScalar", _material->moltenMapAlphaScalar);
 		SetUniform("u_moltenAlphaPower", _material->moltenMapAlphaPower);
+
+		SetUniform("u_dirtColor", _material->dirtColor);
 	}
 
 	////////////////////////////////////////////

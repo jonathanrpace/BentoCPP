@@ -127,6 +127,8 @@ uniform vec3 u_moltenColor;
 uniform float u_moltenAlphaScalar;
 uniform float u_moltenAlphaPower;
 
+uniform vec3 u_dirtColor;
+
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat3 u_normalModelViewMatrix;
@@ -261,7 +263,7 @@ void main(void)
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
 
 	// Dirt
-	const vec3 dirtDiffuse = vec3(0.2,0.15,0.1);
+	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));
 	diffuse = mix( rockDiffuse, dirtDiffuse, smoothstep(0.0, 0.01, dirtHeight) );
 
 	// Direct light
