@@ -34,6 +34,7 @@ namespace bento
 		SerializableMember("moltenColor", vec3(1.0f, 0.5f, 0.01f), &moltenColor);
 		SerializableMember("moltenMapAlphaScalar", 1.0f, &moltenMapAlphaScalar);
 		SerializableMember("moltenMapAlphaPower", 1.0f, &moltenMapAlphaPower);
+		SerializableMember("moltenMapOffset", 0.0f, &moltenMapOffset);
 
 		// Water
 		SerializableMember("waterColor", vec3(0.219f, 0.286f, 0.278f), &waterColor);
@@ -88,6 +89,7 @@ namespace bento
 		ImGui::ColorEdit3("Color##molten", glm::value_ptr(moltenColor));
 		ImGui::SliderFloat("Alpha Scale##molten", &moltenMapAlphaScalar, 0.0f, 4.0f);
 		ImGui::SliderFloat("Alpha Power##molten", &moltenMapAlphaPower, 0.0f, 4.0f);
+		ImGui::SliderFloat("Offset##molten", &moltenMapOffset, 0.0f, 0.05f);
 
 		ImGui::Spacing();
 		ImGui::Text("Water");

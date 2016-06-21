@@ -9,6 +9,7 @@ layout(location = 2) in vec4 in_properties;
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform float u_terrainSize = 1.5;
+uniform float u_waterHeightToOpaque = 0.005;
 
 // Outputs
 out Varying
@@ -34,7 +35,7 @@ void main(void)
 	vec4 position = in_position;
 	vec3 velocity = in_velocity.xyz;
 
-	float spawnThreshold = mix( 0.2, 0.5, in_properties.w );
+	//float spawnThreshold = mix( 0.0, 0.2, in_properties.w );
 	float waterSpeed = length(waterVelocity);
 	if (isnan(waterSpeed))
 		waterSpeed = 0.0;
@@ -45,31 +46,25 @@ void main(void)
 
 	if ( life <= 0.0 )
 	{
-		if ( foamSpawnStrength > spawnThreshold )
-		{
+		//if ( foamSpawnStrength > spawnThreshold )
+		//{
 			life = 1.0;
 			position.x = in_properties.x;
 			position.z = in_properties.y;
-		}
+		//}
 	}
 	else
 	{
-		float lifeFrames = mix( 200, 400, in_properties.w );
+		float lifeFrames = mix( 50, 100, in_properties.z );
 		life -= (1.0/lifeFrames);
 		life = max(0,life);
 	}
 
-	velocity.y = 0;
-
-	float damping = mix( 0.1, 0.101, in_properties.z );
-	velocity *= damping;
-
-	position.xyz += velocity;
+	position.xz += waterVelocity.xy * 0.0025;
 	position.y = waterSurfaceHeight;
 
-	float speed = mix(0.0002, 0.00201, in_properties.z);
-	velocity.x += waterVelocity.x * speed;
-	velocity.z += waterVelocity.y * speed;
+	float alpha = min( waterHeight / u_waterHeightToOpaque, 1.0 );
+	position.w = alpha * max( waterSpeed, 0.05 );
 
 	out_position = position;
 	out_velocity = vec4(velocity, life);

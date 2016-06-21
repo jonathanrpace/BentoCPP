@@ -47,6 +47,7 @@ uniform float u_condenseSpeed;
 uniform float u_meltSpeed;
 uniform float u_moltenVelocityScalar;
 uniform float u_moltenVelocityDamping;
+uniform float u_mapHeightOffset;
 
 // Water
 uniform float u_waterViscosity;
@@ -54,6 +55,7 @@ uniform float u_waterVelocityScalar;
 uniform float u_waterVelocityDamping;
 uniform float u_evapourationRate;
 uniform float u_rainRate;
+uniform float u_boilSpeed;
 
 // Erosion
 uniform float u_erosionStrength;
@@ -310,43 +312,7 @@ void main(void)
 			vec2 velocityN = min( velocity / (length(velocity) + 0.00001), vec2(1.0) );
 			smudgeUV += velocityN * influence * 0.001;
 
-
 			out_smudgeData.xy = smudgeUV;
-			
-			/*
-			////////////////////////////////////////////////////////////////
-			// SEPERATION
-			// Visit each 9 neighbours, and determine which ones will sample from within this.
-			// cell. Those that do exert a 'pull' on this cell from their direction. If this 
-			// pull is counteracted by another neighbour in the opposite direction then this 
-			// cell is being 'seperated' and should cycle its sampled colour so that 
-			// neighbours pulling this colour get fresh detail, rather than smearing a single 
-			// value
-			////////////////////////////////////////////////////////////////
-			float seperationAmount = 0.0f;
-			ivec2 coord = texelCoordC / 2;
-			float strength = 1.0f;
-			for ( int i = 1; i < 8; i++ )
-			{
-				vec4 fluxN = textureLod( s_rockFluxData, in_uv, i );
-				vec2 velocityN = vec2( fluxN.y-fluxN.x, fluxN.w-fluxN.z ) * viscosity;
-
-				float seperationDot = 1.0f-clamp( dot( normalize(velocityN), normalize(velocity) ), 0.0f, 1.0f );
-				float seperationScalar = length(velocityN) + length(velocity);
-				seperationAmount += seperationScalar * seperationDot * strength;
-			
-				coord /= 2;
-				strength *= 0.65f;
-			}
-			
-			vec2 pullUV = in_uv - velocity * u_textureScrollSpeed;
-			float newPhase = texture(s_moltenMapData, pullUV).x;
-			newPhase += min(u_cycleSpeed * seperationAmount, 0.1f);
-			newPhase = mod(newPhase, 1.0f);
-			out_miscData.y = newPhase;
-
-			////////////////////////////////////////////////////////////////
-			*/
 		}
 	}
 
@@ -355,7 +321,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	{
 		float waterHeight = heightDataC.w;
-
+		
 		vec4 fluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
 		vec4 fluxL = texelFetch(s_waterFluxData, texelCoordL, 0);
 		vec4 fluxR = texelFetch(s_waterFluxData, texelCoordR, 0);
@@ -374,7 +340,16 @@ void main(void)
 		waterHeight -= u_evapourationRate;
 		waterHeight = max(waterHeight, 0.0);
 
+		// Boil off any water due to heat
+		float heat = out_miscData.x;
+		float waterToBoilOff = min(waterHeight, max(heat-u_rockMeltingPoint, 0.0) * u_boilSpeed);
+		waterHeight -= waterToBoilOff;
+
+		float moltenHeight = out_heightData.y;
+		heat -= min( heat, (waterToBoilOff / (1.0+moltenHeight)) * 10.0 );
+
 		out_heightData.w = waterHeight;
+		out_miscData.x = heat;
 
 		////////////////////////////////////////////////////////////////
 		// Wave noise
@@ -401,9 +376,6 @@ void main(void)
 		if ( isnan(waterSpeedC) ) waterSpeedC = 0.0;
 		if ( isinf(waterSpeedC) ) waterSpeedC = 0.0;
 		float erosionWaterSpeedScalar = smoothstep( 0.0, u_erosionWaterSpeedMax, waterSpeedC );
-
-		//erosionDirtDepthScalar = 1.0;
-		//erosionWaterDepthScalar = 1.0;
 
 		float solidHeight = out_heightData.x;
 		float rockToDirt = min( erosionDirtDepthScalar * erosionWaterDepthScalar * erosionWaterSpeedScalar * u_erosionStrength, solidHeight );
@@ -479,6 +451,7 @@ void main(void)
 		float maxTemp = u_rockMeltingPoint * 5.0;
 		float heat = out_miscData.x;
 		float moltenHeight = out_heightData.y;
+		float dirtHeight = out_heightData.z;
 
 		float solidToMolten = smoothstep(u_rockMeltingPoint, maxTemp, heat) * u_meltSpeed;
 		solidToMolten = min(solidToMolten, heightDataC.x);
@@ -486,11 +459,16 @@ void main(void)
 		float moltenToSolid = (1.0-smoothstep(0, u_rockMeltingPoint, miscDataC.x)) * u_condenseSpeed;
 		moltenToSolid = min(moltenToSolid, moltenHeight);
 
+		float dirtToMolten = min( dirtHeight, max(heat-u_rockMeltingPoint, 0.0) * u_meltSpeed * 100.0 );
+
 		out_heightData.x -= solidToMolten;
 		out_heightData.x += moltenToSolid;
-
+		
 		out_heightData.y -= moltenToSolid;
 		out_heightData.y += solidToMolten;
+
+		out_heightData.x += dirtToMolten;
+		out_heightData.z -= dirtToMolten;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -512,42 +490,45 @@ void main(void)
 		vec2 smudgeDataD = texture(s_smudgeData, uvD).xy;
 
 		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * 0.1).x;
-		float moltenMapL = texture(s_moltenMapData, uvL - smudgeDataL * 0.1).x;
-		float moltenMapR = texture(s_moltenMapData, uvR - smudgeDataR * 0.1).x;
-		float moltenMapU = texture(s_moltenMapData, uvU - smudgeDataU * 0.1).x;
-		float moltenMapD = texture(s_moltenMapData, uvD - smudgeDataD * 0.1).x;
-
 		float smudgeScalar = min( 1.0, length(smudgeDataC) / 0.1 );
 		float heat = miscDataC.x;
-		float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.012 * smudgeScalar;
-		moltenMapC *= moltenMapScalar;
-		moltenMapL *= moltenMapScalar;
-		moltenMapR *= moltenMapScalar;
-		moltenMapU *= moltenMapScalar;
-		moltenMapD *= moltenMapScalar;
+		float moltenMapScalarC = 1.0;//(1.0 - min(heat, 1.0)) * smudgeScalar;
+		float moltenMapResultC = moltenMapC * moltenMapScalarC;
 
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + moltenMapR;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + moltenMapL;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + moltenMapU;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + moltenMapD;
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + moltenMapC;
+		float moltenMapResultL = miscDataL.y;
+		float moltenMapResultR = miscDataR.y;
+		float moltenMapResultU = miscDataU.y;
+		float moltenMapResultD = miscDataD.y;
 
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + moltenMapResultC * u_mapHeightOffset;
+		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + moltenMapResultR * u_mapHeightOffset;
+		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + moltenMapResultL * u_mapHeightOffset;
+		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + moltenMapResultU * u_mapHeightOffset;
+		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + moltenMapResultD * u_mapHeightOffset;
+		
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
 		vec3 rockNormal = -cross(va,vb);
 
 		out_normalData.zw = rockNormal.xz;
+		out_miscData.y = moltenMapResultC;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Water normal
 	//////////////////////////////////////////////////////////////////////////////////
 	{
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w;
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w;
+		float moltenMapResultC = out_miscData.y;
+		float moltenMapResultL = miscDataL.y;
+		float moltenMapResultR = miscDataR.y;
+		float moltenMapResultU = miscDataU.y;
+		float moltenMapResultD = miscDataD.y;
+
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w + moltenMapResultC * u_mapHeightOffset;
+		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w + moltenMapResultL * u_mapHeightOffset;
+		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w + moltenMapResultR * u_mapHeightOffset;
+		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w + moltenMapResultU * u_mapHeightOffset;
+		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w + moltenMapResultD * u_mapHeightOffset;
 		
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));

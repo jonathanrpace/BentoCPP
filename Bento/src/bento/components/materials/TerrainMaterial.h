@@ -49,6 +49,7 @@ namespace bento
 		vec3 moltenColor;
 		float moltenMapAlphaScalar;
 		float moltenMapAlphaPower;
+		float moltenMapOffset; 
 
 		// Dir
 		vec3 dirtColor;

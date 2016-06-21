@@ -38,6 +38,7 @@ uniform vec3 u_waterColor;
 uniform vec3 u_dirtColor;
 uniform vec3 u_waterTranslucentColor;
 uniform float u_indexOfRefraction;
+uniform float u_waterHeightToOpaque = 0.005;
 
 // Samplers
 uniform sampler2D s_diffuseMap;
@@ -90,7 +91,7 @@ void main(void)
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 	viewDepth = clamp(viewDepth, 0.0, 0.2);
 
-	float waterAlpha = min( in_heightData.w / 0.0001, 1.0 );
+	float waterAlpha = min( in_heightData.w / u_waterHeightToOpaque, 1.0 );
 
 	////////////////////////////////////////////////////////////////
 	// Refraction
@@ -124,7 +125,7 @@ void main(void)
 	// Dissolved dirt
 	////////////////////////////////////////////////////////////////
 	{
-		float dissolvedDirtAlpha = min( in_miscData.z / 0.01, 1.0 );
+		float dissolvedDirtAlpha = min( in_miscData.z / 0.005, 1.0 );
 
 		vec3 waterDiffuse = vec3( diffuse(waterNormal.xyz, u_lightDir, 1.5f) * u_lightIntensity );
 		waterDiffuse += u_ambientLightIntensity;

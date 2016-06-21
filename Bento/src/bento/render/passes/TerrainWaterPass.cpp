@@ -28,6 +28,7 @@ namespace bento
 	{
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
+		SetUniform("u_mapHeightOffset", _material->moltenMapOffset);
 
 		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
 		SetTexture("s_velocityData", &(_geometry->VelocityDataRead()));
@@ -81,6 +82,9 @@ namespace bento
 
 	void TerrainWaterPass::Advance(double _dt)
 	{
+		//glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset( 5.0f, 0.0f );
+
 		m_shader.BindPerPass();
 		for (auto node : m_nodeGroup.Nodes())
 		{
@@ -93,5 +97,7 @@ namespace bento
 
 			node->geom->Draw();
 		}
+
+		glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 }

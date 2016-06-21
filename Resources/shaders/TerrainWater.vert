@@ -17,7 +17,7 @@ uniform sampler2D s_normalData;
 // Uniforms
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
-
+uniform float u_mapHeightOffset;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -64,7 +64,8 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 	position.y += waterHeight;
-	position.y += (1.0/255.0);	// TODO: use polygon offset
+	position.y += miscDataC.y * u_mapHeightOffset;
+	//position.y += 0.001;
 
 	out_uv = in_uv;
 	out_heightData = heightDataC;

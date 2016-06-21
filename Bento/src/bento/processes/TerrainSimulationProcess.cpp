@@ -113,6 +113,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("rainRate",				0.0f,		&m_rainRate);
 	SerializableMember("waterVelocityScalar",	1.0f,		&m_waterVelocityScalar);
 	SerializableMember("waterVelocityDamping",	0.99f,		&m_waterVelocityDamping);
+	SerializableMember("boilSpeed",				0.001f,		&m_boilSpeed);
 
 	// Erosion
 	SerializableMember("erosionStrength",		0.0f,		&m_erosionStrength);
@@ -204,8 +205,9 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("Viscosity", &m_waterViscosity, 0.01f, 0.5f);
 	ImGui::SliderFloat("EvapourationRate", &m_evapourationRate, 0.00f, 0.0001f, "%.8f");
 	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.0000005f, "%.8f");
-	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 100.0f, "%.2f");
-	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.95f, 1.0f, "%.3f");
+	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 50.0f, "%.2f");
+	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.1f, 1.0f, "%.3f");
+	ImGui::SliderFloat("BoilSpeed", &m_boilSpeed, 0.0f, 0.001f, "%.4f");
 	ImGui::Spacing();
 
 	ImGui::Text("Erosion");
@@ -282,6 +284,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_rockFluxDamping", m_moltenFluxDamping);
 		fragShader.SetUniform("u_waterFluxDamping", m_waterFluxDamping);
 		fragShader.SetUniform("u_rockMeltingPoint", m_rockMeltingPoint);
+		fragShader.SetUniform("u_mapHeightOffset",	_material.moltenMapOffset);
 
 		m_screenQuadGeom.Draw();
 
@@ -337,6 +340,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
 		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
 		fragShader.SetUniform("u_moltenVelocityDamping",		m_moltenVelocityDamping);
+		fragShader.SetUniform("u_mapHeightOffset",				_material.moltenMapOffset);
 
 		// Water
 		fragShader.SetUniform("u_waterViscosity",				m_waterViscosity);
@@ -344,6 +348,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_waterVelocityDamping",			m_waterVelocityDamping);
 		fragShader.SetUniform("u_evapourationRate",				m_evapourationRate);
 		fragShader.SetUniform("u_rainRate",						m_rainRate);
+		fragShader.SetUniform("u_boilSpeed",					m_boilSpeed);
 
 		// Erosion
 		fragShader.SetUniform("u_erosionStrength",				m_erosionStrength);

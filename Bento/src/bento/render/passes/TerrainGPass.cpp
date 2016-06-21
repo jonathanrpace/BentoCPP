@@ -26,7 +26,6 @@ namespace bento
 		SetTexture("s_normalData", &(_geometry->NormalDataRead()));
 		SetTexture("s_moltenMapData", &(_geometry->MoltenMapDataRead()));
 		SetTexture("s_diffuseMap", &(_material->someTexture));
-		SetTexture("s_smudgeData", &(_geometry->SmudgeDataRead()));
 
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
@@ -63,6 +62,7 @@ namespace bento
 		SetUniform("u_moltenColor", _material->moltenColor);
 		SetUniform("u_moltenAlphaScalar", _material->moltenMapAlphaScalar);
 		SetUniform("u_moltenAlphaPower", _material->moltenMapAlphaPower);
+		SetUniform("u_mapHeightOffset", _material->moltenMapOffset);
 
 		SetUniform("u_dirtColor", _material->dirtColor);
 	}

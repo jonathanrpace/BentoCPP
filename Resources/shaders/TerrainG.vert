@@ -115,6 +115,7 @@ uniform float u_rockRoughnessA;
 uniform float u_rockRoughnessB;
 uniform float u_rockFresnelA;
 uniform float u_rockFresnelB;
+uniform float u_moltenMapOffset;
 
 uniform vec3 u_hotRockColorA;
 uniform vec3 u_hotRockColorB;
@@ -140,7 +141,6 @@ uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_diffuseMap;
-uniform sampler2D s_smudgeData;
 uniform sampler2D s_moltenMapData;
 
 ////////////////////////////////////////////////////////////////
@@ -211,13 +211,9 @@ void main(void)
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
 	
-	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
-	vec2 smudgeUV = smudgeDataC.xy;
-	vec4 moltenMapData = texture( s_moltenMapData, in_uv - smudgeUV * 0.1 );
-	
 	vec3 rockNormal = vec3(0.0);
 	float strength = 1.0;
-	for ( int i = 1; i < 5; i++ )
+	for ( int i = 1; i < 4; i++ )
 	{
 		vec4 normalData = textureLod(s_normalData, in_uv, i);
 		rockNormal += reconstructNormal(normalData.zw) * strength;
@@ -232,16 +228,14 @@ void main(void)
 	float waterHeight = heightDataC.w;
 	float heat = miscDataC.x;
 	float occlusion = 1.0f - miscDataC.w;
-	float moltenMapValue = moltenMapData.x;
+	float moltenMapValue = clamp(miscDataC.y, 0.0, 1.0);
 	vec3 viewDir = normalize(u_cameraPos);
 
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += rockHeight;
 	position.y += moltenHeight;
 	position.y += dirtHeight;
-
-	float moltenMapScalar = (1.0 - min(heat, 1.0)) * 0.003; // TODO share values with normal calculation in UpdateData
-	position.y += moltenMapValue * moltenMapScalar;
+	position.y += moltenMapValue * u_mapHeightOffset;
 
 	vec4 viewPosition = position * u_modelViewMatrix;
 
@@ -264,7 +258,8 @@ void main(void)
 
 	// Dirt
 	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));
-	diffuse = mix( rockDiffuse, dirtDiffuse, smoothstep(0.0, 0.01, dirtHeight) );
+	float dirtAlpha = clamp((dirtHeight / 0.01) - (moltenMapValue * 0.02), 0.0, 1.0);
+	diffuse = mix(diffuse, dirtDiffuse, dirtAlpha);
 
 	// Direct light
 	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
