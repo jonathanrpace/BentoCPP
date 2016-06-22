@@ -55,7 +55,7 @@ void main(void)
 	}
 	else
 	{
-		float lifeFrames = mix( 50, 100, in_properties.z );
+		float lifeFrames = mix( 100, 200, in_properties.z );
 		life -= (1.0/lifeFrames);
 		life = max(0,life);
 	}

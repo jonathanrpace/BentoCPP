@@ -83,7 +83,10 @@ namespace bento
 	void TerrainWaterPass::Advance(double _dt)
 	{
 		//glEnable(GL_POLYGON_OFFSET_FILL);
-		glPolygonOffset( 5.0f, 0.0f );
+		//glPolygonOffset( 5.0f, 0.0f );
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_FALSE);
 
 		m_shader.BindPerPass();
 		for (auto node : m_nodeGroup.Nodes())
@@ -92,12 +95,16 @@ namespace bento
 			
 			node->geom->Bind();
 
+			
+
 			m_shader.VertexShader().BindPerModel(node->geom, node->material);
 			m_shader.FragmentShader().BindPerModel(node->geom, node->material);
 
 			node->geom->Draw();
 		}
 
-		glDisable(GL_POLYGON_OFFSET_FILL);
+		glDepthMask(GL_TRUE);
+
+		//glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 }

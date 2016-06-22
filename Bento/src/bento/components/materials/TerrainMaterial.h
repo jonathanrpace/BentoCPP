@@ -28,6 +28,7 @@ namespace bento
 		// Textures
 		TextureSquare someTexture;
 		TextureSquare moltenPlatesTexture;
+		TextureSquare steamTexture;
 
 		// Rock
 		vec3 rockColorA;

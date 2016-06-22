@@ -9,9 +9,21 @@
 #include <bento/components/geom/FoamParticleGeom.h>
 #include <bento/components/Transform.h>
 #include <bento/components/materials/TerrainMaterial.h>
+#include <bento/components/geom/FoamParticleGeom.h>
+#include <bento/render/shaders/NullFrag.h>
 
 namespace bento
 {
+	struct FoamParticleUpdateVert : ShaderStageBase
+	{
+		FoamParticleUpdateVert();
+		virtual void OnPreLink() override;
+	};
+
+	struct FoamParticleUpdateShader	: ShaderBase<FoamParticleUpdateVert, NullFrag> {};
+
+
+
 	struct TerrainFoamVert
 		: ShaderStageBase
 	{
@@ -24,10 +36,7 @@ namespace bento
 		struct TerrainFoamFrag();
 	};
 
-	struct TerrainFoamShader
-		: ShaderBase<TerrainFoamVert, TerrainFoamFrag>
-	{
-	};
+	struct TerrainFoamShader : ShaderBase<TerrainFoamVert, TerrainFoamFrag>	{};
 
 	DEFINE_NODE_4
 	(
@@ -51,5 +60,6 @@ namespace bento
 
 	private:
 		TerrainFoamShader m_shader;
+		FoamParticleUpdateShader m_foamParticleUpdateShader;
 	};
 }

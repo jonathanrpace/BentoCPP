@@ -23,18 +23,7 @@ UpdateTerrainDataFrag::UpdateTerrainDataFrag()
 DiffuseHeightFrag::DiffuseHeightFrag()
 	: ShaderStageBase("shaders/DiffuseHeight.frag")
 {}
-
-//////////////////////////////////////////////////////////////////////////
-FoamParticleUpdateVert::FoamParticleUpdateVert()
-	: ShaderStageBase("shaders/FoamParticleUpdate.vert", false)
-{}
-
-void FoamParticleUpdateVert::OnPreLink()
-{
-	const char * varyings[] = { "out_position", "out_velocity" };
-	GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
-}
-
+/*
 //////////////////////////////////////////////////////////////////////////
 FoamVert::FoamVert()
 	: ShaderStageBase("shaders/FoamParticle.vert", false)
@@ -44,7 +33,7 @@ FoamVert::FoamVert()
 FoamFrag::FoamFrag() 
 	: ShaderStageBase("shaders/FoamParticle.frag", false)
 {}
-
+*/
 //////////////////////////////////////////////////////////////////////////
 MoltenParticleUpdateVert::MoltenParticleUpdateVert()
 	: ShaderStageBase("shaders/MoltenParticleUpdate.vert", false)
@@ -74,15 +63,6 @@ MoltenMapFrag::MoltenMapFrag()
 TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	: Process(_name, typeid(TerrainSimulationProcess))
 	, SerializableBase("TerrainSimulationProcess")
-	, m_updateFluxShader()
-	, m_updateDataShader()
-	, m_foamParticleUpdateShader()
-	, m_moltenParticleUpdateShader()
-	, m_moltenMapShader()
-	, m_foamShader()
-	, m_diffuseHeightShader()
-	, m_screenQuadGeom()
-	, m_renderTargetByNodeMap()
 {
 	m_nodeGroup.NodeAdded += OnNodeAddedDelegate;
 	m_nodeGroup.NodeRemoved += OnNodeRemovedDelegate;
@@ -157,7 +137,7 @@ void TerrainSimulationProcess::Advance(double _dt)
 	for (auto node : m_nodeGroup.Nodes())
 	{
 		RenderTargetBase* renderTarget = m_renderTargetByNodeMap[node];
-		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->foamGeom), *(node->moltenParticleGeom));
+		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
 	}
 }
 
@@ -245,7 +225,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	TerrainGeometry & _geom, 
 	TerrainMaterial & _material, 
 	RenderTargetBase & _renderTarget,
-	FoamParticleGeom & _foamParticleGeom,
 	MoltenParticleGeom & _moltenParticleGeom
 )
 {
@@ -459,40 +438,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.SwapVelocityData();
 		_geom.SwapMiscData();
 		_geom.SwapSmudgeData();
-	}
-
-	// Update foam particles
-	{
-		glBindProgramPipeline(GL_NONE);
-
-		m_foamParticleUpdateShader.BindPerPass();
-			
-		if (_foamParticleGeom.Switch())
-		{
-			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _foamParticleGeom.TransformFeedbackObjB()));
-			GL_CHECK(glBindVertexArray(_foamParticleGeom.VertexArrayA()));
-		}
-		else
-		{
-			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _foamParticleGeom.TransformFeedbackObjA()));
-			GL_CHECK(glBindVertexArray(_foamParticleGeom.VertexArrayB()));
-		}
-
-		GL_CHECK(glBeginTransformFeedback(GL_POINTS));
-		GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
-
-		auto vertexShader = m_foamParticleUpdateShader.VertexShader();
-
-		vertexShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-		vertexShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
-
-		GL_CHECK(glDrawArrays(GL_POINTS, 0, _foamParticleGeom.NumParticles()));
-
-		GL_CHECK(glDisable(GL_RASTERIZER_DISCARD));
-		GL_CHECK(glEndTransformFeedback());
-		glUseProgram(GL_NONE);
-
-		_foamParticleGeom.Switch(!_foamParticleGeom.Switch());
 	}
 
 	// Update molten particles

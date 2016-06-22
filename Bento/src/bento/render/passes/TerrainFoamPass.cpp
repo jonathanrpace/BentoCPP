@@ -18,6 +18,20 @@
 namespace bento
 {
 	////////////////////////////////////////////
+	// Update shader
+	////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////
+	FoamParticleUpdateVert::FoamParticleUpdateVert()
+		: ShaderStageBase("shaders/FoamParticleUpdate.vert", false)
+	{}
+
+	void FoamParticleUpdateVert::OnPreLink()
+	{
+		const char * varyings[] = { "out_position", "out_velocity" };
+		GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
+	}
+
+	////////////////////////////////////////////
 	// Vertex shader
 	////////////////////////////////////////////
 
@@ -46,37 +60,79 @@ namespace bento
 
 	void TerrainFoamPass::Advance(double _dt)
 	{
-		m_shader.BindPerPass();
-
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDisable(GL_DEPTH_TEST);
-
-		glPointSize(1.0f);
-
 		for (auto node : m_nodeGroup.Nodes())
 		{
-			RenderParams::SetModelMatrix(node->transform->matrix);
+			TerrainGeometry& terrainGeom = *(node->geom);
+			FoamParticleGeom& particleGeom = *(node->foamGeom);
+			TerrainMaterial& material = *(node->material);
 
-			GLuint vertexArray = node->foamGeom->Switch() ? node->foamGeom->VertexArrayA() : node->foamGeom->VertexArrayB();
+			// Update
+			{
+				glBindProgramPipeline(GL_NONE);
 
-			GL_CHECK(glBindVertexArray(vertexArray));
+				m_foamParticleUpdateShader.BindPerPass();
+			
+				if (particleGeom.Switch())
+				{
+					GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, particleGeom.TransformFeedbackObjB()));
+					GL_CHECK(glBindVertexArray(particleGeom.VertexArrayA()));
+				}
+				else
+				{
+					GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, particleGeom.TransformFeedbackObjA()));
+					GL_CHECK(glBindVertexArray(particleGeom.VertexArrayB()));
+				}
 
-			m_shader.BindPerPass();
-			m_shader.VertexShader().SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
+				GL_CHECK(glBeginTransformFeedback(GL_POINTS));
+				GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
 
-			m_shader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(node->material->lightAltitude, node->material->lightAzimuth)));
-			m_shader.VertexShader().SetUniform("u_lightIntensity", node->material->directLightIntensity);
-			m_shader.VertexShader().SetUniform("u_ambientLightIntensity", node->material->ambientLightIntensity);
+				auto vertexShader = m_foamParticleUpdateShader.VertexShader();
 
-			//glEnable(GL_PROGRAM_POINT_SIZE);
-			GL_CHECK(glDrawArrays(GL_POINTS, 0, node->foamGeom->NumParticles()));
-			//glDisable(GL_PROGRAM_POINT_SIZE);
+				vertexShader.SetTexture("s_heightData", &terrainGeom.HeightDataRead());
+				vertexShader.SetTexture("s_velocityData", &terrainGeom.VelocityDataRead());
 
-			glBindVertexArray(GL_NONE);
+				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
+
+				GL_CHECK(glDisable(GL_RASTERIZER_DISCARD));
+				GL_CHECK(glEndTransformFeedback());
+				glUseProgram(GL_NONE);
+
+				particleGeom.Switch(!particleGeom.Switch());
+			}
+
+			// Draw
+			{
+				m_shader.BindPerPass();
+
+				glEnable(GL_BLEND);
+				glBlendEquation(GL_FUNC_ADD);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				glEnable(GL_DEPTH_TEST);
+				glDepthMask(GL_FALSE);
+				glPointSize(1.0f);
+
+				RenderParams::SetModelMatrix(node->transform->matrix);
+
+				GLuint vertexArray = particleGeom.Switch() ? particleGeom.VertexArrayA() : particleGeom.VertexArrayB();
+
+				GL_CHECK(glBindVertexArray(vertexArray));
+
+				m_shader.BindPerPass();
+				m_shader.VertexShader().SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
+
+				m_shader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
+				m_shader.VertexShader().SetUniform("u_lightIntensity", material.directLightIntensity);
+				m_shader.VertexShader().SetUniform("u_ambientLightIntensity", material.ambientLightIntensity);
+
+				//glEnable(GL_PROGRAM_POINT_SIZE);
+				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
+				//glDisable(GL_PROGRAM_POINT_SIZE);
+
+				glBindVertexArray(GL_NONE);
+				glEnable(GL_DEPTH_TEST);
+				glDepthMask(GL_TRUE);
+				glDisable(GL_BLEND);
+			}
 		}
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
 	}
 }

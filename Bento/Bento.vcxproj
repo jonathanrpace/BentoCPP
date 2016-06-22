@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\bento\components\geom\MoltenParticleGeom.h" />
+    <ClInclude Include="src\bento\components\geom\SteamParticleGeom.h" />
     <ClInclude Include="src\bento\components\PerspectiveLens.h" />
     <ClInclude Include="src\bento\components\Transform.h" />
     <ClInclude Include="src\bento\core\DefaultsManager.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="src\bento\core\SerializableBase.h" />
     <ClInclude Include="src\bento\render\DefaultRenderer.h" />
     <ClInclude Include="src\bento\render\passes\MoltenParticlePass.h" />
+    <ClInclude Include="src\bento\render\passes\TerrainSteamPass.h" />
     <ClInclude Include="src\bento\render\RenderParams.h" />
     <ClInclude Include="src\bento\core\RenderPhase.h" />
     <ClInclude Include="src\bento\core\RenderTargetBase.h" />
@@ -212,12 +214,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\bento\components\geom\MoltenParticleGeom.cpp" />
+    <ClCompile Include="src\bento\components\geom\SteamParticleGeom.cpp" />
     <ClCompile Include="src\bento\core\DefaultsManager.cpp" />
     <ClCompile Include="src\bento\components\geom\FoamParticleGeom.cpp" />
     <ClCompile Include="src\bento\core\SerializableBase.cpp" />
     <ClCompile Include="src\bento\render\DefaultRenderer.cpp" />
     <ClCompile Include="src\bento\render\passes\MoltenParticlePass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainFoamPass.cpp" />
+    <ClCompile Include="src\bento\render\passes\TerrainSteamPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainWaterPass.cpp" />
     <ClCompile Include="src\bento\util\FileUtil.cpp" />
     <ClCompile Include="src\bento\util\Rand.cpp" />

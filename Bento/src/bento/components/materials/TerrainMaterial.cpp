@@ -9,10 +9,12 @@ namespace bento
 		, SerializableBase("TerrainMaterial")
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR)
 		, moltenPlatesTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
 		moltenPlatesTexture.TexImage2D("textures/MoltenPlates.png");
+		steamTexture.TexImage2D("textures/Steam.png");
 
 		// Rock
 		SerializableMember("rockColorA", vec3(0.1f, 0.1f, 0.1f), &rockColorA);

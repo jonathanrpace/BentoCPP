@@ -344,12 +344,11 @@ void main(void)
 		float heat = out_miscData.x;
 		float waterToBoilOff = min(waterHeight, max(heat-u_rockMeltingPoint, 0.0) * u_boilSpeed);
 		waterHeight -= waterToBoilOff;
-
 		float moltenHeight = out_heightData.y;
 		heat -= min( heat, (waterToBoilOff / (1.0+moltenHeight)) * 10.0 );
-
 		out_heightData.w = waterHeight;
 		out_miscData.x = heat;
+		out_smudgeData.z += waterToBoilOff * 100.0;
 
 		////////////////////////////////////////////////////////////////
 		// Wave noise
@@ -469,6 +468,11 @@ void main(void)
 
 		out_heightData.x += dirtToMolten;
 		out_heightData.z -= dirtToMolten;
+
+		out_smudgeData.z += dirtToMolten * 100.0;
+
+		// Dampen the amount of steam
+		out_smudgeData.z *= 0.997;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////

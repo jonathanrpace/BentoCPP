@@ -24,7 +24,7 @@ namespace bento
 		SetTexture("s_velocityData", &(_geometry->RockFluxDataRead()));
 		SetTexture("s_miscData", &(_geometry->MiscDataRead()));
 		SetTexture("s_normalData", &(_geometry->NormalDataRead()));
-		SetTexture("s_moltenMapData", &(_geometry->MoltenMapDataRead()));
+		SetTexture("s_smudgeData", &(_geometry->SmudgeDataRead()));
 		SetTexture("s_diffuseMap", &(_material->someTexture));
 
 		// Matrices

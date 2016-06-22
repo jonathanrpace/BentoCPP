@@ -141,7 +141,7 @@ uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_diffuseMap;
-uniform sampler2D s_moltenMapData;
+uniform sampler2D s_smudgeData;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -210,6 +210,7 @@ void main(void)
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
+	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	
 	vec3 rockNormal = vec3(0.0);
 	float strength = 1.0;
@@ -230,6 +231,7 @@ void main(void)
 	float occlusion = 1.0f - miscDataC.w;
 	float moltenMapValue = clamp(miscDataC.y, 0.0, 1.0);
 	vec3 viewDir = normalize(u_cameraPos);
+	float steamStrength = smudgeDataC.z;
 
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += rockHeight;
@@ -276,6 +278,8 @@ void main(void)
 	outColor *= pow( clamp(1.0 - emissiveAlpha, 0.0, 1.0), 4.0 );
 	outColor = mix( outColor, emissiveColor, emissiveAlpha );
 
+	//outColor = mix( outColor, vec3(0.0,1.0,0.0), pow(steamStrength, 2.2) );
+	
 	// Fog
 	{
 		mat4 invViewMatrix = inverse(u_viewMatrix);
