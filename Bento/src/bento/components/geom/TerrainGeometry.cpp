@@ -5,6 +5,7 @@
 #include <bento.h>
 #include <imgui.h>
 
+#include <bento/util/Rand.h>
 #include <bento/util/TextureUtil.h>
 
 namespace bento
@@ -90,6 +91,7 @@ namespace bento
 
 		SetVertexFormatf(0, 3);	// Position;
 		SetVertexFormatf(1, 2);	// UV;
+		SetVertexFormatf(2, 4);	// Rand;
 
 		glBindVertexArray(0);
 
@@ -99,9 +101,11 @@ namespace bento
 
 		std::vector<float> positions(m_numVertices * 3);
 		std::vector<float> uvs(m_numVertices * 2);
+		std::vector<float> heightData(m_numVertices * 4);
+		std::vector<float> randData(m_numVertices * 4);
 		std::vector<int> indices(m_numIndices);
 
-		std::vector<float> heightData(m_numVertices * 4);
+		
 		//std::vector<float> fluxData(m_numVertices * 4);
 		//std::vector<float> mappingData(m_numVertices * 4);
 
@@ -144,6 +148,12 @@ namespace bento
 				heightData[float4Index + 1] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 2] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 3] = 0.0f;// (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.001f;
+
+				randData[float4Index + 0] = Rand();
+				randData[float4Index + 1] = Rand();
+				randData[float4Index + 2] =	Rand();
+				randData[float4Index + 3] =	Rand();
+
 				/*
 				fluxData[float4Index + 0] = 0.0f;
 				fluxData[float4Index + 1] = 0.0f;
@@ -261,6 +271,7 @@ namespace bento
 
 		BufferVertexData(0, &positions[0], positions.size());
 		BufferVertexData(1, &uvs[0], uvs.size());
+		BufferVertexData(2, &randData[0], randData.size());
 		BufferIndexData(0, &indices[0], indices.size());
 	}
 

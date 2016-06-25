@@ -23,17 +23,7 @@ UpdateTerrainDataFrag::UpdateTerrainDataFrag()
 DiffuseHeightFrag::DiffuseHeightFrag()
 	: ShaderStageBase("shaders/DiffuseHeight.frag")
 {}
-/*
-//////////////////////////////////////////////////////////////////////////
-FoamVert::FoamVert()
-	: ShaderStageBase("shaders/FoamParticle.vert", false)
-{}
 
-//////////////////////////////////////////////////////////////////////////
-FoamFrag::FoamFrag() 
-	: ShaderStageBase("shaders/FoamParticle.frag", false)
-{}
-*/
 //////////////////////////////////////////////////////////////////////////
 MoltenParticleUpdateVert::MoltenParticleUpdateVert()
 	: ShaderStageBase("shaders/MoltenParticleUpdate.vert", false)
@@ -372,6 +362,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		_geom.HeightDataWrite().GenerateMipMaps();
 		_geom.NormalDataWrite().GenerateMipMaps();
+		_geom.MiscDataWrite().GenerateMipMaps();
 
 		_geom.SwapHeightData();
 		_geom.SwapVelocityData();
@@ -411,6 +402,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		m_screenQuadGeom.Draw();
 
 		_geom.HeightDataWrite().GenerateMipMaps();
+		_geom.MiscDataWrite().GenerateMipMaps();
+
 		_geom.SwapHeightData();
 		_geom.SwapVelocityData();
 		_geom.SwapMiscData();
@@ -434,6 +427,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		m_screenQuadGeom.Draw();
 
 		_geom.HeightDataWrite().GenerateMipMaps();
+		_geom.MiscDataWrite().GenerateMipMaps();
+
 		_geom.SwapHeightData();
 		_geom.SwapVelocityData();
 		_geom.SwapMiscData();

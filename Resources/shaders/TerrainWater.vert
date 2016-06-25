@@ -7,6 +7,7 @@
 // Attributes
 layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec2 in_uv;
+layout(location = 2) in vec4 in_rand;
 
 // Textures
 uniform sampler2D s_heightData;
@@ -24,6 +25,7 @@ uniform float u_waterHeightToOpaque = 0.005;
 uniform float u_fresnelPower = 4.0f;
 uniform float u_specularPower;
 uniform vec3 u_dirtColor;
+const float u_terrainSize = 1.5;
 
 // Lighting
 uniform vec3 u_lightDir;
@@ -129,13 +131,14 @@ void main(void)
 		out_reflections = vec3(0.0);
 
 		vec3 eye = -normalize( viewPosition.xyz * mat3(u_viewMatrix) );
+		vec3 reflectVec = reflect(-eye, normal);
 
 		// Specular
 		vec3 waterSpecular = vec3( specular( normal, u_lightDir, -eye, u_specularPower ) * u_lightIntensity );
 		out_reflections += waterSpecular * 0.5;
 
 		// Sky
-		float skyReflect = clamp( (dot(reflect(-eye, normal), vec3(0.0,1.0,0.0)) + 1.0) * 0.5, 0.0, 1.0 );
+		float skyReflect = clamp( (dot(reflectVec, vec3(0.0,1.0,0.0)) + 1.0) * 0.5, 0.0, 1.0 );
 		out_reflections += skyReflect * 0.5;
 
 		// Fresnel
@@ -143,7 +146,53 @@ void main(void)
 		fresnel = pow( fresnel, u_fresnelPower );
 		fresnel = mix( 0.02, 1.0, fresnel );
 
+		// Specular occlusion
+		const int maxSteps = 16;
+		const float minStepLength = (1.0 / 1024.0);
+
+		vec3 occlusionPos = position.xyz;
+		float stepLength = (u_terrainSize / maxSteps) * 0.5;	// Walk at most, a quarter the size of the terrain
+		float occlusion = 0.0;
+		bool binaryChopping = false;
+
+		// Jitter
+		vec3 randomDirection = normalize( vec3( in_rand.xyz - 0.5 ) );
+		reflectVec += randomDirection * 0.03;
+
+		for ( int i = 0; i < maxSteps; i++ )
+		{
+			occlusionPos += reflectVec * stepLength;
+
+			vec2 sampleUV = (occlusionPos.xz + (u_terrainSize*0.5)) / u_terrainSize;
+
+			if ( sampleUV.x < 0.0 )	break;
+			if ( sampleUV.x > 1.0 )	break;
+			if ( sampleUV.y < 0.0 )	break;
+			if ( sampleUV.y > 1.0 )	break;
+
+			vec4 heightSample = textureLod(s_heightData, sampleUV, 1);
+			float terrainHeightAtSample = heightSample.x + heightSample.y + heightSample.z;
+
+			if ( terrainHeightAtSample > occlusionPos.y )
+			{
+				if ( i == (maxSteps-1) || stepLength <= minStepLength )
+				{
+					occlusion = 1.0;
+					break;
+				}
+
+				binaryChopping = true;
+				occlusionPos -= reflectVec * stepLength;
+			}
+
+			if ( binaryChopping )
+			{
+				stepLength *= 0.5;
+			}
+		}
+
 		out_reflections *= fresnel;
 		out_reflections *= alpha;
+		out_reflections *= 1.0-occlusion;
 	}
 } 

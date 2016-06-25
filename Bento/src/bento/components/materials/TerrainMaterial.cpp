@@ -7,9 +7,9 @@ namespace bento
 	TerrainMaterial::TerrainMaterial(std::string _name)
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
-		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR)
+		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, moltenPlatesTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");

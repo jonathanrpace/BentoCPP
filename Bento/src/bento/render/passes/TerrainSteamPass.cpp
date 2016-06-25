@@ -120,6 +120,14 @@ namespace bento
 				m_drawShader.BindPerPass();
 				m_drawShader.VertexShader().SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 
+				m_drawShader.VertexShader().SetUniform("u_cameraPos", RenderParams::CameraPosition());
+				m_drawShader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
+
+				m_drawShader.VertexShader().SetTexture("s_miscData", &terrainGeom.MiscDataRead());
+
+
+				m_drawShader.FragmentShader().SetUniform("u_moltenColor", material.moltenColor);
+
 				m_drawShader.FragmentShader().SetTexture("s_texture", &material.steamTexture);
 
 				//m_drawShader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));

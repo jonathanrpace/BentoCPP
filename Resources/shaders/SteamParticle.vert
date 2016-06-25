@@ -8,6 +8,12 @@ layout(location = 2) in vec4 in_properties;
 // Uniforms
 uniform mat4 u_mvpMatrix;
 uniform float u_terrainSize = 1.5;
+uniform vec3 u_cameraPos;
+uniform vec3 u_lightDir;
+
+uniform sampler2D s_miscData;
+
+const float PI_2 = 3.142 * 2.0;
 
 // Outputs
 out gl_PerVertex 
@@ -23,10 +29,15 @@ out Varying
 	float out_life;
 	float out_alpha;
 	float out_offset;
+	float out_heat;
+	float out_translucency;
 };
 
 void main(void)
 {
+	vec4 miscData = textureLod( s_miscData, in_position.xz, 3 );
+	out_heat = miscData.x;
+
 	vec4 position = in_position;
 	position.xz *= u_terrainSize;
 	position.xz -= u_terrainSize*0.5;
@@ -36,25 +47,21 @@ void main(void)
 
 	gl_Position = screenPos;
 
+	vec3 eyeVec = normalize( position.xyz - u_cameraPos );
+
+	out_translucency = pow( max( dot(eyeVec, u_lightDir), 0.0 ), 2.0 );
+
 	float life = in_velocity.w;
-	float lifeAlpha = pow( min( (1.0-life)/0.2, 1.0 ) * life, 0.75 );
+	float lifeAlpha = pow(life, 0.5);
 	
-	lifeAlpha = min(lifeAlpha, 1.0);
-	//float lifeAlpha = sin(life*3.142);
-	
-	if ( life <= 0.0 )
+	if ( life <= 0.0 || life > 1.0 )
 		gl_PointSize = 0.0;
 	else
-		gl_PointSize = 16 + 16 * mix( 2.0, 8.0, in_properties.z );
+		gl_PointSize = pow(1.0-life, 0.3) * mix(64, 100, in_properties.z);
 
 	out_color = vec4(vec3(1.0), lifeAlpha);
-
 	out_life = life;
-
-	const float PI_2 = 3.142 * 2.0;
-	out_angle = mix(0.0, PI_2, in_properties.z) + life * PI_2 * mix( 0.1, 0.3, in_properties.w );
-
+	out_angle = mix(0.0, PI_2, in_properties.z) + life * PI_2 * 0.2;
 	out_offset = life * mix( 0.6, 1.2, in_properties.w );
-
 	out_alpha = in_position.w;
 } 

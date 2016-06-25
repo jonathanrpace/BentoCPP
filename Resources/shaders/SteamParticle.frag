@@ -10,34 +10,58 @@ in Varying
 	float in_life;
 	float in_alpha;
 	float in_offset;
+	float in_heat;
+	float in_translucency;
 };
 
 uniform sampler2D s_texture;
 
+uniform vec3 u_moltenColor;
+
+
 void main(void)
 {
 	vec2 uv = gl_PointCoord;
-	
+	float cosAngle = cos(in_angle);
+	float sinAngle = sin(in_angle);
+
 	vec2 rotatedUV = uv;
 	rotatedUV -= vec2(0.5);
-	rotatedUV = vec2( rotatedUV.x * cos(in_angle) - rotatedUV.y * sin(in_angle),
-					  rotatedUV.x * sin(in_angle) + rotatedUV.y * cos(in_angle) );
+	rotatedUV = vec2( rotatedUV.x * cosAngle - rotatedUV.y * sinAngle,
+					  rotatedUV.x * sinAngle + rotatedUV.y * cosAngle );
 	rotatedUV += vec2(0.5);
 
-	vec4 textureSampleA = texture(s_texture, rotatedUV);
-	float textureAlpha = textureSampleA.x;
+	vec4 textureSample = texture(s_texture, rotatedUV);
 
-	float alpha = (textureAlpha - (1.0-in_color.w) * 0.5) * in_color.w;
+	float density = textureSample.b;
+	float ao = textureSample.a;
+	float lifeAlpha = in_color.w;
+
+	float alpha = density * lifeAlpha * in_alpha;
 
 	if ( alpha <= 0.0 )
 		discard;
 
-	vec2 offsetUV = uv;
-	offsetUV -= vec2(-in_offset * 0.5, in_offset);
-	vec4 textureSampleB = texture(s_texture, offsetUV);
-	alpha *= textureSampleB.y;
+	vec3 normal = vec3(textureSample.r, textureSample.g, 0.0);
+	normal.z = 1.0 - length(normal);
+	normal.xy = vec2( normal.x * cosAngle - normal.y * sinAngle,
+					  normal.x * sinAngle + normal.y * cosAngle );
 
-	alpha *= in_alpha;
 
-	out_fragColor = vec4(textureSampleB.yyy * 0.75 * (1.0-uv.yyy), alpha);
+	float lightFromSky = clamp( dot( normal, vec3(0.0, 1.0, 0.0) ), 0.0, 1.0 ) * 0.2;
+	float ambientLight = 0.2 * ao;
+
+	float emissiveAlpha = max(in_heat-0.3, 0.0);
+	vec3 emissiveColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, emissiveAlpha ), vec3(2.2) );
+
+	vec3 lightFromHeat = emissiveColor * clamp( dot( normal, vec3(0.0, -1.0, 0.0) ), 0.0, 1.0 ) * emissiveAlpha;
+
+
+	vec3 color = vec3( lightFromSky + lightFromHeat + ambientLight );
+
+	color += max(0.0, in_translucency - density);
+
+	out_fragColor = vec4( color, alpha );
+
+
 } 
