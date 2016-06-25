@@ -91,15 +91,22 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("erosionWaterDepthMin",	0.01f,		&m_erosionWaterDepthMin);
 	SerializableMember("erosionWaterDepthMax",	0.01f,		&m_erosionWaterDepthMax);
 	SerializableMember("erosionWaterSpeedMax",	0.01f,		&m_erosionWaterSpeedMax);
-
-
-	SerializableMember("dirtErodeSpeedMax",		1.0f,		&m_dirtErodeSpeedMax);
+	
 
 	SerializableMember("dirtTransportSpeed",	0.0f,		&m_dirtTransportSpeed);
-	SerializableMember("dirtPickupSpeed",		0.0f,		&m_dirtPickupSpeed);
+	SerializableMember("dirtPickupRate",		0.0f,		&m_dirtPickupRate);
+	SerializableMember("dirtPickupMinWaterSpeed",1.0f,		&m_dirtPickupMinWaterSpeed);
 	SerializableMember("dirtDepositSpeed",		0.0f,		&m_dirtDepositSpeed);
 	SerializableMember("dirtDiffuseStrength",	0.05f,		&m_dirtDiffuseStrength);
 	SerializableMember("waterDiffuseStrength",	0.00f,		&m_waterDiffuseStrength);
+
+	// Vegetation
+	//float m_vegMinDirt;
+	//float m_vegMaxDirt;
+	//float m_vegGrowthRate;
+	//float m_vegMinSlope;
+	//float m_vegMaxSlope;
+
 
 	// Global
 	SerializableMember("ambientTemperature",	0.05f,		&m_ambientTemperature);
@@ -174,7 +181,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
 	ImGui::SliderFloat("Viscosity", &m_waterViscosity, 0.01f, 0.5f);
 	ImGui::SliderFloat("EvapourationRate", &m_evapourationRate, 0.00f, 0.0001f, "%.8f");
-	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.0000005f, "%.8f");
+	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.000002f, "%.8f");
 	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 50.0f, "%.2f");
 	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.1f, 1.0f, "%.3f");
 	ImGui::SliderFloat("BoilSpeed", &m_boilSpeed, 0.0f, 0.001f, "%.4f");
@@ -186,13 +193,13 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("WaterDepthMin", &m_erosionWaterDepthMin, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("WaterDepthMax", &m_erosionWaterDepthMax, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("WaterSpeedMax", &m_erosionWaterSpeedMax, 0.0f, 0.1f, "%.3f");
+	ImGui::SliderFloat("DirtSmoothing", &m_dirtDiffuseStrength, 0.0f, 0.1f, "%.5f");
 
 	ImGui::Text("Dirt Transport");
+	ImGui::SliderFloat("PickupMinWaterSpeed", &m_dirtPickupMinWaterSpeed, 0.0f, 0.1f, "%.7f");
+	ImGui::SliderFloat("PickupRate", &m_dirtPickupRate, 0.0f, 0.0005f, "%.7f");
 	ImGui::SliderFloat("TransportSpeed", &m_dirtTransportSpeed, 0.0f, 1.0f, "%.5f");
-	ImGui::SliderFloat("DirtErodeSpeedMax", &m_dirtErodeSpeedMax, 0.0f, 1.0f);
-	ImGui::SliderFloat("PickupSpeed", &m_dirtPickupSpeed, 0.0f, 0.0001f, "%.7f");
 	ImGui::SliderFloat("DepositSpeed", &m_dirtDepositSpeed, 0.0f, 0.01f, "%.7f");
-	ImGui::SliderFloat("DirtSmoothing", &m_dirtDiffuseStrength, 0.0f, 0.1f, "%.5f");
 	ImGui::SliderFloat("DissolvedDirtSmoothing", &m_waterDiffuseStrength, 0.0f, 1.0f, "%.5f");
 	ImGui::Spacing();
 
@@ -328,22 +335,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		// Dirt transport
 		fragShader.SetUniform("u_dirtTransportSpeed",			m_dirtTransportSpeed);
-		fragShader.SetUniform("u_dirtPickupSpeed",				m_dirtPickupSpeed);
+		fragShader.SetUniform("u_dirtPickupMinWaterSpeed",		m_dirtPickupMinWaterSpeed);
+		fragShader.SetUniform("u_dirtPickupRate",				m_dirtPickupRate);
 		fragShader.SetUniform("u_dirtDepositSpeed",				m_dirtDepositSpeed);
-		fragShader.SetUniform("u_dirtErodeSpeedMax",			m_dirtErodeSpeedMax);
-
-		// Waves
-		//float phase = fmod((float)glfwGetTime()*_material.waveSpeed, 1.0f);
-		//phase *= 3.14159265359f * 2.0f;
-		//fragShader.SetUniform("u_wavePhase",					phase);
-		//fragShader.SetUniform("u_waveFrequency",				_material.waveFrequency);
-		//fragShader.SetUniform("u_waveFrequencyLacunarity",		_material.waveFrequencyLacunarity);
-		//fragShader.SetUniform("u_waveAmplitude",				_material.waveAmplitude);
-		//fragShader.SetUniform("u_waveAmplitudeLacunarity",		_material.waveAmplitudeLacunarity);
-		//fragShader.SetUniform("u_waveChoppy",					_material.waveChoppy);
-		//fragShader.SetUniform("u_waveChoppyEase",				_material.waveChoppyEase);
-		//fragShader.SetUniform("u_waveOctavesNum",				_material.waveOctavesNum);
-		//fragShader.SetUniform("u_waveDepthMax",					_material.waveDepthMax);
 
 		// Misc
 		fragShader.SetUniform("u_textureScrollSpeed",			m_textureScrollSpeed);
