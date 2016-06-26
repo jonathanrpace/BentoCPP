@@ -41,7 +41,6 @@ namespace bento
 
 		SetUniform("u_fogDensity", _material->fogDensity);
 		SetUniform("u_fogHeight", _material->fogHeight);
-		SetUniform("u_fogFalloff", _material->fogFalloff);
 		SetUniform("u_fogColorAway", _material->fogColorAway);
 		SetUniform("u_fogColorTowards", _material->fogColorTowards);
 
@@ -65,6 +64,9 @@ namespace bento
 		SetUniform("u_mapHeightOffset", _material->moltenMapOffset);
 
 		SetUniform("u_dirtColor", _material->dirtColor);
+
+		SetUniform("u_vegColor", _material->vegColor);
+		SetUniform("u_vegBump", _material->vegBump);
 	}
 
 	////////////////////////////////////////////

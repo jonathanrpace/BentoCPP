@@ -63,7 +63,7 @@ uniform float u_erosionMaxDepth;
 uniform float u_erosionWaterDepthMin;
 uniform float u_erosionWaterDepthMax;
 uniform float u_erosionWaterSpeedMax;
-uniform float u_rockToDirtRatio = 4.0;
+uniform float u_rockToDirtRatio = 1.5;
 
 // Dirt transport
 uniform float u_dirtTransportSpeed;
@@ -77,6 +77,7 @@ uniform float u_vegMaxDirt;
 uniform float u_vegMinSlope;
 uniform float u_vegMaxSlope;
 uniform float u_vegGrowthRate;
+uniform float u_vegBump;
 
 
 // Misc
@@ -163,9 +164,11 @@ void main(void)
 	vec4 miscDataU = texelFetch(s_miscData, texelCoordU, 0);
 	vec4 miscDataD = texelFetch(s_miscData, texelCoordD, 0);
 
+	vec4 normalDataC = texelFetch(s_normalData, texelCoordD, 0);
+
 	vec4 velocityDataC = texelFetch(s_velocityData, texelCoordC, 0);
 	vec4 smudgeDataC = texelFetch(s_smudgeData, texelCoordC, 0);
-
+	
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 
@@ -174,7 +177,7 @@ void main(void)
 	out_heightData = heightDataC;
 	out_velocityData = velocityDataC;
 	out_miscData = miscDataC;
-	out_normalData = vec4(0.0);
+	out_normalData = normalDataC;
 	out_smudgeData = smudgeDataC;
 
 	////////////////////////////////////////////////////////////////
@@ -222,12 +225,11 @@ void main(void)
 
 		// Add some lava near the mouse
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv-mousePos);
-
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
 		float heightMin = 1.0 - min( 0.1 + heat * 3.0, 1.0 );
 		heat   += ( pow(mouseRatio, 4.0) * u_mouseMoltenHeatStrength   * mix(0.0, 1.0, mouseTextureScalar) ) / (1.0+heat*20.0);
-		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(0.0, 1.0, mouseTextureScalar2) ) / (1.0+height);
+		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(0.8, 1.0, mouseTextureScalar2) ) / (1.0+height);
 
 		heat = max(0.0, heat);
 
@@ -410,6 +412,8 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	// Rock normal
 	//////////////////////////////////////////////////////////////////////////////////
+	vec3 rockNormal;
+	vec3 rockNormalSansVeg;
 	{
 		vec2 texelSize = vec2(1.0) / vec2(textureSize(s_moltenMapData, 0));
 
@@ -419,17 +423,23 @@ void main(void)
 		vec2 uvU = in_uv - vec2(0.0, texelSize.y);
 		vec2 uvD = in_uv + vec2(0.0, texelSize.y);
 
-		vec2 smudgeDataC = out_smudgeData.xy;
-		vec2 smudgeDataL = texture(s_smudgeData, uvL).xy;
-		vec2 smudgeDataR = texture(s_smudgeData, uvR).xy;
-		vec2 smudgeDataU = texture(s_smudgeData, uvU).xy;
-		vec2 smudgeDataD = texture(s_smudgeData, uvD).xy;
+		vec4 smudgeDataC = out_smudgeData;
+		vec4 smudgeDataL = texture(s_smudgeData, uvL);
+		vec4 smudgeDataR = texture(s_smudgeData, uvR);
+		vec4 smudgeDataU = texture(s_smudgeData, uvU);
+		vec4 smudgeDataD = texture(s_smudgeData, uvD);
 
-		float moltenMapC = texture(s_moltenMapData, uvC - smudgeDataC * 0.1).x;
-		float smudgeScalar = min( 1.0, length(smudgeDataC) / 0.1 );
-		float heat = miscDataC.x;
-		float moltenMapScalarC = 1.0;//(1.0 - min(heat, 1.0)) * smudgeScalar;
-		float moltenMapResultC = moltenMapC * moltenMapScalarC;
+		float strength = 1.0;
+		float totalStrength = 0.0;
+		float moltenMapResultC = 0.0;
+		for ( int i = 0; i < 6; i++ )
+		{
+			moltenMapResultC += textureLod(s_moltenMapData, uvC - smudgeDataC.xy * 0.1, i).x * strength;
+
+			totalStrength += strength;
+			strength *= 0.25;
+		}
+		moltenMapResultC /= totalStrength;
 
 		float moltenMapResultL = miscDataL.y;
 		float moltenMapResultR = miscDataR.y;
@@ -444,10 +454,49 @@ void main(void)
 		
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
-		vec3 rockNormal = -cross(va,vb);
+		rockNormalSansVeg = -cross(va,vb);
+
+		heightC += smudgeDataC.w * u_vegBump;
+		heightR += smudgeDataR.w * u_vegBump;
+		heightL += smudgeDataL.w * u_vegBump;
+		heightU += smudgeDataU.w * u_vegBump;
+		heightD += smudgeDataD.w * u_vegBump;
+
+		va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
+		vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
+		rockNormal = -cross(va,vb);
 
 		out_normalData.zw = rockNormal.xz;
 		out_miscData.y = moltenMapResultC;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Vegetation
+	////////////////////////////////////////////////////////////////
+	{
+		float vegAmount = out_smudgeData.w;
+
+		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv);
+
+		float slope = rockNormalSansVeg.y;
+		float slopeScalar = clamp((slope - u_vegMinSlope) / (u_vegMaxSlope-u_vegMinSlope), 0.0, 1.0);
+		slopeScalar = smoothstep( 0.0, 1.0, slopeScalar );
+
+		float dirtHeight = out_heightData.z;
+		float dirtScalar = clamp((dirtHeight - u_vegMinDirt) / (u_vegMaxDirt-u_vegMinDirt), 0.0, 1.0);
+
+		float waterHeight = out_heightData.w;
+		float waterScalar = 1.0 - min( waterHeight / 0.01, 1.0 );
+
+		float vegAmountTarget = slopeScalar * dirtScalar * waterScalar;
+		vegAmountTarget *= diffuseSampleC.y * 2.0;
+
+		vegAmountTarget = smoothstep( 0.0, 0.7, vegAmountTarget );
+
+		vegAmount += min(abs(vegAmountTarget-vegAmount), u_vegGrowthRate);
+		vegAmount = min( vegAmount, vegAmountTarget );
+
+		out_smudgeData.w = vegAmount;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -472,18 +521,21 @@ void main(void)
 		vec3 waterNormal = -cross(va,vb);
 		out_normalData.xy = waterNormal.xz;
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////
 	// Occlusion
 	//////////////////////////////////////////////////////////////////////////////////
 	{
 		float occlusion = 0.0f;
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z;
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset + smudgeDataC.w * u_vegBump;
 
 		for ( int i = 1; i < u_numHeightMips; i++ )
 		{
 			vec4 mippedHeightDataC = textureLod(s_heightData, in_uv, float(i));
-			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z;
+			vec4 mippedMiscDataC = textureLod(s_miscData, in_uv, float(i));
+			vec4 mippedSmudgeDataC = textureLod(s_smudgeData, in_uv, float(i));
+
+			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_mapHeightOffset + mippedSmudgeDataC.w * u_vegBump;
 			float diff = max(0.0f, mippedHeight - heightC);
 			float ratio = diff / u_cellSize.x;
 			float angle = atan(ratio);

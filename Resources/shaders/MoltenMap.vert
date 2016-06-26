@@ -37,7 +37,7 @@ void main(void)
 	alpha = clamp(alpha, 0.0, 1.0);
 	//alpha *= 0.2;
 
-	gl_PointSize = mix(16.0, 24.0, in_properties.w);
+	gl_PointSize = mix(8.0, 12.0, in_properties.w);
 
 	//out_color = vec4(vec3(in_properties.z), alpha);
 	out_color = vec4(vec3(1.0), alpha);

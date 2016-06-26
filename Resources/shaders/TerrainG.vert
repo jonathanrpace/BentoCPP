@@ -106,7 +106,6 @@ uniform vec3 u_fogColorAway;
 uniform vec3 u_fogColorTowards;
 uniform float u_fogHeight;
 uniform float u_fogDensity;
-uniform float u_fogFalloff;
 uniform vec3 u_cameraPos;
 
 uniform vec3 u_rockColorA;
@@ -129,6 +128,8 @@ uniform float u_moltenAlphaScalar;
 uniform float u_moltenAlphaPower;
 
 uniform vec3 u_dirtColor;
+uniform vec3 u_vegColor;
+uniform float u_vegBump;
 
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
@@ -211,6 +212,7 @@ void main(void)
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
+	vec4 diffuseData = texture(s_diffuseMap, in_uv);
 	
 	vec3 rockNormal = vec3(0.0);
 	float strength = 1.0;
@@ -227,6 +229,7 @@ void main(void)
 	float moltenHeight = heightDataC.y;
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
+	float vegAmount = smudgeDataC.w;
 	float heat = miscDataC.x;
 	float occlusion = 1.0f - miscDataC.w;
 	float moltenMapValue = clamp(miscDataC.y, 0.0, 1.0);
@@ -238,6 +241,7 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 	position.y += moltenMapValue * u_mapHeightOffset;
+	position.y += vegAmount * u_vegBump;
 
 	vec4 viewPosition = position * u_modelViewMatrix;
 
@@ -259,9 +263,16 @@ void main(void)
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
 
 	// Dirt
-	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));
+	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2)) * mix(0.0, 1.0, diffuseData.z);
 	float dirtAlpha = clamp((dirtHeight / 0.01) - (moltenMapValue * 0.02), 0.0, 1.0);
 	diffuse = mix(diffuse, dirtDiffuse, dirtAlpha);
+
+	// Vegetation
+	vec3 vegDiffuse = pow(u_vegColor, vec3(2.2)) * mix(0.0, 1.0, diffuseData.z);
+	float vegAlpha = clamp( vegAmount / 1.0, 0.0, 1.0 );
+	diffuse = mix(diffuse, vegDiffuse, vegAlpha);
+	roughness = mix( roughness, 0.7, vegAlpha );
+	fresnel = mix( fresnel, 0.9, vegAlpha );
 
 	// Direct light
 	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
@@ -283,8 +294,8 @@ void main(void)
 	// Fog
 	{
 		mat4 invViewMatrix = inverse(u_viewMatrix);
-		vec3 worldPosition = vec3( invViewMatrix * vec4(viewPosition.xyz,1) );
-		vec3 cameraRay = worldPosition-u_cameraPos;
+		vec3 worldPosition = position.xyz;// vec3( invViewMatrix * vec4(viewPosition.xyzw) );
+		vec3 cameraRay = position.xyz-u_cameraPos;
 		outColor = ApplyFog( outColor, u_cameraPos, worldPosition, u_lightDir );
 	}
 

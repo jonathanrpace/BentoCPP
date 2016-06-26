@@ -132,12 +132,13 @@ namespace bento
 		float m_erosionWaterDepthMax;
 		float m_erosionDirtDepthMax;
 
+		// Dirt transport
 		float m_dirtTransportSpeed;
 		float m_dirtPickupRate;
 		float m_dirtPickupMinWaterSpeed;
 		float m_dirtDepositSpeed;
 		float m_dirtDiffuseStrength;
-		float m_waterDiffuseStrength;
+		float m_dissolvedDirtSmoothing;
 
 		// Vegetation
 		float m_vegMinDirt;

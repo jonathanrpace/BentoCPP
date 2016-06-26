@@ -52,14 +52,17 @@ namespace bento
 		float moltenMapAlphaPower;
 		float moltenMapOffset; 
 
-		// Dir
+		// Dirt
 		vec3 dirtColor;
 
 		// Water
 		vec3 waterColor;
-		vec3 waterTranslucentColor;
 		float waterSpecularPower;
 		float waterIndexOfRefraction;
+
+		// Veg
+		vec3 vegColor;
+		float vegBump; 
 
 		// Lighting
 		float lightAzimuth;
@@ -70,7 +73,6 @@ namespace bento
 		// Fog
 		float fogDensity;
 		float fogHeight;
-		float fogFalloff;
 		vec3 fogColorAway;
 		vec3 fogColorTowards;
 	};

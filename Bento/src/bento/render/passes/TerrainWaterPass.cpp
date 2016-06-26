@@ -37,7 +37,6 @@ namespace bento
 		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
 
 		SetUniform("u_dirtColor", _material->dirtColor);
-		SetUniform("u_waterTranslucentColor", _material->waterTranslucentColor);
 		SetUniform("u_specularPower", _material->waterSpecularPower);
 
 		SetTexture("s_heightData", &(_geometry->HeightDataRead()));

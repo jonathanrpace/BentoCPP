@@ -40,12 +40,15 @@ namespace bento
 
 		// Water
 		SerializableMember("waterColor", vec3(0.219f, 0.286f, 0.278f), &waterColor);
-		SerializableMember("waterTranslucentColor", vec3(0.219f, 0.411f, 0.392f), &waterTranslucentColor);
 		SerializableMember("waterSpecularPower", 80.0f, &waterSpecularPower);
 		SerializableMember("waterIndexOfRefraction", 0.33f, &waterIndexOfRefraction);
 
 		// Dirt
 		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
+
+		// Veg
+		SerializableMember("vegColor", vec3(0.5, 0.5f, 0.5f), &vegColor);
+		SerializableMember("vegBump", 0.0f, &vegBump);
 
 		// Lighting
 		SerializableMember("lightAzimuth", 0.0f, &lightAzimuth);
@@ -58,7 +61,6 @@ namespace bento
 		SerializableMember("fogColorTowards", vec3(1.0f, 0.9f, 0.7f), &fogColorTowards);
 		SerializableMember("fogDensity", 0.2f, &fogDensity);
 		SerializableMember("fogHeight", 0.2f, &fogHeight);
-		SerializableMember("fogFalloff", 1.0f, &fogFalloff);
 
 		ResetToDefaults();
 	}
@@ -97,13 +99,18 @@ namespace bento
 		ImGui::Text("Water");
 		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 1.0f, 200.0f);
 		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.0f, 2.0f);
-		ImGui::ColorEdit3("WaterColor", glm::value_ptr(waterColor));
-		ImGui::ColorEdit3("WaterTranslucentColor", glm::value_ptr(waterTranslucentColor));
+		ImGui::ColorEdit3("Color##water", glm::value_ptr(waterColor));
 		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Text("Dirt");
-		ImGui::ColorEdit3("DirtColor", glm::value_ptr(dirtColor));
+		ImGui::ColorEdit3("Color##dirt", glm::value_ptr(dirtColor));
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::Text("Vegetation");
+		ImGui::ColorEdit3("Color##veg", glm::value_ptr(vegColor));
+		ImGui::SliderFloat("Bump##veg", &vegBump, 0.0f, 0.05f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -116,11 +123,10 @@ namespace bento
 
 		ImGui::Spacing();
 		ImGui::Text("Fog");
-		ImGui::SliderFloat("Density", &fogDensity, 0.0f, 100.0f);
-		ImGui::SliderFloat("Height", &fogHeight, 0.0f, 0.5f);
-		ImGui::SliderFloat("Falloff", &fogFalloff, 0.0f, 1000.0f);
-		ImGui::ColorEdit3("FogColorAway", glm::value_ptr(fogColorAway));
-		ImGui::ColorEdit3("FogColorTowards", glm::value_ptr(fogColorTowards));
+		ImGui::SliderFloat("Density", &fogDensity, 0.0f, 10.0f);
+		ImGui::SliderFloat("Height", &fogHeight, 0.0f, 1.0f);
+		ImGui::ColorEdit3("ColorAway##fog", glm::value_ptr(fogColorAway));
+		ImGui::ColorEdit3("ColorToward##fog", glm::value_ptr(fogColorTowards));
 		ImGui::Spacing();
 
 		if (ImGui::Button("Reset"))

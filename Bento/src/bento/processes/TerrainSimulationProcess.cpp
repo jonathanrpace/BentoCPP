@@ -92,20 +92,20 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("erosionWaterDepthMax",	0.01f,		&m_erosionWaterDepthMax);
 	SerializableMember("erosionWaterSpeedMax",	0.01f,		&m_erosionWaterSpeedMax);
 	
-
+	// Dirt transport
 	SerializableMember("dirtTransportSpeed",	0.0f,		&m_dirtTransportSpeed);
 	SerializableMember("dirtPickupRate",		0.0f,		&m_dirtPickupRate);
 	SerializableMember("dirtPickupMinWaterSpeed",1.0f,		&m_dirtPickupMinWaterSpeed);
 	SerializableMember("dirtDepositSpeed",		0.0f,		&m_dirtDepositSpeed);
 	SerializableMember("dirtDiffuseStrength",	0.05f,		&m_dirtDiffuseStrength);
-	SerializableMember("waterDiffuseStrength",	0.00f,		&m_waterDiffuseStrength);
+	SerializableMember("waterDiffuseStrength",	0.00f,		&m_dissolvedDirtSmoothing);
 
 	// Vegetation
-	//float m_vegMinDirt;
-	//float m_vegMaxDirt;
-	//float m_vegGrowthRate;
-	//float m_vegMinSlope;
-	//float m_vegMaxSlope;
+	SerializableMember("m_vegMinDirt",			0.001f,		&m_vegMinDirt);
+	SerializableMember("m_vegMaxDirt",			0.002f,		&m_vegMaxDirt);
+	SerializableMember("m_vegGrowthRate",		0.001f,		&m_vegGrowthRate);
+	SerializableMember("m_vegMinSlope",			0.1f,		&m_vegMinSlope);
+	SerializableMember("m_vegMaxSlope",			0.2f,		&m_vegMaxSlope);
 
 
 	// Global
@@ -200,8 +200,17 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("PickupRate", &m_dirtPickupRate, 0.0f, 0.0005f, "%.7f");
 	ImGui::SliderFloat("TransportSpeed", &m_dirtTransportSpeed, 0.0f, 1.0f, "%.5f");
 	ImGui::SliderFloat("DepositSpeed", &m_dirtDepositSpeed, 0.0f, 0.01f, "%.7f");
-	ImGui::SliderFloat("DissolvedDirtSmoothing", &m_waterDiffuseStrength, 0.0f, 1.0f, "%.5f");
+	ImGui::SliderFloat("DissolvedDirtSmoothing", &m_dissolvedDirtSmoothing, 0.0f, 1.0f, "%.5f");
 	ImGui::Spacing();
+
+	ImGui::Text("Vegetation");
+	ImGui::SliderFloat("MinDirt#veg", &m_vegMinDirt, 0.0f, 0.01f, "%.5f");
+	ImGui::SliderFloat("MaxDirt#veg", &m_vegMaxDirt, 0.0f, 0.01f, "%.5f");
+	ImGui::SliderFloat("MinSlope#veg", &m_vegMinSlope, 0.0f, 1.00f, "%.5f");
+	ImGui::SliderFloat("MaxSlope#veg", &m_vegMaxSlope, 0.0f, 1.00f, "%.5f");
+	ImGui::SliderFloat("GrowthRate#veg", &m_vegGrowthRate, 0.0f, 0.1f, "%.5f");
+	ImGui::Spacing();
+
 
 	if (ImGui::Button("Reset"))
 	{
@@ -339,6 +348,14 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_dirtPickupRate",				m_dirtPickupRate);
 		fragShader.SetUniform("u_dirtDepositSpeed",				m_dirtDepositSpeed);
 
+		// Vegetation
+		fragShader.SetUniform("u_vegMinDirt",					m_vegMinDirt);
+		fragShader.SetUniform("u_vegMaxDirt",					m_vegMaxDirt);
+		fragShader.SetUniform("u_vegMinSlope",					m_vegMinSlope);
+		fragShader.SetUniform("u_vegMaxSlope",					m_vegMaxSlope);
+		fragShader.SetUniform("u_vegGrowthRate",				m_vegGrowthRate);
+		fragShader.SetUniform("u_vegBump",						_material.vegBump);
+
 		// Misc
 		fragShader.SetUniform("u_textureScrollSpeed",			m_textureScrollSpeed);
 		fragShader.SetUniform("u_cycleSpeed",					m_textureCycleSpeed);
@@ -374,9 +391,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		// Shared Uniforms
 		fragShader.SetUniform("u_dirtDiffuseStrength", m_dirtDiffuseStrength);
-		fragShader.SetUniform("u_waterDiffuseStrength", m_waterDiffuseStrength);
+		fragShader.SetUniform("u_waterDiffuseStrength", m_dissolvedDirtSmoothing);
 		fragShader.SetUniform("u_heatDiffuseStrength", m_heatDiffuseStrength);
-		fragShader.SetUniform("u_dissolvedDirtDiffuseStrength", m_waterDiffuseStrength);
+		fragShader.SetUniform("u_dissolvedDirtDiffuseStrength", m_dissolvedDirtSmoothing);
 
 		// X Pass
 
@@ -493,6 +510,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		glDisable(GL_BLEND);
 		glDisable(GL_PROGRAM_POINT_SIZE);
 
+		_geom.MoltenMapDataWrite().GenerateMipMaps();
 		_geom.SwapMoltenMapData();
 	}
 }
