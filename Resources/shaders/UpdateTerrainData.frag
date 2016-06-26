@@ -71,16 +71,13 @@ uniform float u_dirtPickupMinWaterSpeed;
 uniform float u_dirtPickupRate;
 uniform float u_dirtDepositSpeed;
 
-// Waves
-uniform float u_wavePhase;
-uniform float u_waveFrequency;
-uniform float u_waveFrequencyLacunarity;
-uniform float u_waveAmplitude;
-uniform float u_waveAmplitudeLacunarity;
-uniform float u_waveChoppy;
-uniform float u_waveChoppyEase;
-uniform int u_waveOctavesNum;
-uniform float u_waveDepthMax;
+// Vegetation
+uniform float u_vegMinDirt;
+uniform float u_vegMaxDirt;
+uniform float u_vegMinSlope;
+uniform float u_vegMaxSlope;
+uniform float u_vegGrowthRate;
+
 
 // Misc
 uniform float u_textureScrollSpeed;
@@ -111,63 +108,6 @@ layout( location = 4 ) out vec4 out_smudgeData;
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////
-//
-float hash( vec2 p ) 
-{
-	float h = dot(p,vec2(127.1,311.7));	
-    return fract(sin(h)*43758.5453123);
-}
-
-////////////////////////////////////////////////////////////////
-//
-float noise( in vec2 p ) 
-{
-    vec2 i = floor( p );
-    vec2 f = fract( p );	
-	vec2 u = f*f*(3.0-2.0*f);
-	float ret = mix( mix( hash( i + vec2(0.0,0.0) ), hash( i + vec2(1.0,0.0) ), u.x),
-                     mix( hash( i + vec2(0.0,1.0) ), hash( i + vec2(1.0,1.0) ), u.x), u.y);
-	return -1.0+2.0*ret;
-}
-
-////////////////////////////////////////////////////////////////
-//
-float waveOctave(vec2 uv, float choppy)
-{
-    uv += noise(uv);        
-    vec2 wv = 1.0-abs(sin(uv));
-    vec2 swv = abs(cos(uv));    
-    wv = mix(wv,swv,wv);
-    return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
-}
-
-////////////////////////////////////////////////////////////////
-//
-mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
-float waveNoise(vec2 p) 
-{
-    float freq = u_waveFrequency;
-    float amp = 1.0;
-    float choppy = u_waveChoppy;
-    
-    float d;
-	float h = 0.0; 
-
-    for(int i = 0; i < u_waveOctavesNum; i++) 
-	{        
-    	d = waveOctave((p+u_wavePhase)*freq,choppy);
-    	d += waveOctave((p-u_wavePhase)*freq,choppy);
-        h += d * amp;
-    	p *= octave_m; 
-		freq *= u_waveFrequencyLacunarity;
-		amp *= u_waveAmplitudeLacunarity;
-        choppy = mix(choppy,1.0,u_waveChoppyEase);
-    }
-
-    return (h-0.5)*2.0;
-}
 
 ////////////////////////////////////////////////////////////////
 //

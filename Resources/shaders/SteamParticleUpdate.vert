@@ -41,7 +41,7 @@ void main(void)
 		{
 			position.xyz += velocity;
 			velocity += vec3( 0.0000006, 0.0, 0.0 );
-			velocity *= 0.995;
+			velocity *= 0.996;
 		}
 	}
 	else
@@ -67,8 +67,8 @@ void main(void)
 				float surfaceHeight = solidHeight + moltenHeight + dirtHeight + waterHeight;
 
 				position.y = surfaceHeight;
-				velocity = vec3( 0.0, mix( 0.0004, 0.0002, in_properties.z ), 0.0 );
-				position.w = min( spawnStrength * 2.0, 1.0 );
+				velocity = vec3( 0.0, mix( 0.0002, 0.0001, in_properties.z ), 0.0 );
+				position.w = spawnStrength;
 			}
 		}
 	}

@@ -59,7 +59,9 @@ void main(void)
 
 	vec3 color = vec3( lightFromSky + lightFromHeat + ambientLight );
 
-	color += max(0.0, in_translucency - density);
+	float translucentScalar = max( ((1.0-density) * in_alpha - 0.25) * 2.0, 0.0 );
+
+	color += max(0.0, in_translucency * translucentScalar );
 
 	out_fragColor = vec4( color, alpha );
 

@@ -57,7 +57,7 @@ void main(void)
 	if ( life <= 0.0 || life > 1.0 )
 		gl_PointSize = 0.0;
 	else
-		gl_PointSize = pow(1.0-life, 0.3) * mix(64, 100, in_properties.z);
+		gl_PointSize = pow(1.0-life, 0.3) * mix(96, 128, in_properties.z);
 
 	out_color = vec4(vec3(1.0), lifeAlpha);
 	out_life = life;
