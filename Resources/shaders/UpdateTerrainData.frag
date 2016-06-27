@@ -141,33 +141,44 @@ vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 flux
 }
 
 ////////////////////////////////////////////////////////////////
+//
+vec4 texelFetchC( sampler2D _sampler ) {
+	return texelFetch( _sampler, ivec2(gl_FragCoord.xy), 0 );
+}
+vec4 texelFetchL( sampler2D _sampler ) {
+	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(-1,0));
+}
+vec4 texelFetchR( sampler2D _sampler ) {
+	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(1,0));
+}
+vec4 texelFetchU( sampler2D _sampler ) {
+	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(0,-1));
+}
+vec4 texelFetchD( sampler2D _sampler ) {
+	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(0,1));
+}
+
+////////////////////////////////////////////////////////////////
 // Main
 ////////////////////////////////////////////////////////////////
 void main(void)
 { 
-	ivec2 texelCoordC = ivec2(gl_FragCoord.xy);
-	ivec2 texelCoordL = texelCoordC - ivec2(1,0);
-	ivec2 texelCoordR = texelCoordC + ivec2(1,0);
-	ivec2 texelCoordU = texelCoordC - ivec2(0,1);
-	ivec2 texelCoordD = texelCoordC + ivec2(0,1);
-
 	// Shared data samples
-	vec4 heightDataC = texelFetch(s_heightData, texelCoordC, 0);
-	vec4 heightDataL = texelFetch(s_heightData, texelCoordL, 0);
-	vec4 heightDataR = texelFetch(s_heightData, texelCoordR, 0);
-	vec4 heightDataU = texelFetch(s_heightData, texelCoordU, 0);
-	vec4 heightDataD = texelFetch(s_heightData, texelCoordD, 0);
+	vec4 heightDataC = texelFetchC(s_heightData);
+	vec4 heightDataL = texelFetchL(s_heightData);
+	vec4 heightDataR = texelFetchR(s_heightData);
+	vec4 heightDataU = texelFetchU(s_heightData);
+	vec4 heightDataD = texelFetchD(s_heightData);
 
-	vec4 miscDataC = texelFetch(s_miscData, texelCoordC, 0);
-	vec4 miscDataL = texelFetch(s_miscData, texelCoordL, 0);
-	vec4 miscDataR = texelFetch(s_miscData, texelCoordR, 0);
-	vec4 miscDataU = texelFetch(s_miscData, texelCoordU, 0);
-	vec4 miscDataD = texelFetch(s_miscData, texelCoordD, 0);
+	vec4 miscDataC = texelFetchC(s_miscData);
+	vec4 miscDataL = texelFetchL(s_miscData);
+	vec4 miscDataR = texelFetchR(s_miscData);
+	vec4 miscDataU = texelFetchU(s_miscData);
+	vec4 miscDataD = texelFetchD(s_miscData);
 
-	vec4 normalDataC = texelFetch(s_normalData, texelCoordD, 0);
-
-	vec4 velocityDataC = texelFetch(s_velocityData, texelCoordC, 0);
-	vec4 smudgeDataC = texelFetch(s_smudgeData, texelCoordC, 0);
+	vec4 normalDataC = texelFetchC(s_normalData);
+	vec4 velocityDataC = texelFetchC(s_velocityData);
+	vec4 smudgeDataC = texelFetchC(s_smudgeData);
 	
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
@@ -189,11 +200,11 @@ void main(void)
 
 		float viscosity = CalcMoltenViscosity(heat);
 
-		vec4 fluxC = texelFetch(s_rockFluxData, texelCoordC, 0);
-		vec4 fluxL = texelFetch(s_rockFluxData, texelCoordL, 0);
-		vec4 fluxR = texelFetch(s_rockFluxData, texelCoordR, 0);
-		vec4 fluxU = texelFetch(s_rockFluxData, texelCoordU, 0);
-		vec4 fluxD = texelFetch(s_rockFluxData, texelCoordD, 0);
+		vec4 fluxC = texelFetchC(s_rockFluxData);
+		vec4 fluxL = texelFetchL(s_rockFluxData);
+		vec4 fluxR = texelFetchR(s_rockFluxData);
+		vec4 fluxU = texelFetchU(s_rockFluxData);
+		vec4 fluxD = texelFetchD(s_rockFluxData);
 		vec4 fluxN = vec4(fluxL.y, fluxR.x, fluxU.w, fluxD.z);
 
 		// Update molten height based on flux
@@ -220,8 +231,7 @@ void main(void)
 		// Cooling
 		// Occluded areas cool slower
 		float occlusion = miscDataC.w;
-		float occlusionScalar = 1.0;//mix( 0.3, 1.0, clamp(1.0-occlusion, 0.0, 1.0) );
-		heat += (u_ambientTemp - heat) * u_tempChangeSpeed * occlusionScalar;
+		heat += (u_ambientTemp - heat) * u_tempChangeSpeed;
 
 		// Add some lava near the mouse
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv-mousePos);
@@ -265,11 +275,11 @@ void main(void)
 	{
 		float waterHeight = heightDataC.w;
 		
-		vec4 fluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
-		vec4 fluxL = texelFetch(s_waterFluxData, texelCoordL, 0);
-		vec4 fluxR = texelFetch(s_waterFluxData, texelCoordR, 0);
-		vec4 fluxU = texelFetch(s_waterFluxData, texelCoordU, 0);
-		vec4 fluxD = texelFetch(s_waterFluxData, texelCoordD, 0);
+		vec4 fluxC = texelFetchC(s_waterFluxData);
+		vec4 fluxL = texelFetchL(s_waterFluxData);
+		vec4 fluxR = texelFetchR(s_waterFluxData);
+		vec4 fluxU = texelFetchU(s_waterFluxData);
+		vec4 fluxD = texelFetchD(s_waterFluxData);
 		vec4 fluxN = vec4(fluxL.y, fluxR.x, fluxU.w, fluxD.z);
 
 		// Update water height based on flux
@@ -351,10 +361,10 @@ void main(void)
 		float dissolvedDirtU = miscDataU.z;
 		float dissolvedDirtD = miscDataD.z;
 
-		vec2 waterVelocityL = texelFetch(s_velocityData, texelCoordL, 0).zw;
-		vec2 waterVelocityR = texelFetch(s_velocityData, texelCoordR, 0).zw;
-		vec2 waterVelocityU = texelFetch(s_velocityData, texelCoordU, 0).zw;
-		vec2 waterVelocityD = texelFetch(s_velocityData, texelCoordD, 0).zw;
+		vec2 waterVelocityL = texelFetchL(s_velocityData).zw;
+		vec2 waterVelocityR = texelFetchR(s_velocityData).zw;
+		vec2 waterVelocityU = texelFetchU(s_velocityData).zw;
+		vec2 waterVelocityD = texelFetchD(s_velocityData).zw;
 
 		float transferedInL = min( max( waterVelocityL.x,0.0) * u_dirtTransportSpeed, dissolvedDirtL * 0.25 );
 		float transferedInR = min( max(-waterVelocityR.x,0.0) * u_dirtTransportSpeed, dissolvedDirtR * 0.25 );
