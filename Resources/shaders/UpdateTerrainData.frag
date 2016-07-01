@@ -237,9 +237,9 @@ void main(void)
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv-mousePos);
 		float mouseTextureScalar = diffuseSampleC.x;
 		float mouseTextureScalar2 = 1.0-diffuseSampleC.x;
-		float heightMin = 1.0 - min( 0.1 + heat * 3.0, 1.0 );
-		heat   += ( pow(mouseRatio, 4.0) * u_mouseMoltenHeatStrength   * mix(0.0, 1.0, mouseTextureScalar) ) / (1.0+heat*20.0);
-		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(0.8, 1.0, mouseTextureScalar2) ) / (1.0+height);
+		float heightMin = 1.0 - min( 0.5 + heat * 2.0, 1.0 );
+		heat   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.0, 1.0, mouseTextureScalar) ) / (1.0+heat*20.0);
+		height += ( pow(mouseRatio, 4.0) * u_mouseMoltenVolumeStrength * mix(heightMin, 1.0, mouseTextureScalar2) );// / (1.0+height);
 
 		heat = max(0.0, heat);
 
