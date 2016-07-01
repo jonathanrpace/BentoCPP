@@ -40,7 +40,7 @@ void main(void)
 		else
 		{
 			position.xyz += velocity;
-			velocity += vec3( 0.0000006, 0.0, 0.0 );
+			velocity += vec3( 0.0000006, 0.0, -0.0000006 );
 			velocity *= 0.996;
 		}
 	}
