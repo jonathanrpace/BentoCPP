@@ -24,25 +24,25 @@ namespace bento
 	{
 	}
 
-	void TerrainWaterVert::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
+	void TerrainWaterVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());
 
-		SetUniform("u_mapHeightOffset", _material->moltenMapOffset);
+		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
 
-		SetUniform("u_lightDir", -glm::euclidean(vec2(_material->lightAltitude, _material->lightAzimuth)));
-		SetUniform("u_lightIntensity", _material->directLightIntensity);
-		SetUniform("u_ambientLightIntensity", _material->ambientLightIntensity);
+		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
+		SetUniform("u_lightIntensity", _material.directLightIntensity);
+		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 
-		SetUniform("u_dirtColor", _material->dirtColor);
-		SetUniform("u_specularPower", _material->waterSpecularPower);
+		SetUniform("u_dirtColor", _material.dirtColor);
+		SetUniform("u_specularPower", _material.waterSpecularPower);
 
-		SetTexture("s_heightData", &(_geometry->HeightDataRead()));
-		SetTexture("s_velocityData", &(_geometry->VelocityDataRead()));
-		SetTexture("s_miscData", &(_geometry->MiscDataRead()));
-		SetTexture("s_normalData", &(_geometry->NormalDataRead()));
+		SetTexture("s_heightData", _geometry.HeightDataRead());
+		SetTexture("s_velocityData", _geometry.VelocityDataRead());
+		SetTexture("s_miscData", _geometry.MiscDataRead());
+		SetTexture("s_normalData", _geometry.NormalDataRead());
 	}
 
 	////////////////////////////////////////////
@@ -54,10 +54,10 @@ namespace bento
 	{
 	}
 
-	void TerrainWaterFrag::BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material)
+	void TerrainWaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
-		SetUniform("u_waterColor", _material->waterColor);
-		SetUniform("u_indexOfRefraction", _material->waterIndexOfRefraction);
+		SetUniform("u_waterColor", _material.waterColor);
+		SetUniform("u_indexOfRefraction", _material.waterIndexOfRefraction);
 
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix(), true);
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());
@@ -91,8 +91,8 @@ namespace bento
 			
 			node->geom->Bind();
 
-			m_shader.VertexShader().BindPerModel(node->geom, node->material);
-			m_shader.FragmentShader().BindPerModel(node->geom, node->material);
+			m_shader.VertexShader().BindPerModel(*node->geom, *node->material);
+			m_shader.FragmentShader().BindPerModel(*node->geom, *node->material);
 
 			node->geom->Draw();
 		}

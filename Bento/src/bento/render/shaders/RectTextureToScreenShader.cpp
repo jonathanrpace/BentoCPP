@@ -2,7 +2,7 @@
 
 namespace bento
 {
-	void RectTextureToScreenShader::Render(RectangleTexture * _texture)
+	void RectTextureToScreenShader::Render(RectangleTexture& _texture)
 	{
 		BindPerPass();
 		m_fragmentShader.SetSourceTexture(_texture);

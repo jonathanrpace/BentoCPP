@@ -29,14 +29,14 @@ namespace bento
 		, m_outputTextureA(_width, _height, GL_RGBA16F)
 		, m_outputTextureB(_width, _height, GL_RGBA16F)
 	{
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_POSITION, &m_positionTexture);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_NORMAL, &m_normalTexture);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_ALBEDO, &m_albedoTexture);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_MATERIAL, &m_materialTexture);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT, &m_directLightTexture);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT, &m_indirectLightTexture);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT_A, &m_outputTextureA);
-		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT_B, &m_outputTextureB);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_POSITION, m_positionTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_NORMAL, m_normalTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_ALBEDO, m_albedoTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_MATERIAL, m_materialTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_DIRECT_LIGHT, m_directLightTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_INDIRECT_LIGHT, m_indirectLightTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT_A, m_outputTextureA);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_OUTPUT_B, m_outputTextureB);
 	}
 
 	DeferredRenderTarget::~DeferredRenderTarget()
@@ -133,43 +133,43 @@ namespace bento
 		glDrawBuffer(GL_NONE);
 	}
 	
-	RectangleTexture* DeferredRenderTarget::NormalTexture()
+	RectangleTexture& DeferredRenderTarget::NormalTexture()
 	{
-		return &m_normalTexture;
+		return m_normalTexture;
 	}
 
-	RectangleTexture* DeferredRenderTarget::PositionTexture()
+	RectangleTexture& DeferredRenderTarget::PositionTexture()
 	{
-		return &m_positionTexture;
+		return m_positionTexture;
 	}
 
-	RectangleTexture* DeferredRenderTarget::AlbedoTexture()
+	RectangleTexture& DeferredRenderTarget::AlbedoTexture()
 	{
-		return &m_albedoTexture;
+		return m_albedoTexture;
 	}
 
-	RectangleTexture* DeferredRenderTarget::MaterialTexture()
+	RectangleTexture& DeferredRenderTarget::MaterialTexture()
 	{
-		return &m_materialTexture;
+		return m_materialTexture;
 	}
 
-	RectangleTexture* DeferredRenderTarget::DirectLightTexture()
+	RectangleTexture& DeferredRenderTarget::DirectLightTexture()
 	{
-		return &m_directLightTexture;
+		return m_directLightTexture;
 	}
 
-	RectangleTexture* DeferredRenderTarget::IndirectLightTexture()
+	RectangleTexture& DeferredRenderTarget::IndirectLightTexture()
 	{
-		return &m_indirectLightTexture;
+		return m_indirectLightTexture;
 	}
 
-	RectangleTexture* DeferredRenderTarget::OutputTextureA()
+	RectangleTexture& DeferredRenderTarget::OutputTextureA()
 	{
-		return &m_outputTextureA;
+		return m_outputTextureA;
 	}
 
-	RectangleTexture* DeferredRenderTarget::OutputTextureB()
+	RectangleTexture& DeferredRenderTarget::OutputTextureB()
 	{
-		return &m_outputTextureB;
+		return m_outputTextureB;
 	}
 }

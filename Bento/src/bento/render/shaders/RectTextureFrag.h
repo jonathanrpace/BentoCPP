@@ -12,7 +12,7 @@ namespace bento
 
 		}
 
-		void SetSourceTexture(RectangleTexture* _texture)
+		void SetSourceTexture(RectangleTexture& _texture)
 		{
 			SetTexture("s_tex", _texture);
 		}

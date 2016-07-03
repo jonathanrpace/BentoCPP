@@ -6,6 +6,7 @@
 #include <bento/render/RenderParams.h>
 #include <bento/components/textures/RectangleTexture.h>
 #include <bento/components/textures/TextureSquare.h>
+#include <bento/components/textures/Texture3D.h>
 
 namespace bento
 {
@@ -30,8 +31,9 @@ namespace bento
 		void SetUniform(const char* _name, ivec2& _value);
 		void SetUniform(const char* _name, int _value);
 
-		void SetTexture(const char* _name, RectangleTexture* _texture);
-		void SetTexture(const char* _name, TextureSquare* _texture);
+		void SetTexture(const char* _name, RectangleTexture& _texture);
+		void SetTexture(const char* _name, TextureSquare& _texture);
+		//void SetTexture(const char* _name, Texture3D* _texture);
 
 	protected:
 		void Validate();

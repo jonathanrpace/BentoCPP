@@ -252,8 +252,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 	// Update Flux
 	{
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.RockFluxDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.WaterFluxDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.RockFluxDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.WaterFluxDataWrite());
 
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
@@ -261,10 +261,10 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		m_updateFluxShader.BindPerPass();
 		auto fragShader = m_updateFluxShader.FragmentShader();
 
-		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-		fragShader.SetTexture("s_miscData", &_geom.MiscDataRead());
-		fragShader.SetTexture("s_rockFluxData", &_geom.RockFluxDataRead());
-		fragShader.SetTexture("s_waterFluxData", &_geom.WaterFluxDataRead());
+		fragShader.SetTexture("s_heightData", _geom.HeightDataRead());
+		fragShader.SetTexture("s_miscData", _geom.MiscDataRead());
+		fragShader.SetTexture("s_rockFluxData", _geom.RockFluxDataRead());
+		fragShader.SetTexture("s_waterFluxData", _geom.WaterFluxDataRead());
 
 		fragShader.SetUniform("u_rockFluxDamping", m_moltenFluxDamping);
 		fragShader.SetUniform("u_waterFluxDamping", m_waterFluxDamping);
@@ -286,25 +286,25 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		m_updateDataShader.BindPerPass();
 		auto fragShader = m_updateDataShader.FragmentShader();
 
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.MiscDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, &_geom.NormalDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, &_geom.SmudgeDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.VelocityDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.NormalDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.SmudgeDataWrite());
 
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 			
 		// Samplers
-		fragShader.SetTexture("s_heightData",					&_geom.HeightDataRead());
-		fragShader.SetTexture("s_velocityData",					&_geom.VelocityDataRead());
-		fragShader.SetTexture("s_miscData",						&_geom.MiscDataRead());
-		fragShader.SetTexture("s_normalData",					&_geom.NormalDataRead());
-		fragShader.SetTexture("s_moltenMapData",				&_geom.MoltenMapDataRead());
-		fragShader.SetTexture("s_smudgeData",					&_geom.SmudgeDataRead());
-		fragShader.SetTexture("s_waterFluxData",				&_geom.WaterFluxDataRead());
-		fragShader.SetTexture("s_rockFluxData",					&_geom.RockFluxDataRead());
-		fragShader.SetTexture("s_diffuseMap",					&_material.someTexture);
+		fragShader.SetTexture("s_heightData",					_geom.HeightDataRead());
+		fragShader.SetTexture("s_velocityData",					_geom.VelocityDataRead());
+		fragShader.SetTexture("s_miscData",						_geom.MiscDataRead());
+		fragShader.SetTexture("s_normalData",					_geom.NormalDataRead());
+		fragShader.SetTexture("s_moltenMapData",				_geom.MoltenMapDataRead());
+		fragShader.SetTexture("s_smudgeData",					_geom.SmudgeDataRead());
+		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxDataRead());
+		fragShader.SetTexture("s_rockFluxData",					_geom.RockFluxDataRead());
+		fragShader.SetTexture("s_diffuseMap",					_material.someTexture);
 
 		// Mouse
 		fragShader.SetUniform("u_mousePos",						normalisedMousePos);
@@ -397,17 +397,17 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		// X Pass
 
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.MiscDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, &_geom.SmudgeDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.VelocityDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.SmudgeDataWrite());
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 		// Uniforms
-		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-		fragShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
-		fragShader.SetTexture("s_miscData", &_geom.MiscDataRead());
-		fragShader.SetTexture("s_smudgeData", &_geom.SmudgeDataRead());
+		fragShader.SetTexture("s_heightData", _geom.HeightDataRead());
+		fragShader.SetTexture("s_velocityData", _geom.VelocityDataRead());
+		fragShader.SetTexture("s_miscData", _geom.MiscDataRead());
+		fragShader.SetTexture("s_smudgeData", _geom.SmudgeDataRead());
 		fragShader.SetUniform("u_axis", ivec2(1, 0));
 
 		m_screenQuadGeom.Draw();
@@ -422,17 +422,17 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		
 		// Y Pass
 
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.HeightDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, &_geom.VelocityDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, &_geom.MiscDataWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, &_geom.SmudgeDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.VelocityDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.SmudgeDataWrite());
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 		// Uniforms
-		fragShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-		fragShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
-		fragShader.SetTexture("s_miscData", &_geom.MiscDataRead());
-		fragShader.SetTexture("s_smudgeData", &_geom.SmudgeDataRead());
+		fragShader.SetTexture("s_heightData", _geom.HeightDataRead());
+		fragShader.SetTexture("s_velocityData", _geom.VelocityDataRead());
+		fragShader.SetTexture("s_miscData", _geom.MiscDataRead());
+		fragShader.SetTexture("s_smudgeData", _geom.SmudgeDataRead());
 		fragShader.SetUniform("u_axis", ivec2(0, 1));
 
 		m_screenQuadGeom.Draw();
@@ -468,8 +468,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		auto vertexShader = m_moltenParticleUpdateShader.VertexShader();
 
-		vertexShader.SetTexture("s_heightData", &_geom.HeightDataRead());
-		vertexShader.SetTexture("s_velocityData", &_geom.VelocityDataRead());
+		vertexShader.SetTexture("s_heightData", _geom.HeightDataRead());
+		vertexShader.SetTexture("s_velocityData", _geom.VelocityDataRead());
 
 		GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
 
@@ -486,7 +486,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		auto fragShader = m_moltenMapShader.FragmentShader();
 		auto vertShader = m_moltenMapShader.VertexShader();
 
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, &_geom.MoltenMapDataWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenMapDataWrite());
 
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
@@ -499,9 +499,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		glBlendEquation(GL_MAX);
 		glBlendFunc(GL_ONE, GL_ONE);
 
-		vertShader.SetTexture("s_velocityData", &_geom.VelocityDataRead() );
+		vertShader.SetTexture("s_velocityData", _geom.VelocityDataRead() );
 
-		fragShader.SetTexture("s_texture", &_material.moltenPlatesTexture);
+		fragShader.SetTexture("s_texture", _material.moltenPlatesTexture);
 
 		//glPointSize(16.0f);
 

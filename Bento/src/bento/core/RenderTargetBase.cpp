@@ -63,11 +63,11 @@ namespace bento
 		for (auto& iter : m_texturesByAttachment) 
 		{
 			GLenum attachment = iter.first;
-			ITexture2D* texture = iter.second;
+			ITexture2D& texture = *iter.second;
 			int level = m_levelsByAttachment[attachment];
-			texture->SetSize(m_width << level, m_height << level);
+			texture.SetSize(m_width << level, m_height << level);
 
-			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, texture->TextureName(), level));
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, texture.TextureName(), level));
 		}
 
 		if (m_hasDepthStencil)
@@ -104,43 +104,43 @@ namespace bento
 		}
 	}
 
-	void RenderTargetBase::AttachTexture(GLenum _attachment, RectangleTexture* _texture, int _level)
+	void RenderTargetBase::AttachTexture(GLenum _attachment, RectangleTexture& _texture, int _level)
 	{
 		assert(m_isRectangular);
 
 		// Attach immediately if we're ready to go
-		if (_texture->Width() == m_width && _texture->Height() == m_height)
+		if (_texture.Width() == m_width && _texture.Height() == m_height)
 		{
-			m_texturesByAttachment[_attachment] = _texture;
+			m_texturesByAttachment[_attachment] = &_texture;
 			m_levelsByAttachment[_attachment] = _level;
 
 			Bind();
-			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_RECTANGLE, _texture->TextureName(), _level));
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_RECTANGLE, _texture.TextureName(), _level));
 		}
 		else
 		{
-			m_texturesByAttachment[_attachment] = _texture;
+			m_texturesByAttachment[_attachment] = &_texture;
 			m_levelsByAttachment[_attachment] = _level;
 			Invalidate();
 		}
 	}
 
-	void RenderTargetBase::AttachTexture(GLenum _attachment, TextureSquare* _texture, int _level)
+	void RenderTargetBase::AttachTexture(GLenum _attachment, TextureSquare& _texture, int _level)
 	{
 		assert(!m_isRectangular);
 
 		// Attach immediately if we're ready to go
-		if (_texture->Width() == m_width && _texture->Height() == m_height)
+		if (_texture.Width() == m_width && _texture.Height() == m_height)
 		{
-			m_texturesByAttachment[_attachment] = _texture;
+			m_texturesByAttachment[_attachment] = &_texture;
 			m_levelsByAttachment[_attachment] = _level;
 
 			Bind();
-			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_2D, _texture->TextureName(), _level));
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, _attachment, GL_TEXTURE_2D, _texture.TextureName(), _level));
 		}
 		else
 		{
-			m_texturesByAttachment[_attachment] = _texture;
+			m_texturesByAttachment[_attachment] = &_texture;
 			m_levelsByAttachment[_attachment] = _level;
 			Invalidate();
 		}

@@ -29,8 +29,8 @@ namespace bento
 		void SetSize(int _width, int _height);
 		virtual void Bind() override;
 
-		void AttachTexture(GLenum _attachment, RectangleTexture* _texture, int _level = 0);
-		void AttachTexture(GLenum _attachment, TextureSquare* _texture, int _level = 0);
+		void AttachTexture(GLenum _attachment, RectangleTexture& _texture, int _level = 0);
+		void AttachTexture(GLenum _attachment, TextureSquare& _texture, int _level = 0);
 
 		void SetDrawBuffers(GLenum* _drawBuffers, GLsizei _size);
 

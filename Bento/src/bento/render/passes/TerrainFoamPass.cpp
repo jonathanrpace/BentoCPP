@@ -88,8 +88,8 @@ namespace bento
 
 				auto vertexShader = m_foamParticleUpdateShader.VertexShader();
 
-				vertexShader.SetTexture("s_heightData", &terrainGeom.HeightDataRead());
-				vertexShader.SetTexture("s_velocityData", &terrainGeom.VelocityDataRead());
+				vertexShader.SetTexture("s_heightData", terrainGeom.HeightDataRead());
+				vertexShader.SetTexture("s_velocityData", terrainGeom.VelocityDataRead());
 
 				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
 

@@ -15,14 +15,14 @@ namespace bento
 		: ShaderStageBase
 	{
 		TerrainWaterVert();
-		void BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material);
+		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material);
 	};
 
 	struct TerrainWaterFrag
 		: ShaderStageBase
 	{
 		TerrainWaterFrag();
-		void BindPerModel(TerrainGeometry* _geometry, TerrainMaterial* _material);
+		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material);
 	};
 
 	struct TerrainWaterShader

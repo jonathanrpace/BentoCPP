@@ -28,14 +28,14 @@ namespace bento
 		void BindForResolvePhase();
 		void BindForNoDraw();
 		
-		RectangleTexture* NormalTexture();
-		RectangleTexture* PositionTexture();
-		RectangleTexture* AlbedoTexture();
-		RectangleTexture* MaterialTexture();
-		RectangleTexture* DirectLightTexture();
-		RectangleTexture* IndirectLightTexture();
-		RectangleTexture* OutputTextureA();
-		RectangleTexture* OutputTextureB();
+		RectangleTexture& NormalTexture();
+		RectangleTexture& PositionTexture();
+		RectangleTexture& AlbedoTexture();
+		RectangleTexture& MaterialTexture();
+		RectangleTexture& DirectLightTexture();
+		RectangleTexture& IndirectLightTexture();
+		RectangleTexture& OutputTextureA();
+		RectangleTexture& OutputTextureB();
 		
 	private:
 		RectangleTexture m_normalTexture;
