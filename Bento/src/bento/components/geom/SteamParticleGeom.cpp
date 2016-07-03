@@ -10,7 +10,7 @@ namespace bento
 		: Component(_name, typeid(SteamParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(10000)
+		m_numParticles(20000)
 	{
 
 	}

@@ -31,7 +31,7 @@ void main(void)
 					  rotatedUV.x * sinAngle + rotatedUV.y * cosAngle );
 	rotatedUV += vec2(0.5);
 
-	vec4 textureSample = texture(s_texture, rotatedUV);
+	vec4 textureSample = textureLod(s_texture, rotatedUV, 1.0 + (1.0-in_life) * 4.0);
 
 	float density = textureSample.b;
 	float ao = textureSample.a;
@@ -39,14 +39,14 @@ void main(void)
 
 	float alpha = density * lifeAlpha * in_alpha;
 
-	if ( alpha <= 0.0 )
+	if ( alpha <= 0.01 )
 		discard;
 
-	vec3 normal = vec3(textureSample.r, textureSample.g, 0.0);
+	vec3 normal = vec3(textureSample.rg*vec2(2.0) - vec2(1.0), 0.0);
 	normal.z = 1.0 - length(normal);
 	normal.xy = vec2( normal.x * cosAngle - normal.y * sinAngle,
 					  normal.x * sinAngle + normal.y * cosAngle );
-
+	
 
 	float lightFromSky = clamp( dot( normal, vec3(0.0, 1.0, 0.0) ), 0.0, 1.0 ) * 0.2;
 	float ambientLight = 0.2 * ao;
@@ -59,8 +59,7 @@ void main(void)
 
 	vec3 color = vec3( lightFromSky + lightFromHeat + ambientLight );
 
-	float translucentScalar = max( ((1.0-density) * in_alpha - 0.25) * 2.0, 0.0 );
-
+	float translucentScalar = max( (1.0-density) * 2.0, 0.0 );
 	color += max(0.0, in_translucency * translucentScalar );
 
 	out_fragColor = vec4( color, alpha );

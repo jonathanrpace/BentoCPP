@@ -52,16 +52,16 @@ void main(void)
 	out_translucency = pow( max( dot(eyeVec, u_lightDir), 0.0 ), 2.0 );
 
 	float life = in_velocity.w;
-	float lifeAlpha = pow(life, 0.5);
+	float lifeAlpha = min((1.0-life)/0.1,1.0) * pow(life, 0.5);
 	
 	if ( life <= 0.0 || life > 1.0 )
 		gl_PointSize = 0.0;
 	else
-		gl_PointSize = pow(1.0-life, 0.3) * mix(96, 128, in_properties.z);
+		gl_PointSize = 40.0 + pow(1.0-life, 0.8) * 40;
 
 	out_color = vec4(vec3(1.0), lifeAlpha);
 	out_life = life;
-	out_angle = mix(0.0, PI_2, in_properties.z) + life * PI_2 * 0.2;
+	out_angle = mix(0.0, PI_2, in_properties.z) + life * PI_2 * 0.35;
 	out_offset = life * mix( 0.6, 1.2, in_properties.w );
 	out_alpha = in_position.w;
 } 
