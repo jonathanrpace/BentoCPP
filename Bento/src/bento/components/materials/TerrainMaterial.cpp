@@ -17,6 +17,8 @@ namespace bento
 		steamTexture.TexImage2D("textures/Steam.png");
 		steamTexture.GenerateMipMaps();
 
+		texture3D.TexImage3D("textures/Texture3D.png");
+
 		// Rock
 		SerializableMember("rockColorA", vec3(0.1f, 0.1f, 0.1f), &rockColorA);
 		SerializableMember("rockColorB", vec3(0.1f, 0.1f, 0.1f), &rockColorB);

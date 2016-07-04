@@ -143,6 +143,7 @@
     <ClInclude Include="src\bento\components\geom\MoltenParticleGeom.h" />
     <ClInclude Include="src\bento\components\geom\SteamParticleGeom.h" />
     <ClInclude Include="src\bento\components\PerspectiveLens.h" />
+    <ClInclude Include="src\bento\components\textures\Texture3D.h" />
     <ClInclude Include="src\bento\components\Transform.h" />
     <ClInclude Include="src\bento\core\DefaultsManager.h" />
     <ClInclude Include="src\bento\core\Entity.h" />
@@ -215,6 +216,7 @@
   <ItemGroup>
     <ClCompile Include="src\bento\components\geom\MoltenParticleGeom.cpp" />
     <ClCompile Include="src\bento\components\geom\SteamParticleGeom.cpp" />
+    <ClCompile Include="src\bento\components\textures\Texture3D.cpp" />
     <ClCompile Include="src\bento\core\DefaultsManager.cpp" />
     <ClCompile Include="src\bento\components\geom\FoamParticleGeom.cpp" />
     <ClCompile Include="src\bento\core\SerializableBase.cpp" />

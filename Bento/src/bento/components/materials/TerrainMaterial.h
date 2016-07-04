@@ -9,6 +9,7 @@
 #include <bento/core/Component.h>
 #include <bento/core/SharedObject.h>
 #include <bento/components/textures/TextureSquare.h>
+#include <bento/components/textures/Texture3D.h>
 #include <bento/core/IInspectable.h>
 #include <bento/core/SerializableBase.h>
 
@@ -29,6 +30,7 @@ namespace bento
 		TextureSquare someTexture;
 		TextureSquare moltenPlatesTexture;
 		TextureSquare steamTexture;
+		Texture3D texture3D;
 
 		// Rock
 		vec3 rockColorA;

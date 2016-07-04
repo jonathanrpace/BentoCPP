@@ -12,8 +12,8 @@ namespace bento
 		(
 			int _size = 256
 			, GLenum _internalFormat = GL_RGBA8
-			, GLenum _magFilter = GL_NEAREST
-			, GLenum _minFilter = GL_NEAREST
+			, GLenum _magFilter = GL_LINEAR
+			, GLenum _minFilter = GL_LINEAR
 			, GLenum _wrapModeR = GL_REPEAT
 			, GLenum _wrapModeS = GL_REPEAT
 		);

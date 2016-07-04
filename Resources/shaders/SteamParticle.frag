@@ -15,6 +15,7 @@ in Varying
 };
 
 uniform sampler2D s_texture;
+uniform sampler3D s_texture3D;
 
 uniform vec3 u_moltenColor;
 
@@ -33,6 +34,8 @@ void main(void)
 
 	vec4 textureSample = textureLod(s_texture, rotatedUV, 1.0 + (1.0-in_life) * 4.0);
 
+	vec4 textureSample3D = texture(s_texture3D, vec3(gl_PointCoord, in_life));
+	/*
 	float density = textureSample.b;
 	float ao = textureSample.a;
 	float lifeAlpha = in_color.w;
@@ -63,6 +66,8 @@ void main(void)
 	color += max(0.0, in_translucency * translucentScalar );
 
 	out_fragColor = vec4( color, alpha );
+	*/
 
+	out_fragColor = vec4(textureSample3D.rgb, 1.0);
 
 } 
