@@ -34,12 +34,13 @@ public:
 
 	static vec3 CameraPosition() { return s_cameraPos; }
 
+	static DeferredRenderTarget& RenderTarget() { return *s_deferredRenderTarget; }
+	static void RenderTarget(DeferredRenderTarget& _renderTarget) { s_deferredRenderTarget = &_renderTarget; }
+
 	int BackBufferWidth() const { return s_backBufferWidth; }
 	int BackBufferHeight() const { return s_backBufferHeight; }
 	int LightTransportBufferWidth() const { return s_lightTransportBufferWidth; }
 	int LightTransportBufferHeight() const { return s_lightTransportBufferHeight; }
-
-	static DeferredRenderTarget* DeferedRenderTarget;
 
 	static void SetViewMatrices(mat4 _viewMatrix, ILens& _lens)
 	{
@@ -108,5 +109,7 @@ private:
 	static mat4 s_prevInvViewProjectionMatrix;
 
 	static vec3 s_cameraPos;
+
+	static DeferredRenderTarget* s_deferredRenderTarget;
 };
 }

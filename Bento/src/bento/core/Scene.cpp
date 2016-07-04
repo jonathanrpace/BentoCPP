@@ -26,14 +26,14 @@ namespace bento
 		delete m_window;
 	}
 
-	IInputManager* Scene::GetInputManager()
+	IInputManager& Scene::GetInputManager()
 	{
-		return m_inputManager;
+		return *m_inputManager;
 	}
 
-	IWindow* Scene::GetWindow()
+	IWindow& Scene::GetWindow()
 	{
-		return m_window;
+		return *m_window;
 	}
 
 	EntityPtr Scene::AddEntity(EntityPtr _entity)
@@ -103,7 +103,7 @@ namespace bento
 	{
 		assert(std::find(m_processes.begin(), m_processes.end(), _process) == m_processes.end());
 		m_processes.push_back(_process);
-		_process->BindToScene(this);
+		_process->BindToScene(*this);
 	}
 
 	void Scene::RemoveProcess(ProcessPtr _process)
@@ -111,7 +111,7 @@ namespace bento
 		auto iter = std::find(m_processes.begin(), m_processes.end(), _process);
 		assert(iter != m_processes.end());
 		m_processes.erase(iter);
-		_process->UnbindFromScene(this);
+		_process->UnbindFromScene(*this);
 	}
 
 	void Scene::Advance(double _dt)

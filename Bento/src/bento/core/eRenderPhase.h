@@ -2,7 +2,7 @@
 
 namespace bento
 {
-	enum RenderPhase
+	enum eRenderPhase
 	{
 		eRenderPhase_OffScreen,
 		eRenderPhase_G,

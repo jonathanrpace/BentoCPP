@@ -192,6 +192,15 @@ namespace bento
 		*(m_textureUnit) = *(m_textureUnit)+1;
 	}
 
+	void ShaderStageBase::SetTexture(const char * _name, Texture3D& _texture)
+	{
+		SetAsActiveShader();
+		SetUniform(_name, *m_textureUnit);
+		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
+		glBindTexture(GL_TEXTURE_3D, _texture.TextureName());
+		*(m_textureUnit) = *(m_textureUnit)+1;
+	}
+
 	void ShaderStageBase::SetAsActiveShader()
 	{
 		GL_CHECK(glActiveShaderProgram(m_pipelineName, m_programName);)

@@ -6,10 +6,10 @@ namespace bento
 		: Component(_name, _typeInfo)
 	{
 		m_vertexBuffers = new GLuint[s_maxVertexBuffers];
-		glGenBuffers(s_maxVertexBuffers, m_vertexBuffers);
+		GL_CHECK(glGenBuffers(s_maxVertexBuffers, m_vertexBuffers));
 
 		m_indexBuffers = new GLuint[s_maxIndexBuffers];
-		glGenBuffers(s_maxIndexBuffers, m_indexBuffers);
+		GL_CHECK(glGenBuffers(s_maxIndexBuffers, m_indexBuffers));
 	}
 
 	Geometry::~Geometry()

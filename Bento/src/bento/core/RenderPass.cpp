@@ -2,7 +2,7 @@
 
 namespace bento
 {
-	RenderPass::RenderPass(RenderPhase _renderPhase)
+	RenderPass::RenderPass(eRenderPhase _renderPhase)
 		: m_renderPhase(_renderPhase)
 	{
 

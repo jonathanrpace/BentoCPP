@@ -62,9 +62,9 @@ namespace bento
 	{
 		for (auto node : m_nodeGroup.Nodes())
 		{
-			TerrainGeometry& terrainGeom = *(node->terrainGeom);
-			SteamParticleGeom& particleGeom = *(node->particleGeom);
-			TerrainMaterial& material = *(node->material);
+			auto& terrainGeom = *node->terrainGeom;
+			auto& particleGeom = *node->particleGeom;
+			auto& material = *node->material;
 
 			// Update
 			{
@@ -86,10 +86,10 @@ namespace bento
 				GL_CHECK(glBeginTransformFeedback(GL_POINTS));
 				GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
 
-				auto vertexShader = m_updateShader.VertexShader();
+				auto& vs = m_updateShader.VertexShader();
 
-				vertexShader.SetTexture("s_heightData", terrainGeom.HeightDataRead());
-				vertexShader.SetTexture("s_smudgeData", terrainGeom.SmudgeDataRead());
+				vs.SetTexture("s_heightData", terrainGeom.HeightDataRead());
+				vs.SetTexture("s_smudgeData", terrainGeom.SmudgeDataRead());
 
 				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
 
@@ -118,21 +118,21 @@ namespace bento
 				GL_CHECK(glBindVertexArray(vertexArray));
 
 				m_drawShader.BindPerPass();
-				m_drawShader.VertexShader().SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
+				auto& vs = m_drawShader.VertexShader();
 
-				m_drawShader.VertexShader().SetUniform("u_cameraPos", RenderParams::CameraPosition());
-				m_drawShader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
+				vs.SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 
-				m_drawShader.VertexShader().SetTexture("s_miscData", terrainGeom.MiscDataRead());
+				vs.SetUniform("u_cameraPos", RenderParams::CameraPosition());
+				vs.SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
+				vs.SetUniform("u_moltenColor", material.moltenColor);
 
+				vs.SetTexture("s_miscData", terrainGeom.MiscDataRead());
+				vs.SetTexture("s_texture", material.steamTexture);
+				vs.SetTexture("s_texture3D", material.texture3D);
 
-				m_drawShader.FragmentShader().SetUniform("u_moltenColor", material.moltenColor);
-
-				m_drawShader.FragmentShader().SetTexture("s_texture", material.steamTexture);
-
-				//m_drawShader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
-				//m_drawShader.VertexShader().SetUniform("u_lightIntensity", material.directLightIntensity);
-				//m_drawShader.VertexShader().SetUniform("u_ambientLightIntensity", material.ambientLightIntensity);
+				//vs.SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
+				//vs.SetUniform("u_lightIntensity", material.directLightIntensity);
+				//vs.SetUniform("u_ambientLightIntensity", material.ambientLightIntensity);
 
 				glEnable(GL_PROGRAM_POINT_SIZE);
 				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));

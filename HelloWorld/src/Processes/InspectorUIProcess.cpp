@@ -16,7 +16,7 @@ namespace bento
 
 	void InspectorUIProcess::Advance(double dt)
 	{
-		ivec2 backBufferSize = m_scene->GetWindow()->GetWindowSize();
+		ivec2 backBufferSize = m_scene->GetWindow().GetWindowSize();
 		bool opened = true;
 		ImGui::SetNextWindowSize(ImVec2(400.0f, (float)backBufferSize.y));
 		ImGui::SetNextWindowPos(ImVec2());

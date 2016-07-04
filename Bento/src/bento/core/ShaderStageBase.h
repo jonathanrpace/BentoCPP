@@ -33,7 +33,7 @@ namespace bento
 
 		void SetTexture(const char* _name, RectangleTexture& _texture);
 		void SetTexture(const char* _name, TextureSquare& _texture);
-		//void SetTexture(const char* _name, Texture3D* _texture);
+		void SetTexture(const char* _name, Texture3D& _texture);
 
 	protected:
 		void Validate();

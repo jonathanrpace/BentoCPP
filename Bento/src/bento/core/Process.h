@@ -16,8 +16,8 @@ namespace bento
 	public:
 		Process(std::string _name = "Process", const std::type_info& _typeInfo = typeid(Process));
 
-		virtual void BindToScene(Scene * const _scene);
-		virtual void UnbindFromScene(Scene * const _scene);
+		virtual void BindToScene(Scene& _scene);
+		virtual void UnbindFromScene(Scene& _scene);
 
 		virtual void Advance(double _dt) = 0;
 

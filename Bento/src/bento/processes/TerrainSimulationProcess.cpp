@@ -236,17 +236,19 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 {
 	GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension(), _geom.NumVerticesPerDimension()));
 
-	vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
-	normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
+	IInputManager& inputManager = m_scene->GetInputManager();
 
-	bool mouseIsDown = m_scene->GetInputManager()->IsMouseDown(1);
+	vec2 normalisedMousePos = inputManager.GetMousePosition();
+	normalisedMousePos /= m_scene->GetWindow().GetWindowSize();
 
-	float moltenScalar = m_scene->GetInputManager()->IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 0.0f : 1.0f;
-	float moltenVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * moltenScalar;
-	float heatChangeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseHeatStrength * moltenScalar;
+	bool mouseIsDown = inputManager.IsMouseDown(1);
 
-	float waterScalar = m_scene->GetInputManager()->IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f;
-	float waterVolumeAmount = (m_scene->GetInputManager()->IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * waterScalar;
+	float moltenScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 0.0f : 1.0f;
+	float moltenVolumeAmount = (inputManager.IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * moltenScalar;
+	float heatChangeAmount = (inputManager.IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseHeatStrength * moltenScalar;
+
+	float waterScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f;
+	float waterVolumeAmount = (inputManager.IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * waterScalar;
 
 	vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 

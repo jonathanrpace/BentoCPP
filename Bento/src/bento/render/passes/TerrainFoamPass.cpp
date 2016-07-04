@@ -62,9 +62,9 @@ namespace bento
 	{
 		for (auto node : m_nodeGroup.Nodes())
 		{
-			TerrainGeometry& terrainGeom = *(node->geom);
-			FoamParticleGeom& particleGeom = *(node->foamGeom);
-			TerrainMaterial& material = *(node->material);
+			TerrainGeometry& terrainGeom = *node->geom;
+			FoamParticleGeom& particleGeom = *node->foamGeom;
+			TerrainMaterial& material = *node->material;
 
 			// Update
 			{
@@ -86,7 +86,7 @@ namespace bento
 				GL_CHECK(glBeginTransformFeedback(GL_POINTS));
 				GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
 
-				auto vertexShader = m_foamParticleUpdateShader.VertexShader();
+				auto& vertexShader = m_foamParticleUpdateShader.VertexShader();
 
 				vertexShader.SetTexture("s_heightData", terrainGeom.HeightDataRead());
 				vertexShader.SetTexture("s_velocityData", terrainGeom.VelocityDataRead());

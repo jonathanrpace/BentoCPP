@@ -21,8 +21,8 @@ namespace bento
 		~Scene();
 
 		// Methods
-		IInputManager* GetInputManager();
-		IWindow* GetWindow();
+		IInputManager& GetInputManager();
+		IWindow& GetWindow();
 		EntityPtr AddEntity(EntityPtr _entity);
 		EntityPtr RemoveEntity(EntityPtr _entity);
 		void AddComponentToEntity(ComponentPtr _component, EntityPtr _entity);

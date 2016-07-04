@@ -85,15 +85,14 @@ namespace bento
 	{
 		assert(glIsVertexArray(m_vertexArrayName) == false);
 
-		glGenVertexArrays(1, &m_vertexArrayName);
+		GL_CHECK(glGenVertexArrays(1, &m_vertexArrayName));
 		GL_CHECK(glBindVertexArray(m_vertexArrayName));
-
 
 		SetVertexFormatf(0, 3);	// Position;
 		SetVertexFormatf(1, 2);	// UV;
 		SetVertexFormatf(2, 4);	// Rand;
 
-		glBindVertexArray(0);
+		GL_CHECK(glBindVertexArray(0));
 
 		m_numVertices = m_numVerticesPerDimension * m_numVerticesPerDimension;
 		int numTriangles = (m_numVerticesPerDimension - 1) * (m_numVerticesPerDimension - 1) * 2;

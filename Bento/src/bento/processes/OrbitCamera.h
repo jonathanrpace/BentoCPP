@@ -16,8 +16,8 @@ namespace bento
 		OrbitCamera(std::string _name = "OrbitCamera");
 
 		// from Process
-		virtual void BindToScene(Scene * const _scene) override;
-		virtual void UnbindFromScene(Scene * const _scene) override;
+		virtual void BindToScene(Scene& _scene) override;
+		virtual void UnbindFromScene(Scene& _scene) override;
 		virtual void Advance(double dt) override;
 
 		float Dolly() const { return m_dolly; }

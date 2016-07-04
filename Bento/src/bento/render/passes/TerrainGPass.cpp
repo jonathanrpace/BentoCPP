@@ -112,13 +112,13 @@ namespace bento
 			
 			// Mouse isect uniforms
 			{
-				vec2 normalisedMousePos = m_scene->GetInputManager()->GetMousePosition();
-				normalisedMousePos /= m_scene->GetWindow()->GetWindowSize();
+				vec2 normalisedMousePos = m_scene->GetInputManager().GetMousePosition();
+				normalisedMousePos /= m_scene->GetWindow().GetWindowSize();
 				normalisedMousePos.y = 1.0f - normalisedMousePos.y;
 				vec2 mouseScreenPos = (normalisedMousePos - vec2(0.5f)) * vec2(2.0f);
 				//PRINTF("mouseScreenPos %2f, %2f\n", mouseScreenPos.x, mouseScreenPos.y);
 				m_shader.FragmentShader().SetUniform("u_mouseScreenPos", mouseScreenPos);
-				m_shader.FragmentShader().SetUniform("u_windowSize", m_scene->GetWindow()->GetWindowSize());
+				m_shader.FragmentShader().SetUniform("u_windowSize", m_scene->GetWindow().GetWindowSize());
 			}
 
 			node->geom->Draw();

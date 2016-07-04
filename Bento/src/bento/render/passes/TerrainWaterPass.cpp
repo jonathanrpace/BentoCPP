@@ -62,8 +62,8 @@ namespace bento
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix(), true);
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());
 
-		SetTexture("s_output", RenderParams::DeferedRenderTarget->OutputTextureA());
-		SetTexture("s_positionBuffer", RenderParams::DeferedRenderTarget->PositionTexture());
+		SetTexture("s_output", RenderParams::RenderTarget().OutputTextureA());
+		SetTexture("s_positionBuffer", RenderParams::RenderTarget().PositionTexture());
 	}
 
 	////////////////////////////////////////////
@@ -89,12 +89,14 @@ namespace bento
 		{
 			RenderParams::SetModelMatrix(node->transform->matrix);
 			
-			node->geom->Bind();
+			auto& geom = *node->geom;
+			auto& material = *node->material;
 
-			m_shader.VertexShader().BindPerModel(*node->geom, *node->material);
-			m_shader.FragmentShader().BindPerModel(*node->geom, *node->material);
+			m_shader.VertexShader().BindPerModel(geom, material);
+			m_shader.FragmentShader().BindPerModel(geom, material);
 
-			node->geom->Draw();
+			geom.Bind();
+			geom.Draw();
 		}
 
 		glDepthMask(GL_TRUE);

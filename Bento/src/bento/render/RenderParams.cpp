@@ -7,7 +7,7 @@ namespace bento
 	int RenderParams::s_lightTransportBufferWidth;
 	int RenderParams::s_lightTransportBufferHeight;
 	float RenderParams::s_lightTransportScalar = 0.5f;
-	DeferredRenderTarget* RenderParams::DeferedRenderTarget;
+	DeferredRenderTarget* RenderParams::s_deferredRenderTarget;
 	glm::mat4 RenderParams::s_modelMatrix;
 	glm::mat3 RenderParams::s_normalModelMatrix;
 	glm::mat4 RenderParams::s_viewMatrix;

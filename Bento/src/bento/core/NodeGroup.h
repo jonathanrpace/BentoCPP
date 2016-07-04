@@ -40,7 +40,7 @@ namespace bento
 		NodeGroup();
 		~NodeGroup();
 
-		void Bind(Scene* scene);
+		void Bind(Scene& scene);
 		void Unbind();
 
 		inline const NodeList& Nodes() { return m_nodes; }

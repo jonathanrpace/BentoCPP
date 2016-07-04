@@ -35,7 +35,7 @@ namespace bento
 			ImGui::End();
 		}
 		*/
-		ivec2 windowSize = m_scene->GetWindow()->GetWindowSize();
+		ivec2 windowSize = m_scene->GetWindow().GetWindowSize();
 		glViewport(0, 0, windowSize.x, windowSize.y);
 		ImGui::Render();
 		GL_CHECK(;);

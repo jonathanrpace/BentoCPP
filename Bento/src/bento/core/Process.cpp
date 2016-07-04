@@ -9,12 +9,12 @@ namespace bento
 
 	}
 
-	void Process::BindToScene(Scene * const _scene)
+	void Process::BindToScene(Scene& _scene)
 	{
-		m_scene = _scene;
+		m_scene = &_scene;
 	}
 
-	void Process::UnbindFromScene(Scene * const _scene)
+	void Process::UnbindFromScene(Scene& _scene)
 	{
 		m_scene = nullptr;
 	}

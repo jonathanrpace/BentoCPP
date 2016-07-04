@@ -16,7 +16,7 @@
 		} 																	\
 		else																\
 		{																	\
-			TRACE("Compilation successful\n");								\
+			TRACE("Success\n");												\
 		}																	\
 		delete infoLog;														\
 	}

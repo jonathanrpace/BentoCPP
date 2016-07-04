@@ -24,9 +24,9 @@ namespace bento
 	////////////////////////////////////////////////////////////////////////////////
 
 	template<typename T>
-	void NodeGroup<T>::Bind(Scene* scene)
+	void NodeGroup<T>::Bind(Scene& scene)
 	{
-		m_scene = scene;
+		m_scene = &scene;
 
 		for (EntityPtr entity : m_scene->Entities())
 		{

@@ -32,22 +32,22 @@ namespace bento
 
 	}
 
-	void OrbitCamera::BindToScene(bento::Scene * const _scene)
+	void OrbitCamera::BindToScene(Scene& _scene)
 	{
 		Process::BindToScene(_scene);
 
-		IInputManager* inputManager = _scene->GetInputManager();
-		inputManager->OnMouseButtonPress += OnMouseButtonPressDelegate;
-		inputManager->OnMouseButtonRelease += OnMouseButtonReleaseDelegate;
+		IInputManager& inputManager = _scene.GetInputManager();
+		inputManager.OnMouseButtonPress += OnMouseButtonPressDelegate;
+		inputManager.OnMouseButtonRelease += OnMouseButtonReleaseDelegate;
 	}
 
-	void OrbitCamera::UnbindFromScene(bento::Scene * const _scene)
+	void OrbitCamera::UnbindFromScene(Scene& _scene)
 	{
 		Process::UnbindFromScene(_scene);
 
-		IInputManager* inputManager = _scene->GetInputManager();
-		inputManager->OnMouseButtonPress -= OnMouseButtonPressDelegate;
-		inputManager->OnMouseButtonRelease -= OnMouseButtonReleaseDelegate;
+		IInputManager& inputManager = _scene.GetInputManager();
+		inputManager.OnMouseButtonPress -= OnMouseButtonPressDelegate;
+		inputManager.OnMouseButtonRelease -= OnMouseButtonReleaseDelegate;
 	}
 
 	void OrbitCamera::Advance(double dt)
@@ -66,7 +66,7 @@ namespace bento
 		if (ImGui::IsAnyItemActive()) return;
 		if (m_mouseIsDown)
 		{
-			vec2 mousePos = m_scene->GetInputManager()->GetMousePosition();
+			vec2 mousePos = m_scene->GetInputManager().GetMousePosition();
 			vec2 mouseDelta = mousePos - m_mouseDownPos;
 			mouseDelta /= vec2(640.0f, 480.0f);
 
@@ -107,7 +107,7 @@ namespace bento
 		if (_button == 0)
 		{
 			m_mouseIsDown = true;
-			m_mouseDownPos = m_scene->GetInputManager()->GetMousePosition();
+			m_mouseDownPos = m_scene->GetInputManager().GetMousePosition();
 			m_storedRotation = m_rotationTarget;
 		}
 	}

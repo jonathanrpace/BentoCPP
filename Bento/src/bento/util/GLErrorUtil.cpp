@@ -31,8 +31,8 @@ void CheckOpenGLError(const char * stmt, const char * fname, int line)
 	bool foundError = false;
 	while (err != GL_NO_ERROR)
 	{
-		PRINTF("OpenGL error %s, at %s:%i - for %s\n",
-			GetOpenGLErrorString(err), fname, line, stmt);
+		PRINTF("ERROR: %s\n  %s\n  %s:%i\n",
+			GetOpenGLErrorString(err), stmt, fname, line );
 		foundError = true;
 		err = glGetError();
 	}

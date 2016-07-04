@@ -35,7 +35,7 @@ namespace bento
 			{
 				for (RenderPassPtr renderPass : *list)
 				{
-					renderPass->UnbindFromScene(m_scene);
+					renderPass->UnbindFromScene(*m_scene);
 				}
 			}
 			list->clear();
@@ -45,11 +45,11 @@ namespace bento
 		m_scene = NULL;
 	}
 
-	void DefaultRenderer::BindToScene(bento::Scene * const _scene)
+	void DefaultRenderer::BindToScene(bento::Scene& _scene)
 	{
 		assert(m_scene == NULL);
 
-		m_scene = _scene;
+		m_scene = &_scene;
 
 		m_camera = Entity::Create();
 		m_camera->Name("Camera");
@@ -65,12 +65,12 @@ namespace bento
 			RenderPassList* list = iter.second;
 			for (RenderPassPtr renderPass : *list)
 			{
-				renderPass->BindToScene(m_scene);
+				renderPass->BindToScene(_scene);
 			}
 		}
 	}
 
-	void DefaultRenderer::UnbindFromScene(bento::Scene * const _scene)
+	void DefaultRenderer::UnbindFromScene(bento::Scene& _scene)
 	{
 		assert(m_scene != NULL);
 
@@ -82,7 +82,7 @@ namespace bento
 			RenderPassList* list = iter.second;
 			for (RenderPassPtr renderPass : *list)
 			{
-				renderPass->BindToScene(m_scene);
+				renderPass->BindToScene(_scene);
 			}
 		}
 		m_scene = NULL;
@@ -92,13 +92,13 @@ namespace bento
 	{
 		// Update RenderParams
 		auto lens = m_scene->GetComponentForEntity<PerspectiveLens>(m_camera);
-		auto window = m_scene->GetWindow();
-		ivec2 windowSize = window->GetWindowSize();
+		bento::IWindow& window = m_scene->GetWindow();
+		ivec2 windowSize = window.GetWindowSize();
 		lens->SetAspectRatio((float)windowSize.x / windowSize.y);
 		RenderParams::SetBackBufferDimensions(windowSize.x, windowSize.y);
 		auto cameraTransform = m_scene->GetComponentForEntity<Transform>(m_camera);
 		RenderParams::SetViewMatrices(cameraTransform->matrix, *lens);
-		RenderParams::DeferedRenderTarget = &m_deferredRenderTarget;
+		RenderParams::RenderTarget(m_deferredRenderTarget);
 		m_deferredRenderTarget.SetSize(windowSize.x, windowSize.y);
 		
 		// Setup some default render states
@@ -152,7 +152,7 @@ namespace bento
 		passes->push_back(_renderPass);
 
 		if (m_scene)
-			_renderPass->BindToScene(m_scene);
+			_renderPass->BindToScene(*m_scene);
 	}
 
 	void DefaultRenderer::RemoveRenderPass(RenderPassPtr _renderPass)
@@ -161,21 +161,21 @@ namespace bento
 		passes->erase(std::find(passes->begin(), passes->end(), _renderPass));
 
 		if (m_scene)
-			_renderPass->UnbindFromScene(m_scene);
+			_renderPass->UnbindFromScene(*m_scene);
 	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// PRIVATE
 	//////////////////////////////////////////////////////////////////////////
 
-	void DefaultRenderer::AddRenderPhase(RenderPhase _renderPhase)
+	void DefaultRenderer::AddRenderPhase(eRenderPhase _renderPhase)
 	{
 		// TODO - assert phase does not already exist
 		RenderPassList* list = new RenderPassList();
 		m_renderPassesByPhase.insert(std::make_pair(_renderPhase, list));
 	}
 
-	void DefaultRenderer::RenderPassesInPhase(RenderPhase _renderPhase, double _dt)
+	void DefaultRenderer::RenderPassesInPhase(eRenderPhase _renderPhase, double _dt)
 	{
 		RenderPassList passes = *m_renderPassesByPhase[_renderPhase];
 		for (RenderPassPtr renderPass : passes)

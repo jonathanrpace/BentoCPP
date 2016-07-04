@@ -3,7 +3,7 @@
 #include <memory.h>
 
 #include <bento/core/Process.h>
-#include <bento/core/RenderPhase.h>
+#include <bento/core/eRenderPhase.h>
 
 namespace bento
 {
@@ -11,12 +11,12 @@ namespace bento
 		: public virtual Process
 	{
 	public:
-		RenderPass(RenderPhase _renderPhase);
+		RenderPass(eRenderPhase _renderPhase);
 
-		RenderPhase GetRenderPhase() { return m_renderPhase;  }
+		eRenderPhase GetRenderPhase() { return m_renderPhase;  }
 
 	private:
-		RenderPhase m_renderPhase;
+		eRenderPhase m_renderPhase;
 	};
 
 	typedef std::shared_ptr<RenderPass> RenderPassPtr;

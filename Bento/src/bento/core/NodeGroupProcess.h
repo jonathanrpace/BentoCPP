@@ -31,14 +31,14 @@ namespace bento
 		}
 
 		// From Process
-		virtual void BindToScene(Scene * const _scene) override
+		virtual void BindToScene(Scene& _scene) override
 		{
 			Process::BindToScene(_scene);
-			m_nodeGroup.Bind(m_scene);
+			m_nodeGroup.Bind(_scene);
 		}
 
 		// From Process
-		virtual void UnbindFromScene(Scene * const _scene) override
+		virtual void UnbindFromScene(Scene& _scene) override
 		{
 			Process::UnbindFromScene(_scene);
 			m_nodeGroup.Unbind();
