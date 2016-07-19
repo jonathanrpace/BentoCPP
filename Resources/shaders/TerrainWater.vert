@@ -120,7 +120,7 @@ void main(void)
 		out_diffuse.rgb += u_ambientLightIntensity;
 
 		// Water color is dissolved dirt color
-		out_diffuse.rgb *= pow(u_dirtColor*0.25, vec3(2.2));
+		out_diffuse.rgb *= vec3(1.0,0.0,0.0);//pow(u_dirtColor*0.25, vec3(2.2));
 		out_diffuse.a = min( dissolvedDirt / 0.01, 1.0 ) * alpha;
 	}
 
