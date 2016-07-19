@@ -42,5 +42,5 @@ void main(void)
 	float lifeAlpha = sin(life*3.142);
 	float waterAlpha = in_position.w;
 
-	out_color = vec4(vec3(1.0), lifeAlpha * waterAlpha);
+	out_color = vec4(vec3(1.0), lifeAlpha * waterAlpha * 0.4);
 } 

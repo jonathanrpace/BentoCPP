@@ -64,7 +64,7 @@ void main(void)
 	position.y = waterSurfaceHeight;
 
 	float alpha = min( waterHeight / u_waterHeightToOpaque, 1.0 );
-	position.w = alpha * max( waterSpeed, 0.05 );
+	position.w = alpha * max( waterSpeed, 0.025 );
 
 	out_position = position;
 	out_velocity = vec4(velocity, life);
