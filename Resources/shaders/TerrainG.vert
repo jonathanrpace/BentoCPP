@@ -163,6 +163,7 @@ out Varying
 	vec4 out_material;
 	vec4 out_forward;
 	vec2 out_uv;
+	float out_dirtAlpha;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -246,7 +247,7 @@ void main(void)
 	vec4 viewPosition = position * u_modelViewMatrix;
 
 	// Rock material
-	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, moltenMapValue ), vec3(2.2) );
+	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, pow(moltenMapValue,2.0) ), vec3(2.2) );
 	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, moltenMapValue );
 	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, moltenMapValue );
 
@@ -263,8 +264,8 @@ void main(void)
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
 
 	// Dirt
-	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2)) * mix(0.0, 1.0, diffuseData.z);
-	float dirtAlpha = clamp((dirtHeight / 0.01) - (moltenMapValue * 0.02), 0.0, 1.0);
+	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));// * mix(0.0, 1.0, diffuseData.z);
+	float dirtAlpha = clamp((dirtHeight / 0.001), 0.0, 1.0);
 	diffuse = mix(diffuse, dirtDiffuse, dirtAlpha);
 
 	// Vegetation
@@ -308,5 +309,6 @@ void main(void)
 		out_forward = vec4(outColor, 1.0f);
 		out_uv = in_uv;
 		gl_Position = u_mvpMatrix * position;
+		out_dirtAlpha = dirtAlpha;
 	}
 } 

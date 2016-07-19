@@ -83,6 +83,12 @@ namespace bento
 	{
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
+		SetTexture("s_dirtDiffuse", _material.dirtDiffuseTexture);
+		SetTexture("s_dirtNormal", _material.dirtNormalTexture);
+		SetUniform("u_dirtTextureRepeat", _material.dirtTextureRepeat);
+
+		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
+
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(terrainMousePos), &terrainMousePos, GL_DYNAMIC_COPY);
