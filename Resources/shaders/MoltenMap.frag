@@ -2,6 +2,7 @@
 
 // Outputs
 layout( location = 0 ) out vec4 out_fragColor;
+out float gl_FragDepth;
 
 // Samplers
 
@@ -15,6 +16,9 @@ in Varying
 
 void main(void)
 {
+	if ( in_color.w < 0.0001 )
+		discard;
+
 	vec2 uv = gl_PointCoord - vec2(0.5);
 	vec2 rotatedUV = vec2(  uv.x * cos(in_angle) - uv.y * sin(in_angle),
 							uv.x * sin(in_angle) + uv.y * cos(in_angle) );
@@ -24,5 +28,7 @@ void main(void)
 	float alpha = textureSample.x;
 	alpha *= in_color.w;
 
-	out_fragColor = vec4(in_color.xyz*alpha, 1.0);
+	gl_FragDepth = alpha;
+
+	out_fragColor = vec4(vec3(alpha), 1.0);
 } 

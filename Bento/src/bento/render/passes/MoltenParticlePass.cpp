@@ -48,10 +48,11 @@ namespace bento
 	{
 		m_shader.BindPerPass();
 
-		glEnable(GL_BLEND);
-		glBlendEquation(GL_FUNC_ADD);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDisable(GL_DEPTH_TEST);
+		//glEnable(GL_BLEND);
+		//glBlendEquation(GL_FUNC_ADD);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_WRITEMASK);
 
 		glPointSize(4.0f);
 
@@ -73,6 +74,7 @@ namespace bento
 			glBindVertexArray(GL_NONE);
 		}
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_WRITEMASK);
 		glDisable(GL_BLEND);
 	}
 }

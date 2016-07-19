@@ -117,6 +117,7 @@ namespace bento
 		m_deferredRenderTarget.BindForGPhase();
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LESS);
 		RenderPassesInPhase(eRenderPhase_G, dt);
 
 		// Forward pass

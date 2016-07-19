@@ -32,9 +32,31 @@ void main(void)
 					  rotatedUV.x * sinAngle + rotatedUV.y * cosAngle );
 	rotatedUV += vec2(0.5);
 
-	vec4 textureSample = textureLod(s_texture, rotatedUV, 1.0 + (1.0-in_life) * 4.0);
+	//vec4 textureSample = textureLod(s_texture, rotatedUV, 1.0 + (1.0-in_life) * 4.0);
 
-	vec4 textureSample3D = texture(s_texture3D, vec3(gl_PointCoord, in_life));
+	float t = 1-in_life;
+
+	vec4 textureSample3D = texture(s_texture3D, vec3(gl_PointCoord, pow(t, 0.9)));
+
+	
+
+	float alpha = textureSample3D.a * pow( in_life, 0.7 );// clamp((textureSample3D.a - 0.7) + t * 0.7, 0.0, 1.0) * in_life;
+
+	alpha = pow( alpha, mix(3.0, 1.0, t) );
+
+
+	//float alphaMult = textureSample3D.a*pow(in_life, 0.75);
+
+	//float alpha = alphaMult;//clamp( mix(alphaOffset, alphaMult, in_life), 0.0, 1.0 );
+
+
+	//alpha *= in_alpha;	// Spawn alpha
+
+
+	//max( (textureSample3D.x*pow(in_life, 0.75)) * 1.0, 0.0 );
+
+	//alpha += textureSample3D.x * in_life;
+
 	/*
 	float density = textureSample.b;
 	float ao = textureSample.a;
@@ -68,6 +90,6 @@ void main(void)
 	out_fragColor = vec4( color, alpha );
 	*/
 
-	out_fragColor = vec4(textureSample3D.rgb, 1.0);
+	out_fragColor = vec4(pow(textureSample3D.ggg, vec3(1.5)), 0.0);
 
 } 
