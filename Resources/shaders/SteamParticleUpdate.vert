@@ -25,7 +25,7 @@ void main(void)
 	// Alive - Kill it a  little
 	if ( life > 0.0 && life <= 1.0 )
 	{
-		float lifeFrames = mix( 600, 1000, in_properties.z );
+		float lifeFrames = mix( 200, 400, in_properties.z );
 		life -= (1.0/lifeFrames);
 		life = max(0,life);
 
@@ -40,7 +40,7 @@ void main(void)
 		else
 		{
 			position.xyz += velocity;
-			velocity += vec3( 0.0000006, 0.0, -0.0000006 );
+			velocity += vec3( 0.0000006, 0.0, -0.0000006 ) * 0.1;
 			velocity *= 0.996;
 		}
 	}
@@ -49,7 +49,7 @@ void main(void)
 		vec2 uv = vec2(in_properties.x, in_properties.y);
 
 		float spawnThreshold = in_properties.w;
-		vec4 smudgeData = texture( s_smudgeData, uv );
+		vec4 smudgeData = textureLod( s_smudgeData, uv, 2 );
 		float spawnStrength = min( smudgeData.z, 1.0 );
 		
 		if ( spawnStrength > spawnThreshold )
@@ -66,8 +66,8 @@ void main(void)
 				float waterHeight = heightData.w;
 				float surfaceHeight = solidHeight + moltenHeight + dirtHeight + waterHeight;
 
-				position.y = surfaceHeight;
-				velocity = vec3( 0.0, mix( 0.0002, 0.0001, in_properties.z ), 0.0 );
+				position.y = surfaceHeight + 0.02;
+				velocity = vec3( 0.0 );
 				position.w = spawnStrength;
 			}
 		}
