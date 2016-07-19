@@ -17,6 +17,7 @@ uniform float u_dirtDiffuseStrength;
 uniform float u_dissolvedDirtDiffuseStrength;
 uniform float u_waterDiffuseStrength;
 uniform float u_heatDiffuseStrength;
+uniform float u_mapHeightOffset;
 
 // Outputs
 layout( location = 0 ) out vec4 out_heightData;
@@ -84,9 +85,9 @@ void main(void)
 	
 	// Dirt
 	{
-		float c = heightDataC.x + heightDataC.y + heightDataC.z;
-		float l = heightDataL.x + heightDataL.y + heightDataL.z;
-		float r = heightDataR.x + heightDataR.y + heightDataR.z;
+		float c = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset;
+		float l = heightDataL.x + heightDataL.y + heightDataL.z + miscDataL.y * u_mapHeightOffset;
+		float r = heightDataR.x + heightDataR.y + heightDataR.z + miscDataR.y * u_mapHeightOffset;
 
 		float diffL = (l - c) * u_dirtDiffuseStrength;
 		float diffR = (r - c) * u_dirtDiffuseStrength;
