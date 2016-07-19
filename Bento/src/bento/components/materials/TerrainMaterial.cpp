@@ -14,6 +14,9 @@ namespace bento
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
 		moltenPlatesTexture.TexImage2D("textures/MoltenPlates.png");
+		dirtDiffuseTexture.TexImage2D("textures/Dirt_Diff.png");
+		rockDiffuseTexture.TexImage2D("textures/Rock_Diff.png");
+		dirtNormalTexture.TexImage2D("textures/Dirt_Nrm.png");
 		steamTexture.TexImage2D("textures/Steam.png");
 		steamTexture.GenerateMipMaps();
 
@@ -48,6 +51,7 @@ namespace bento
 
 		// Dirt
 		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
+		SerializableMember("dirtTextureRepeat", 1.0, &dirtTextureRepeat);
 
 		// Veg
 		SerializableMember("vegColor", vec3(0.5, 0.5f, 0.5f), &vegColor);
@@ -108,6 +112,7 @@ namespace bento
 		ImGui::Spacing();
 		ImGui::Text("Dirt");
 		ImGui::ColorEdit3("Color##dirt", glm::value_ptr(dirtColor));
+		ImGui::SliderFloat("TextureRepeat##dirt", &dirtTextureRepeat, 0.0f, 20.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

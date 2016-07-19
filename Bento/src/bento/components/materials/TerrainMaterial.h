@@ -30,6 +30,9 @@ namespace bento
 		TextureSquare someTexture;
 		TextureSquare moltenPlatesTexture;
 		TextureSquare steamTexture;
+		TextureSquare dirtDiffuseTexture;
+		TextureSquare rockDiffuseTexture;
+		TextureSquare dirtNormalTexture;
 		Texture3D texture3D;
 
 		// Rock
@@ -56,6 +59,7 @@ namespace bento
 
 		// Dirt
 		vec3 dirtColor;
+		float dirtTextureRepeat;
 
 		// Water
 		vec3 waterColor;

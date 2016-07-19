@@ -84,6 +84,8 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("waterVelocityScalar",	1.0f,		&m_waterVelocityScalar);
 	SerializableMember("waterVelocityDamping",	0.99f,		&m_waterVelocityDamping);
 	SerializableMember("boilSpeed",				0.001f,		&m_boilSpeed);
+	SerializableMember("drainRate",				0.0f,		&m_drainRate);
+	SerializableMember("drainMaxDepth",			0.01f,		&m_drainMaxDepth);
 
 	// Erosion
 	SerializableMember("erosionStrength",		0.0f,		&m_erosionStrength);
@@ -185,11 +187,13 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 50.0f, "%.2f");
 	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.1f, 1.0f, "%.3f");
 	ImGui::SliderFloat("BoilSpeed", &m_boilSpeed, 0.0f, 0.001f, "%.4f");
+	ImGui::SliderFloat("DrainRate", &m_drainRate, 0.0f, 0.001f, "%.5f");
+	ImGui::SliderFloat("DrainMaxDepth", &m_drainMaxDepth, 0.0f, 0.05f, "%.3f");
 	ImGui::Spacing();
 
 	ImGui::Text("Erosion");
 	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.0001f, "%.6f");
-	ImGui::SliderFloat("DirtDepthMax", &m_erosionDirtDepthMax, 0.0f, 0.01f, "%.4f");
+	ImGui::SliderFloat("DirtDepthMax", &m_erosionDirtDepthMax, 0.0f, 0.1f, "%.4f");
 	ImGui::SliderFloat("WaterDepthMin", &m_erosionWaterDepthMin, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("WaterDepthMax", &m_erosionWaterDepthMax, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("WaterSpeedMax", &m_erosionWaterSpeedMax, 0.0f, 0.1f, "%.3f");
@@ -198,17 +202,17 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Text("Dirt Transport");
 	ImGui::SliderFloat("PickupMinWaterSpeed", &m_dirtPickupMinWaterSpeed, 0.0f, 0.1f, "%.7f");
 	ImGui::SliderFloat("PickupRate", &m_dirtPickupRate, 0.0f, 0.0005f, "%.7f");
-	ImGui::SliderFloat("TransportSpeed", &m_dirtTransportSpeed, 0.0f, 1.0f, "%.5f");
-	ImGui::SliderFloat("DepositSpeed", &m_dirtDepositSpeed, 0.0f, 0.01f, "%.7f");
+	ImGui::SliderFloat("TransportSpeed", &m_dirtTransportSpeed, 0.0f, 0.01f, "%.4f");
+	ImGui::SliderFloat("DepositSpeed", &m_dirtDepositSpeed, 0.0f, 0.1f, "%.7f");
 	ImGui::SliderFloat("DissolvedDirtSmoothing", &m_dissolvedDirtSmoothing, 0.0f, 1.0f, "%.5f");
 	ImGui::Spacing();
 
 	ImGui::Text("Vegetation");
-	ImGui::SliderFloat("MinDirt#veg", &m_vegMinDirt, 0.0f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MaxDirt#veg", &m_vegMaxDirt, 0.0f, 0.01f, "%.5f");
+	ImGui::SliderFloat("MinDirt#veg", &m_vegMinDirt, 0.0f, 0.05f, "%.5f");
+	ImGui::SliderFloat("MaxDirt#veg", &m_vegMaxDirt, 0.0f, 0.05f, "%.5f");
 	ImGui::SliderFloat("MinSlope#veg", &m_vegMinSlope, 0.0f, 1.00f, "%.5f");
 	ImGui::SliderFloat("MaxSlope#veg", &m_vegMaxSlope, 0.0f, 1.00f, "%.5f");
-	ImGui::SliderFloat("GrowthRate#veg", &m_vegGrowthRate, 0.0f, 0.1f, "%.5f");
+	ImGui::SliderFloat("GrowthRate#veg", &m_vegGrowthRate, 0.0f, 0.01f, "%.5f");
 	ImGui::Spacing();
 
 
@@ -251,6 +255,10 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	float waterVolumeAmount = (inputManager.IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * waterScalar;
 
 	vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
+
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(true);
+	glDepthFunc(GL_ALWAYS);
 
 	// Update Flux
 	{
@@ -336,6 +344,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_evapourationRate",				m_evapourationRate);
 		fragShader.SetUniform("u_rainRate",						m_rainRate);
 		fragShader.SetUniform("u_boilSpeed",					m_boilSpeed);
+		fragShader.SetUniform("u_drainRate",					m_drainRate);
+		fragShader.SetUniform("u_drainMaxDepth",				m_drainMaxDepth);
 
 		// Erosion
 		fragShader.SetUniform("u_erosionStrength",				m_erosionStrength);
@@ -396,6 +406,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_waterDiffuseStrength", m_dissolvedDirtSmoothing);
 		fragShader.SetUniform("u_heatDiffuseStrength", m_heatDiffuseStrength);
 		fragShader.SetUniform("u_dissolvedDirtDiffuseStrength", m_dissolvedDirtSmoothing);
+		fragShader.SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
 
 		// X Pass
 
@@ -493,13 +504,20 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearDepth(0.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		glDepthFunc(GL_GREATER);
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(true);
 
-		glEnable(GL_BLEND);
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		glBlendEquation(GL_MAX);
-		glBlendFunc(GL_ONE, GL_ONE);
+		//glEnable(GL_BLEND);
+		//glEnable(GL_PROGRAM_POINT_SIZE);
+		//glBlendEquation(GL_MAX);
+		//glBlendFunc(GL_ONE, GL_ONE);
+
+		
 
 		vertShader.SetTexture("s_velocityData", _geom.VelocityDataRead() );
 
@@ -507,10 +525,17 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		//glPointSize(16.0f);
 
+		glEnable(GL_PROGRAM_POINT_SIZE);
+
 		GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
 
-		glDisable(GL_BLEND);
+		//glDisable(GL_BLEND);
 		glDisable(GL_PROGRAM_POINT_SIZE);
+
+		//glDisable(GL_DEPTH_TEST);
+		//glDepthMask(false);
+
+
 
 		_geom.MoltenMapDataWrite().GenerateMipMaps();
 		_geom.SwapMoltenMapData();
@@ -523,7 +548,7 @@ void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)
 	(
 		_node.geom->NumVerticesPerDimension(),
 		_node.geom->NumVerticesPerDimension(),
-		false, false, GL_RGBA16F
+		false, true, GL_RGBA16F
 	);
 		
 	m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));

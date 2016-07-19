@@ -124,6 +124,8 @@ namespace bento
 		float m_waterVelocityScalar;
 		float m_waterVelocityDamping;
 		float m_boilSpeed;
+		float m_drainRate;
+		float m_drainMaxDepth;
 
 		// Erosion
 		float m_erosionStrength;
