@@ -42,6 +42,8 @@ namespace bento
 		float rockRoughnessB;
 		float rockFresnelA;
 		float rockFresnelB;
+		float rockDetailDiffuseStrength;
+		float rockDetailBumpStrength;
 
 		// Hot rock
 		vec3 hotRockColorA;

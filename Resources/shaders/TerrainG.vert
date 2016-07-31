@@ -115,6 +115,8 @@ uniform float u_rockRoughnessB;
 uniform float u_rockFresnelA;
 uniform float u_rockFresnelB;
 uniform float u_moltenMapOffset;
+uniform float u_rockDetailBumpStrength;
+uniform float u_rockDetailDiffuseStrength;
 
 uniform vec3 u_hotRockColorA;
 uniform vec3 u_hotRockColorB;
@@ -136,6 +138,11 @@ uniform mat4 u_modelViewMatrix;
 uniform mat3 u_normalModelViewMatrix;
 uniform float u_mapHeightOffset;
 
+uniform float u_phaseA;
+uniform float u_phaseB;
+uniform float u_alphaA;
+uniform float u_alphaB;
+
 // Textures
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
@@ -143,6 +150,9 @@ uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_diffuseMap;
 uniform sampler2D s_smudgeData;
+
+uniform sampler2D s_dirtDiffuse;
+uniform sampler2D s_rockDiffuse;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -245,6 +255,14 @@ void main(void)
 	position.y += vegAmount * u_vegBump;
 
 	vec4 viewPosition = position * u_modelViewMatrix;
+	vec3 rockDetailSample = texture( s_rockDiffuse, in_uv ).rgb;
+
+	vec3 rockDetailDiffuse = vec3( pow( rockDetailSample.b, 2.2 ) );
+
+	vec3 rockDetailBump = vec3( rockDetailSample.x, 0.0, rockDetailSample.y );
+	rockDetailBump *= 2.0;
+	rockDetailBump -= 1.0;
+	rockDetailBump.y = 1.0 - length(rockDetailBump);
 
 	// Rock material
 	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, pow(moltenMapValue,2.0) ), vec3(2.2) );
@@ -259,14 +277,19 @@ void main(void)
 	// Mix rock and hot rock together
 	float hotRockMaterialLerp = min( max( heat-0.1, 0.0 ) / 0.3, 1.0 );
 
-	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp );
+	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp ) * (rockDetailDiffuse + (1.0-u_rockDetailDiffuseStrength));
 	float roughness = mix( rockRoughness, hotRockRoughness, hotRockMaterialLerp );
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
 
 	// Dirt
 	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));// * mix(0.0, 1.0, diffuseData.z);
+	dirtDiffuse *= pow( texture( s_dirtDiffuse, in_uv ).rgb, vec3(2.2) );
+
 	float dirtAlpha = clamp((dirtHeight / 0.001), 0.0, 1.0);
 	diffuse = mix(diffuse, dirtDiffuse, dirtAlpha);
+
+	rockNormal += rockDetailBump * u_rockDetailBumpStrength * (1.0-dirtAlpha);
+	rockNormal = normalize(rockNormal);
 
 	// Vegetation
 	vec3 vegDiffuse = pow(u_vegColor, vec3(2.2)) * mix(0.0, 1.0, diffuseData.z);
@@ -282,13 +305,20 @@ void main(void)
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * occlusion;
 	
 	// Emissive
-	float emissiveAlpha = max( max(heat-0.3, 0.0) * u_moltenAlphaScalar - (moltenMapValue * u_moltenAlphaPower), 0.0 );
-	vec3 emissiveColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, emissiveAlpha ), vec3(2.2) );
+	float moltenAlpha = max( max(heat-0.3, 0.0) * u_moltenAlphaScalar - (moltenMapValue * u_moltenAlphaPower), 0.0 );
+	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, moltenAlpha ), vec3(2.2) );
+	
+	vec2 moltenVelocity = velocityDataC.xy;
+	float moltenDiffuseDetailA = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseA).b, 2.2 );
+	float moltenDiffuseDetailB = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseB).b, 2.2 );
+	float moltenDiffuseDetail = mix( moltenDiffuseDetailA, moltenDiffuseDetailB, u_alphaB );
+
+	moltenColor *= moltenDiffuseDetail;
 
 	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
-	outColor *= pow( clamp(1.0 - emissiveAlpha, 0.0, 1.0), 4.0 );
-	outColor = mix( outColor, emissiveColor, emissiveAlpha );
+	outColor *= pow( clamp(1.0 - moltenAlpha, 0.0, 1.0), 4.0 );
+	outColor = mix( outColor, moltenColor, moltenAlpha );
 
 	//outColor = mix( outColor, vec3(0.0,1.0,0.0), pow(steamStrength, 2.2) );
 	

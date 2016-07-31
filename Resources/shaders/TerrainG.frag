@@ -21,10 +21,6 @@ in Varying
 uniform vec2 u_mouseScreenPos;
 uniform ivec2 u_windowSize;
 
-uniform sampler2D s_dirtDiffuse;
-uniform sampler2D s_rockDiffuse;
-uniform sampler2D s_dirtNormal;
-uniform float u_dirtTextureRepeat;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -83,19 +79,9 @@ void main(void)
 {
 	UpdateMousePosition();
 
-	vec4 dirtDiffuse = pow( texture( s_dirtDiffuse, in_uv * u_dirtTextureRepeat ), vec4(2.2) );
-	vec4 rockDiffuse = pow( texture( s_rockDiffuse, in_uv * u_dirtTextureRepeat ), vec4(2.2) );
-	//vec4 dirtNormal = texture( s_dirtNormal, in_uv * u_dirtTextureRepeat );
-
-	vec4 forward = in_forward;
-
-	//forward.rgb *= rockDiffuse.rgb;
-
-	forward = mix( forward, dirtDiffuse, in_dirtAlpha );
-
 	out_viewPosition = in_viewPosition;
 	out_viewNormal = in_viewNormal;
 	out_albedo = in_albedo;
 	out_material = in_material;
-	out_forward = forward;
+	out_forward = in_forward;
 }
