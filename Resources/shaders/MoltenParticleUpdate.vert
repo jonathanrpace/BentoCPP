@@ -2,7 +2,8 @@
 
 // Inputs
 layout(location = 0) in vec4 in_position;
-layout(location = 1) in vec4 in_properties;
+layout(location = 1) in vec2 in_direction;
+layout(location = 2) in vec4 in_properties;
 
 // Uniforms
 uniform sampler2D s_heightData;
@@ -12,6 +13,7 @@ uniform sampler2D s_velocityData;
 out Varying
 {
 	vec4 out_position;
+	vec2 out_direction;
 };
 
 void main(void)
@@ -46,4 +48,15 @@ void main(void)
 	position.y = surfaceHeight;
 
 	out_position = vec4(position, life);
+
+
+	vec2 direction = in_direction;
+
+	float dp = dot( normalize(moltenVelocity), normalize(direction) );
+	dp = (dp + 1.0) * 0.5;
+	dp = 1.0 - dp;
+
+	direction += moltenVelocity * 0.1;// * dp;
+
+	out_direction = direction;
 } 

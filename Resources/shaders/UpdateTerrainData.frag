@@ -279,7 +279,7 @@ void main(void)
 			dp = 1.0 - dp;
 
 			vec2 velocityN = min( velocity / moltenSpeed, vec2(1.0) );
-			smudgeUV += velocityN * influence * 0.01 * dp;
+			//smudgeUV += velocityN * influence * 0.01 * dp;
 
 			out_smudgeData.xy = smudgeUV;
 		}
@@ -576,7 +576,7 @@ void main(void)
 			moltenMapResultC += textureLod(s_moltenMapData, uvC - smudgeDataC.xy, i).x * strength;
 
 			totalStrength += strength;
-			strength *= 2.0;
+			strength *= 1.0;
 		}
 		moltenMapResultC /= totalStrength;
 

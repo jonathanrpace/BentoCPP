@@ -2,7 +2,8 @@
 
 // Inputs
 layout(location = 0) in vec4 in_position;
-layout(location = 1) in vec4 in_properties;
+layout(location = 1) in vec2 in_direction;
+layout(location = 2) in vec4 in_properties;
 
 uniform sampler2D s_velocityData;
 
@@ -17,6 +18,7 @@ out Varying
 {
 	vec4 out_color;
 	float out_angle;
+	vec2 out_direction;
 };
 
 void main(void)
@@ -42,4 +44,5 @@ void main(void)
 	//out_color = vec4(vec3(in_properties.z), alpha);
 	out_color = vec4(vec3(1.0), alpha);
 	out_angle = in_properties.z * 3.142 * 2.0;
+	out_direction = in_direction;
 } 

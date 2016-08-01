@@ -12,6 +12,7 @@ in Varying
 {
 	vec4 in_color;
 	float in_angle;
+	vec2 in_direction;
 };
 
 void main(void)
@@ -20,11 +21,14 @@ void main(void)
 		discard;
 
 	vec2 uv = gl_PointCoord - vec2(0.5);
+
 	vec2 rotatedUV = vec2(  uv.x * cos(in_angle) - uv.y * sin(in_angle),
 							uv.x * sin(in_angle) + uv.y * cos(in_angle) );
 	rotatedUV += vec2(0.5);
 
-	vec4 textureSample = texture(s_texture, rotatedUV);
+
+
+	vec4 textureSample = texture(s_texture, uv * (vec2(1.0) + abs(in_direction)));
 	float alpha = textureSample.x;
 	alpha *= in_color.w;
 
