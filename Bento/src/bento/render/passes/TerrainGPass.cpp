@@ -1,5 +1,7 @@
 #include "TerrainGPass.h"
 
+#include <glfw3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtx/polar_coordinates.hpp>
 
@@ -21,11 +23,18 @@ namespace bento
 	{
 		// Textures
 		SetTexture("s_heightData", _geometry.HeightDataRead());
-		SetTexture("s_velocityData", _geometry.RockFluxDataRead());
+		SetTexture("s_velocityData", _geometry.VelocityDataRead());
 		SetTexture("s_miscData", _geometry.MiscDataRead());
 		SetTexture("s_normalData", _geometry.NormalDataRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeDataRead());
 		SetTexture("s_diffuseMap", _material.someTexture);
+
+		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
+		SetTexture("s_dirtDiffuse", _material.dirtDiffuseTexture);
+		//SetTexture("s_dirtNormal", _material.dirtNormalTexture);
+		//SetUniform("u_dirtTextureRepeat", _material.dirtTextureRepeat);
+
+		
 
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
@@ -50,6 +59,8 @@ namespace bento
 		SetUniform("u_rockRoughnessB", _material.rockRoughnessB);
 		SetUniform("u_rockFresnelA", _material.rockFresnelA);
 		SetUniform("u_rockFresnelB", _material.rockFresnelB);
+		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
+		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 
 		SetUniform("u_hotRockColorA", _material.hotRockColorA);
 		SetUniform("u_hotRockColorB", _material.hotRockColorB);
@@ -67,6 +78,19 @@ namespace bento
 
 		SetUniform("u_vegColor", _material.vegColor);
 		SetUniform("u_vegBump", _material.vegBump);
+
+		float phase = fmodf( (float)glfwGetTime() * 0.02f, 1.0f );
+
+		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
+		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
+
+		float alphaB = fabs( 0.5f - phase ) * 2.0f;
+		float alphaA = 1.0f - alphaB;
+
+		SetUniform("u_phaseA", phaseA);
+		SetUniform("u_phaseB", phaseB);
+		SetUniform("u_alphaA", alphaA);
+		SetUniform("u_alphaB", alphaB);
 	}
 
 	////////////////////////////////////////////
@@ -83,11 +107,7 @@ namespace bento
 	{
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
-		SetTexture("s_dirtDiffuse", _material.dirtDiffuseTexture);
-		SetTexture("s_dirtNormal", _material.dirtNormalTexture);
-		SetUniform("u_dirtTextureRepeat", _material.dirtTextureRepeat);
-
-		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
+		
 
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;
