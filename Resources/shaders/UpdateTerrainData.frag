@@ -278,10 +278,8 @@ void main(void)
 			float dp = clamp( dot( normalize(velocity+EPSILON.xy), normalize(smudgeUV+EPSILON.xy) ), 0.0, 1.0 );
 			dp = 1.0 - dp;
 
-			//dp = mix( 0.5, 1.0, dp );
-
 			vec2 velocityN = min( velocity / moltenSpeed, vec2(1.0) );
-			smudgeUV += velocityN * influence * 0.05 * dp;
+			smudgeUV += velocityN * influence * 0.01 * dp;
 
 			out_smudgeData.xy = smudgeUV;
 		}
@@ -305,7 +303,9 @@ void main(void)
 		waterHeight += fluxChange * u_waterViscosity;
 
 		// Add some water near the mouse
-		waterHeight += pow(mouseRatio, 1.1) * u_mouseWaterVolumeStrength;
+		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv*2.0+mousePos*0.1);
+		float waterMouseScalar = pow( diffuseSampleC.x, 1.0 );
+		waterHeight += pow(mouseRatio, 1.1) * u_mouseWaterVolumeStrength * waterMouseScalar;
 
 		// Drainage
 		waterHeight -= min( waterHeight / u_drainMaxDepth, 1.0 ) * u_drainRate;
@@ -576,7 +576,7 @@ void main(void)
 			moltenMapResultC += textureLod(s_moltenMapData, uvC - smudgeDataC.xy, i).x * strength;
 
 			totalStrength += strength;
-			strength *= 0.15;
+			strength *= 2.0;
 		}
 		moltenMapResultC /= totalStrength;
 
