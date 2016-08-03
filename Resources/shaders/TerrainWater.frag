@@ -22,7 +22,7 @@ uniform mat4 u_mvpMatrix;
 uniform mat4 u_viewMatrix;
 
 // Material
-uniform vec3 u_waterColor;
+uniform vec3 u_waterColor2;
 uniform float u_indexOfRefraction;
 
 // Samplers
@@ -46,16 +46,18 @@ void main(void)
 
 	vec3 outColor = vec3(0.0f);
 
+	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
+	if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
+
+	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
+	float absorbtionRatio = clamp( viewDepth / 0.1, 0.0, 1.0 );
+
+	viewDepth = clamp(viewDepth, 0.0, 0.2);
+
 	////////////////////////////////////////////////////////////////
 	// Refraction
 	////////////////////////////////////////////////////////////////
 	{
-		vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
-		if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
-
-		float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
-		viewDepth = clamp(viewDepth, 0.0, 0.2);
-
 		// We do this first as we need to know what pixel in the frame-buffer we're blending with
 		vec3 refractVec = refract(-eye, normal, u_indexOfRefraction);
 		
@@ -72,10 +74,11 @@ void main(void)
 	}
 	
 	// Filter color behind water. The deeper the water, the more filter applied.
-	outColor *= mix( vec3(1.0f), pow(u_waterColor, vec3(2.2)), in_alpha );
+	outColor *= mix( vec3(1.0f), pow(u_waterColor2, vec3(2.2)), in_alpha );
+
 
 	// Alpha blend diffuse
-	outColor = mix( outColor, in_diffuse.rgb, in_diffuse.a );
+	outColor = mix( outColor, in_diffuse.rgb, min( absorbtionRatio + in_diffuse.a, 1.0 ) );
 
 	// Add reflections
 	outColor += in_reflections;

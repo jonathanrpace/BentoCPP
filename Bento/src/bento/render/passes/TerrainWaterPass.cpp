@@ -37,6 +37,7 @@ namespace bento
 		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 
 		SetUniform("u_dirtColor", _material.dirtColor);
+		SetUniform("u_waterColor", _material.waterColor);
 		SetUniform("u_specularPower", _material.waterSpecularPower);
 
 		SetTexture("s_heightData", _geometry.HeightDataRead());
@@ -56,7 +57,7 @@ namespace bento
 
 	void TerrainWaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
-		SetUniform("u_waterColor", _material.waterColor);
+		SetUniform("u_waterColor2", _material.waterColor);
 		SetUniform("u_indexOfRefraction", _material.waterIndexOfRefraction);
 
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix(), true);

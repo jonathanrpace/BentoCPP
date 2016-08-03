@@ -304,7 +304,7 @@ void main(void)
 
 		// Add some water near the mouse
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv*2.0+mousePos*0.1);
-		float waterMouseScalar = pow( diffuseSampleC.x, 1.0 );
+		float waterMouseScalar = mix( 1.0, pow( diffuseSampleC.x, 1.0 ), 0.2 );
 		waterHeight += pow(mouseRatio, 1.1) * u_mouseWaterVolumeStrength * waterMouseScalar;
 
 		// Drainage

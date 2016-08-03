@@ -254,7 +254,7 @@ void main(void)
 	position.y += moltenMapValue * u_mapHeightOffset;
 	position.y += vegAmount * u_vegBump;
 
-	vec4 viewPosition = position * u_modelViewMatrix;
+	vec4 viewPosition = u_modelViewMatrix * position;
 	vec3 rockDetailSample = texture( s_rockDiffuse, in_uv ).rgb;
 
 	vec3 rockDetailDiffuse = vec3( pow( rockDetailSample.b, 2.2 ) );
@@ -285,7 +285,7 @@ void main(void)
 	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));// * mix(0.0, 1.0, diffuseData.z);
 	dirtDiffuse *= pow( texture( s_dirtDiffuse, in_uv ).rgb, vec3(2.2) );
 
-	float dirtAlpha = clamp((dirtHeight / 0.001), 0.0, 1.0);
+	float dirtAlpha = clamp((dirtHeight / 0.003), 0.0, 1.0);
 	diffuse = mix(diffuse, dirtDiffuse, dirtAlpha);
 
 	rockNormal += rockDetailBump * u_rockDetailBumpStrength * (1.0-dirtAlpha);

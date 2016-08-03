@@ -25,6 +25,7 @@ uniform float u_waterHeightToOpaque = 0.005;
 uniform float u_fresnelPower = 4.0f;
 uniform float u_specularPower;
 uniform vec3 u_dirtColor;
+uniform vec3 u_waterColor;
 const float u_terrainSize = 1.5;
 
 // Lighting
@@ -116,12 +117,13 @@ void main(void)
 	// Diffuse
 	////////////////////////////////////////////////////////////////
 	{
-		out_diffuse = vec4( vec3(diffuse(normal, u_lightDir, 1.5f) * u_lightIntensity), 0.0 );
-		out_diffuse.rgb += u_ambientLightIntensity;
+		float lighting = diffuse(normal, u_lightDir, 1.5f) * u_lightIntensity;
+		lighting += u_ambientLightIntensity;
+		float dissolvedDirtAlpha = min( dissolvedDirt / 0.0025, 1.0 );
 
-		// Water color is dissolved dirt color
-		out_diffuse.rgb *= vec3(1.0,0.0,0.0);//pow(u_dirtColor*0.25, vec3(2.2));
-		out_diffuse.a = min( dissolvedDirt / 0.01, 1.0 ) * alpha;
+		out_diffuse.a = dissolvedDirtAlpha;
+		out_diffuse.rgb = mix( pow( u_waterColor * 0.5, vec3(2.2) ), pow( u_dirtColor, vec3(2.2) ), dissolvedDirtAlpha );
+		out_diffuse.rgb *= lighting;
 	}
 
 	////////////////////////////////////////////////////////////////
