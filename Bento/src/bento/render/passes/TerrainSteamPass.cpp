@@ -88,8 +88,8 @@ namespace bento
 
 				auto& vs = m_updateShader.VertexShader();
 
-				vs.SetTexture("s_heightData", terrainGeom.HeightDataRead());
-				vs.SetTexture("s_smudgeData", terrainGeom.SmudgeDataRead());
+				vs.SetTexture("s_heightData", terrainGeom.HeightData().GetRead());
+				vs.SetTexture("s_smudgeData", terrainGeom.SmudgeData().GetRead());
 
 				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
 
@@ -126,7 +126,7 @@ namespace bento
 				vs.SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
 				vs.SetUniform("u_moltenColor", material.moltenColor);
 
-				vs.SetTexture("s_miscData", terrainGeom.MiscDataRead());
+				vs.SetTexture("s_miscData", terrainGeom.MiscData().GetRead());
 				vs.SetTexture("s_texture", material.steamTexture);
 				vs.SetTexture("s_texture3D", material.texture3D);
 

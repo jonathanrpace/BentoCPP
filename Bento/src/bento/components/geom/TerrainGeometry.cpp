@@ -16,43 +16,14 @@ namespace bento
 		, m_numVerticesPerDimension(1024)
 		, m_terrainMousePos()
 
-		, m_heightDataA		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_heightDataB		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_velocityDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_velocityDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscDataC		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_normalDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_normalDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_moltenMapDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_moltenMapDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_smudgeDataA		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_smudgeDataB		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-
-		, m_rockFluxDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_rockFluxDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxDataA	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxDataB	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-
-		, m_heightDataRead(&m_heightDataA)
-		, m_heightDataWrite(&m_heightDataB)
-		, m_velocityDataRead(&m_velocityDataA)
-		, m_velocityDataWrite(&m_velocityDataB)
-		, m_miscDataRead(&m_miscDataA)
-		, m_miscDataWrite(&m_miscDataB)
-		, m_miscDataPrevious(&m_miscDataC)
-		, m_normalDataRead(&m_normalDataA)
-		, m_normalDataWrite(&m_normalDataB)
-		, m_moltenMapDataRead(&m_moltenMapDataA)
-		, m_moltenMapDataWrite(&m_moltenMapDataB)
-		, m_smudgeDataRead(&m_smudgeDataA)
-		, m_smudgeDataWrite(&m_smudgeDataB)
-
-		, m_rockFluxDataRead(&m_rockFluxDataA)
-		, m_rockFluxDataWrite(&m_rockFluxDataB)
-		, m_waterFluxDataRead(&m_waterFluxDataA)
-		, m_waterFluxDataWrite(&m_waterFluxDataB)
+		, m_heightData		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_velocityData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_normalData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_moltenMapData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_smudgeData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_rockFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
@@ -211,62 +182,57 @@ namespace bento
 			}
 		}
 
-		m_heightDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_heightDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_heightDataA.GenerateMipMaps();
-		m_heightDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_heightDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_heightDataB.GenerateMipMaps();
+		m_heightData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_heightData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_heightData.GetRead().GenerateMipMaps();
+		m_heightData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_heightData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_heightData.GetWrite().GenerateMipMaps();
 
-		m_velocityDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_velocityDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_velocityDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_velocityDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_velocityData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_velocityData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_velocityData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_velocityData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
-		m_miscDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_miscDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_miscDataA.GenerateMipMaps();
-		m_miscDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_miscDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_miscDataB.GenerateMipMaps();
-		m_miscDataC.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_miscDataC.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_miscDataC.GenerateMipMaps();
+		m_miscData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_miscData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_miscData.GetRead().GenerateMipMaps();
+		m_miscData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_miscData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_miscData.GetWrite().GenerateMipMaps();
 
-		m_normalDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_normalDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_normalDataA.GenerateMipMaps();
-		m_normalDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_normalDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_normalDataB.GenerateMipMaps();
+		m_normalData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_normalData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_normalData.GetRead().GenerateMipMaps();
+		m_normalData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_normalData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_normalData.GetWrite().GenerateMipMaps();
 
-		m_moltenMapDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_moltenMapDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_moltenMapDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_moltenMapDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_moltenMapData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_moltenMapData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_moltenMapData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_moltenMapData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
-		m_smudgeDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_smudgeDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_smudgeDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_smudgeDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_smudgeData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_smudgeData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_smudgeData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_smudgeData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
-		m_rockFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_rockFluxDataA.GenerateMipMaps();
+		m_rockFluxData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_rockFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_rockFluxData.GetRead().GenerateMipMaps();
 
-		m_rockFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_rockFluxDataB.GenerateMipMaps();
+		m_rockFluxData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_rockFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_rockFluxData.GetWrite().GenerateMipMaps();
 
-		m_waterFluxDataA.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_waterFluxDataA.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_waterFluxDataA.GenerateMipMaps();
+		m_waterFluxData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_waterFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_waterFluxData.GetRead().GenerateMipMaps();
 
-		m_waterFluxDataB.SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_waterFluxDataB.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_waterFluxDataB.GenerateMipMaps();
-
-		
+		m_waterFluxData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_waterFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_waterFluxData.GetWrite().GenerateMipMaps();
 
 		BufferVertexData(0, &positions[0], positions.size());
 		BufferVertexData(1, &uvs[0], uvs.size());

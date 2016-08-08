@@ -40,10 +40,10 @@ namespace bento
 		SetUniform("u_waterColor", _material.waterColor);
 		SetUniform("u_specularPower", _material.waterSpecularPower);
 
-		SetTexture("s_heightData", _geometry.HeightDataRead());
-		SetTexture("s_velocityData", _geometry.VelocityDataRead());
-		SetTexture("s_miscData", _geometry.MiscDataRead());
-		SetTexture("s_normalData", _geometry.NormalDataRead());
+		SetTexture("s_heightData", _geometry.HeightData().GetRead());
+		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
+		SetTexture("s_miscData", _geometry.MiscData().GetRead());
+		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 	}
 
 	////////////////////////////////////////////
