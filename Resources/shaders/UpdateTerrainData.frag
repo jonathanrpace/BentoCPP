@@ -124,14 +124,14 @@ vec2 GetMousePos()
 //
 float CalcMoltenViscosity( float _heat )
 {
-	return smoothstep( 0.0f, 1.0f, clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0)) * u_moltenViscosity;
+	return smoothstep( 0.0f, 1.0f, pow( clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0), 0.75 )) * u_moltenViscosity;
 }
 
 ////////////////////////////////////////////////////////////////
 //
 vec4 CalcMoltenViscosity( vec4 _heat )
 {
-	return smoothstep( vec4(0.0f), vec4(1.0f), clamp(_heat-vec4(u_rockMeltingPoint), vec4(0.0f), vec4(1.0))) * vec4(u_moltenViscosity);
+	return smoothstep( vec4(0.0f), vec4(1.0f), pow( clamp(_heat-vec4(u_rockMeltingPoint), vec4(0.0f), vec4(1.0)), vec4(0.75)) ) * vec4(u_moltenViscosity);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -253,7 +253,7 @@ void main(void)
 		float heightTextureScalar = mix( 1.0-diffuseSampleC.x, diffuseSampleC.x, 0.75 );
 		float heightMin = 1.0 - min( 0.5 + heat * 2.0, 1.0 );
 		heat   += ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.25, 1.0, heatTextureScalar) ) / (1.0+heat*10.0);
-		height += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.0, 1.0, heightTextureScalar) ) / (1.0+height);
+		height += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.75, 1.0, heightTextureScalar) ) / (1.0+height);
 
 		heat = max(0.0, heat);
 
@@ -279,7 +279,7 @@ void main(void)
 			dp = 1.0 - dp;
 
 			vec2 velocityN = min( velocity / moltenSpeed, vec2(1.0) );
-			//smudgeUV += velocityN * influence * 0.01 * dp;
+			smudgeUV += velocityN * influence * 0.05 * dp;
 
 			out_smudgeData.xy = smudgeUV;
 		}
@@ -573,10 +573,10 @@ void main(void)
 		float moltenMapResultC = 0.0;
 		for ( int i = 0; i < 6; i++ )
 		{
-			moltenMapResultC += textureLod(s_moltenMapData, uvC - smudgeDataC.xy, i).x * strength;
+			moltenMapResultC += textureLod(s_moltenMapData, uvC, i).x * strength;
 
 			totalStrength += strength;
-			strength *= 0.9;
+			strength *= 0.0;
 		}
 		moltenMapResultC /= totalStrength;
 

@@ -2,7 +2,7 @@
 
 // Inputs
 layout(location = 0) in vec4 in_position;
-layout(location = 1) in float in_angle;
+layout(location = 1) in vec4 in_props;
 layout(location = 2) in vec4 in_properties;
 
 uniform sampler2D s_velocityData;
@@ -17,7 +17,7 @@ out gl_PerVertex
 out Varying
 {
 	float out_color;
-	float out_angle;
+	vec2 out_smudgeVector;
 	float out_angleOffset;
 };
 
@@ -31,16 +31,18 @@ void main(void)
 	screenPos.xy -= 0.5;
 	screenPos.xy *= 2.0;
 	gl_Position = screenPos;
-	gl_PointSize = mix(24.0, 32.0, pow(in_properties.w, 1.5));
+	gl_PointSize = 24;//mix(32.0, 64.0, pow(in_properties.w, 1.5));
 
 	float life = in_position.w;
 	float lifeAlpha = sin(life*3.142);
 
-	lifeAlpha *= mix(0.25, 1.0, in_properties.z);
+	lifeAlpha *= mix(0.5, 1.0, in_properties.z);
 
 	//alpha = clamp(alpha, 0.0, 1.0);
 
+	vec2 smudgeVector = in_props.xy;
+
 	out_color = lifeAlpha;
-	out_angle = in_angle;
-	out_angleOffset = mix(0.0, 3.142, in_properties.w);
+	out_smudgeVector = smudgeVector;
+	out_angleOffset = 0.0;//mix(0.0, 3.142, in_properties.w);
 } 

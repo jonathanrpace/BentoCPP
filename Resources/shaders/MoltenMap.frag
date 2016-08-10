@@ -11,7 +11,7 @@ uniform sampler2D s_texture;
 in Varying
 {
 	float in_color;
-	float in_angle;
+	vec2 in_smudgeVector;
 	float in_angleOffset;
 };
 
@@ -28,10 +28,16 @@ void main(void)
 	if ( in_color < 0.0001 )
 		discard;
 
+
+	float smudgeStrength = length(in_smudgeVector) + 0.000001;
+	vec2 normSmudgeVector = in_smudgeVector / smudgeStrength;
+	float smudgeAngle = atan(normSmudgeVector.y, normSmudgeVector.x);
+
 	vec2 uv = gl_PointCoord - vec2(0.5);
-	uv = rotateBy( uv, in_angle + in_angleOffset);
-	uv.y *= 1.5;
-	uv = rotateBy( uv, -in_angle );
+	uv = rotateBy( uv, smudgeAngle);
+	//uv *= vec2(1.0) + clamp( in_smudgeVector.yx * vec2(5.0), vec2(0.0), vec2(5.0) );
+	uv.x *= 1.0 + min( smudgeStrength * 50.0, 2.0 );
+	uv = rotateBy( uv, -smudgeAngle );
 	uv += vec2(0.5);
 
 	uv = clamp(uv, vec2(0.0), vec2(1.0));

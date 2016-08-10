@@ -2,12 +2,13 @@
 
 // Inputs
 layout(location = 0) in vec4 in_position;
-layout(location = 1) in float in_angle;
+layout(location = 1) in vec4 in_props;
 layout(location = 2) in vec4 in_properties;
 
 // Uniforms
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
+uniform sampler2D s_smudgeData;
 
 const float EPSILON = 0.000001;
 
@@ -15,7 +16,7 @@ const float EPSILON = 0.000001;
 out Varying
 {
 	vec4 out_position;
-	float out_angle;
+	vec4 out_properties;
 };
 
 void main(void)
@@ -24,6 +25,7 @@ void main(void)
 
 	vec4 heightData = texture( s_heightData, uv );
 	vec2 moltenVelocity = texture( s_velocityData, uv ).xy;
+	vec2 smudgeVector = texture( s_smudgeData, uv ).xy;
 
 	float solidHeight = heightData.x;
 	float moltenHeight = heightData.y;
@@ -32,7 +34,6 @@ void main(void)
 	float life = in_position.w;
 	vec3 position = in_position.xyz;
 	
-
 	if ( life <= 0.0 )
 	{
 		life = 1.0;
@@ -51,24 +52,5 @@ void main(void)
 	position.y = surfaceHeight;
 
 	out_position = vec4(position, life);
-
-
-	float angle = in_angle;
-	float moltenSpeed = length(moltenVelocity) + EPSILON;
-	vec2 normMoltenvelocity = moltenVelocity / moltenSpeed;
-	float velocityAngle = atan(normMoltenvelocity.y, normMoltenvelocity.x);
-	
-
-
-	//float dp = 
-	//dot( normalize(moltenVelocity), normalize(direction) );
-	//dp = (dp + 1.0) * 0.5;
-	//dp = 1.0 - dp;
-
-	if ( !isnan(velocityAngle) )
-	{
-		angle += (velocityAngle - angle) * 0.001;
-	}
-
-	out_angle = angle;
+	out_properties = vec4( smudgeVector, 0.0, 0.0 );
 } 

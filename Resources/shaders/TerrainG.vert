@@ -299,18 +299,18 @@ void main(void)
 	fresnel = mix( fresnel, 0.9, vegAlpha );
 
 	// Direct light
-	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, 1.0, 1.0 ) * u_lightIntensity;
+	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
 
 	// Ambient light
-	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * occlusion;
+	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * occlusion;
 	
 	// Emissive
 	float moltenAlpha = max( max(heat-0.3, 0.0) * u_moltenAlphaScalar - (moltenMapValue * u_moltenAlphaPower), 0.0 );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, moltenAlpha ), vec3(2.2) );
 	
 	vec2 moltenVelocity = velocityDataC.xy;
-	float moltenDiffuseDetailA = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseA).b, 2.2 );
-	float moltenDiffuseDetailB = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseB).b, 2.2 );
+	float moltenDiffuseDetailA = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseA * 0.5).b, 2.2 );
+	float moltenDiffuseDetailB = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseB * 0.5).b, 2.2 );
 	float moltenDiffuseDetail = mix( moltenDiffuseDetailA, moltenDiffuseDetailB, u_alphaB );
 
 	moltenColor *= moltenDiffuseDetail;
@@ -338,7 +338,7 @@ void main(void)
 		out_viewNormal = vec4( normalize( rockNormal * mat3(u_viewMatrix) ), 1.0f );
 		out_albedo = vec4( 0.0f );
 		out_material = vec4( 0.0f, 0.0f, 0.0f, 0.0f );	// roughness, reflectivity, emissive, nowt
-		out_forward = vec4(directLight);//vec4(moltenMapValue);//vec4(outColor, 1.0f);
+		out_forward = vec4(outColor, 1.0f);//vec4(directLight);//vec4(moltenMapValue);//vec4(outColor, 1.0f);
 		out_uv = in_uv;
 		gl_Position = u_mvpMatrix * position;
 		out_dirtAlpha = dirtAlpha;

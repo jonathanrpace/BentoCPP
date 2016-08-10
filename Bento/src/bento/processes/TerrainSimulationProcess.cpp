@@ -31,7 +31,7 @@ MoltenParticleUpdateVert::MoltenParticleUpdateVert()
 
 void MoltenParticleUpdateVert::OnPreLink()
 {
-	const char * varyings[] = { "out_position", "out_angle" };
+	const char * varyings[] = { "out_position", "out_properties" };
 	GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
 }
 
@@ -483,6 +483,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		vertexShader.SetTexture("s_heightData", _geom.HeightData().GetRead());
 		vertexShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead());
+		vertexShader.SetTexture("s_smudgeData", _geom.SmudgeData().GetRead());
 
 		GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
 
