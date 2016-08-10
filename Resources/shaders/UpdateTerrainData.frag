@@ -576,7 +576,7 @@ void main(void)
 			moltenMapResultC += textureLod(s_moltenMapData, uvC - smudgeDataC.xy, i).x * strength;
 
 			totalStrength += strength;
-			strength *= 1.0;
+			strength *= 0.9;
 		}
 		moltenMapResultC /= totalStrength;
 

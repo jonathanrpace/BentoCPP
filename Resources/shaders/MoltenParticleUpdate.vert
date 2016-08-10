@@ -2,18 +2,20 @@
 
 // Inputs
 layout(location = 0) in vec4 in_position;
-layout(location = 1) in vec2 in_direction;
+layout(location = 1) in float in_angle;
 layout(location = 2) in vec4 in_properties;
 
 // Uniforms
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 
+const float EPSILON = 0.000001;
+
 // Outputs
 out Varying
 {
 	vec4 out_position;
-	vec2 out_direction;
+	float out_angle;
 };
 
 void main(void)
@@ -29,6 +31,7 @@ void main(void)
 
 	float life = in_position.w;
 	vec3 position = in_position.xyz;
+	
 
 	if ( life <= 0.0 )
 	{
@@ -50,13 +53,22 @@ void main(void)
 	out_position = vec4(position, life);
 
 
-	vec2 direction = in_direction;
+	float angle = in_angle;
+	float moltenSpeed = length(moltenVelocity) + EPSILON;
+	vec2 normMoltenvelocity = moltenVelocity / moltenSpeed;
+	float velocityAngle = atan(normMoltenvelocity.y, normMoltenvelocity.x);
+	
 
-	float dp = dot( normalize(moltenVelocity), normalize(direction) );
-	dp = (dp + 1.0) * 0.5;
-	dp = 1.0 - dp;
 
-	direction += moltenVelocity * 0.1;// * dp;
+	//float dp = 
+	//dot( normalize(moltenVelocity), normalize(direction) );
+	//dp = (dp + 1.0) * 0.5;
+	//dp = 1.0 - dp;
 
-	out_direction = direction;
+	if ( !isnan(velocityAngle) )
+	{
+		angle += (velocityAngle - angle) * 0.001;
+	}
+
+	out_angle = angle;
 } 

@@ -10,27 +10,35 @@ uniform sampler2D s_texture;
 
 in Varying
 {
-	vec4 in_color;
+	float in_color;
 	float in_angle;
-	vec2 in_direction;
+	float in_angleOffset;
 };
+
+vec2 rotateBy( vec2 _pt, float _angle )
+{
+	float cosValue = cos(_angle);
+	float sinValue = sin(_angle);
+
+	return vec2( _pt.x * cosValue - _pt.y * sinValue, _pt.x * sinValue + _pt.y * cosValue );
+}
 
 void main(void)
 {
-	if ( in_color.w < 0.0001 )
+	if ( in_color < 0.0001 )
 		discard;
 
 	vec2 uv = gl_PointCoord - vec2(0.5);
+	uv = rotateBy( uv, in_angle + in_angleOffset);
+	uv.y *= 1.5;
+	uv = rotateBy( uv, -in_angle );
+	uv += vec2(0.5);
 
-	vec2 rotatedUV = vec2(  uv.x * cos(in_angle) - uv.y * sin(in_angle),
-							uv.x * sin(in_angle) + uv.y * cos(in_angle) );
-	rotatedUV += vec2(0.5);
+	uv = clamp(uv, vec2(0.0), vec2(1.0));
 
-
-
-	vec4 textureSample = texture(s_texture, uv * (vec2(1.0) + abs(in_direction)));
+	vec4 textureSample = texture(s_texture, uv);
 	float alpha = textureSample.x;
-	alpha *= in_color.w;
+	alpha *= in_color;
 
 	gl_FragDepth = alpha;
 

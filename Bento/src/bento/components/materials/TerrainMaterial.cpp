@@ -8,7 +8,7 @@ namespace bento
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, moltenPlatesTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, moltenPlatesTexture(16, GL_RGBA8, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		// Textures

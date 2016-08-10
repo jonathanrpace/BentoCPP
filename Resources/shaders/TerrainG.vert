@@ -299,7 +299,7 @@ void main(void)
 	fresnel = mix( fresnel, 0.9, vegAlpha );
 
 	// Direct light
-	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
+	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, 1.0, 1.0 ) * u_lightIntensity;
 
 	// Ambient light
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * occlusion;
@@ -323,12 +323,14 @@ void main(void)
 	//outColor = mix( outColor, vec3(0.0,1.0,0.0), pow(steamStrength, 2.2) );
 	
 	// Fog
+	/*
 	{
 		mat4 invViewMatrix = inverse(u_viewMatrix);
-		vec3 worldPosition = position.xyz;// vec3( invViewMatrix * vec4(viewPosition.xyzw) );
+		vec3 worldPosition = position.xyz;
 		vec3 cameraRay = position.xyz-u_cameraPos;
 		outColor = ApplyFog( outColor, u_cameraPos, worldPosition, u_lightDir );
 	}
+	*/
 
 	// Output
 	{
@@ -336,7 +338,7 @@ void main(void)
 		out_viewNormal = vec4( normalize( rockNormal * mat3(u_viewMatrix) ), 1.0f );
 		out_albedo = vec4( 0.0f );
 		out_material = vec4( 0.0f, 0.0f, 0.0f, 0.0f );	// roughness, reflectivity, emissive, nowt
-		out_forward = vec4(outColor, 1.0f);
+		out_forward = vec4(directLight);//vec4(moltenMapValue);//vec4(outColor, 1.0f);
 		out_uv = in_uv;
 		gl_Position = u_mvpMatrix * position;
 		out_dirtAlpha = dirtAlpha;

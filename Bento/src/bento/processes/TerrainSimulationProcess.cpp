@@ -31,7 +31,7 @@ MoltenParticleUpdateVert::MoltenParticleUpdateVert()
 
 void MoltenParticleUpdateVert::OnPreLink()
 {
-	const char * varyings[] = { "out_position", "out_direction" };
+	const char * varyings[] = { "out_position", "out_angle" };
 	GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
 }
 
