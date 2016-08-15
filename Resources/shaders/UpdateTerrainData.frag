@@ -3,7 +3,6 @@
 const vec4 EPSILON = vec4(0.000001f);
 const float PI = 3.14159265359;
 const float HALF_PI = PI * 0.5f;
-
 ////////////////////////////////////////////////////////////////
 // Inputs
 ////////////////////////////////////////////////////////////////
@@ -122,16 +121,21 @@ vec2 GetMousePos()
 
 ////////////////////////////////////////////////////////////////
 //
-float CalcMoltenViscosity( float _heat )
+float CalcMoltenViscosity( float _heat, float _moltenHeight )
 {
-	return smoothstep( 0.0f, 1.0f, pow( clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0), 0.75 )) * u_moltenViscosity;
+
+	float t = 1.0 - min( _moltenHeight / 0.010, 1.0 );
+	float viscosity = smoothstep( 0.0f, 1.0f, pow( clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0), 0.75 ));
+	return viscosity * u_moltenViscosity;//mix( 0.25, viscosity, t ) * u_moltenViscosity;
 }
 
 ////////////////////////////////////////////////////////////////
 //
-vec4 CalcMoltenViscosity( vec4 _heat )
+vec4 CalcMoltenViscosity( vec4 _heat, vec4 _moltenHeight )
 {
-	return smoothstep( vec4(0.0f), vec4(1.0f), pow( clamp(_heat-vec4(u_rockMeltingPoint), vec4(0.0f), vec4(1.0)), vec4(0.75)) ) * vec4(u_moltenViscosity);
+	vec4 t = vec4(1.0) - min( _moltenHeight / vec4(0.001), vec4(1.0) );
+	vec4 viscosity = smoothstep( vec4(0.0f), vec4(1.0f), pow( clamp(_heat-vec4(u_rockMeltingPoint), vec4(0.0f), vec4(1.0)), vec4(0.75)) );
+	return viscosity * u_moltenViscosity;//mix( vec4(0.25), viscosity, t ) * vec4(u_moltenViscosity);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -209,10 +213,10 @@ void main(void)
 	// Update molten
 	////////////////////////////////////////////////////////////////
 	{
-		float heat = miscDataC.x;
+		float heat =  texelFetch( s_miscData, ivec2(gl_FragCoord.xy*0.5), 1 ).x;//miscDataC.x;
 		float height = heightDataC.y;
 
-		float viscosity = CalcMoltenViscosity(heat);
+		float viscosity = CalcMoltenViscosity(heat, height);
 
 		vec4 fluxC = texelFetchC(s_rockFluxData);
 		vec4 fluxL = texelFetchL(s_rockFluxData);
@@ -236,7 +240,7 @@ void main(void)
 		// Essentially the inverse of above.
 		vec4 heatN = vec4(miscDataL.x, miscDataR.x, miscDataU.x, miscDataD.x);
 		vec4 heightN = vec4(heightDataL.y, heightDataR.y, heightDataU.y, heightDataD.y);
-		vec4 viscosityN = CalcMoltenViscosity(heatN);
+		vec4 viscosityN = CalcMoltenViscosity(heatN, heightN);
 		vec4 volumeGainProp = (max(vec4(0.0), fluxN-fluxC) * viscosityN) / (heightN + EPSILON);
 		volumeGainProp = min( vec4(1.0), volumeGainProp );
 		vec4 heatGain = volumeGainProp * heatN;
@@ -532,13 +536,13 @@ void main(void)
 		moltenToSolid = min(moltenToSolid, moltenHeight);
 
 		float dirtToMolten = min( dirtHeight, max(heat-u_rockMeltingPoint, 0.0) * u_meltSpeed * 100.0 );
-
+		/*
 		out_heightData.x -= solidToMolten;
 		out_heightData.x += moltenToSolid;
 		
 		out_heightData.y -= moltenToSolid;
 		out_heightData.y += solidToMolten;
-
+		*/
 		out_heightData.x += dirtToMolten;
 		out_heightData.z -= dirtToMolten;
 

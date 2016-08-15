@@ -79,7 +79,7 @@ namespace bento
 		SetUniform("u_vegColor", _material.vegColor);
 		SetUniform("u_vegBump", _material.vegBump);
 
-		float phase = fmodf( (float)glfwGetTime() * 0.4f, 1.0f );
+		float phase = fmodf( (float)glfwGetTime() * 0.125f, 1.0f );
 
 		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
 		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
