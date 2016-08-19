@@ -520,7 +520,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		
 
-		vertShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead() );
+		//vertShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead() );
 
 		fragShader.SetTexture("s_texture", _material.moltenPlatesTexture);
 

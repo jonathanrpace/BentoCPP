@@ -125,7 +125,7 @@ float CalcMoltenViscosity( float _heat, float _moltenHeight )
 {
 
 	float t = 1.0 - min( _moltenHeight / 0.010, 1.0 );
-	float viscosity = smoothstep( 0.0f, 1.0f, pow( clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0), 0.75 ));
+	float viscosity = pow( smoothstep( 0.0f, 1.0f, pow( clamp(_heat-u_rockMeltingPoint, 0.0f, 1.0), 0.75 )), 0.7 );
 	return viscosity * u_moltenViscosity;//mix( 0.25, viscosity, t ) * u_moltenViscosity;
 }
 
@@ -134,7 +134,7 @@ float CalcMoltenViscosity( float _heat, float _moltenHeight )
 vec4 CalcMoltenViscosity( vec4 _heat, vec4 _moltenHeight )
 {
 	vec4 t = vec4(1.0) - min( _moltenHeight / vec4(0.001), vec4(1.0) );
-	vec4 viscosity = smoothstep( vec4(0.0f), vec4(1.0f), pow( clamp(_heat-vec4(u_rockMeltingPoint), vec4(0.0f), vec4(1.0)), vec4(0.75)) );
+	vec4 viscosity = pow( smoothstep( vec4(0.0f), vec4(1.0f), pow( clamp(_heat-vec4(u_rockMeltingPoint), vec4(0.0f), vec4(1.0)), vec4(0.75)) ), vec4(0.7) );
 	return viscosity * u_moltenViscosity;//mix( vec4(0.25), viscosity, t ) * vec4(u_moltenViscosity);
 }
 
@@ -283,7 +283,7 @@ void main(void)
 			dp = 1.0 - dp;
 
 			vec2 velocityN = min( velocity / moltenSpeed, vec2(1.0) );
-			smudgeUV += velocityN * influence * 0.05 * dp;
+			smudgeUV += velocityN * influence * 0.03 * dp;
 
 			out_smudgeData.xy = smudgeUV;
 		}
@@ -321,10 +321,10 @@ void main(void)
 
 		// Boil off any water due to heat
 		float heat = out_miscData.x;
-		float waterToBoilOff = min(waterHeight, max(heat-u_rockMeltingPoint, 0.0) * u_boilSpeed);
+		float waterToBoilOff = min(waterHeight, heat * u_boilSpeed);
 		waterHeight -= waterToBoilOff;
 		float moltenHeight = out_heightData.y;
-		heat -= min( heat, (waterToBoilOff / (1.0+moltenHeight)) * 10.0 );
+		heat -= min( heat, waterToBoilOff * 20.0 );
 		out_heightData.w = waterHeight;
 		out_miscData.x = heat;
 		out_smudgeData.z += waterToBoilOff * 100.0;

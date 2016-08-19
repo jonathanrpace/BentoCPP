@@ -247,6 +247,8 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
 
+	float mippedMoltenMapValue = clamp( textureLod(s_miscData, in_uv, 2).y, 0.0, 1.0 );
+
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += rockHeight;
 	position.y += moltenHeight;
@@ -265,7 +267,7 @@ void main(void)
 	rockDetailBump.y = 1.0 - length(rockDetailBump);
 
 	// Rock material
-	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, pow(moltenMapValue,2.0) ), vec3(2.2) );
+	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, pow(mippedMoltenMapValue,0.7) ), vec3(2.2) );
 	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, moltenMapValue );
 	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, moltenMapValue );
 
@@ -305,12 +307,12 @@ void main(void)
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * occlusion;
 	
 	// Emissive
-	float moltenAlpha = max( max(heat-0.3, 0.0) * u_moltenAlphaScalar - (moltenMapValue * u_moltenAlphaPower), 0.0 );
-	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, moltenAlpha ), vec3(2.2) );
+	float moltenAlpha = max( max(heat-0.2, 0.0) * u_moltenAlphaScalar - (moltenMapValue * u_moltenAlphaPower), 0.0 );
+	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, moltenAlpha * 2.0 ), vec3(2.2) );
 	
 	vec2 moltenVelocity = velocityDataC.xy;
-	float moltenDiffuseDetailA = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseA * 0.6 + vec2(0.0)).b, 2.2 );
-	float moltenDiffuseDetailB = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseB * 0.6 + vec2(0.5)).b, 2.2 );
+	float moltenDiffuseDetailA = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseA * 0.15 + vec2(0.0)).b, 2.2 );
+	float moltenDiffuseDetailB = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseB * 0.15 + vec2(0.5)).b, 2.2 );
 	//float moltenDiffuseDetail = mix( moltenDiffuseDetailA, moltenDiffuseDetailB, u_alphaB );
 	float moltenDiffuseDetail = max( moltenDiffuseDetailA * u_alphaA, moltenDiffuseDetailB * u_alphaB);
 
