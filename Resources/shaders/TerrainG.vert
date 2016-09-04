@@ -304,17 +304,16 @@ void main(void)
 	// Ambient light
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * occlusion;
 	
-	// Emissive
+	// Molten
 	float moltenAlpha = max( max(heat-0.3, 0.0) * u_moltenAlphaScalar - (moltenMapValue * u_moltenAlphaPower), 0.0 );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, moltenAlpha ), vec3(2.2) );
 	
+	// Molten flow map detail
 	vec2 moltenVelocity = velocityDataC.xy;
 	float moltenDiffuseDetailA = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseA * 0.6 + vec2(0.0)).b, 2.2 );
 	float moltenDiffuseDetailB = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseB * 0.6 + vec2(0.5)).b, 2.2 );
-	//float moltenDiffuseDetail = mix( moltenDiffuseDetailA, moltenDiffuseDetailB, u_alphaB );
 	float moltenDiffuseDetail = max( moltenDiffuseDetailA * u_alphaA, moltenDiffuseDetailB * u_alphaB);
-
-	moltenColor *= moltenDiffuseDetail;
+	moltenColor -= moltenDiffuseDetail;
 
 	// Bing it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));

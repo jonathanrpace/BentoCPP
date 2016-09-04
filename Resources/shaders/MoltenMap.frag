@@ -36,7 +36,7 @@ void main(void)
 	vec2 uv = gl_PointCoord - vec2(0.5);
 	uv = rotateBy( uv, smudgeAngle);
 	//uv *= vec2(1.0) + clamp( in_smudgeVector.yx * vec2(5.0), vec2(0.0), vec2(5.0) );
-	uv.x *= 1.0 + min( smudgeStrength * 50.0, 2.0 );
+	uv.x *= 1.0 + min( smudgeStrength * 25.0, 2.0 );
 	uv = rotateBy( uv, -smudgeAngle );
 	uv += vec2(0.5);
 

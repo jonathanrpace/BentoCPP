@@ -253,9 +253,8 @@ void main(void)
 
 		// Add some lava near the mouse
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.01);
-		float heatTextureScalar = pow( diffuseSampleC.x, 1.0 );
-		float heightTextureScalar = mix( 1.0-diffuseSampleC.x, diffuseSampleC.x, 0.75 );
-		float heightMin = 1.0 - min( 0.5 + heat * 2.0, 1.0 );
+		float heatTextureScalar = 1.0;//pow( diffuseSampleC.x, 1.0 );
+		float heightTextureScalar = 1.0;//mix( 1.0-diffuseSampleC.x, diffuseSampleC.x, 0.75 );
 		heat   += ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.25, 1.0, heatTextureScalar) ) / (1.0+heat*10.0);
 		height += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.75, 1.0, heightTextureScalar) ) / (1.0+height);
 
@@ -447,7 +446,7 @@ void main(void)
 
 		// Erode more if water is moving fast
 		vec2 waterVelocityC = velocityDataC.zw;
-		float waterSpeedC = length(waterVelocityC);
+		float waterSpeedC = 1.0;//length(waterVelocityC);
 		if ( isnan(waterSpeedC) ) waterSpeedC = 0.0;
 		if ( isinf(waterSpeedC) ) waterSpeedC = 0.0;
 		float erosionWaterSpeedScalar = smoothstep( 0.0, u_erosionWaterSpeedMax, waterSpeedC );
@@ -458,7 +457,7 @@ void main(void)
 		dirtHeight += rockToDirt * u_rockToDirtRatio;
 		
 		out_heightData.x = solidHeight;
-
+		/*
 		////////////////////////////////////////////////////////////////
 		// Deposit some of the dissolved dirt
 		////////////////////////////////////////////////////////////////
@@ -477,9 +476,9 @@ void main(void)
 		dirtHeight -= amountPickedUp;
 		dissolvedDirt += amountPickedUp;
 		dissolvedDirt = max(0.0,dissolvedDirt);
-
+		*/
 		out_heightData.z = dirtHeight;
-
+		/*
 		////////////////////////////////////////////////////////////////
 		// Move dissolved dirt between cells
 		////////////////////////////////////////////////////////////////
@@ -510,7 +509,7 @@ void main(void)
 		out_miscData.z = dissolvedDirt;
 		
 
-
+		*/
 		////////////////////////////////////////////////////////////////
 		// Update water velocity
 		////////////////////////////////////////////////////////////////

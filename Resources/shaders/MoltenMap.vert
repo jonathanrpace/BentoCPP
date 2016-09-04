@@ -31,7 +31,7 @@ void main(void)
 	screenPos.xy -= 0.5;
 	screenPos.xy *= 2.0;
 	gl_Position = screenPos;
-	gl_PointSize = 24;//mix(32.0, 64.0, pow(in_properties.w, 1.5));
+	gl_PointSize = mix(24.0, 64.0, pow(in_properties.w, 1.5));
 
 	float life = in_position.w;
 	float lifeAlpha = sin(life*3.142);

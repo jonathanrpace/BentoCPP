@@ -83,7 +83,7 @@ void main(void)
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
-	vec4 normalDataC = texture(s_normalData, in_uv);
+	vec4 normalDataC = textureLod(s_normalData, in_uv, 2);
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;

@@ -48,7 +48,7 @@ void main(void)
 		life = max(0,life);
 	}
 
-	position.xz += moltenVelocity * 0.002;
+	position.xz += moltenVelocity * 0.004;
 	position.y = surfaceHeight;
 
 	out_position = vec4(position, life);
