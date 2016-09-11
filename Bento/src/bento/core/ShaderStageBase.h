@@ -15,6 +15,14 @@ namespace bento
 	{
 
 	public:
+		static void StaticInit();
+		static void StaticShutdown();
+
+	protected:
+		static GLuint s_standardLibShaderNameVert;
+		static GLuint s_standardLibShaderNameFrag;
+
+	public:
 		ShaderStageBase(const char* _filename, bool _useSSO = true);
 		~ShaderStageBase();
 

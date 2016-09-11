@@ -82,7 +82,7 @@ namespace bento
 		virtual void AddUIElements() override;
 
 	private:
-		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, MoltenParticleGeom & _moltenParticleGeom);
+		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, RenderTargetBase& _fragRenderTarget, MoltenParticleGeom & _moltenParticleGeom);
 
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
@@ -94,6 +94,7 @@ namespace bento
 		MoltenMapShader m_moltenMapShader;
 		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
+		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_fragRenderTargetByNodeMap;
 
 		// Input
 		float m_mouseRadius;

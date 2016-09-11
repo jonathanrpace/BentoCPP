@@ -35,22 +35,27 @@ namespace bento
 		
 		void ResetTerrainMousePos();
 
-		inline TerrainMousePos GetTerrainMousePos()
+		inline TerrainMousePos GetTerrainMousePos() const
 		{
 			return m_terrainMousePos;
 		}
 
-		inline GLuint MousePositionBuffer()
+		inline GLuint MousePositionBuffer() const
 		{
 			return m_mousePositionBuffer;
 		}
 
-		inline int NumVerticesPerDimension() 
+		inline int NumVerticesPerDimension() const
 		{ 
 			return m_numVerticesPerDimension;
 		}
 
-		inline float Size() 
+		inline int MoltenMapResScalar() const 
+		{ 
+			return m_moltenMapResScalar; 
+		}
+
+		inline float Size() const
 		{ 
 			return m_size; 
 		}
@@ -58,6 +63,7 @@ namespace bento
 		// From IInspectable
 		virtual void AddUIElements() override;
 
+		
 	protected:
 		// From AbstractValidatable
 		virtual void Validate() override;
@@ -66,6 +72,7 @@ namespace bento
 	private:
 		float m_size;
 		int m_numVerticesPerDimension;
+		int m_moltenMapResScalar;
 
 		GLuint m_mousePositionBuffer;
 		TerrainMousePos m_terrainMousePos;

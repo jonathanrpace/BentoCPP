@@ -15,12 +15,13 @@ namespace bento
 		, m_size(1.5f)
 		, m_numVerticesPerDimension(256)
 		, m_terrainMousePos()
+		, m_moltenMapResScalar(4)
 
 		, m_heightData		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_velocityData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_miscData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_normalData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_moltenMapData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_moltenMapData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_smudgeData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_rockFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -75,7 +76,6 @@ namespace bento
 		std::vector<float> randData(m_numVertices * 4);
 		std::vector<int> indices(m_numIndices);
 
-		
 		//std::vector<float> fluxData(m_numVertices * 4);
 		//std::vector<float> mappingData(m_numVertices * 4);
 
@@ -84,6 +84,7 @@ namespace bento
 		bool hexGrid = true;
 
 		float cellSize = m_size / (float)m_numVerticesPerDimension;
+		float uvPerCell = 1.0f / (float)m_numVerticesPerDimension;
 
 		int indicesIndex = 0;
 		int vertexIndex = 0;
@@ -101,18 +102,29 @@ namespace bento
 
 				if (hexGrid)
 				{
+					uvs[float2Index + 1] = zRatio;
+
 					if (i % 2 != 0)
 					{
 						xPos -= cellSize * 0.5f;
+						uvs[float2Index + 0] = xRatio - uvPerCell * 0.5f;
 					}
+					else
+					{
+						uvs[float2Index + 0] = xRatio;
+					}
+				}
+				else
+				{
+					uvs[float2Index + 0] = xRatio;
+					uvs[float2Index + 1] = zRatio;
 				}
 
 				positions[float3Index + 0] = xPos;
 				positions[float3Index + 1] = 0.0f;
 				positions[float3Index + 2] = (zRatio * m_size) - m_size * 0.5f;
 
-				uvs[float2Index + 0] = xRatio;
-				uvs[float2Index + 1] = zRatio;
+				
 
 				heightData[float4Index + 0] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 1] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
@@ -208,10 +220,15 @@ namespace bento
 		m_normalData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_normalData.GetWrite().GenerateMipMaps();
 
-		m_moltenMapData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_moltenMapData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_moltenMapData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_moltenMapData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		std::vector<float> moltenMapData(m_numVertices * 4 * m_moltenMapResScalar);
+		for ( int i = 0; i < (int)moltenMapData.capacity(); i++ )
+		{
+			moltenMapData[i] = 0.0f;
+		}
+		m_moltenMapData.GetRead().SetSize(m_numVerticesPerDimension*m_moltenMapResScalar, m_numVerticesPerDimension*m_moltenMapResScalar);
+		//m_moltenMapData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &moltenMapData[0]);
+		m_moltenMapData.GetWrite().SetSize(m_numVerticesPerDimension*m_moltenMapResScalar, m_numVerticesPerDimension*m_moltenMapResScalar);
+		//m_moltenMapData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &moltenMapData[0]);
 
 		m_smudgeData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_smudgeData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);

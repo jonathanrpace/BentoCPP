@@ -9,17 +9,46 @@
 in Varying
 {
 	vec4 in_viewPosition;
-	vec4 in_viewNormal;
-	vec4 in_albedo;
-	vec4 in_material;
 	vec4 in_forward;
 	vec2 in_uv;
 	float in_dirtAlpha;
+	vec3 in_moltenColor;
+	float in_moltenAlpha;
+	vec3 in_rockNormal;
+	float in_occlusion;
+	float in_heat;
 };
 
 // Uniforms
 uniform vec2 u_mouseScreenPos;
 uniform ivec2 u_windowSize;
+
+uniform vec3 u_rockColorA;
+uniform vec3 u_rockColorB;
+uniform float u_rockRoughnessA;
+uniform float u_rockRoughnessB;
+uniform float u_rockFresnelA;
+uniform float u_rockFresnelB;
+
+uniform vec3 u_hotRockColorA;
+uniform vec3 u_hotRockColorB;
+uniform float u_hotRockRoughnessA;
+uniform float u_hotRockRoughnessB;
+uniform float u_hotRockFresnelA;
+uniform float u_hotRockFresnelB;
+
+uniform float u_moltenAlphaPower;
+
+uniform vec3 u_cameraPos;
+uniform float u_rockDetailBump;
+
+uniform vec3 u_lightDir;
+uniform float u_lightIntensity;
+uniform float u_ambientLightIntensity;
+
+// Textures
+uniform sampler2D s_rockDiffuse;
+uniform sampler2D s_moltenMapData;
 
 
 ////////////////////////////////////////////////////////////////
@@ -44,10 +73,14 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 };
 
 ////////////////////////////////////////////////////////////////
+// STD Lib Functions
+////////////////////////////////////////////////////////////////
+float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
+vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar );
+
+////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
-
-
 void UpdateMousePosition()
 {
 	int fragViewZ = int(-in_viewPosition.z * 256.0f);
@@ -79,9 +112,50 @@ void main(void)
 {
 	UpdateMousePosition();
 
-	out_viewPosition = in_viewPosition;
-	out_viewNormal = in_viewNormal;
-	out_albedo = in_albedo;
-	out_material = in_material;
-	out_forward = in_forward;
+	// Common values
+	vec3 viewDir = normalize(u_cameraPos);
+	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
+
+	vec3 mippedMoltenMapValue = sampleCombinedMip(s_moltenMapData, in_uv, 0, 8, 10.0).xyz;
+
+	float powedMoltenMapValue = pow(moltenMapValue, 3.0);
+
+	// Rock material
+	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, powedMoltenMapValue ), vec3(2.2) );
+	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, powedMoltenMapValue );
+	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, powedMoltenMapValue );
+
+	// Hot rock material
+	vec3 hotRockDiffuse = pow( mix( u_hotRockColorA, u_hotRockColorB, powedMoltenMapValue ), vec3(2.2) );
+	float hotRockRoughness = mix( u_hotRockRoughnessA, u_hotRockRoughnessB, powedMoltenMapValue );
+	float hotRockFresnel = mix( u_hotRockFresnelA, u_hotRockFresnelB, powedMoltenMapValue );
+	
+	// Mix rock and hot rock together
+	float hotRockMaterialLerp = min( in_heat / 0.3, 1.0 );
+
+	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp );
+	float roughness = mix( rockRoughness, hotRockRoughness, hotRockMaterialLerp );
+	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
+
+	vec3 rockNormal = in_rockNormal;
+	rockNormal.xz -= mippedMoltenMapValue.yz * mix( u_rockDetailBump, u_rockDetailBump * 0.1, pow(in_rockNormal.y, 4.0) );
+	rockNormal = normalize(rockNormal);
+
+	// Direct light
+	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
+
+	// Ambient light
+	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * in_occlusion;
+
+
+	// Bring it all together
+	vec3 outColor = (diffuse * (directLight + ambientlight));
+	float moltenAlpha = max( in_moltenAlpha - (moltenMapValue * u_moltenAlphaPower), 0.0 );
+	outColor = mix( outColor, in_moltenColor * (1.0-moltenMapValue), moltenAlpha );
+	
+	out_forward = vec4( outColor, 1.0 );
+	out_viewPosition = vec4(0.0);
+	out_viewNormal = vec4(0.0);
+	out_albedo = vec4(0.0);
+	out_material = vec4(0.0);
 }

@@ -43,12 +43,12 @@ void main(void)
 	else
 	{
 		float speed = length(moltenVelocity);
-		float lifeDecay = speed * mix( 0.1, 0.05, in_properties.w );
+		float lifeDecay = speed * mix( 0.1, 0.05, in_properties.w ) * 300.0;
 		life -= lifeDecay;
 		life = max(0,life);
 	}
 
-	position.xz += moltenVelocity * 0.004;
+	position.xz += moltenVelocity;
 	position.y = surfaceHeight;
 
 	out_position = vec4(position, life);

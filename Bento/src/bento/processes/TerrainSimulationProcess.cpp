@@ -127,6 +127,13 @@ TerrainSimulationProcess::~TerrainSimulationProcess()
 		delete renderTarget;
 	}
 	m_renderTargetByNodeMap.clear();
+
+	for( auto iter : m_fragRenderTargetByNodeMap)
+	{
+		RenderTargetBase* renderTarget = iter.second;
+		delete renderTarget;
+	}
+	m_fragRenderTargetByNodeMap.clear();
 }
 
 void TerrainSimulationProcess::Advance(double _dt)
@@ -136,7 +143,8 @@ void TerrainSimulationProcess::Advance(double _dt)
 	for (auto node : m_nodeGroup.Nodes())
 	{
 		RenderTargetBase* renderTarget = m_renderTargetByNodeMap[node];
-		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
+		RenderTargetBase* fragRenderTarget = m_fragRenderTargetByNodeMap[node];
+		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *fragRenderTarget, *(node->moltenParticleGeom));
 	}
 }
 
@@ -161,7 +169,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Spacing();
-	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 0.5f);
+	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 1.0f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
 	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 2.0f);
 	ImGui::SliderFloat("HeatDiffuseStrength", &m_heatDiffuseStrength, 0.0f, 1.0f);
@@ -169,7 +177,7 @@ void TerrainSimulationProcess::AddUIElements()
 
 	ImGui::Spacing();
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.0001f, "%.5f");
+	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.0001f, "%.6f");
 	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
 	ImGui::Spacing();
 
@@ -235,6 +243,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	TerrainGeometry & _geom, 
 	TerrainMaterial & _material, 
 	RenderTargetBase & _renderTarget,
+	RenderTargetBase & _fragRenderTarget,
 	MoltenParticleGeom & _moltenParticleGeom
 )
 {
@@ -496,14 +505,16 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 	// Render molten particles to a map
 	{
+		GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar(), _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar()));
+
 		m_moltenMapShader.BindPerPass();
 		auto fragShader = m_moltenMapShader.FragmentShader();
 		auto vertShader = m_moltenMapShader.VertexShader();
 
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenMapData().GetWrite());
+		_fragRenderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenMapData().GetWrite());
 
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+		_fragRenderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClearDepth(0.0);
@@ -553,6 +564,15 @@ void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)
 	);
 		
 	m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
+
+	RenderTargetBase* fragRenderTarget = new RenderTargetBase
+	(
+		_node.geom->NumVerticesPerDimension() * _node.geom->MoltenMapResScalar(), 
+		_node.geom->NumVerticesPerDimension() * _node.geom->MoltenMapResScalar(),
+		false, true, GL_RGBA16F
+	);
+		
+	m_fragRenderTargetByNodeMap.insert(std::make_pair(&_node, fragRenderTarget));
 }
 
 void TerrainSimulationProcess::OnNodeRemoved(const TerrainSimPassNode & _node)

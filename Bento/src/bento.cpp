@@ -1,5 +1,7 @@
 #include "bento.h"
 
+#include "bento/core/ShaderStageBase.h"
+
 #define STBI_ONLY_PNG
 #define STBI_ONLY_HDR
 #define STB_IMAGE_IMPLEMENTATION
@@ -12,10 +14,15 @@ namespace bento
 
 	void Config::Init(std::string _resourcePath, std::string _defaultsPath)
 	{
-		Shutdown();
+		if (Config::s_resourcePath != nullptr)
+			delete s_resourcePath;
+		if (Config::s_defaultsPath != nullptr)
+			delete s_defaultsPath;
 
 		Config::s_resourcePath = new std::string(_resourcePath);
 		Config::s_defaultsPath = new std::string(_defaultsPath);
+
+		ShaderStageBase::StaticInit();
 	}
 
 	void Config::Shutdown()
@@ -24,6 +31,8 @@ namespace bento
 			delete s_resourcePath;
 		if (Config::s_defaultsPath != nullptr)
 			delete s_defaultsPath;
+
+		ShaderStageBase::StaticShutdown();
 	}
 
 	std::string Config::ResourcePath()

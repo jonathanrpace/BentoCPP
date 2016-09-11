@@ -31,6 +31,8 @@ namespace bento
 
 		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
 		SetTexture("s_dirtDiffuse", _material.dirtDiffuseTexture);
+
+		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 		//SetTexture("s_dirtNormal", _material.dirtNormalTexture);
 		//SetUniform("u_dirtTextureRepeat", _material.dirtTextureRepeat);
 
@@ -44,34 +46,22 @@ namespace bento
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
-		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
-		SetUniform("u_lightIntensity", _material.directLightIntensity);
-		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
+		
 
 		SetUniform("u_fogDensity", _material.fogDensity);
 		SetUniform("u_fogHeight", _material.fogHeight);
 		SetUniform("u_fogColorAway", _material.fogColorAway);
 		SetUniform("u_fogColorTowards", _material.fogColorTowards);
 
-		SetUniform("u_rockColorA", _material.rockColorA);
-		SetUniform("u_rockColorB", _material.rockColorB);
-		SetUniform("u_rockRoughnessA", _material.rockRoughnessA);
-		SetUniform("u_rockRoughnessB", _material.rockRoughnessB);
-		SetUniform("u_rockFresnelA", _material.rockFresnelA);
-		SetUniform("u_rockFresnelB", _material.rockFresnelB);
+		
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 
-		SetUniform("u_hotRockColorA", _material.hotRockColorA);
-		SetUniform("u_hotRockColorB", _material.hotRockColorB);
-		SetUniform("u_hotRockRoughnessA", _material.hotRockRoughnessA);
-		SetUniform("u_hotRockRoughnessB", _material.hotRockRoughnessB);
-		SetUniform("u_hotRockFresnelA", _material.hotRockFresnelA);
-		SetUniform("u_hotRockFresnelB", _material.hotRockFresnelB);
+		
 
 		SetUniform("u_moltenColor", _material.moltenColor);
 		SetUniform("u_moltenAlphaScalar", _material.moltenMapAlphaScalar);
-		SetUniform("u_moltenAlphaPower", _material.moltenMapAlphaPower);
+		
 		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
 
 		SetUniform("u_dirtColor", _material.dirtColor);
@@ -107,7 +97,34 @@ namespace bento
 	{
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
-		
+		// Uniforms
+		SetUniform("u_cameraPos", RenderParams::CameraPosition());
+
+		SetUniform("u_rockColorA", _material.rockColorA);
+		SetUniform("u_rockColorB", _material.rockColorB);
+		SetUniform("u_rockRoughnessA", _material.rockRoughnessA);
+		SetUniform("u_rockRoughnessB", _material.rockRoughnessB);
+		SetUniform("u_rockFresnelA", _material.rockFresnelA);
+		SetUniform("u_rockFresnelB", _material.rockFresnelB);
+
+		SetUniform("u_hotRockColorA", _material.hotRockColorA);
+		SetUniform("u_hotRockColorB", _material.hotRockColorB);
+		SetUniform("u_hotRockRoughnessA", _material.hotRockRoughnessA);
+		SetUniform("u_hotRockRoughnessB", _material.hotRockRoughnessB);
+		SetUniform("u_hotRockFresnelA", _material.hotRockFresnelA);
+		SetUniform("u_hotRockFresnelB", _material.hotRockFresnelB);
+
+		SetUniform("u_moltenAlphaPower", _material.moltenMapAlphaPower);
+		SetUniform("u_rockDetailBump", _material.rockDetailBumpStrength);
+
+		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
+		SetUniform("u_lightIntensity", _material.directLightIntensity);
+		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
+
+		// Textures
+		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
+		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
+
 
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;

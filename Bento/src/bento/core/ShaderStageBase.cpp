@@ -9,6 +9,35 @@
 
 namespace bento
 {
+	GLuint ShaderStageBase::s_standardLibShaderNameVert(0);
+	GLuint ShaderStageBase::s_standardLibShaderNameFrag(0);
+
+	void ShaderStageBase::StaticInit()
+	{
+		s_standardLibShaderNameVert = glCreateShader(GL_VERTEX_SHADER);
+		s_standardLibShaderNameFrag = glCreateShader(GL_FRAGMENT_SHADER);
+
+		char* shaderSourcePtr;
+		unsigned long shaderSourceLength;
+		std::string resolvedFilename = bento::Config::ResourcePath() + std::string("shaders/StandardLib.glsl");
+		fileUtil::LoadFile(resolvedFilename.c_str(), &shaderSourcePtr, &shaderSourceLength);
+
+		glShaderSource(s_standardLibShaderNameVert, 1, &shaderSourcePtr, NULL);
+		glShaderSource(s_standardLibShaderNameFrag, 1, &shaderSourcePtr, NULL);
+
+		glCompileShader(s_standardLibShaderNameVert);
+		glCompileShader(s_standardLibShaderNameFrag);
+
+		delete[] shaderSourcePtr;
+	}
+
+	void ShaderStageBase::StaticShutdown()
+	{
+		glDeleteShader(s_standardLibShaderNameVert);
+		glDeleteShader(s_standardLibShaderNameFrag);
+	}
+
+
 	//************************************
 	// Method:    ctor
 	// Parameter: char * _filename
@@ -75,6 +104,8 @@ namespace bento
 		glShaderSource(shader, 1, &shaderSourcePtr, NULL);
 		glCompileShader(shader);
 		glProgramParameteri(m_programName, GL_PROGRAM_SEPARABLE, GL_TRUE);
+
+		glAttachShader(m_programName, m_shaderType == GL_VERTEX_SHADER ? s_standardLibShaderNameVert : s_standardLibShaderNameFrag);
 		glAttachShader(m_programName, shader);
 
 		// Give derived classes the ability to configure any more shader state before linking occurs

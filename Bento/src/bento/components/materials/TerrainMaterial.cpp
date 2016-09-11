@@ -8,7 +8,7 @@ namespace bento
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, moltenPlatesTexture(16, GL_RGBA8, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, moltenPlatesTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		// Textures
@@ -85,7 +85,7 @@ namespace bento
 		ImGui::SliderFloat("Roughness B##rock", &rockRoughnessB, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel A##rock", &rockFresnelA, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel B##rock", &rockFresnelB, 0.0f, 1.0f);
-		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 1.0f);
+		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 100.0f);
 		ImGui::SliderFloat("Detail Diffuse Strength B##rock", &rockDetailDiffuseStrength, 0.0f, 1.0f);
 
 		ImGui::Spacing();
@@ -104,7 +104,7 @@ namespace bento
 		ImGui::ColorEdit3("Color##molten", glm::value_ptr(moltenColor));
 		ImGui::SliderFloat("Alpha Scale##molten", &moltenMapAlphaScalar, 0.0f, 4.0f);
 		ImGui::SliderFloat("Alpha Power##molten", &moltenMapAlphaPower, 0.0f, 4.0f);
-		ImGui::SliderFloat("Offset##molten", &moltenMapOffset, 0.0f, 0.05f);
+		ImGui::SliderFloat("Offset##molten", &moltenMapOffset, 0.0f, 0.5f);
 
 		ImGui::Spacing();
 		ImGui::Text("Water");
