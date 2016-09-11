@@ -9,8 +9,5 @@
 */tmp/
 .vs/
 *.opendb
-BentoCPP.VC.db
-BentoCPP.VC.db
-BentoCPP.VC.db
+*.VC.db
 HelloWorld/HelloWorld.vcxproj.jpace.nvuser
-BentoCPP.VC.db
