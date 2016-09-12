@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\bento\components\geom\MoltenParticleGeom.h" />
+    <ClInclude Include="src\bento\components\geom\MoltenPlateGeometry.h" />
     <ClInclude Include="src\bento\components\geom\SteamParticleGeom.h" />
     <ClInclude Include="src\bento\components\PerspectiveLens.h" />
     <ClInclude Include="src\bento\components\textures\PingPongTextureSquare.h" />
@@ -216,6 +217,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\bento\components\geom\MoltenParticleGeom.cpp" />
+    <ClCompile Include="src\bento\components\geom\MoltenPlateGeometry.cpp" />
     <ClCompile Include="src\bento\components\geom\SteamParticleGeom.cpp" />
     <ClCompile Include="src\bento\components\textures\PingPongTextureSquare.cpp" />
     <ClCompile Include="src\bento\components\textures\Texture3D.cpp" />
