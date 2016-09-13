@@ -20,6 +20,12 @@ namespace bento
 		void Bind();
 		void Draw();
 
+		int NumIndices()
+		{ 
+			Validate();
+			return m_numIndices;
+		}
+
 	protected:
 		// From AbstractValidatable
 		virtual void OnInvalidate() override;
