@@ -52,7 +52,7 @@ namespace bento
 	{
 		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffers[_index]));
 		GL_CHECK(glBufferData(GL_ELEMENT_ARRAY_BUFFER, _size * sizeof(int), _data, GL_STATIC_DRAW));
-		GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
+		GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE));
 	}
 
 	void Geometry::SetVertexFormatf(int _attributeIndex, int _numComponents)
