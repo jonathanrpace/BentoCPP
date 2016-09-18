@@ -162,7 +162,6 @@
     <ClInclude Include="src\bento\core\Reflection.h" />
     <ClInclude Include="src\bento\core\SerializableBase.h" />
     <ClInclude Include="src\bento\render\DefaultRenderer.h" />
-    <ClInclude Include="src\bento\render\passes\MoltenParticlePass.h" />
     <ClInclude Include="src\bento\render\passes\TerrainSteamPass.h" />
     <ClInclude Include="src\bento\render\RenderParams.h" />
     <ClInclude Include="src\bento\core\eRenderPhase.h" />
@@ -225,7 +224,6 @@
     <ClCompile Include="src\bento\components\geom\FoamParticleGeom.cpp" />
     <ClCompile Include="src\bento\core\SerializableBase.cpp" />
     <ClCompile Include="src\bento\render\DefaultRenderer.cpp" />
-    <ClCompile Include="src\bento\render\passes\MoltenParticlePass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainFoamPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainSteamPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainWaterPass.cpp" />

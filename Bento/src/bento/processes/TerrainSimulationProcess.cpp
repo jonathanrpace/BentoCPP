@@ -474,16 +474,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		m_moltenParticleUpdateShader.BindPerPass();
 			
-		if (_moltenParticleGeom.Switch())
-		{
-			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _moltenParticleGeom.TransformFeedbackObjB()));	// TODO: Make this work like read/write texture buffers
-			GL_CHECK(glBindVertexArray(_moltenParticleGeom.VertexArrayA()));
-		}
-		else
-		{
-			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _moltenParticleGeom.TransformFeedbackObjA()));
-			GL_CHECK(glBindVertexArray(_moltenParticleGeom.VertexArrayB()));
-		}
+		GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _moltenParticleGeom.TransformFeedbackObjWrite()));
+		GL_CHECK(glBindVertexArray(_moltenParticleGeom.ParticleVertexArrayRead()));
+		
 
 		GL_CHECK(glBeginTransformFeedback(GL_POINTS));
 		GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
@@ -500,7 +493,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		GL_CHECK(glEndTransformFeedback());
 		glUseProgram(GL_NONE);
 
-		_moltenParticleGeom.Switch(!_moltenParticleGeom.Switch());
+		_moltenParticleGeom.Switch();
 	}
 
 	// Render molten particles to a map
@@ -511,43 +504,26 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		auto fragShader = m_moltenMapShader.FragmentShader();
 		auto vertShader = m_moltenMapShader.VertexShader();
 
+		GL_CHECK(glBindVertexArray(_moltenParticleGeom.ParticleVertexArrayRead()));
+
 		_fragRenderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenMapData().GetWrite());
 
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 		_fragRenderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClearDepth(0.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		
 		glDepthFunc(GL_GREATER);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(true);
 
-		//glEnable(GL_BLEND);
-		//glEnable(GL_PROGRAM_POINT_SIZE);
-		//glBlendEquation(GL_MAX);
-		//glBlendFunc(GL_ONE, GL_ONE);
-
-		
-
 		vertShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead() );
-
 		fragShader.SetTexture("s_texture", _material.moltenPlatesTexture);
 
-		//glPointSize(16.0f);
-
 		glEnable(GL_PROGRAM_POINT_SIZE);
-
 		GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
-
-		//glDisable(GL_BLEND);
 		glDisable(GL_PROGRAM_POINT_SIZE);
-
-		//glDisable(GL_DEPTH_TEST);
-		//glDepthMask(false);
-
-
 
 		_geom.MoltenMapData().GetWrite().GenerateMipMaps();
 		_geom.MoltenMapData().Swap();

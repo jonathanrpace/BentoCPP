@@ -8,9 +8,10 @@ namespace bento
 
 	MoltenParticleGeom::MoltenParticleGeom(std::string _name)
 		: Component(_name, typeid(MoltenParticleGeom)),
-		m_vertexArrayA(-1),
-		m_vertexArrayB(-1),
-		m_numParticles(150000)
+		m_particleVertexArrayA(-1),
+		m_particleVertexArrayB(-1),
+		m_numParticles(150000),
+		m_switch(false)
 	{
 
 	}
@@ -22,7 +23,7 @@ namespace bento
 
 	void MoltenParticleGeom::Validate()
 	{
-		assert(glIsVertexArray(m_vertexArrayA) == false);
+		assert(glIsVertexArray(m_particleVertexArrayA) == false);
 		
 		// Generate all the shit
 		std::vector<float> positions(m_numParticles * 4);
@@ -64,12 +65,12 @@ namespace bento
 			//////////////////////////////////////////////////////////////////////////////////////////////
 
 			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjA));
-			GL_CHECK(glGenVertexArrays(1, &m_vertexArrayA));
+			GL_CHECK(glGenVertexArrays(1, &m_particleVertexArrayA));
 			GL_CHECK(glGenBuffers(1, &m_positionBufferA));
 			GL_CHECK(glGenBuffers(1, &m_directionBufferA));
 			GL_CHECK(glGenBuffers(1, &m_propertiesBufferA));
 
-			GL_CHECK(glBindVertexArray(m_vertexArrayA));
+			GL_CHECK(glBindVertexArray(m_particleVertexArrayA));
 			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedbackObjA));
 
 			// Position A
@@ -101,12 +102,12 @@ namespace bento
 			//////////////////////////////////////////////////////////////////////////////////////////////
 			
 			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjB));
-			GL_CHECK(glGenVertexArrays(1, &m_vertexArrayB));
+			GL_CHECK(glGenVertexArrays(1, &m_particleVertexArrayB));
 			GL_CHECK(glGenBuffers(1, &m_positionBufferB));
 			GL_CHECK(glGenBuffers(1, &m_directionBufferB));
 			GL_CHECK(glGenBuffers(1, &m_propertiesBufferB));
 
-			GL_CHECK(glBindVertexArray(m_vertexArrayB));
+			GL_CHECK(glBindVertexArray(m_particleVertexArrayB));
 			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedbackObjB));
 
 			// Position B
@@ -136,10 +137,10 @@ namespace bento
 
 	void MoltenParticleGeom::OnInvalidate()
 	{
-		if (glIsVertexArray(m_vertexArrayA))
+		if (glIsVertexArray(m_particleVertexArrayA))
 		{
-			glDeleteVertexArrays(1, &m_vertexArrayA);
-			glDeleteVertexArrays(1, &m_vertexArrayB);
+			glDeleteVertexArrays(1, &m_particleVertexArrayA);
+			glDeleteVertexArrays(1, &m_particleVertexArrayB);
 
 			glDeleteBuffers(1, &m_positionBufferA);
 			glDeleteBuffers(1, &m_positionBufferB);

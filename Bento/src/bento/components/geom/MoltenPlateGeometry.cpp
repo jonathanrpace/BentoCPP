@@ -13,7 +13,7 @@ namespace bento
 	//////////////////////////////////////////////////////////////////////////
 
 	MoltenPlateGeometry::MoltenPlateGeometry(std::string _name)
-		:Geometry(_name, typeid(MoltenPlateGeometry))
+		: Component(_name, typeid(MoltenPlateGeometry))
 	{
 	}
 
@@ -23,12 +23,11 @@ namespace bento
 
 	void MoltenPlateGeometry::Validate()
 	{
-		assert(glIsVertexArray(m_vertexArrayName) == false);
+		assert(glIsBuffer(m_positionBuffer) == false);
+		assert(glIsBuffer(m_indexBuffer) == false);
 
-		glGenVertexArrays(1, &m_vertexArrayName);
-		GL_CHECK(glBindVertexArray(m_vertexArrayName));
-		SetVertexFormatf(0, 3);
-		GL_CHECK(glBindVertexArray(GL_NONE));
+		GL_CHECK(glGenBuffers(1, &m_positionBuffer));
+		GL_CHECK(glGenBuffers(1, &m_indexBuffer));
 
 		const int numPoints = 7;
 		const float outerRadius = 1.0f;
@@ -97,11 +96,25 @@ namespace bento
 			indices[indicesIndex++] = (i+1) * 2;
 			indices[indicesIndex++] = i * 2;
 		}
+
+		GL_CHECK( glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer) );
+		GL_CHECK( glBufferData(GL_ARRAY_BUFFER, m_numVertices * 3 * sizeof(float), positions, GL_STATIC_DRAW) );
+		GL_CHECK( glBindBuffer(GL_ARRAY_BUFFER, GL_NONE) );
+
+		GL_CHECK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer) );
+		GL_CHECK( glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(int), indices, GL_STATIC_DRAW) );
+		GL_CHECK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE) );
 		
-		BufferVertexData(0, positions, m_numVertices * 3);
 		delete positions;
-		
-		BufferIndexData(0, indices, m_numIndices);
 		delete indices;
+	}
+
+	void MoltenPlateGeometry::OnInvalidate()
+	{
+		assert(glIsBuffer(m_positionBuffer));
+		assert(glIsBuffer(m_indexBuffer));
+
+		GL_CHECK(glDeleteBuffers(1, &m_positionBuffer));
+		GL_CHECK(glDeleteBuffers(1, &m_indexBuffer));
 	}
 }

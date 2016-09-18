@@ -7,6 +7,8 @@
 #include <bento/core/Component.h>
 #include <bento/core/AbstractValidatable.h>
 
+#include <bento/components/geom/MoltenPlateGeometry.h>
+
 namespace bento
 {
 	class MoltenParticleGeom :
@@ -18,16 +20,36 @@ namespace bento
 		MoltenParticleGeom(std::string _name = "MoltenParticleGeom");
 		~MoltenParticleGeom();
 
-		inline void Switch(bool _value) { m_switch = _value; }
-		inline bool Switch() const { return m_switch; }
+		inline void Switch() { m_switch = !m_switch; }
 
-		inline GLuint VertexArrayA() { ValidateNow(); return m_vertexArrayA; }
-		inline GLuint VertexArrayB() { ValidateNow();  return m_vertexArrayB; }
+		inline GLuint ParticleVertexArrayRead()
+		{
+			ValidateNow();
+			return m_switch ? m_particleVertexArrayA : m_particleVertexArrayB;
+		}
 
-		inline GLuint TransformFeedbackObjA() { ValidateNow();  return m_transformFeedbackObjA; }
-		inline GLuint TransformFeedbackObjB() { ValidateNow();  return m_transformFeedbackObjB; }
+		inline GLuint ParticleVertexArrayWrite()
+		{
+			ValidateNow();
+			return m_switch ? m_particleVertexArrayB : m_particleVertexArrayA;
+		}
 
-		inline int NumParticles() const { return m_numParticles; }
+		inline GLuint TransformFeedbackObjRead() 
+		{ 
+			ValidateNow();  
+			return m_switch ? m_transformFeedbackObjA : m_transformFeedbackObjB; 
+		}
+
+		inline GLuint TransformFeedbackObjWrite()
+		{ 
+			ValidateNow(); 
+			return m_switch ? m_transformFeedbackObjB : m_transformFeedbackObjA;
+		}
+
+		inline int NumParticles() const
+		{ 
+			return m_numParticles;
+		}
 
 	protected:
 		// From AbstractValidatable
@@ -37,8 +59,8 @@ namespace bento
 	private:
 		bool m_switch;
 		int m_numParticles;
-		GLuint m_vertexArrayA;
-		GLuint m_vertexArrayB;
+		GLuint m_particleVertexArrayA;
+		GLuint m_particleVertexArrayB;
 		GLuint m_positionBufferA;
 		GLuint m_positionBufferB;
 		GLuint m_directionBufferA;
@@ -47,5 +69,7 @@ namespace bento
 		GLuint m_propertiesBufferB;		// TODO - This is a static VB. Why do I need two copies?
 		GLuint m_transformFeedbackObjA;
 		GLuint m_transformFeedbackObjB;
+
+		MoltenPlateGeometry m_moltenPlateGeom;
 	};
 }
