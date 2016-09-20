@@ -11,6 +11,6 @@ namespace bento
 
 	float Rand(float _min, float _max)
 	{
-		return _min + Rand() * (-_max - _min);
+		return _min + Rand() * (_max - _min);
 	}
 }
