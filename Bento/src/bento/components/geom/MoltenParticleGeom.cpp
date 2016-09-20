@@ -61,7 +61,7 @@ namespace bento
 		// Transfer the data to the buffers, and bind them together, associating some with transform feedback
 		{
 			//////////////////////////////////////////////////////////////////////////////////////////////
-			// A
+			// Particle A
 			//////////////////////////////////////////////////////////////////////////////////////////////
 
 			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjA));
@@ -98,7 +98,7 @@ namespace bento
 			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, GL_NONE));
 
 			//////////////////////////////////////////////////////////////////////////////////////////////
-			// B
+			// Particle B
 			//////////////////////////////////////////////////////////////////////////////////////////////
 			
 			GL_CHECK(glGenTransformFeedbacks(1, &m_transformFeedbackObjB));
@@ -132,6 +132,60 @@ namespace bento
 			
 			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
 			GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, GL_NONE));
+
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			// Draw A
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			GL_CHECK(glGenVertexArrays(1, &m_drawVertexArrayA));
+			GL_CHECK(glBindVertexArray(m_drawVertexArrayA));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_moltenPlateGeom.PositionBuffer()));
+			GL_CHECK(glEnableVertexAttribArray(0));
+			GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferA));
+			GL_CHECK(glEnableVertexAttribArray(1));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glVertexAttribDivisor(1, 1));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_directionBufferA));
+			GL_CHECK(glEnableVertexAttribArray(2));
+			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glVertexAttribDivisor(2, 1));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_propertiesBufferA));
+			GL_CHECK(glEnableVertexAttribArray(3));
+			GL_CHECK(glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glVertexAttribDivisor(3, 1));
+
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			// Draw B
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			GL_CHECK(glGenVertexArrays(1, &m_drawVertexArrayB));
+			GL_CHECK(glBindVertexArray(m_drawVertexArrayB));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_moltenPlateGeom.PositionBuffer()));
+			GL_CHECK(glEnableVertexAttribArray(0));
+			GL_CHECK(glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(float) * 3, nullptr));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_positionBufferB));
+			GL_CHECK(glEnableVertexAttribArray(1));
+			GL_CHECK(glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glVertexAttribDivisor(1, 1));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_directionBufferB));
+			GL_CHECK(glEnableVertexAttribArray(2));
+			GL_CHECK(glVertexAttribPointer(2, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glVertexAttribDivisor(2, 1));
+
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, m_propertiesBufferB));
+			GL_CHECK(glEnableVertexAttribArray(3));
+			GL_CHECK(glVertexAttribPointer(3, 4, GL_FLOAT, false, sizeof(float) * 4, nullptr));
+			GL_CHECK(glVertexAttribDivisor(3, 1));
+
+
+			//////////////////////////////////////////////////////////////////////////////////////////////
+			GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, GL_NONE));
 		}
 	}
 
@@ -141,6 +195,8 @@ namespace bento
 		{
 			glDeleteVertexArrays(1, &m_particleVertexArrayA);
 			glDeleteVertexArrays(1, &m_particleVertexArrayB);
+			glDeleteVertexArrays(1, &m_drawVertexArrayA);
+			glDeleteVertexArrays(1, &m_drawVertexArrayB);
 
 			glDeleteBuffers(1, &m_positionBufferA);
 			glDeleteBuffers(1, &m_positionBufferB);
@@ -152,5 +208,12 @@ namespace bento
 			glDeleteTransformFeedbacks(1, &m_transformFeedbackObjA);
 			glDeleteTransformFeedbacks(1, &m_transformFeedbackObjB);
 		}
+	}
+
+	void MoltenParticleGeom::Draw()
+	{
+		GL_CHECK(glBindVertexArray(m_switch ? m_drawVertexArrayA : m_drawVertexArrayB));
+		GL_CHECK(glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_moltenPlateGeom.IndexBuffer() ));
+		GL_CHECK(glDrawElementsInstanced(GL_TRIANGLES, m_moltenPlateGeom.NumIndices(), GL_UNSIGNED_INT, nullptr, m_numParticles));
 	}
 }

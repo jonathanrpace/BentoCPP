@@ -493,8 +493,51 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		GL_CHECK(glEndTransformFeedback());
 		glUseProgram(GL_NONE);
 
+		
+	}
+
+
+	
+	// Render molten particles to a map
+	{
+		// Prepare the render target
+		GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar(), _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar()));
+		_fragRenderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenMapData().GetWrite());
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+		_fragRenderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+		glClearDepth(0.0);
+		glClearColor(0.0f, 0.1, 0.0, 0.0);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		
+		// Set render states
+		glDepthFunc(GL_GREATER);
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(true);
+
+		glDisable(GL_CULL_FACE);
+
+		// Bind shaders
+		m_moltenMapShader.BindPerPass();
+		auto fragShader = m_moltenMapShader.FragmentShader();
+		auto vertShader = m_moltenMapShader.VertexShader();
+
+		// Set uniforms
+		vertShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead() );
+		//fragShader.SetTexture("s_texture", _material.moltenPlatesTexture);
+
+		// Draw!
+		_moltenParticleGeom.Draw();
+
+		//glEnable(GL_PROGRAM_POINT_SIZE);
+		//GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
+		//glDisable(GL_PROGRAM_POINT_SIZE);
+
+		_geom.MoltenMapData().GetWrite().GenerateMipMaps();
+		_geom.MoltenMapData().Swap();
+
 		_moltenParticleGeom.Switch();
 	}
+	/*
 
 	// Render molten particles to a map
 	{
@@ -528,6 +571,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.MoltenMapData().GetWrite().GenerateMipMaps();
 		_geom.MoltenMapData().Swap();
 	}
+	*/
 }
 
 void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

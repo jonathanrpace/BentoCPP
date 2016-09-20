@@ -20,7 +20,12 @@ namespace bento
 		MoltenParticleGeom(std::string _name = "MoltenParticleGeom");
 		~MoltenParticleGeom();
 
-		inline void Switch() { m_switch = !m_switch; }
+		void Draw();
+
+		inline void Switch() 
+		{ 
+			m_switch = !m_switch;
+		}
 
 		inline GLuint ParticleVertexArrayRead()
 		{
@@ -69,6 +74,8 @@ namespace bento
 		GLuint m_propertiesBufferB;		// TODO - This is a static VB. Why do I need two copies?
 		GLuint m_transformFeedbackObjA;
 		GLuint m_transformFeedbackObjB;
+		GLuint m_drawVertexArrayA;
+		GLuint m_drawVertexArrayB;
 
 		MoltenPlateGeometry m_moltenPlateGeom;
 	};
