@@ -31,8 +31,8 @@ MoltenParticleUpdateVert::MoltenParticleUpdateVert()
 
 void MoltenParticleUpdateVert::OnPreLink()
 {
-	const char * varyings[] = { "out_position", "out_properties" };
-	GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
+	const char * varyings[] = { "out_position" };
+	GL_CHECK(glTransformFeedbackVaryings(m_programName, 1, varyings, GL_SEPARATE_ATTRIBS));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Text("Input");
 	ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
 	ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 1.0f, "%.2f");
+	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 5.0f, "%.2f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -171,7 +171,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 1.0f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
-	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 2.0f);
+	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 10.0f);
 	ImGui::SliderFloat("HeatDiffuseStrength", &m_heatDiffuseStrength, 0.0f, 1.0f);
 	ImGui::Spacing();
 
@@ -506,15 +506,14 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 		_fragRenderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 		glClearDepth(0.0);
-		glClearColor(0.0f, 0.1, 0.0, 0.0);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+		//glClearColor(0.0f, 0.1, 0.0, 0.0);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		
 		// Set render states
 		glDepthFunc(GL_GREATER);
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(true);
 
-		glDisable(GL_CULL_FACE);
 
 		// Bind shaders
 		m_moltenMapShader.BindPerPass();
@@ -522,56 +521,15 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		auto vertShader = m_moltenMapShader.VertexShader();
 
 		// Set uniforms
-		vertShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead() );
-		//fragShader.SetTexture("s_texture", _material.moltenPlatesTexture);
+		vertShader.SetTexture("s_smudgeData", _geom.SmudgeData().GetRead() );
 
 		// Draw!
 		_moltenParticleGeom.Draw();
 
-		//glEnable(GL_PROGRAM_POINT_SIZE);
-		//GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
-		//glDisable(GL_PROGRAM_POINT_SIZE);
-
 		_geom.MoltenMapData().GetWrite().GenerateMipMaps();
 		_geom.MoltenMapData().Swap();
-
 		_moltenParticleGeom.Switch();
 	}
-	/*
-
-	// Render molten particles to a map
-	{
-		GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar(), _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar()));
-
-		m_moltenMapShader.BindPerPass();
-		auto fragShader = m_moltenMapShader.FragmentShader();
-		auto vertShader = m_moltenMapShader.VertexShader();
-
-		GL_CHECK(glBindVertexArray(_moltenParticleGeom.ParticleVertexArrayRead()));
-
-		_fragRenderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenMapData().GetWrite());
-
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		_fragRenderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-		glClearDepth(0.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		
-		glDepthFunc(GL_GREATER);
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(true);
-
-		vertShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead() );
-		fragShader.SetTexture("s_texture", _material.moltenPlatesTexture);
-
-		glEnable(GL_PROGRAM_POINT_SIZE);
-		GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
-		glDisable(GL_PROGRAM_POINT_SIZE);
-
-		_geom.MoltenMapData().GetWrite().GenerateMipMaps();
-		_geom.MoltenMapData().Swap();
-	}
-	*/
 }
 
 void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

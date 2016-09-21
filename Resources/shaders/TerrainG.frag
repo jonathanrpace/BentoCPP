@@ -108,6 +108,30 @@ void UpdateMousePosition()
 	}
 }
 
+vec3 rotateX( vec3 _dir, float _angle )
+{
+	float cosValue = cos(_angle);
+	float sinValue = sin(_angle);
+	return vec3
+	( 
+		_dir.x, 
+		_dir.y * cosValue - _dir.z * sinValue, 
+		_dir.y * sinValue + _dir.z * cosValue
+	);
+}
+
+vec3 rotateZ( vec3 _dir, float _angle )
+{
+	float cosValue = cos(_angle);
+	float sinValue = sin(_angle);
+	return vec3
+	( 
+		_dir.x * cosValue - _dir.y * sinValue, 
+		_dir.x * sinValue + _dir.y * cosValue,
+		_dir.z
+	);
+}
+
 void main(void)
 {
 	UpdateMousePosition();
@@ -138,7 +162,9 @@ void main(void)
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
 
 	vec3 rockNormal = in_rockNormal;
-	rockNormal.xz -= mippedMoltenMapValue.yz * mix( u_rockDetailBump, u_rockDetailBump * 0.1, pow(in_rockNormal.y, 4.0) );
+	vec2 angle = mippedMoltenMapValue.yz * u_rockDetailBump;//mix( u_rockDetailBump, u_rockDetailBump * 0.1, pow(in_rockNormal.y, 4.0) );
+	rockNormal = rotateX( rockNormal, -angle.x ); 
+	rockNormal = rotateZ( rockNormal, angle.y ); 
 	rockNormal = normalize(rockNormal);
 
 	// Direct light
@@ -147,10 +173,10 @@ void main(void)
 	// Ambient light
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * in_occlusion;
 
-
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
-	float moltenAlpha = max( in_moltenAlpha - (moltenMapValue * u_moltenAlphaPower), 0.0 );
+	//float moltenAlpha = max( in_moltenAlpha - (moltenMapValue * u_moltenAlphaPower), 0.0 );
+	float moltenAlpha = smoothstep( 1.0 - in_moltenAlpha, 1.0, (1.0-moltenMapValue*u_moltenAlphaPower) );
 	outColor = mix( outColor, in_moltenColor * (1.0-moltenMapValue), moltenAlpha );
 	
 	out_forward = vec4( outColor, 1.0 );

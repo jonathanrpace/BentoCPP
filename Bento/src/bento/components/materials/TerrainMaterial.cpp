@@ -102,8 +102,8 @@ namespace bento
 		ImGui::Text("Molten");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
 		ImGui::ColorEdit3("Color##molten", glm::value_ptr(moltenColor));
-		ImGui::SliderFloat("Alpha Scale##molten", &moltenMapAlphaScalar, 0.0f, 4.0f);
-		ImGui::SliderFloat("Alpha Power##molten", &moltenMapAlphaPower, 0.0f, 4.0f);
+		ImGui::SliderFloat("Alpha Scale##molten", &moltenMapAlphaScalar, 0.0f, 8.0f);
+		ImGui::SliderFloat("Alpha Power##molten", &moltenMapAlphaPower, 0.0f, 8.0f);
 		ImGui::SliderFloat("Offset##molten", &moltenMapOffset, 0.0f, 0.5f);
 
 		ImGui::Spacing();

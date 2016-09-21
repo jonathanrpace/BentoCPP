@@ -68,8 +68,6 @@ namespace bento
 		GLuint m_particleVertexArrayB;
 		GLuint m_positionBufferA;
 		GLuint m_positionBufferB;
-		GLuint m_directionBufferA;
-		GLuint m_directionBufferB;
 		GLuint m_propertiesBufferA;
 		GLuint m_propertiesBufferB;		// TODO - This is a static VB. Why do I need two copies?
 		GLuint m_transformFeedbackObjA;

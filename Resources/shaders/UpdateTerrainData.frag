@@ -184,6 +184,7 @@ float exchange( vec4 _heightDataC, vec4 _heightDataN, vec4 _miscDataC, vec4 _mis
 
 float exchangeHeat( float _volumeFromN, vec4 _heightDataN, vec4 _miscDataN, float _limit )
 {
+	float advectSpeed = mix( u_heatAdvectSpeed, u_heatAdvectSpeed * 10.0, clamp( _volumeFromN / 0.01, 0.0, 1.0 ) );
 	return min( _volumeFromN / max(_heightDataN.y, 0.01), _limit) * _miscDataN.x * u_heatAdvectSpeed;
 }
 
@@ -234,18 +235,7 @@ void main(void)
 	{
 		float heatC =  miscDataC.x;
 		float heightC =  heightDataC.y;
-		/*
-		float viscosityC = CalcMoltenViscosity(miscDataC.x);
-		float viscosityL = CalcMoltenViscosity(miscDataL.x);
-		float viscosityR = CalcMoltenViscosity(miscDataR.x);
-		float viscosityU = CalcMoltenViscosity(miscDataU.x);
-		float viscosityD = CalcMoltenViscosity(miscDataD.x);
-		float viscosityTL = CalcMoltenViscosity(miscDataTL.x);
-		float viscosityTR = CalcMoltenViscosity(miscDataTR.x);
-		float viscosityBL = CalcMoltenViscosity(miscDataBL.x);
-		float viscosityBR = CalcMoltenViscosity(miscDataBR.x);
-		*/
-
+		
 		// Transmit some of this cell's volume to neighbours
 		float toL = exchange( heightDataC, heightDataL, miscDataC, miscDataL, 0.19 );
 		float toR = exchange( heightDataC, heightDataR, miscDataC, miscDataR, 0.19 );
@@ -277,7 +267,6 @@ void main(void)
 
 
 		// Heat transfer
-		//float heatLossed = exchangeHeat( totalOut, heightDataC, miscDataC, 1.0 );
 		float heatLossed = 0.0;
 		heatLossed += exchangeHeat( toL, heightDataC, miscDataC, 0.19 );
 		heatLossed += exchangeHeat( toR, heightDataC, miscDataC, 0.19 );
@@ -332,48 +321,15 @@ void main(void)
 		moltenVelocity.y += fromTL * diagScalar;
 		moltenVelocity.y -= fromBL * diagScalar;
 		
-		/*
-		vec4 fluxC = texelFetchC(s_rockFluxData);
-		vec4 fluxL = texelFetchL(s_rockFluxData);
-		vec4 fluxR = texelFetchR(s_rockFluxData);
-		vec4 fluxU = texelFetchU(s_rockFluxData);
-		vec4 fluxD = texelFetchD(s_rockFluxData);
-		vec4 fluxN = vec4(fluxL.y, fluxR.x, fluxU.w, fluxD.z);
-
-		// Update molten height based on flux
-		float fluxChange = ((fluxN.x+fluxN.y+fluxN.z+fluxN.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
-		height += fluxChange * viscosity;
-		*/
-
-		/*
-		// What proportion of our volume did we lose to neighbours?
-		// If we lose half our volume, we also lose half our heat.
-		float volumeLossProp = ((fluxC.x+fluxC.y+fluxC.z+fluxC.w) * viscosity) / (height + EPSILON.x);
-		volumeLossProp = min( 1.0f, volumeLossProp );
-		heat -= (volumeLossProp * heat) * u_heatAdvectSpeed;
-
-		// For each neighbour, determine what proportion of their volume we have gained.
-		// We also want to grab the same proportion of their heat.
-		// Essentially the inverse of above.
-		vec4 heatN = vec4(miscDataL.x, miscDataR.x, miscDataU.x, miscDataD.x);
-		vec4 heightN = vec4(heightDataL.y, heightDataR.y, heightDataU.y, heightDataD.y);
-		vec4 viscosityN = CalcMoltenViscosity(heatN, heightN);
-		vec4 volumeGainProp = (max(vec4(0.0), fluxN-fluxC) * viscosityN) / (heightN + EPSILON);
-		volumeGainProp = min( vec4(1.0), volumeGainProp );
-		vec4 heatGain = volumeGainProp * heatN;
-		heat += (heatGain.x + heatGain.y + heatGain.z + heatGain.w) * u_heatAdvectSpeed;
-		*/
-
-
 		// Cooling
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
 
 		// Add some lava near the mouse
-		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.01);
-		float heatTextureScalar = 1.0;//pow( diffuseSampleC.x, 1.0 );
-		float heightTextureScalar = 1.0;//mix( 1.0-diffuseSampleC.x, diffuseSampleC.x, 0.75 );
-		heatC   += ( pow(mouseRatio, 0.1) * u_mouseMoltenHeatStrength   * mix(0.25, 1.0, heatTextureScalar) ) / (1.0+heatC*10.0);
-		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.75, 1.0, heightTextureScalar) ) / (1.0+heightC);
+		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
+		float heatTextureScalar = pow( diffuseSampleC.x, 2.0 );
+		float heightTextureScalar = heatTextureScalar;//mix( 0.0, 1.0, diffuseSampleC.x );
+		heatC   += ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.05, 1.0, heatTextureScalar) );// / (1.0+heatC*10.0);
+		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.5, 1.0, heightTextureScalar) ) / (1.0+heightC);
 
 		heatC = max(0.0, heatC);
 

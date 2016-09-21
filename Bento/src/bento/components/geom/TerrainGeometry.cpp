@@ -12,10 +12,10 @@ namespace bento
 {
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
-		, m_size(1.5f)
+		, m_size(1.2f)
 		, m_numVerticesPerDimension(256)
 		, m_terrainMousePos()
-		, m_moltenMapResScalar(4)
+		, m_moltenMapResScalar(5)
 
 		, m_heightData		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_velocityData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)

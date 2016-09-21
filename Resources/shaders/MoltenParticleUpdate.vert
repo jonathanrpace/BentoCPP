@@ -2,8 +2,7 @@
 
 // Inputs
 layout(location = 0) in vec4 in_position;
-layout(location = 1) in vec4 in_props;
-layout(location = 2) in vec4 in_properties;
+layout(location = 1) in vec4 in_properties;
 
 // Uniforms
 uniform sampler2D s_heightData;
@@ -16,7 +15,6 @@ const float EPSILON = 0.000001;
 out Varying
 {
 	vec4 out_position;
-	vec4 out_properties;
 };
 
 void main(void)
@@ -25,7 +23,6 @@ void main(void)
 
 	vec4 heightData = texture( s_heightData, uv );
 	vec2 moltenVelocity = texture( s_velocityData, uv ).xy;
-	vec2 smudgeVector = texture( s_smudgeData, uv ).xy;
 
 	float solidHeight = heightData.x;
 	float moltenHeight = heightData.y;
@@ -43,7 +40,7 @@ void main(void)
 	else
 	{
 		float speed = length(moltenVelocity);
-		float lifeDecay = speed * mix( 0.1, 0.05, in_properties.w ) * 300.0;
+		float lifeDecay = speed * mix( 0.06, 0.05, in_properties.w ) * 300.0;
 		life -= lifeDecay;
 		life = max(0,life);
 	}
@@ -52,5 +49,4 @@ void main(void)
 	position.y = surfaceHeight;
 
 	out_position = vec4(position, life);
-	out_properties = vec4( smudgeVector, 0.0, 0.0 );
 } 
