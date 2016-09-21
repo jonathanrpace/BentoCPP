@@ -184,7 +184,7 @@ float exchange( vec4 _heightDataC, vec4 _heightDataN, vec4 _miscDataC, vec4 _mis
 
 float exchangeHeat( float _volumeFromN, vec4 _heightDataN, vec4 _miscDataN, float _limit )
 {
-	float advectSpeed = mix( u_heatAdvectSpeed, u_heatAdvectSpeed * 10.0, clamp( _volumeFromN / 0.01, 0.0, 1.0 ) );
+	float advectSpeed = mix( u_heatAdvectSpeed * 100.0, u_heatAdvectSpeed, clamp( _volumeFromN / 0.1, 0.0, 1.0 ) );
 	return min( _volumeFromN / max(_heightDataN.y, 0.01), _limit) * _miscDataN.x * u_heatAdvectSpeed;
 }
 
