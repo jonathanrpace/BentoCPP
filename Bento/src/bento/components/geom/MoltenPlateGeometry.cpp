@@ -29,9 +29,9 @@ namespace bento
 		GL_CHECK(glGenBuffers(1, &m_positionBuffer));
 		GL_CHECK(glGenBuffers(1, &m_indexBuffer));
 
-		const int numPoints = 8;
+		const int numPoints = 5;
 		const float outerRadius = 1.0f;
-		const float innerRadius = 0.01f;
+		const float innerRadius = 0.05f;
 
 		int numTriangles = numPoints * 2 + numPoints;
 
@@ -55,7 +55,7 @@ namespace bento
 			float cos = std::cosf(angleRatio * (float)M_PI * 2.0f);
 			float sin = std::sinf(angleRatio * (float)M_PI * 2.0f);
 
-			float radiusScalar = Rand(0.6f, 1.0f);
+			float radiusScalar = Rand(0.8f, 1.0f);
 
 			float innerX = cos * innerRadius * radiusScalar;
 			float innerY = sin * innerRadius * radiusScalar;
@@ -63,13 +63,13 @@ namespace bento
 			float outerY = sin * outerRadius * radiusScalar;
 
 			indices[indicesIndex++] = vertexIndex;
+			indices[indicesIndex++] = (vertexIndex+3) % (m_numVertices-1);
 			indices[indicesIndex++] = (vertexIndex+2) % (m_numVertices-1);
-			indices[indicesIndex++] = (vertexIndex+3) % (m_numVertices-1);
-
+			
 			indices[indicesIndex++] = vertexIndex;
-			indices[indicesIndex++] = (vertexIndex+3) % (m_numVertices-1);
 			indices[indicesIndex++] = (vertexIndex+1) % (m_numVertices-1);
-
+			indices[indicesIndex++] = (vertexIndex+3) % (m_numVertices-1);
+			
 			positions[positionIndex++] = innerX;
 			positions[positionIndex++] = innerY;
 			positions[positionIndex++] = 1.0f;
@@ -89,8 +89,8 @@ namespace bento
 		for ( int i = 0; i < numPoints; i++ )
 		{
 			indices[indicesIndex++] = vertexIndex;
-			indices[indicesIndex++] = ((i+1) * 2)  % (m_numVertices-1);
 			indices[indicesIndex++] = (i * 2)  % (m_numVertices-1);
+			indices[indicesIndex++] = ((i+1) * 2)  % (m_numVertices-1);
 		}
 
 		GL_CHECK( glBindBuffer(GL_ARRAY_BUFFER, m_positionBuffer) );
