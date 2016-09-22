@@ -162,7 +162,7 @@ void main(void)
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
 
 	vec3 rockNormal = in_rockNormal;
-	vec2 angle = mippedMoltenMapValue.yz * u_rockDetailBump;//mix( u_rockDetailBump, u_rockDetailBump * 0.1, pow(in_rockNormal.y, 4.0) );
+	vec2 angle = mippedMoltenMapValue.yz * mix( u_rockDetailBump, u_rockDetailBump * 0.1, pow(in_rockNormal.y, 4.0) );
 	rockNormal = rotateX( rockNormal, -angle.x ); 
 	rockNormal = rotateZ( rockNormal, angle.y ); 
 	rockNormal = normalize(rockNormal);
@@ -175,10 +175,13 @@ void main(void)
 
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
-	//float moltenAlpha = max( in_moltenAlpha - (moltenMapValue * u_moltenAlphaPower), 0.0 );
-	float moltenAlpha = smoothstep( 1.0 - in_moltenAlpha, 1.0, (1.0-moltenMapValue*u_moltenAlphaPower) );
-	outColor = mix( outColor, in_moltenColor * (1.0-moltenMapValue), moltenAlpha );
+	float moltenAlpha = smoothstep( 1.0 - in_moltenAlpha, 1.0, (1.0-moltenMapValue) );
+	outColor = mix( outColor, in_moltenColor * (1.0-pow(clamp(moltenMapValue,0.0,1.0), u_moltenAlphaPower)), moltenAlpha );
 	
+	// Heat glow
+	float heatGlowAlpha = max( pow(1.0-moltenMapValue, 2.0) * hotRockMaterialLerp * 0.4, 0.0f);
+	outColor += in_moltenColor * heatGlowAlpha;
+
 	out_forward = vec4( outColor, 1.0 );
 	out_viewPosition = vec4(0.0);
 	out_viewNormal = vec4(0.0);

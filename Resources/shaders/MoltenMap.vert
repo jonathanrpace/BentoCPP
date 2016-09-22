@@ -51,7 +51,7 @@ void main(void)
 	// Push the particle in/out along the z-axis based on life
 	float life = in_particlePosition.w;
 	float lifeAlpha = sin(life*3.142);
-	lifeAlpha *= mix(0.1, 1.0, in_particleProperties.z);
+	lifeAlpha *= mix(0.1, 1.0, pow(in_particleProperties.z, 2.0));
 	screenPos.z -= (1.0-lifeAlpha);
 
 	gl_Position = vec4( screenPos, 1.0 );
