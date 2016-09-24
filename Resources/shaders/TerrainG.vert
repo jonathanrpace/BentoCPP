@@ -160,7 +160,7 @@ void main(void)
 	
 	
 	// Molten
-	float moltenAlpha = max( max(heat-0.3, 0.0) * u_moltenAlphaScalar, 0.0 );
+	float moltenAlpha = max( max(heat-0.2, 0.0) * u_moltenAlphaScalar, 0.0 );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 1.25, moltenAlpha ), vec3(2.2) );
 	
 	// Molten flow map detail

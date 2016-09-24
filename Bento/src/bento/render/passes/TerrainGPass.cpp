@@ -115,7 +115,8 @@ namespace bento
 		SetUniform("u_hotRockFresnelB", _material.hotRockFresnelB);
 
 		SetUniform("u_moltenAlphaPower", _material.moltenMapAlphaPower);
-		SetUniform("u_rockDetailBump", _material.rockDetailBumpStrength);
+		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
+		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightIntensity", _material.directLightIntensity);

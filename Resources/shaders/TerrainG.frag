@@ -40,7 +40,8 @@ uniform float u_hotRockFresnelB;
 uniform float u_moltenAlphaPower;
 
 uniform vec3 u_cameraPos;
-uniform float u_rockDetailBump;
+uniform float u_rockDetailDiffuseStrength;
+uniform float u_rockDetailBumpStrength;
 
 uniform vec3 u_lightDir;
 uniform float u_lightIntensity;
@@ -140,7 +141,7 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos);
 	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
 
-	vec3 mippedMoltenMapValue = sampleCombinedMip(s_moltenMapData, in_uv, 0, 8, 10.0).xyz;
+	vec3 mippedMoltenMapValue = texture( s_moltenMapData, in_uv ).xyz;//sampleCombinedMip(s_moltenMapData, in_uv, 4, 5, 10.0).xyz;
 
 	float powedMoltenMapValue = pow(moltenMapValue, 3.0);
 
@@ -160,9 +161,13 @@ void main(void)
 	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp );
 	float roughness = mix( rockRoughness, hotRockRoughness, hotRockMaterialLerp );
 	float fresnel = mix( rockFresnel, hotRockFresnel, hotRockMaterialLerp );
+	
+	// Detail
+	vec4 rockDiffuseSample = texture( s_rockDiffuse, in_uv );
+	diffuse *= 1.0 - ((1.0-rockDiffuseSample.b) * u_rockDetailDiffuseStrength);
 
 	vec3 rockNormal = in_rockNormal;
-	vec2 angle = mippedMoltenMapValue.yz * mix( u_rockDetailBump, u_rockDetailBump * 0.1, pow(in_rockNormal.y, 4.0) );
+	vec2 angle = mippedMoltenMapValue.yz * mix( u_rockDetailBumpStrength, u_rockDetailBumpStrength * 0.2, pow(in_rockNormal.y, 4.0) );
 	rockNormal = rotateX( rockNormal, -angle.x ); 
 	rockNormal = rotateZ( rockNormal, angle.y ); 
 	rockNormal = normalize(rockNormal);
@@ -171,7 +176,7 @@ void main(void)
 	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
 
 	// Ambient light
-	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, 1.0, fresnel ) * u_ambientLightIntensity * in_occlusion;
+	float ambientlight = lightingGGX( rockNormal, viewDir, vec3(0.0,1.0,0.0), roughness, fresnel ) * u_ambientLightIntensity * in_occlusion;
 
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
