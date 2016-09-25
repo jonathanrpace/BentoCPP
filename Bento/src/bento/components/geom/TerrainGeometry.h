@@ -30,7 +30,6 @@ namespace bento
 		PingPongTextureSquare& NormalData() { return m_normalData; }
 		PingPongTextureSquare& MoltenMapData() { return m_moltenMapData; }
 		PingPongTextureSquare& SmudgeData() { return m_smudgeData; }
-		PingPongTextureSquare& RockFluxData() { return m_rockFluxData; }
 		PingPongTextureSquare& WaterFluxData() { return m_waterFluxData; }
 		
 		void ResetTerrainMousePos();
@@ -83,7 +82,6 @@ namespace bento
 		PingPongTextureSquare m_normalData;
 		PingPongTextureSquare m_moltenMapData;
 		PingPongTextureSquare m_smudgeData;
-		PingPongTextureSquare m_rockFluxData;
 		PingPongTextureSquare m_waterFluxData;
 	};
 }

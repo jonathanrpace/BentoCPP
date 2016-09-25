@@ -3,7 +3,6 @@
 // Samplers
 uniform sampler2D s_heightData;
 uniform sampler2D s_miscData;
-uniform sampler2D s_rockFluxData;
 uniform sampler2D s_waterFluxData;
 
 // Inputs
@@ -12,14 +11,11 @@ in Varying
 	vec2 in_uv;
 };
 
-uniform float u_rockFluxDamping;
 uniform float u_waterFluxDamping;
-uniform float u_heatViscosityBias;
 uniform float u_mapHeightOffset;
 
 // Outputs
-layout( location = 0 ) out vec4 out_rockFluxData;
-layout( location = 1 ) out vec4 out_waterFluxData;
+layout( location = 0 ) out vec4 out_waterFluxData;
 
 void main(void)
 { 
@@ -53,25 +49,6 @@ void main(void)
 	vec4 waterHeightN  = vec4(heightDataL.w, heightDataR.w, heightDataU.w, heightDataD.w);
 	vec4 bumpHeightN  = vec4(miscDataL.y, miscDataR.y, miscDataU.y, miscDataD.y) * u_mapHeightOffset;
 
-	// Molten flux
-	{
-		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC;
-		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN;
-		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) );
-
-		vec4 rockFluxC = texelFetch(s_rockFluxData, texelCoordC, 0);
-		rockFluxC += heightDiff;
-		
-		// Need to scale down the new flux so that we can't drain more fluid than we have this step
-		float limit = min(1.0f, moltenHeightC.x / (rockFluxC.x + rockFluxC.y + rockFluxC.z + rockFluxC.w + 0.000001) );
-		limit = smoothstep(0,1,limit);
-		rockFluxC *= limit;
-
-		float heat = miscDataC.x;
-		rockFluxC *= u_rockFluxDamping * step( u_heatViscosityBias, heat );
-
-		out_rockFluxData = rockFluxC;
-	}
 	// Water flux
 	{
 		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC + bumpHeightC;

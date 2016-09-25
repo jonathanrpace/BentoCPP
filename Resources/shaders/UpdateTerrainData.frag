@@ -23,7 +23,6 @@ uniform sampler2D s_normalData;
 uniform sampler2D s_moltenMapData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_waterFluxData;
-uniform sampler2D s_rockFluxData;
 uniform sampler2D s_diffuseMap;
 
 
@@ -45,7 +44,6 @@ uniform float u_tempChangeSpeed;
 uniform float u_condenseSpeed;
 uniform float u_meltSpeed;
 uniform float u_moltenVelocityScalar;
-uniform float u_moltenVelocityDamping;
 uniform float u_mapHeightOffset;
 
 // Water
@@ -80,10 +78,7 @@ uniform float u_vegMaxSlope;
 uniform float u_vegGrowthRate;
 uniform float u_vegBump;
 
-
 // Misc
-uniform float u_textureScrollSpeed;
-uniform float u_cycleSpeed;
 uniform vec2 u_cellSize;
 uniform int u_numHeightMips;
 
@@ -326,10 +321,10 @@ void main(void)
 
 		// Add some lava near the mouse
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
-		float heatTextureScalar = pow( diffuseSampleC.x, 2.0 );
-		float heightTextureScalar = heatTextureScalar;//mix( 0.0, 1.0, diffuseSampleC.x );
-		heatC   += ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.05, 1.0, heatTextureScalar) );// / (1.0+heatC*10.0);
-		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.5, 1.0, heightTextureScalar) ) / (1.0+heightC);
+		float heatTextureScalar = pow( 1.0-diffuseSampleC.x, 2.0 );
+		float heightTextureScalar = pow( diffuseSampleC.x, 2.0 );
+		heatC   += ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.1, heatTextureScalar) ) / (1.0+heatC*10.0);
+		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.5, 0.6, heightTextureScalar) ) / (1.0+heightC);
 
 		heatC = max(0.0, heatC);
 
@@ -341,16 +336,14 @@ void main(void)
 		//////////////////////////////////////////////////////////////////////////////////
 		{
 			vec2 velocity = velocityDataC.xy;
-			//velocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, viscosity ) * u_moltenVelocityScalar;
-			//velocity *= u_moltenVelocityDamping;
-			out_velocityData.xy = moltenVelocity * u_moltenVelocityScalar;//velocity;
+			out_velocityData.xy = moltenVelocity * u_moltenVelocityScalar;
 
 			vec2 smudgeUV = smudgeDataC.xy;
 
 			float smudgeAmount = length(smudgeUV+EPSILON.xy);
 			float moltenSpeed = length(velocity+EPSILON.xy);
 
-			float influence = moltenSpeed * 100.0;// * (1.0 - min( 1.0, smudgeAmount / 0.02 ));
+			float influence = moltenSpeed * 100.0;
 			float dp = clamp( dot( normalize(velocity+EPSILON.xy), normalize(smudgeUV+EPSILON.xy) ), 0.0, 1.0 );
 			dp = 1.0 - dp;
 

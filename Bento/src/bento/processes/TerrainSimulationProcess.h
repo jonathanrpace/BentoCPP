@@ -30,11 +30,6 @@ namespace bento
 		UpdateTerrainDataFrag();
 	};
 
-	struct DiffuseHeightFrag : ShaderStageBase
-	{
-		DiffuseHeightFrag();
-	};
-
 	struct MoltenParticleUpdateVert : ShaderStageBase
 	{
 		MoltenParticleUpdateVert();
@@ -55,7 +50,6 @@ namespace bento
 	struct UpdateTerrainDataShader			: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	
 	struct MoltenParticleUpdateShader		: ShaderBase<MoltenParticleUpdateVert, NullFrag> {};
-	struct DiffuseHeightShader				: ShaderBase<ScreenQuadVert, DiffuseHeightFrag> {};
 	struct MoltenMapShader					: ShaderBase<MoltenMapVert, MoltenMapFrag> {};
 	
 	DEFINE_NODE_3
@@ -92,7 +86,6 @@ namespace bento
 		UpdateTerrainDataShader m_updateDataShader;
 		MoltenParticleUpdateShader m_moltenParticleUpdateShader;
 		MoltenMapShader m_moltenMapShader;
-		DiffuseHeightShader m_diffuseHeightShader;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_fragRenderTargetByNodeMap;
 
@@ -102,18 +95,13 @@ namespace bento
 		float m_mouseHeatStrength;
 
 		// Molten
-		float m_moltenFluxDamping;
 		float m_moltenViscosity;
 		float m_rockMeltingPoint;
-		float m_textureScrollSpeed;
-		float m_textureCycleSpeed;
 		float m_heatAdvectSpeed;
-		float m_heatDiffuseStrength;
 		float m_meltSpeed;
 		float m_condenseSpeed;
 		float m_tempChangeSpeed;
 		float m_moltenVelocityScalar;
-		float m_moltenVelocityDamping;
 
 		// Water
 		float m_waterFluxDamping;
@@ -140,7 +128,6 @@ namespace bento
 		float m_dirtPickupRate;
 		float m_dirtPickupMinWaterSpeed;
 		float m_dirtDepositSpeed;
-		float m_dirtDiffuseStrength;
 		float m_dissolvedDirtSmoothing;
 
 		// Vegetation

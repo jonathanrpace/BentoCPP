@@ -23,7 +23,6 @@ namespace bento
 		, m_normalData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_moltenMapData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_smudgeData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_rockFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
@@ -234,14 +233,6 @@ namespace bento
 		m_smudgeData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_smudgeData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_smudgeData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_rockFluxData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_rockFluxData.GetRead().GenerateMipMaps();
-
-		m_rockFluxData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_rockFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_rockFluxData.GetWrite().GenerateMipMaps();
 
 		m_waterFluxData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
