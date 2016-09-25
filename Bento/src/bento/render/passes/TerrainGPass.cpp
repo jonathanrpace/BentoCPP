@@ -28,15 +28,8 @@ namespace bento
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 		SetTexture("s_diffuseMap", _material.someTexture);
-
 		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
-		SetTexture("s_dirtDiffuse", _material.dirtDiffuseTexture);
-
 		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
-		//SetTexture("s_dirtNormal", _material.dirtNormalTexture);
-		//SetUniform("u_dirtTextureRepeat", _material.dirtTextureRepeat);
-
-		
 
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
@@ -46,19 +39,14 @@ namespace bento
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
-		
-
 		SetUniform("u_fogDensity", _material.fogDensity);
 		SetUniform("u_fogHeight", _material.fogHeight);
 		SetUniform("u_fogColorAway", _material.fogColorAway);
 		SetUniform("u_fogColorTowards", _material.fogColorTowards);
-
-		
+				
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
-
 		
-
 		SetUniform("u_moltenColor", _material.moltenColor);
 		SetUniform("u_moltenAlphaScalar", _material.moltenMapAlphaScalar);
 		
@@ -68,19 +56,6 @@ namespace bento
 
 		SetUniform("u_vegColor", _material.vegColor);
 		SetUniform("u_vegBump", _material.vegBump);
-
-		float phase = fmodf( (float)glfwGetTime() * 0.125f, 1.0f );
-
-		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
-		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
-
-		float alphaB = fabs( 0.5f - phase ) * 2.0f;
-		float alphaA = 1.0f - alphaB;
-
-		SetUniform("u_phaseA", phaseA);
-		SetUniform("u_phaseB", phaseB);
-		SetUniform("u_alphaA", alphaA);
-		SetUniform("u_alphaB", alphaB);
 	}
 
 	////////////////////////////////////////////

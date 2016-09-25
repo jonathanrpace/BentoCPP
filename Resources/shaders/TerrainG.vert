@@ -39,11 +39,6 @@ uniform mat4 u_modelViewMatrix;
 uniform mat3 u_normalModelViewMatrix;
 uniform float u_mapHeightOffset;
 
-uniform float u_phaseA;
-uniform float u_phaseB;
-uniform float u_alphaA;
-uniform float u_alphaB;
-
 // Textures
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
@@ -78,18 +73,6 @@ out Varying
 	float out_occlusion;
 	float out_heat;
 };
-
-/*
-out Varying
-{
-	vec4 out_viewPosition;
-	vec2 out_uv;
-	vec3 out_normal;
-	float out_dirtAlpha;
-	float out_vegAlpha;
-	float out_moltenAlpha;
-}
-*/
 
 ////////////////////////////////////////////////////////////////
 // STD Lib Functions
@@ -136,8 +119,6 @@ void main(void)
 
 	vec4 viewPosition = u_modelViewMatrix * position;
 
-	
-
 	// Dirt
 	/*
 	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));// * mix(0.0, 1.0, diffuseData.z);
@@ -157,19 +138,10 @@ void main(void)
 	fresnel = mix( fresnel, 0.9, vegAlpha );
 	*/
 
-	
-	
 	// Molten
 	float moltenAlpha = max( max(heat-0.2, 0.0) * u_moltenAlphaScalar, 0.0 );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 1.25, moltenAlpha ), vec3(2.2) );
 	
-	// Molten flow map detail
-	//vec2 moltenVelocity = velocityDataC.xy;
-	//float moltenDiffuseDetailA = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseA * 0.6 + vec2(0.0)).b, 2.2 );
-	//float moltenDiffuseDetailB = pow( texture(s_rockDiffuse, in_uv - moltenVelocity * u_phaseB * 0.6 + vec2(0.5)).b, 2.2 );
-	//float moltenDiffuseDetail = max( moltenDiffuseDetailA * u_alphaA, moltenDiffuseDetailB * u_alphaB);
-	//moltenColor -= moltenDiffuseDetail;
-
 	// Bing it all together
 	//vec3 outColor = (diffuse * (directLight + ambientlight));
 	//outColor *= pow( clamp(1.0 - moltenAlpha, 0.0, 1.0), 4.0 );

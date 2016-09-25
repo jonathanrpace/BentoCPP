@@ -28,11 +28,9 @@ namespace bento
 
 		// Textures
 		TextureSquare someTexture;
-		TextureSquare moltenPlatesTexture;
+		TextureSquare moltenPlateDetailTexture;
 		TextureSquare steamTexture;
-		TextureSquare dirtDiffuseTexture;
 		TextureSquare rockDiffuseTexture;
-		TextureSquare dirtNormalTexture;
 		Texture3D texture3D;
 
 		// Rock

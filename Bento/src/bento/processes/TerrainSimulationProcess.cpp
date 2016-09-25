@@ -403,7 +403,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.SmudgeData().Swap();
 	}
 
-	
+	/*
 	// Diffuse height
 	{
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
@@ -467,6 +467,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.MiscData().Swap();
 		_geom.SmudgeData().Swap();
 	}
+	*/
 
 	// Update molten particles
 	{

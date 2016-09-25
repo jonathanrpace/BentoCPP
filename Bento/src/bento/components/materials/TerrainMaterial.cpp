@@ -8,15 +8,13 @@ namespace bento
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, moltenPlatesTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, moltenPlateDetailTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
-		moltenPlatesTexture.TexImage2D("textures/MoltenPlates.png");
-		dirtDiffuseTexture.TexImage2D("textures/Dirt_Diff.png");
+		moltenPlateDetailTexture.TexImage2D("textures/MoltenPlateDetail.png");
 		rockDiffuseTexture.TexImage2D("textures/Rock_Diff.png");
-		dirtNormalTexture.TexImage2D("textures/Dirt_Nrm.png");
 		steamTexture.TexImage2D("textures/Steam.png");
 		steamTexture.GenerateMipMaps();
 
