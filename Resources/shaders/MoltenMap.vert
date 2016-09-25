@@ -16,6 +16,7 @@ out gl_PerVertex
 out Varying
 {
 	float out_color;
+	vec2 out_uv;
 };
 
 vec2 rotateBy( vec2 _pt, float _angle )
@@ -56,4 +57,6 @@ void main(void)
 
 	gl_Position = vec4( screenPos, 1.0 );
 	out_color = screenPos.z;
+
+	out_uv = (in_vertexPosition.xy + 1.0) * 0.5;
 } 

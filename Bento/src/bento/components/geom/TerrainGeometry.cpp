@@ -15,7 +15,7 @@ namespace bento
 		, m_size(1.2f)
 		, m_numVerticesPerDimension(256)
 		, m_terrainMousePos()
-		, m_moltenMapResScalar(5)
+		, m_moltenMapResScalar(6)
 
 		, m_heightData		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_velocityData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)

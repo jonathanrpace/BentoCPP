@@ -180,7 +180,7 @@ void main(void)
 
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
-	float moltenAlpha = smoothstep( 1.0 - in_moltenAlpha, 1.0, (1.0-moltenMapValue) );
+	float moltenAlpha = in_moltenAlpha * (1.0-moltenMapValue);
 	outColor = mix( outColor, in_moltenColor * (1.0-pow(clamp(moltenMapValue,0.0,1.0), u_moltenAlphaPower)), moltenAlpha );
 	
 	// Heat glow

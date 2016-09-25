@@ -415,6 +415,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		// Set uniforms
 		vertShader.SetTexture("s_smudgeData", _geom.SmudgeData().GetRead() );
 
+		fragShader.SetTexture("s_texture", _material.moltenPlateDetailTexture );
+
 		// Draw!
 		_moltenParticleGeom.Draw();
 
