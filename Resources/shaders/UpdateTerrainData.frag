@@ -325,8 +325,9 @@ void main(void)
 		float heightTextureScalar = pow( diffuseSampleC.x, 2.0 );
 		heatC   += ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.1, heatTextureScalar) ) / (1.0+heatC*10.0);
 		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.5, 0.6, heightTextureScalar) ) / (1.0+heightC);
-
 		heatC = max(0.0, heatC);
+
+		//out_smudgeData.z += mouseRatio * u_mouseMoltenHeatStrength * 0.1;
 
 		out_heightData.y = heightC;
 		out_miscData.x = heatC;
@@ -394,7 +395,8 @@ void main(void)
 		out_miscData.x = heat;
 		out_smudgeData.z += waterToBoilOff * 100.0;
 
-
+		// Add a bit of smoke for general heat
+		out_smudgeData.z += pow(heat, 2.0) * 0.03;
 		
 		
 		////////////////////////////////////////////////////////////////
@@ -635,6 +637,8 @@ void main(void)
 		float occlusion = 0.0f;
 		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset + smudgeDataC.w * u_vegBump;
 
+		float strength = 1.0;
+		float totalStrength = 0.0;
 		for ( int i = 1; i < u_numHeightMips; i++ )
 		{
 			vec4 mippedHeightDataC = textureLod(s_heightData, in_uv, float(i));
@@ -647,9 +651,13 @@ void main(void)
 			float angle = atan(ratio);
 			float occlusionFoThisMip = angle / HALF_PI;
 
-			occlusion += occlusionFoThisMip;
+			occlusion += occlusionFoThisMip * strength;
+			totalStrength += strength;
+			strength *= 1.0;
 		}
-		occlusion /= u_numHeightMips;
+		occlusion /= totalStrength;
+
+		//occlusion *= 2.0;
 
 		out_miscData.w = occlusion;
 	}

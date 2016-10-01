@@ -10,7 +10,7 @@ namespace bento
 		: Component(_name, typeid(SteamParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(5000)
+		m_numParticles(2000)
 	{
 
 	}
@@ -49,7 +49,7 @@ namespace bento
 			velocities[float4Index + 0] = 0.0f;
 			velocities[float4Index + 1] = 0.0f;
 			velocities[float4Index + 2] = 0.0f;
-			velocities[float4Index + 3] = -0.1f;	// Life
+			velocities[float4Index + 3] = 1.0f + Rand();
 
 			properties[float4Index + 0] = xRatio;	// HomeX
 			properties[float4Index + 1] = yRatio;	// HomeY

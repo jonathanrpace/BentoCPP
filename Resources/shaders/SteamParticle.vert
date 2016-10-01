@@ -7,13 +7,14 @@ layout(location = 2) in vec4 in_properties;
 
 // Uniforms
 uniform mat4 u_mvpMatrix;
-uniform float u_terrainSize = 1.5;
+uniform float u_terrainSize = 1.0;
 uniform vec3 u_cameraPos;
 uniform vec3 u_lightDir;
 
-uniform sampler2D s_miscData;
+const float PI = 3.14159265359;
+const float PI_2 = PI * 2.0;
 
-const float PI_2 = 3.142 * 2.0;
+uniform sampler2D s_miscData;
 
 // Outputs
 out gl_PerVertex 
@@ -51,17 +52,26 @@ void main(void)
 
 	out_translucency = pow( max( dot(eyeVec, u_lightDir), 0.0 ), 2.0 );
 
-	float life = in_velocity.w;
-	float lifeAlpha = min((1.0-life)/0.1,1.0) * pow(life, 0.5);
 	
+
+	float life = in_velocity.w;
+	float powedLife = pow( life, 1.8 );
+
 	if ( life <= 0.0 || life > 1.0 )
 		gl_PointSize = 0.0;
 	else
-		gl_PointSize = 128;
+		gl_PointSize = mix( 32, 150 + mix(0.0, 80, in_properties.z), 1.0-powedLife );
 
-	out_color = vec4(vec3(1.0), lifeAlpha);
+	out_color = vec4(1.0);
 	out_life = life;
-	out_angle = mix(0.0, PI_2, in_properties.z) + life * PI_2 * 0.35;
-	out_offset = life * mix( 0.6, 1.2, in_properties.w );
-	out_alpha = in_position.w;
+	out_angle = 0.0;//mix(0.0, PI_2, in_properties.z) + life * PI_2 * 0.01;
+	out_offset = in_properties.z - life * mix( 0.1, 0.3, in_properties.w );
+
+	float t = 1.0-life;
+
+	float alpha = min(t / 0.2, 1.0) * (life);
+
+	alpha = smoothstep(0.0, 1.0, alpha);
+
+	out_alpha = sin( life * PI ) * in_position.w;
 } 

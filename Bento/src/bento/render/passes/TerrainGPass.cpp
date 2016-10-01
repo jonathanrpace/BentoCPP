@@ -100,6 +100,7 @@ namespace bento
 		// Textures
 		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
 		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
+		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 
 
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();

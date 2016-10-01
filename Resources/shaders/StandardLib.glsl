@@ -1,5 +1,7 @@
 #version 330 core
 
+
+
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar )
 {
 	float strength = 1.0;

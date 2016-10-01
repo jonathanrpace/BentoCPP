@@ -30,6 +30,7 @@ namespace bento
 		TextureSquare someTexture;
 		TextureSquare moltenPlateDetailTexture;
 		TextureSquare steamTexture;
+		TextureSquare smokeTexture;
 		TextureSquare rockDiffuseTexture;
 		Texture3D texture3D;
 

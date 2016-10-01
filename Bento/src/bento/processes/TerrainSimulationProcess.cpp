@@ -143,7 +143,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Text("Input");
 	ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
 	ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 5.0f, "%.2f");
+	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 20.0f, "%.2f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -399,13 +399,13 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 		_fragRenderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 		glClearDepth(0.0);
-		//glClearColor(0.0f, 0.1, 0.0, 0.0);
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0f, 0.0, 0.0, 0.0);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		
 		// Set render states
 		glDepthFunc(GL_GREATER);
 		glEnable(GL_DEPTH_TEST);
-		glDepthMask(true);
+		glDepthMask(GL_TRUE);
 
 		// Bind shaders
 		m_moltenMapShader.BindPerPass();
@@ -419,6 +419,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		// Draw!
 		_moltenParticleGeom.Draw();
+
+		glDepthFunc(GL_LESS);
 
 		_geom.MoltenMapData().GetWrite().GenerateMipMaps();
 		_geom.MoltenMapData().Swap();

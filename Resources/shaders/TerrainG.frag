@@ -50,6 +50,7 @@ uniform float u_ambientLightIntensity;
 // Textures
 uniform sampler2D s_rockDiffuse;
 uniform sampler2D s_moltenMapData;
+uniform sampler2D s_smudgeData;
 
 
 ////////////////////////////////////////////////////////////////
@@ -141,9 +142,11 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos);
 	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
 
-	vec3 mippedMoltenMapValue = texture( s_moltenMapData, in_uv ).xyz;//sampleCombinedMip(s_moltenMapData, in_uv, 4, 5, 10.0).xyz;
+	vec3 mippedMoltenMapValue = texture( s_moltenMapData, in_uv ).xyz;
 
-	float powedMoltenMapValue = pow(moltenMapValue, 3.0);
+	float powedMoltenMapValue = pow(moltenMapValue, mix( 1.0, 0.1, in_rockNormal.y ));
+
+
 
 	// Rock material
 	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, powedMoltenMapValue ), vec3(2.2) );
@@ -176,7 +179,7 @@ void main(void)
 	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
 
 	// Ambient light
-	float ambientlight = lightingGGX( rockNormal, viewDir, vec3(0.0,1.0,0.0), roughness, fresnel ) * u_ambientLightIntensity * in_occlusion;
+	float ambientlight = lightingGGX( rockNormal, viewDir, vec3(0.0,1.0,0.0), 1.0, fresnel ) * u_ambientLightIntensity * in_occlusion;
 
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
@@ -186,6 +189,10 @@ void main(void)
 	// Heat glow
 	float heatGlowAlpha = max( pow(1.0-moltenMapValue, 2.0) * hotRockMaterialLerp * 0.4, 0.0f);
 	outColor += in_moltenColor * heatGlowAlpha;
+	outColor += in_moltenColor * pow( heatGlowAlpha, 4.0 ) * 5000.0;
+
+	//outColor *= 0.1;
+	//outColor += vec3( texture(s_smudgeData, in_uv).z ) * 0.5;
 
 	out_forward = vec4( outColor, 1.0 );
 	out_viewPosition = vec4(0.0);

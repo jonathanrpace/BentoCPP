@@ -109,6 +109,7 @@ namespace bento
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glDepthMask(GL_FALSE);
 				glEnable(GL_DEPTH_TEST);
+				glDepthFunc(GL_LESS);
 				glPointSize(16.0f);
 
 				RenderParams::SetModelMatrix(node->transform->matrix);
@@ -127,9 +128,9 @@ namespace bento
 				vs.SetUniform("u_moltenColor", material.moltenColor);
 
 				vs.SetTexture("s_miscData", terrainGeom.MiscData().GetRead());
-				vs.SetTexture("s_texture", material.steamTexture);
-				vs.SetTexture("s_texture3D", material.texture3D);
 
+				m_drawShader.FragmentShader().SetTexture( "s_texture", material.smokeTexture );
+				m_drawShader.FragmentShader().SetUniform("u_moltenColor", material.moltenColor);
 				//vs.SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
 				//vs.SetUniform("u_lightIntensity", material.directLightIntensity);
 				//vs.SetUniform("u_ambientLightIntensity", material.ambientLightIntensity);
@@ -139,7 +140,7 @@ namespace bento
 				glDisable(GL_PROGRAM_POINT_SIZE);
 
 				glBindVertexArray(GL_NONE);
-				glDepthMask(GL_TRUE);
+				//glDepthMask(GL_TRUE);
 				//glEnable(GL_DEPTH_TEST);
 				glDisable(GL_BLEND);
 			}

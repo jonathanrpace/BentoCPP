@@ -15,7 +15,6 @@ in Varying
 };
 
 uniform sampler2D s_texture;
-uniform sampler3D s_texture3D;
 
 uniform vec3 u_moltenColor;
 
@@ -26,36 +25,38 @@ void main(void)
 	float cosAngle = cos(in_angle);
 	float sinAngle = sin(in_angle);
 
+	vec4 textureSampleA = texture(s_texture, uv);
+
+	vec4 textureSampleA2 = texture(s_texture, uv - vec2(0.0, in_offset));
+
 	vec2 rotatedUV = uv;
-	rotatedUV -= vec2(0.5);
-	rotatedUV = vec2( rotatedUV.x * cosAngle - rotatedUV.y * sinAngle,
-					  rotatedUV.x * sinAngle + rotatedUV.y * cosAngle );
-	rotatedUV += vec2(0.5);
+	rotatedUV.x -= textureSampleA2.b * (1.0-in_life) * 0.1;
+	rotatedUV.y -= textureSampleA2.r * (1.0-in_life) * 0.2;
+	rotatedUV.y += in_offset;
 
-	//vec4 textureSample = textureLod(s_texture, rotatedUV, 1.0 + (1.0-in_life) * 4.0);
+	vec4 textureSampleB = texture(s_texture, rotatedUV);
 
-	float t = 1-in_life;
+	float alpha = textureSampleA.b * textureSampleB.r * in_alpha * 1.5;
+	alpha -= (1.0-in_alpha) * 0.4;
+	alpha = clamp(alpha, 0.0,1.0);
 
-	vec4 textureSample3D = texture(s_texture3D, vec3(gl_PointCoord, pow(t, 0.9)));
-
-	
-
-	float alpha = textureSample3D.a * pow( in_life, 0.7 );// clamp((textureSample3D.a - 0.7) + t * 0.7, 0.0, 1.0) * in_life;
-
-	alpha = pow( alpha, mix(3.0, 1.0, t) );
+	if ( alpha <= 0.02 )
+		discard;
 
 
-	//float alphaMult = textureSample3D.a*pow(in_life, 0.75);
+	float emissiveAlpha = max(in_heat, 0.0);
+	vec3 emissiveColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, emissiveAlpha ), vec3(2.2) );
 
-	//float alpha = alphaMult;//clamp( mix(alphaOffset, alphaMult, in_life), 0.0, 1.0 );
-
-
-	//alpha *= in_alpha;	// Spawn alpha
+	vec3 lightFromHeat = emissiveColor * textureSampleA.r * pow(textureSampleA2.r, 2.0) * emissiveAlpha * in_life * 2.0;
 
 
-	//max( (textureSample3D.x*pow(in_life, 0.75)) * 1.0, 0.0 );
+	float t = 1.0-in_life;
 
-	//alpha += textureSample3D.x * in_life;
+	vec4 sparksTextureSample = pow( texture(s_texture, uv + vec2(textureSampleA.b * 0.1 * (in_life), pow(in_life, 10.0) * -4.0) ), vec4(2.2) );
+	lightFromHeat += sparksTextureSample.g * emissiveColor * in_alpha * pow( textureSampleA.b * textureSampleA2.r * textureSampleB.b, 2.0 ) * 50.0;
+
+	vec3 color = vec3( lightFromHeat );
+
 
 	/*
 	float density = textureSample.b;
@@ -64,9 +65,7 @@ void main(void)
 
 	float alpha = density * lifeAlpha * in_alpha;
 
-	if ( alpha <= 0.01 )
-		discard;
-
+	
 	vec3 normal = vec3(textureSample.rg*vec2(2.0) - vec2(1.0), 0.0);
 	normal.z = 1.0 - length(normal);
 	normal.xy = vec2( normal.x * cosAngle - normal.y * sinAngle,
@@ -76,13 +75,7 @@ void main(void)
 	float lightFromSky = clamp( dot( normal, vec3(0.0, 1.0, 0.0) ), 0.0, 1.0 ) * 0.2;
 	float ambientLight = 0.2 * ao;
 
-	float emissiveAlpha = max(in_heat-0.3, 0.0);
-	vec3 emissiveColor = pow( mix( u_moltenColor, u_moltenColor * 4.0, emissiveAlpha ), vec3(2.2) );
-
-	vec3 lightFromHeat = emissiveColor * clamp( dot( normal, vec3(0.0, -1.0, 0.0) ), 0.0, 1.0 ) * emissiveAlpha;
-
-
-	vec3 color = vec3( lightFromSky + lightFromHeat + ambientLight );
+	
 
 	float translucentScalar = max( (1.0-density) * 2.0, 0.0 );
 	color += max(0.0, in_translucency * translucentScalar );
@@ -90,6 +83,6 @@ void main(void)
 	out_fragColor = vec4( color, alpha );
 	*/
 
-	out_fragColor = vec4(pow(textureSample3D.ggg, vec3(1.5)), 0.0);
+	out_fragColor = vec4(color, alpha );//vec4(pow(textureSample3D.ggg, vec3(1.5)), 0.0);
 
 } 

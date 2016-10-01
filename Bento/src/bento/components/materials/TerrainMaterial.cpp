@@ -10,6 +10,7 @@ namespace bento
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, moltenPlateDetailTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
@@ -18,7 +19,9 @@ namespace bento
 		steamTexture.TexImage2D("textures/Steam.png");
 		steamTexture.GenerateMipMaps();
 
-		texture3D.TexImage3D("textures/Texture3D.png");
+		smokeTexture.TexImage2D("textures/Smoke.png");
+
+		//texture3D.TexImage3D("textures/Texture3D.png");
 
 		// Rock
 		SerializableMember("rockColorA", vec3(0.1f, 0.1f, 0.1f), &rockColorA);
