@@ -56,6 +56,9 @@ namespace bento
 
 		SetUniform("u_vegColor", _material.vegColor);
 		SetUniform("u_vegBump", _material.vegBump);
+
+		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
+		SetUniform("u_shadowPenumbra", _material.shadowPenumbra);
 	}
 
 	////////////////////////////////////////////

@@ -76,6 +76,7 @@ namespace bento
 		float lightAltitude;
 		float directLightIntensity;
 		float ambientLightIntensity;
+		float shadowPenumbra;
 
 		// Fog
 		float fogDensity;

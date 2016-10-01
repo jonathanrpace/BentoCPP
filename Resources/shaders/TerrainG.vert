@@ -39,6 +39,9 @@ uniform mat4 u_modelViewMatrix;
 uniform mat3 u_normalModelViewMatrix;
 uniform float u_mapHeightOffset;
 
+uniform vec3 u_lightDir;
+uniform float u_shadowPenumbra;
+
 // Textures
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
@@ -72,6 +75,7 @@ out Varying
 	vec3 out_rockNormal;
 	float out_occlusion;
 	float out_heat;
+	float out_shadowing;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -148,6 +152,66 @@ void main(void)
 	//outColor = mix( outColor, moltenColor, moltenAlpha );
 
 	//outColor = mix( outColor, vec3(0.0,1.0,0.0), pow(steamStrength, 2.2) );
+
+
+	// Shadowing
+	float shadowing = 0.0;
+	{
+		const int maxSteps = 64;
+		const float minStepLength = (1.0 / 256.0);
+
+		float stepLength = (1.0 / maxSteps);
+		float stepLengthScalar = 1.0;
+
+		vec3 rayPos = position.xyz;
+		vec3 rayDir = u_lightDir;
+
+		vec3 rayDirRight = cross(rayDir, vec3(0.0,1.0,0.0));
+		vec3 rayDirUp = cross(rayDir, rayDirRight);
+
+		for ( int i = 0; i < maxSteps; i++ )
+		{
+			rayPos += rayDir * stepLength;
+
+			vec2 sampleUV = rayPos.xz + 0.5;
+
+			vec4 heightSample = texture(s_heightData, sampleUV);
+			float terrainHeightAtSample = heightSample.x + heightSample.y + heightSample.z;
+
+			if ( terrainHeightAtSample > rayPos.y )
+			{
+				if ( i == (maxSteps-1) || stepLength <= minStepLength )
+				{
+					float distanceTravelled = length(rayPos - position.xyz);
+					float penumbraSize = u_shadowPenumbra * distanceTravelled;
+					vec3 rayPosL = rayPos - rayDirRight * penumbraSize;
+					vec3 rayPosR = rayPos + rayDirRight * penumbraSize;
+					vec3 rayPosU = rayPos + rayDirUp * penumbraSize;
+					vec3 rayPosD = rayPos - rayDirUp * penumbraSize;
+
+					vec4 heightSampleL = texture( s_heightData, rayPosL.xz + 0.5 );
+					vec4 heightSampleR = texture( s_heightData, rayPosR.xz + 0.5 );
+					vec4 heightSampleU = texture( s_heightData, rayPosU.xz + 0.5 );
+					vec4 heightSampleD = texture( s_heightData, rayPosD.xz + 0.5 );
+
+					float inShadowL = clamp( abs((heightSampleL.x + heightSampleL.y + heightSampleL.z) - rayPosL.y) / penumbraSize, 0.0, 1.0 );
+					float inShadowR = clamp( abs((heightSampleR.x + heightSampleR.y + heightSampleR.z) - rayPosR.y) / penumbraSize, 0.0, 1.0 );
+					float inShadowU = clamp( abs((heightSampleU.x + heightSampleU.y + heightSampleU.z) - rayPosU.y) / penumbraSize, 0.0, 1.0 );
+					float inShadowD = clamp( abs((heightSampleD.x + heightSampleD.y + heightSampleD.z) - rayPosD.y) / penumbraSize, 0.0, 1.0 );
+
+					shadowing = (inShadowL + inShadowR + inShadowU + inShadowD) * 0.25;
+
+					//shadowing = 1.0;
+					break;
+				}
+
+				stepLengthScalar = 0.5;	 // Start binary chop
+				rayPos -= rayDir * stepLength;
+			}
+
+			stepLength *= stepLengthScalar;
+		}
+	}
 	
 	// Output
 	{
@@ -160,6 +224,7 @@ void main(void)
 		out_rockNormal = rockNormal;
 		out_occlusion = occlusion;
 		out_heat = heat;
+		out_shadowing = shadowing;
 		gl_Position = u_mvpMatrix * position;
 	}
 } 

@@ -17,6 +17,7 @@ in Varying
 	vec3 in_rockNormal;
 	float in_occlusion;
 	float in_heat;
+	float in_shadowing;
 };
 
 // Uniforms
@@ -176,7 +177,7 @@ void main(void)
 	rockNormal = normalize(rockNormal);
 
 	// Direct light
-	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity;
+	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity * (1.0-in_shadowing);
 
 	// Ambient light
 	float ambientlight = lightingGGX( rockNormal, viewDir, vec3(0.0,1.0,0.0), 1.0, fresnel ) * u_ambientLightIntensity * in_occlusion;
