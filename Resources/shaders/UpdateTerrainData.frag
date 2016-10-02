@@ -315,7 +315,7 @@ void main(void)
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
 		float heatTextureScalar = pow( 1.0-diffuseSampleC.x, 2.0 );
 		float heightTextureScalar = pow( diffuseSampleC.x, 2.0 );
-		heatC   += ( pow(mouseRatio, 1.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.1, heatTextureScalar) ) / (1.0+heatC*10.0);
+		heatC   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.1, heatTextureScalar) ) / (1.0+heatC*10.0);
 		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.5, 0.6, heightTextureScalar) ) / (1.0+heightC);
 		heatC = max(0.0, heatC);
 
@@ -608,8 +608,10 @@ void main(void)
 
 			occlusion += occlusionFoThisMip * strength;
 			totalStrength += strength;
+			strength *= 0.5;
 		}
 		occlusion /= totalStrength;
+		occlusion *= 2.0;
 
 		out_miscData.w = occlusion;
 	}
