@@ -21,15 +21,15 @@ uniform mat4 u_modelViewMatrix;
 uniform mat4 u_viewMatrix;
 
 uniform float u_mapHeightOffset;
-uniform float u_waterHeightToOpaque = 0.005;
-uniform float u_fresnelPower = 4.0f;
+uniform float u_waterDepthToOpaque;
+uniform float u_fresnelPower = 1.0f;
 uniform float u_specularPower;
 uniform vec3 u_dirtColor;
 uniform vec3 u_waterColor;
-const float u_terrainSize = 1.5;
 
 // Lighting
 uniform vec3 u_lightDir;
+uniform float u_lightDistance;
 uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
@@ -59,6 +59,7 @@ out Varying
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
 vec3 reconstructNormal( vec2 normal2 );
+float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -84,7 +85,7 @@ void main(void)
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
-	vec4 normalDataC = textureLod(s_normalData, in_uv, 2);
+	vec4 normalDataC = textureLod(s_normalData, in_uv, 1);
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;
@@ -103,7 +104,9 @@ void main(void)
 	position.y += miscDataC.y * u_mapHeightOffset;
 	out_worldPosition = position;
 
-	float alpha = min( waterHeight / u_waterHeightToOpaque, 1.0 );
+	vec3 lightDir = normalize(u_lightDir * u_lightDistance - position.xyz);
+
+	float alpha = min( waterHeight / u_waterDepthToOpaque, 1.0 );
 	out_alpha = alpha;
 
 	vec4 viewPosition = u_modelViewMatrix * position;
@@ -118,7 +121,7 @@ void main(void)
 	// Diffuse
 	////////////////////////////////////////////////////////////////
 	{
-		float lighting = diffuse(normal, u_lightDir, 1.5f) * u_lightIntensity;
+		float lighting = diffuse(normal, lightDir, 1.5f) * u_lightIntensity;
 		lighting += u_ambientLightIntensity;
 		float dissolvedDirtAlpha = min( dissolvedDirt / 0.0025, 1.0 );
 
@@ -137,65 +140,60 @@ void main(void)
 		vec3 reflectVec = reflect(-eye, normal);
 
 		// Specular
-		vec3 waterSpecular = vec3( specular( normal, u_lightDir, -eye, u_specularPower ) * u_lightIntensity );
-		out_reflections += waterSpecular * 0.5;
-
-		// Sky
-		float skyReflect = clamp( (dot(reflectVec, vec3(0.0,1.0,0.0)) + 1.0) * 0.5, 0.0, 1.0 );
-		out_reflections += skyReflect * 0.5;
+		float waterSpecular = lightingGGX(normal, eye, lightDir, u_specularPower, 1.0) * u_lightIntensity;
+		//vec3 waterSpecular = vec3( specular( normal, lightDir, -eye, u_specularPower ) * u_lightIntensity );
+		out_reflections += waterSpecular;
 
 		// Fresnel
 		float fresnel = 1.0f - clamp(dot(normal, eye), 0.0f, 1.0f);
 		fresnel = pow( fresnel, u_fresnelPower );
 		fresnel = mix( 0.02, 1.0, fresnel );
 
+		// Sky
+		//float skyReflect = lightingGGX(normal, eye, vec3(0.0,1.0,0.0), u_specularPower, 0.0) * 0.5 );
+		float skyReflect = clamp( (dot( reflect(-eye, normal), vec3(0.0,1.0,0.0)) + 0.5) * 0.5, 0.0, 1.0 );
+		out_reflections += skyReflect * 0.1 * u_waterColor * fresnel;
+
+		
+
 		// Specular occlusion
-		const int maxSteps = 16;
-		const float minStepLength = (1.0 / 1024.0);
-
-		vec3 occlusionPos = position.xyz;
-		float stepLength = (u_terrainSize / maxSteps) * 0.5;	// Walk at most, a quarter the size of the terrain
-		float occlusion = 0.0;
-		bool binaryChopping = false;
-
-		// Jitter
-		vec3 randomDirection = normalize( vec3( in_rand.xyz - 0.5 ) );
-		reflectVec += randomDirection * 0.03;
-
-		for ( int i = 0; i < maxSteps; i++ )
+		float shadowing = 0.0;
 		{
-			occlusionPos += reflectVec * stepLength;
+			const int maxSteps = 64;
+			const float minStepLength = (1.0 / 256.0);
 
-			vec2 sampleUV = (occlusionPos.xz + (u_terrainSize*0.5)) / u_terrainSize;
+			float stepLength = (1.0 / maxSteps);
+			float stepLengthScalar = 1.0;
 
-			if ( sampleUV.x < 0.0 )	break;
-			if ( sampleUV.x > 1.0 )	break;
-			if ( sampleUV.y < 0.0 )	break;
-			if ( sampleUV.y > 1.0 )	break;
+			vec3 rayPos = position.xyz;
+			vec3 rayDir = reflectVec;
 
-			vec4 heightSample = textureLod(s_heightData, sampleUV, 1);
-			float terrainHeightAtSample = heightSample.x + heightSample.y + heightSample.z;
-
-			if ( terrainHeightAtSample > occlusionPos.y )
+			for ( int i = 0; i < maxSteps; i++ )
 			{
-				if ( i == (maxSteps-1) || stepLength <= minStepLength )
+				rayPos += rayDir * stepLength;
+
+				vec2 sampleUV = rayPos.xz + 0.5;
+
+				vec4 heightSample = texture(s_heightData, sampleUV);
+				float terrainHeightAtSample = heightSample.x + heightSample.y + heightSample.z;
+
+				if ( terrainHeightAtSample > rayPos.y )
 				{
-					occlusion = 1.0;
-					break;
+					if ( i == (maxSteps-1) || stepLength <= minStepLength )
+					{
+						shadowing = 1.0;
+						break;
+					}
+
+					stepLengthScalar = 0.5;
+					rayPos -= rayDir * stepLength;
 				}
 
-				binaryChopping = true;
-				occlusionPos -= reflectVec * stepLength;
-			}
-
-			if ( binaryChopping )
-			{
-				stepLength *= 0.5;
+				stepLength *= stepLengthScalar;
 			}
 		}
-
-		out_reflections *= fresnel;
-		out_reflections *= alpha;
-		out_reflections *= 1.0-occlusion;
+		
+		//out_reflections *= fresnel;
+		out_reflections *= 1.0-shadowing;
 	}
 } 

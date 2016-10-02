@@ -33,13 +33,15 @@ namespace bento
 		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
+		SetUniform("u_lightDistance", _material.lightDistance);
 		SetUniform("u_lightIntensity", _material.directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 
 		SetUniform("u_dirtColor", _material.dirtColor);
 		SetUniform("u_waterColor", _material.waterColor);
 		SetUniform("u_specularPower", _material.waterSpecularPower);
-
+		SetUniform("u_waterDepthToOpaque", _material.waterDepthToOpaque);
+		
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
@@ -57,8 +59,10 @@ namespace bento
 
 	void TerrainWaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
-		SetUniform("u_waterColor2", _material.waterColor);
+		SetUniform("u_waterColor", _material.waterColor);
 		SetUniform("u_indexOfRefraction", _material.waterIndexOfRefraction);
+		SetUniform("u_waterDepthToDiffuse", _material.waterDepthToDiffuse);
+		SetUniform("u_dissolvedDirtDepthToDiffuse", _material.dissolvedDirtDepthToDiffuse);
 
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix(), true);
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());

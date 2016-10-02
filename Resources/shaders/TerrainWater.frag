@@ -22,8 +22,10 @@ uniform mat4 u_mvpMatrix;
 uniform mat4 u_viewMatrix;
 
 // Material
-uniform vec3 u_waterColor2;
+uniform vec3 u_waterColor;
 uniform float u_indexOfRefraction;
+uniform float u_waterDepthToDiffuse;
+uniform float u_dissolvedDirtDepthToDiffuse;
 
 // Samplers
 uniform sampler2DRect s_output;
@@ -34,6 +36,8 @@ uniform sampler2DRect s_positionBuffer;
 ////////////////////////////////////////////////////////////////
 
 layout( location = 0 ) out vec4 out_forwad;
+
+
 
 ////////////////////////////////////////////////////////////////
 // Main
@@ -47,12 +51,10 @@ void main(void)
 	vec3 outColor = vec3(0.0f);
 
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
-	if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
+	vec4 outputSample = texelFetch(s_output, ivec2(gl_FragCoord.xy));
+	//if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
 
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
-	float absorbtionRatio = clamp( viewDepth / 0.1, 0.0, 1.0 );
-
-	viewDepth = clamp(viewDepth, 0.0, 0.2);
 
 	////////////////////////////////////////////////////////////////
 	// Refraction
@@ -62,26 +64,28 @@ void main(void)
 		vec3 refractVec = refract(-eye, normal, u_indexOfRefraction);
 		
 		vec4 samplePos = vec4( in_worldPosition );
-		samplePos.xyz += refractVec * viewDepth * in_alpha;
+		samplePos.xyz += refractVec;
 		samplePos *= u_mvpMatrix;
 		samplePos.xyz /= samplePos.w;
 		samplePos.xy += 1.0;
 		samplePos.xy *= 0.5;
 
 		vec2 dimensions = vec2(textureSize( s_output, 0 ));
-
-		outColor = texture2DRect(s_output, samplePos.xy * dimensions).xyz;
+		outColor = mix( outputSample.rgb, texture2DRect(s_output, samplePos.xy * dimensions).rgb, in_alpha );
 	}
 	
 	// Filter color behind water. The deeper the water, the more filter applied.
-	outColor *= mix( vec3(1.0f), pow(u_waterColor2, vec3(2.2)), in_alpha );
-
+	float waterFilterAlpha = clamp( viewDepth / u_waterDepthToDiffuse, 0.0, 1.0 );
+	outColor *= mix( vec3(1.0f), u_waterColor, waterFilterAlpha );
 
 	// Alpha blend diffuse
-	outColor = mix( outColor, in_diffuse.rgb, min( absorbtionRatio + in_diffuse.a, 1.0 ) );
+	float waterDiffuseAlpha = clamp( viewDepth / u_waterDepthToDiffuse, 0.0, 1.0 );
+	float dirtDiffuseAlpha = clamp( viewDepth / u_dissolvedDirtDepthToDiffuse, 0.0, 1.0 ) * in_diffuse.a;	// in_diffuse.a == dissolvedDirtDensity
+	float diffuseAlpha = min( dirtDiffuseAlpha, 1.0 );
+	outColor = mix( outColor, in_diffuse.rgb, diffuseAlpha * in_alpha );
 
 	// Add reflections
-	outColor += in_reflections;
+	outColor += in_reflections * in_alpha;
 
 	/*
 	////////////////////////////////////////////////////////////////

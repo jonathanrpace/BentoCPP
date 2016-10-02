@@ -51,8 +51,8 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(transform, entity);
 		auto material = bento::TerrainMaterial::Create();
 		scene.AddComponentToEntity(material, entity);
-		auto foamParticleGeom = bento::FoamParticleGeom::Create();
-		scene.AddComponentToEntity(foamParticleGeom, entity);
+		//auto foamParticleGeom = bento::FoamParticleGeom::Create();
+		//scene.AddComponentToEntity(foamParticleGeom, entity);
 		auto steamParticleGeom = bento::SteamParticleGeom::Create();
 		scene.AddComponentToEntity(steamParticleGeom, entity);
 		auto moltenParticleGeom = bento::MoltenParticleGeom::Create();
@@ -69,8 +69,8 @@ void mainLoop(GLFWwindow* window)
 	{
 		renderer->AddRenderPass(bento::GPass::Create());
 		renderer->AddRenderPass(bento::TerrainGPass::Create());
-		//renderer->AddRenderPass(bento::TerrainWaterPass::Create());
-		renderer->AddRenderPass(bento::TerrainFoamPass::Create());
+		renderer->AddRenderPass(bento::TerrainWaterPass::Create());
+		//renderer->AddRenderPass(bento::TerrainFoamPass::Create());
 		renderer->AddRenderPass(bento::TerrainSteamPass::Create());
 		renderer->AddRenderPass(bento::IMGUIRenderPass::Create());
 	}
