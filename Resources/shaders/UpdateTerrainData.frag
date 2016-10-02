@@ -70,14 +70,6 @@ uniform float u_dirtPickupMinWaterSpeed;
 uniform float u_dirtPickupRate;
 uniform float u_dirtDepositSpeed;
 
-// Vegetation
-uniform float u_vegMinDirt;
-uniform float u_vegMaxDirt;
-uniform float u_vegMinSlope;
-uniform float u_vegMaxSlope;
-uniform float u_vegGrowthRate;
-uniform float u_vegBump;
-
 // Misc
 uniform vec2 u_cellSize;
 uniform int u_numHeightMips;
@@ -521,7 +513,6 @@ void main(void)
 	// Rock normal
 	//////////////////////////////////////////////////////////////////////////////////
 	vec3 rockNormal;
-	vec3 rockNormalSansVeg;
 	{
 		vec2 texelSize = vec2(1.0) / vec2(textureSize(s_heightData, 0));
 
@@ -562,13 +553,6 @@ void main(void)
 		
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
-		rockNormalSansVeg = -cross(va,vb);
-
-		heightC += smudgeDataC.w * u_vegBump;
-		heightR += smudgeDataR.w * u_vegBump;
-		heightL += smudgeDataL.w * u_vegBump;
-		heightU += smudgeDataU.w * u_vegBump;
-		heightD += smudgeDataD.w * u_vegBump;
 
 		va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
@@ -576,35 +560,6 @@ void main(void)
 
 		out_normalData.zw = rockNormal.xz;
 		out_miscData.y = moltenMapResultC;
-	}
-
-	////////////////////////////////////////////////////////////////
-	// Vegetation
-	////////////////////////////////////////////////////////////////
-	{
-		float vegAmount = out_smudgeData.w;
-
-		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv);
-
-		float slope = rockNormalSansVeg.y;
-		float slopeScalar = clamp((slope - u_vegMinSlope) / (u_vegMaxSlope-u_vegMinSlope), 0.0, 1.0);
-		slopeScalar = smoothstep( 0.0, 1.0, slopeScalar );
-
-		float dirtHeight = out_heightData.z;
-		float dirtScalar = clamp((dirtHeight - u_vegMinDirt) / (u_vegMaxDirt-u_vegMinDirt), 0.0, 1.0);
-
-		float waterHeight = out_heightData.w;
-		float waterScalar = 1.0 - min( waterHeight / 0.01, 1.0 );
-
-		float vegAmountTarget = slopeScalar * dirtScalar * waterScalar;
-		vegAmountTarget *= diffuseSampleC.y * 2.0;
-
-		vegAmountTarget = smoothstep( 0.0, 0.7, vegAmountTarget );
-
-		vegAmount += min(abs(vegAmountTarget-vegAmount), u_vegGrowthRate);
-		vegAmount = min( vegAmount, vegAmountTarget );
-
-		out_smudgeData.w = vegAmount;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -635,7 +590,7 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	{
 		float occlusion = 0.0f;
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset + smudgeDataC.w * u_vegBump;
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset + smudgeDataC.w;
 
 		float strength = 1.0;
 		float totalStrength = 0.0;
@@ -645,7 +600,7 @@ void main(void)
 			vec4 mippedMiscDataC = textureLod(s_miscData, in_uv, float(i));
 			vec4 mippedSmudgeDataC = textureLod(s_smudgeData, in_uv, float(i));
 
-			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_mapHeightOffset + mippedSmudgeDataC.w * u_vegBump;
+			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_mapHeightOffset + mippedSmudgeDataC.w;
 			float diff = max(0.0f, mippedHeight - heightC);
 			float ratio = diff / u_cellSize.x;
 			float angle = atan(ratio);
@@ -653,11 +608,8 @@ void main(void)
 
 			occlusion += occlusionFoThisMip * strength;
 			totalStrength += strength;
-			strength *= 1.0;
 		}
 		occlusion /= totalStrength;
-
-		//occlusion *= 2.0;
 
 		out_miscData.w = occlusion;
 	}

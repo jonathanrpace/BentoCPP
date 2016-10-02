@@ -130,13 +130,6 @@ namespace bento
 		float m_dirtDepositSpeed;
 		float m_dissolvedDirtSmoothing;
 
-		// Vegetation
-		float m_vegMinDirt;
-		float m_vegMaxDirt;
-		float m_vegGrowthRate;
-		float m_vegMinSlope;
-		float m_vegMaxSlope;
-
 		// Global
 		float m_ambientTemperature;
 	};

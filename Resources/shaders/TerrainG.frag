@@ -9,7 +9,6 @@
 in Varying
 {
 	vec4 in_viewPosition;
-	vec4 in_forward;
 	vec2 in_uv;
 	float in_dirtAlpha;
 	vec3 in_moltenColor;
@@ -141,13 +140,10 @@ void main(void)
 
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos);
-	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
-
-	vec3 mippedMoltenMapValue = texture( s_moltenMapData, in_uv ).xyz;
-
+	vec4 moltenMapSample = texture(s_moltenMapData, in_uv);
+	float moltenMapValue = viewDir.x;
+	vec2 moltenMapDerivative = moltenMapSample.yz;
 	float powedMoltenMapValue = pow(moltenMapValue, mix( 1.0, 0.1, in_rockNormal.y ));
-
-
 
 	// Rock material
 	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, powedMoltenMapValue ), vec3(2.2) );
@@ -171,7 +167,7 @@ void main(void)
 	diffuse *= 1.0 - ((1.0-rockDiffuseSample.b) * u_rockDetailDiffuseStrength);
 
 	vec3 rockNormal = in_rockNormal;
-	vec2 angle = mippedMoltenMapValue.yz * mix( u_rockDetailBumpStrength, u_rockDetailBumpStrength * 0.2, pow(in_rockNormal.y, 4.0) );
+	vec2 angle = moltenMapDerivative * mix( u_rockDetailBumpStrength, u_rockDetailBumpStrength * 0.2, pow(in_rockNormal.y, 4.0) );
 	rockNormal = rotateX( rockNormal, -angle.x ); 
 	rockNormal = rotateZ( rockNormal, angle.y ); 
 	rockNormal = normalize(rockNormal);

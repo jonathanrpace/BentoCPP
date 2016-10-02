@@ -11,28 +11,21 @@ layout(location = 1) in vec2 in_uv;
 // Uniforms
 uniform mat4 u_viewMatrix;
 
-
 uniform vec3 u_fogColorAway;
 uniform vec3 u_fogColorTowards;
 uniform float u_fogHeight;
 uniform float u_fogDensity;
 uniform vec3 u_cameraPos;
 
-
-
 uniform float u_moltenMapOffset;
 uniform float u_rockDetailBumpStrength;
 uniform float u_rockDetailDiffuseStrength;
-
-
 
 uniform vec3 u_moltenColor;
 uniform float u_moltenAlphaScalar;
 uniform float u_moltenAlphaPower;
 
 uniform vec3 u_dirtColor;
-uniform vec3 u_vegColor;
-uniform float u_vegBump;
 
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
@@ -40,7 +33,6 @@ uniform mat3 u_normalModelViewMatrix;
 uniform float u_mapHeightOffset;
 
 uniform vec3 u_lightDir;
-uniform float u_shadowPenumbra;
 
 // Textures
 uniform sampler2D s_heightData;
@@ -67,7 +59,6 @@ out gl_PerVertex
 out Varying
 {
 	vec4 out_viewPosition;
-	vec4 out_forward;
 	vec2 out_uv;
 	float out_dirtAlpha;
 	vec3 out_moltenColor;
@@ -106,10 +97,8 @@ void main(void)
 	float moltenHeight = heightDataC.y;
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
-	float vegAmount = smudgeDataC.w;
 	float heat = miscDataC.x;
 	float occlusion = 1.0f - miscDataC.w;
-	//float moltenMapValue = clamp(miscDataC.y, 0.0, 1.0);
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
 	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
@@ -119,7 +108,6 @@ void main(void)
 	position.y += moltenHeight;
 	//position.y += dirtHeight;
 	position.y += moltenMapValue * u_mapHeightOffset;
-	//position.y += vegAmount * u_vegBump;
 
 	vec4 viewPosition = u_modelViewMatrix * position;
 
@@ -134,26 +122,12 @@ void main(void)
 	rockNormal += rockDetailBump * u_rockDetailBumpStrength * (1.0-dirtAlpha);
 	rockNormal = normalize(rockNormal);
 
-	// Vegetation
-	vec3 vegDiffuse = pow(u_vegColor, vec3(2.2)) * mix(0.0, 1.0, diffuseData.z);
-	float vegAlpha = clamp( vegAmount / 1.0, 0.0, 1.0 );
-	diffuse = mix(diffuse, vegDiffuse, vegAlpha);
-	roughness = mix( roughness, 0.7, vegAlpha );
-	fresnel = mix( fresnel, 0.9, vegAlpha );
 	*/
 
 	// Molten
 	float moltenAlpha = max( max(heat-0.2, 0.0) * u_moltenAlphaScalar, 0.0 );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 1.25, moltenAlpha ), vec3(2.2) );
 	
-	// Bing it all together
-	//vec3 outColor = (diffuse * (directLight + ambientlight));
-	//outColor *= pow( clamp(1.0 - moltenAlpha, 0.0, 1.0), 4.0 );
-	//outColor = mix( outColor, moltenColor, moltenAlpha );
-
-	//outColor = mix( outColor, vec3(0.0,1.0,0.0), pow(steamStrength, 2.2) );
-
-
 	// Shadowing
 	float shadowing = 0.0;
 	{
@@ -182,30 +156,11 @@ void main(void)
 			{
 				if ( i == (maxSteps-1) || stepLength <= minStepLength )
 				{
-					float distanceTravelled = length(rayPos - position.xyz);
-					float penumbraSize = u_shadowPenumbra * distanceTravelled;
-					vec3 rayPosL = rayPos - rayDirRight * penumbraSize;
-					vec3 rayPosR = rayPos + rayDirRight * penumbraSize;
-					vec3 rayPosU = rayPos + rayDirUp * penumbraSize;
-					vec3 rayPosD = rayPos - rayDirUp * penumbraSize;
-
-					vec4 heightSampleL = texture( s_heightData, rayPosL.xz + 0.5 );
-					vec4 heightSampleR = texture( s_heightData, rayPosR.xz + 0.5 );
-					vec4 heightSampleU = texture( s_heightData, rayPosU.xz + 0.5 );
-					vec4 heightSampleD = texture( s_heightData, rayPosD.xz + 0.5 );
-
-					float inShadowL = clamp( abs((heightSampleL.x + heightSampleL.y + heightSampleL.z) - rayPosL.y) / penumbraSize, 0.0, 1.0 );
-					float inShadowR = clamp( abs((heightSampleR.x + heightSampleR.y + heightSampleR.z) - rayPosR.y) / penumbraSize, 0.0, 1.0 );
-					float inShadowU = clamp( abs((heightSampleU.x + heightSampleU.y + heightSampleU.z) - rayPosU.y) / penumbraSize, 0.0, 1.0 );
-					float inShadowD = clamp( abs((heightSampleD.x + heightSampleD.y + heightSampleD.z) - rayPosD.y) / penumbraSize, 0.0, 1.0 );
-
-					shadowing = (inShadowL + inShadowR + inShadowU + inShadowD) * 0.25;
-
-					//shadowing = 1.0;
+					shadowing = 1.0;
 					break;
 				}
 
-				stepLengthScalar = 0.5;	 // Start binary chop
+				stepLengthScalar = 0.5;
 				rayPos -= rayDir * stepLength;
 			}
 
@@ -215,8 +170,6 @@ void main(void)
 	
 	// Output
 	{
-		out_viewPosition = viewPosition;
-		out_forward = vec4(0.0);//vec4(outColor, 1.0f);//vec4(directLight);//vec4(moltenMapValue);//vec4(outColor, 1.0f);
 		out_uv = in_uv;
 		out_dirtAlpha = 1.0;
 		out_moltenColor = moltenColor;

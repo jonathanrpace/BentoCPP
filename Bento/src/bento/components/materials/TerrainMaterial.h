@@ -67,16 +67,11 @@ namespace bento
 		float waterSpecularPower;
 		float waterIndexOfRefraction;
 
-		// Veg
-		vec3 vegColor;
-		float vegBump; 
-
 		// Lighting
 		float lightAzimuth;
 		float lightAltitude;
 		float directLightIntensity;
 		float ambientLightIntensity;
-		float shadowPenumbra;
 
 		// Fog
 		float fogDensity;

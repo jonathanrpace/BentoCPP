@@ -90,15 +90,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("dirtPickupMinWaterSpeed",1.0f,		&m_dirtPickupMinWaterSpeed);
 	SerializableMember("dirtDepositSpeed",		0.0f,		&m_dirtDepositSpeed);
 	SerializableMember("waterDiffuseStrength",	0.00f,		&m_dissolvedDirtSmoothing);
-
-	// Vegetation
-	SerializableMember("m_vegMinDirt",			0.001f,		&m_vegMinDirt);
-	SerializableMember("m_vegMaxDirt",			0.002f,		&m_vegMaxDirt);
-	SerializableMember("m_vegGrowthRate",		0.001f,		&m_vegGrowthRate);
-	SerializableMember("m_vegMinSlope",			0.1f,		&m_vegMinSlope);
-	SerializableMember("m_vegMaxSlope",			0.2f,		&m_vegMaxSlope);
-
-
+	
 	// Global
 	SerializableMember("ambientTemperature",	0.05f,		&m_ambientTemperature);
 
@@ -143,7 +135,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Text("Input");
 	ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
 	ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 20.0f, "%.2f");
+	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 5.0f, "%.2f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -188,15 +180,6 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("DepositSpeed", &m_dirtDepositSpeed, 0.0f, 0.1f, "%.7f");
 	ImGui::SliderFloat("DissolvedDirtSmoothing", &m_dissolvedDirtSmoothing, 0.0f, 1.0f, "%.5f");
 	ImGui::Spacing();
-
-	ImGui::Text("Vegetation");
-	ImGui::SliderFloat("MinDirt#veg", &m_vegMinDirt, 0.0f, 0.05f, "%.5f");
-	ImGui::SliderFloat("MaxDirt#veg", &m_vegMaxDirt, 0.0f, 0.05f, "%.5f");
-	ImGui::SliderFloat("MinSlope#veg", &m_vegMinSlope, 0.0f, 1.00f, "%.5f");
-	ImGui::SliderFloat("MaxSlope#veg", &m_vegMaxSlope, 0.0f, 1.00f, "%.5f");
-	ImGui::SliderFloat("GrowthRate#veg", &m_vegGrowthRate, 0.0f, 0.01f, "%.5f");
-	ImGui::Spacing();
-
 
 	if (ImGui::Button("Reset"))
 	{
@@ -332,14 +315,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_dirtPickupMinWaterSpeed",		m_dirtPickupMinWaterSpeed);
 		fragShader.SetUniform("u_dirtPickupRate",				m_dirtPickupRate);
 		fragShader.SetUniform("u_dirtDepositSpeed",				m_dirtDepositSpeed);
-
-		// Vegetation
-		fragShader.SetUniform("u_vegMinDirt",					m_vegMinDirt);
-		fragShader.SetUniform("u_vegMaxDirt",					m_vegMaxDirt);
-		fragShader.SetUniform("u_vegMinSlope",					m_vegMinSlope);
-		fragShader.SetUniform("u_vegMaxSlope",					m_vegMaxSlope);
-		fragShader.SetUniform("u_vegGrowthRate",				m_vegGrowthRate);
-		fragShader.SetUniform("u_vegBump",						_material.vegBump);
 
 		// Misc
 		fragShader.SetUniform("u_cellSize",						cellSize);

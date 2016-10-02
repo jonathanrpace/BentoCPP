@@ -56,16 +56,11 @@ namespace bento
 		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
 		SerializableMember("dirtTextureRepeat", 1.0, &dirtTextureRepeat);
 
-		// Veg
-		SerializableMember("vegColor", vec3(0.5, 0.5f, 0.5f), &vegColor);
-		SerializableMember("vegBump", 0.0f, &vegBump);
-
 		// Lighting
 		SerializableMember("lightAzimuth", 0.0f, &lightAzimuth);
 		SerializableMember("lightAltitude", (float)-M_PI * 0.5f, &lightAltitude);
 		SerializableMember("directLightIntensity", 1.0f, &directLightIntensity);
 		SerializableMember("ambientLightIntensity", 1.2f, &ambientLightIntensity);
-		SerializableMember("shadowPenumbra", 0.0f, &shadowPenumbra);
 
 		// Fog
 		SerializableMember("fogColorAway", vec3(0.7f, 0.7f, 0.7f), &fogColorAway);
@@ -122,18 +117,11 @@ namespace bento
 		ImGui::Spacing();
 
 		ImGui::Spacing();
-		ImGui::Text("Vegetation");
-		ImGui::ColorEdit3("Color##veg", glm::value_ptr(vegColor));
-		ImGui::SliderFloat("Bump##veg", &vegBump, 0.0f, 0.05f);
-		ImGui::Spacing();
-
-		ImGui::Spacing();
 		ImGui::Text("Lighting");
 		ImGui::SliderAngle("Azimuth", &lightAzimuth, -180.0f, 180.0f);
 		ImGui::SliderAngle("Altitude", &lightAltitude, -180.0f, 0.0f);
 		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 4.0f);
 		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 2.0f);
-		ImGui::SliderFloat("ShadowPenumbra", &shadowPenumbra, 0.0f, 0.05f, "%.4f");
 		ImGui::Spacing();
 
 		ImGui::Spacing();
