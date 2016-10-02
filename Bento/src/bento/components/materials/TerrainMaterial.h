@@ -66,10 +66,14 @@ namespace bento
 		vec3 waterColor;
 		float waterSpecularPower;
 		float waterIndexOfRefraction;
+		float waterDepthToOpaque;
+		float waterDepthToDiffuse;
+		float dissolvedDirtDepthToDiffuse;
 
 		// Lighting
 		float lightAzimuth;
 		float lightAltitude;
+		float lightDistance;
 		float directLightIntensity;
 		float ambientLightIntensity;
 

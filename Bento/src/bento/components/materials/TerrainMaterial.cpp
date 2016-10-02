@@ -51,6 +51,9 @@ namespace bento
 		SerializableMember("waterColor", vec3(0.219f, 0.286f, 0.278f), &waterColor);
 		SerializableMember("waterSpecularPower", 80.0f, &waterSpecularPower);
 		SerializableMember("waterIndexOfRefraction", 0.33f, &waterIndexOfRefraction);
+		SerializableMember("waterDepthToOpaque", 0.01f, &waterDepthToOpaque);
+		SerializableMember("waterDepthToDiffuse", 0.05f, &waterDepthToDiffuse);
+		SerializableMember("dissolvedDirtDepthToDiffuse", 0.02f, &dissolvedDirtDepthToDiffuse);
 
 		// Dirt
 		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
@@ -59,6 +62,7 @@ namespace bento
 		// Lighting
 		SerializableMember("lightAzimuth", 0.0f, &lightAzimuth);
 		SerializableMember("lightAltitude", (float)-M_PI * 0.5f, &lightAltitude);
+		SerializableMember("lightDistance", 1.0f, &lightDistance);
 		SerializableMember("directLightIntensity", 1.0f, &directLightIntensity);
 		SerializableMember("ambientLightIntensity", 1.2f, &ambientLightIntensity);
 
@@ -105,9 +109,12 @@ namespace bento
 
 		ImGui::Spacing();
 		ImGui::Text("Water");
-		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 1.0f, 200.0f);
-		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.0f, 2.0f);
+		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 0.0f, 1.0f);
+		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.95f, 1.05f);
 		ImGui::ColorEdit3("Color##water", glm::value_ptr(waterColor));
+		ImGui::SliderFloat("DepthToOpaque", &waterDepthToOpaque, 0.0f, 0.01f, "%.4f");
+		ImGui::SliderFloat("DepthToDiffuse", &waterDepthToDiffuse, 0.0f, 1.0f, "%.4f");
+		ImGui::SliderFloat("DirtDepthToDiffuse", &dissolvedDirtDepthToDiffuse, 0.0f, 1.0f, "%.4f");
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -120,6 +127,7 @@ namespace bento
 		ImGui::Text("Lighting");
 		ImGui::SliderAngle("Azimuth", &lightAzimuth, -180.0f, 180.0f);
 		ImGui::SliderAngle("Altitude", &lightAltitude, -180.0f, 0.0f);
+		ImGui::SliderFloat("Distance", &lightDistance, 0.0f, 10.0f);
 		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 4.0f);
 		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 2.0f);
 		ImGui::Spacing();

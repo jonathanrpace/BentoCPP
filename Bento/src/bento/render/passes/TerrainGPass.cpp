@@ -55,6 +55,7 @@ namespace bento
 		SetUniform("u_dirtColor", _material.dirtColor);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
+		SetUniform("u_lightDistance", _material.lightDistance);
 	}
 
 	////////////////////////////////////////////
@@ -93,6 +94,7 @@ namespace bento
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
+		SetUniform("u_lightDistance", _material.lightDistance);
 		SetUniform("u_lightIntensity", _material.directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 

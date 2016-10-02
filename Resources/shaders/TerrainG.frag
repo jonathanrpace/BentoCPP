@@ -8,6 +8,7 @@
 // Varying
 in Varying
 {
+	vec3 in_worldPosition;
 	vec4 in_viewPosition;
 	vec2 in_uv;
 	float in_dirtAlpha;
@@ -44,6 +45,7 @@ uniform float u_rockDetailDiffuseStrength;
 uniform float u_rockDetailBumpStrength;
 
 uniform vec3 u_lightDir;
+uniform float u_lightDistance;
 uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
@@ -141,9 +143,11 @@ void main(void)
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos);
 	vec4 moltenMapSample = texture(s_moltenMapData, in_uv);
-	float moltenMapValue = viewDir.x;
+	float moltenMapValue = moltenMapSample.x;
 	vec2 moltenMapDerivative = moltenMapSample.yz;
 	float powedMoltenMapValue = pow(moltenMapValue, mix( 1.0, 0.1, in_rockNormal.y ));
+
+	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 
 	// Rock material
 	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, powedMoltenMapValue ), vec3(2.2) );
@@ -156,7 +160,7 @@ void main(void)
 	float hotRockFresnel = mix( u_hotRockFresnelA, u_hotRockFresnelB, powedMoltenMapValue );
 	
 	// Mix rock and hot rock together
-	float hotRockMaterialLerp = min( in_heat / 0.3, 1.0 );
+	float hotRockMaterialLerp = min( in_heat / 0.1, 1.0 );
 
 	vec3 diffuse = mix( rockDiffuse, hotRockDiffuse, hotRockMaterialLerp );
 	float roughness = mix( rockRoughness, hotRockRoughness, hotRockMaterialLerp );
@@ -173,10 +177,10 @@ void main(void)
 	rockNormal = normalize(rockNormal);
 
 	// Direct light
-	float directLight = lightingGGX( rockNormal, viewDir, u_lightDir, roughness, fresnel ) * u_lightIntensity * (1.0-in_shadowing);
+	float directLight = lightingGGX( rockNormal, viewDir, lightDir, roughness, fresnel ) * u_lightIntensity * (1.0-in_shadowing);
 
 	// Ambient light
-	float ambientlight = lightingGGX( rockNormal, viewDir, vec3(0.0,1.0,0.0), 1.0, fresnel ) * u_ambientLightIntensity * in_occlusion;
+	float ambientlight = lightingGGX( rockNormal, viewDir, normalize(vec3(0.0,1.0,0.0) + rockNormal), roughness, fresnel ) * u_ambientLightIntensity * in_occlusion;
 
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
@@ -188,11 +192,8 @@ void main(void)
 	outColor += in_moltenColor * heatGlowAlpha;
 	outColor += in_moltenColor * pow( heatGlowAlpha, 4.0 ) * 5000.0;
 
-	//outColor *= 0.1;
-	//outColor += vec3( texture(s_smudgeData, in_uv).z ) * 0.5;
-
 	out_forward = vec4( outColor, 1.0 );
-	out_viewPosition = vec4(0.0);
+	out_viewPosition = in_viewPosition;
 	out_viewNormal = vec4(0.0);
 	out_albedo = vec4(0.0);
 	out_material = vec4(0.0);

@@ -33,6 +33,7 @@ uniform mat3 u_normalModelViewMatrix;
 uniform float u_mapHeightOffset;
 
 uniform vec3 u_lightDir;
+uniform float u_lightDistance;
 
 // Textures
 uniform sampler2D s_heightData;
@@ -58,6 +59,7 @@ out gl_PerVertex
 // Varying
 out Varying
 {
+	vec3 out_worldPosition;
 	vec4 out_viewPosition;
 	vec2 out_uv;
 	float out_dirtAlpha;
@@ -121,7 +123,6 @@ void main(void)
 	
 	rockNormal += rockDetailBump * u_rockDetailBumpStrength * (1.0-dirtAlpha);
 	rockNormal = normalize(rockNormal);
-
 	*/
 
 	// Molten
@@ -137,11 +138,9 @@ void main(void)
 		float stepLength = (1.0 / maxSteps);
 		float stepLengthScalar = 1.0;
 
+		vec3 lightPos = u_lightDir * u_lightDistance;
 		vec3 rayPos = position.xyz;
-		vec3 rayDir = u_lightDir;
-
-		vec3 rayDirRight = cross(rayDir, vec3(0.0,1.0,0.0));
-		vec3 rayDirUp = cross(rayDir, rayDirRight);
+		vec3 rayDir = normalize(lightPos - position.xyz);
 
 		for ( int i = 0; i < maxSteps; i++ )
 		{
@@ -170,6 +169,8 @@ void main(void)
 	
 	// Output
 	{
+		out_worldPosition = position.xyz;
+		out_viewPosition = viewPosition;
 		out_uv = in_uv;
 		out_dirtAlpha = 1.0;
 		out_moltenColor = moltenColor;
