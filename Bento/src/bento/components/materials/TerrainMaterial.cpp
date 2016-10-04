@@ -11,6 +11,7 @@ namespace bento
 		, moltenPlateDetailTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, waveTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
@@ -20,6 +21,7 @@ namespace bento
 		steamTexture.GenerateMipMaps();
 
 		smokeTexture.TexImage2D("textures/Smoke.png");
+		waveTexture.TexImage2D("textures/Waves.png");
 
 		//texture3D.TexImage3D("textures/Texture3D.png");
 
@@ -54,6 +56,9 @@ namespace bento
 		SerializableMember("waterDepthToOpaque", 0.01f, &waterDepthToOpaque);
 		SerializableMember("waterDepthToDiffuse", 0.05f, &waterDepthToDiffuse);
 		SerializableMember("dissolvedDirtDepthToDiffuse", 0.02f, &dissolvedDirtDepthToDiffuse);
+		SerializableMember("waterFlowSpeed", 0.02f, &waterFlowSpeed);
+		SerializableMember("waterFlowOffset", 0.01f, &waterFlowOffset);
+		SerializableMember("waterFlowRepeat", 1.0f, &waterFlowRepeat);
 
 		// Dirt
 		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
@@ -109,6 +114,9 @@ namespace bento
 
 		ImGui::Spacing();
 		ImGui::Text("Water");
+		ImGui::SliderFloat("FlowSpeed", &waterFlowSpeed, 0.0f, 1.0f);
+		ImGui::SliderFloat("FlowOffset", &waterFlowOffset, 0.0f, 1.0f);
+		ImGui::SliderFloat("FlowRepeat", &waterFlowRepeat, 1.0f, 10.0f);
 		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 0.0f, 1.0f);
 		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.95f, 1.05f);
 		ImGui::ColorEdit3("Color##water", glm::value_ptr(waterColor));

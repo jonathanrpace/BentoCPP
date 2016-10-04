@@ -52,7 +52,6 @@ void main(void)
 
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
 	vec4 outputSample = texelFetch(s_output, ivec2(gl_FragCoord.xy));
-	//if ( targetViewPosition.z == 0.0 ) targetViewPosition.z = in_viewPosition.z + 50.0;
 
 	float viewDepth = abs( in_viewPosition.z - targetViewPosition.z );
 
@@ -85,7 +84,7 @@ void main(void)
 	outColor = mix( outColor, in_diffuse.rgb, diffuseAlpha * in_alpha );
 
 	// Add reflections
-	outColor += in_reflections * in_alpha;
+	outColor += in_reflections * in_alpha * u_waterColor;
 
 	/*
 	////////////////////////////////////////////////////////////////

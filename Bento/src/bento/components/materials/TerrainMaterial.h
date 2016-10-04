@@ -32,6 +32,7 @@ namespace bento
 		TextureSquare steamTexture;
 		TextureSquare smokeTexture;
 		TextureSquare rockDiffuseTexture;
+		TextureSquare waveTexture;
 		Texture3D texture3D;
 
 		// Rock
@@ -69,6 +70,9 @@ namespace bento
 		float waterDepthToOpaque;
 		float waterDepthToDiffuse;
 		float dissolvedDirtDepthToDiffuse;
+		float waterFlowSpeed;
+		float waterFlowOffset;
+		float waterFlowRepeat;
 
 		// Lighting
 		float lightAzimuth;

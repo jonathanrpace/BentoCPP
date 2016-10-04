@@ -566,20 +566,20 @@ void main(void)
 	// Water normal
 	//////////////////////////////////////////////////////////////////////////////////
 	{
-		float moltenMapResultC = out_miscData.y;
-		float moltenMapResultL = miscDataL.y;
-		float moltenMapResultR = miscDataR.y;
-		float moltenMapResultU = miscDataU.y;
-		float moltenMapResultD = miscDataD.y;
+		//float moltenMapResultC = out_miscData.y;
+		//float moltenMapResultL = miscDataL.y;
+		//float moltenMapResultR = miscDataR.y;
+		//float moltenMapResultU = miscDataU.y;
+		//float moltenMapResultD = miscDataD.y;
 
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w + moltenMapResultC * u_mapHeightOffset;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w + moltenMapResultL * u_mapHeightOffset;
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w + moltenMapResultR * u_mapHeightOffset;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w + moltenMapResultU * u_mapHeightOffset;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w + moltenMapResultD * u_mapHeightOffset;
-		
-		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
-		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w;// + moltenMapResultC * u_mapHeightOffset;
+		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w;// + moltenMapResultL * u_mapHeightOffset;
+		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w;// + moltenMapResultR * u_mapHeightOffset;
+		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w;// + moltenMapResultU * u_mapHeightOffset;
+		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w;// + moltenMapResultD * u_mapHeightOffset;
+
+		vec3 va = normalize(vec3(u_cellSize.x*2.0, heightR-heightL, 0.0f));
+		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y*2.0));
 
 		vec3 waterNormal = -cross(va,vb);
 		out_normalData.xy = waterNormal.xz;

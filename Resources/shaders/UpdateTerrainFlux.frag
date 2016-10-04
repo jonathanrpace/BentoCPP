@@ -51,8 +51,8 @@ void main(void)
 
 	// Water flux
 	{
-		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC + bumpHeightC;
-		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + waterHeightN + bumpHeightN;
+		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC;// + bumpHeightC;
+		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + waterHeightN;// + bumpHeightN;
 		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) );
 
 		vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);

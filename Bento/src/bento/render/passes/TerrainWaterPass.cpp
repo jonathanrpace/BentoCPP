@@ -46,6 +46,19 @@ namespace bento
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
+		
+		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
+		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
+		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
+		float alphaB = fabs( 0.5f - phase ) * 2.0f;
+		float alphaA = 1.0f - alphaB;
+
+		SetUniform( "u_phaseA", phaseA );
+		SetUniform( "u_phaseB", phaseB );
+		SetUniform( "u_phaseAlpha", alphaB );
+		SetUniform( "u_waterFlowOffset", _material.waterFlowOffset );
+		SetUniform( "u_waterFlowRepeat", _material.waterFlowRepeat );
+		SetTexture( "s_waveMap", _material.waveTexture );
 	}
 
 	////////////////////////////////////////////
@@ -83,9 +96,6 @@ namespace bento
 
 	void TerrainWaterPass::Advance(double _dt)
 	{
-		//glEnable(GL_POLYGON_OFFSET_FILL);
-		//glPolygonOffset( 5.0f, 0.0f );
-
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_FALSE);
 
@@ -105,7 +115,5 @@ namespace bento
 		}
 
 		glDepthMask(GL_TRUE);
-
-		//glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 }
