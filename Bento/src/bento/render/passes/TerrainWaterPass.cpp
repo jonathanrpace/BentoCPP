@@ -31,34 +31,13 @@ namespace bento
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());
 
 		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
-
-		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
-		SetUniform("u_lightDistance", _material.lightDistance);
-		SetUniform("u_lightIntensity", _material.directLightIntensity);
-		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
-
-		SetUniform("u_dirtColor", _material.dirtColor);
-		SetUniform("u_waterColor", _material.waterColor);
-		SetUniform("u_specularPower", _material.waterSpecularPower);
 		SetUniform("u_waterDepthToOpaque", _material.waterDepthToOpaque);
-		
+		SetUniform("u_dissolvedDirtDepthToDiffuse", _material.dissolvedDirtDepthToDiffuse);
+
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
-		
-		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
-		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
-		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
-		float alphaB = fabs( 0.5f - phase ) * 2.0f;
-		float alphaA = 1.0f - alphaB;
-
-		SetUniform( "u_phaseA", phaseA );
-		SetUniform( "u_phaseB", phaseB );
-		SetUniform( "u_phaseAlpha", alphaB );
-		SetUniform( "u_waterFlowOffset", _material.waterFlowOffset );
-		SetUniform( "u_waterFlowRepeat", _material.waterFlowRepeat );
-		SetTexture( "s_waveMap", _material.waveTexture );
 	}
 
 	////////////////////////////////////////////
@@ -72,10 +51,31 @@ namespace bento
 
 	void TerrainWaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
+		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
+		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
+		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
+		float alphaB = fabs( 0.5f - phase ) * 2.0f;
+		float alphaA = 1.0f - alphaB;
+
+		SetUniform( "u_phaseA", phaseA );
+		SetUniform( "u_phaseB", phaseB );
+		SetUniform( "u_phaseAlpha", alphaB );
+		SetUniform( "u_waterFlowOffset", _material.waterFlowOffset );
+		SetUniform( "u_waterFlowRepeat", _material.waterFlowRepeat );
+
+		float waveTime = (float)glfwGetTime() * _material.waterWaveSpeed;
+		SetUniform( "u_waveTime", waveTime );
+
 		SetUniform("u_waterColor", _material.waterColor);
+		SetUniform("u_dirtColor", _material.dirtColor);
 		SetUniform("u_indexOfRefraction", _material.waterIndexOfRefraction);
+		SetUniform("u_specularPower", _material.waterSpecularPower);
 		SetUniform("u_waterDepthToDiffuse", _material.waterDepthToDiffuse);
-		SetUniform("u_dissolvedDirtDepthToDiffuse", _material.dissolvedDirtDepthToDiffuse);
+		
+		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
+		SetUniform("u_lightDistance", _material.lightDistance);
+		SetUniform("u_lightIntensity", _material.directLightIntensity);
+		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix(), true);
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());

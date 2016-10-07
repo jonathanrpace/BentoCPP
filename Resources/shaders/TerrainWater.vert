@@ -14,32 +14,15 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
-
-uniform sampler2D s_waveMap;
  
 // Uniforms
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat4 u_viewMatrix;
 
-uniform float u_phaseA;
-uniform float u_phaseB;
-uniform float u_phaseAlpha;
-uniform float u_waterFlowOffset;
-uniform float u_waterFlowRepeat;
-
 uniform float u_mapHeightOffset;
 uniform float u_waterDepthToOpaque;
-uniform float u_fresnelPower = 4.0f;
-uniform float u_specularPower;
-uniform vec3 u_dirtColor;
-uniform vec3 u_waterColor;
-
-// Lighting
-uniform vec3 u_lightDir;
-uniform float u_lightDistance;
-uniform float u_lightIntensity;
-uniform float u_ambientLightIntensity;
+uniform float u_dissolvedDirtDepthToDiffuse;
 
 
 ////////////////////////////////////////////////////////////////
@@ -58,16 +41,18 @@ out Varying
 	vec3 out_normal;
 	vec4 out_viewPosition;
 	vec4 out_worldPosition;
-	vec4 out_diffuse;
-	vec3 out_reflections;
 	float out_alpha;
+	float out_dirtAlpha;
+	vec3 out_eyeVec;
+	float out_specularOcclusion;
+	vec2 out_waterVelocity;
+	vec2 out_uv;
 };
 
 ////////////////////////////////////////////////////////////////
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
 vec3 reconstructNormal( vec2 normal2 );
-float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -101,21 +86,10 @@ void main(void)
 	float waterHeight = heightDataC.w;
 	float dissolvedDirt = miscDataC.z;
 
-	vec3 normal = reconstructNormal(normalDataC.xy);
-	
-	// Peturb normal by map
-	vec2 waterVelocity = velocityDataC.zw;
-	vec2 uvA = (in_uv * u_waterFlowRepeat) - u_phaseA * waterVelocity * u_waterFlowOffset;
-	vec2 uvB = (in_uv * u_waterFlowRepeat) - u_phaseB * waterVelocity * u_waterFlowOffset;
-	uvB += vec2(0.5);
-	vec4 waveMapSampleA = texture( s_waveMap, uvA );
-	vec4 waveMapSampleB = texture( s_waveMap, uvB );
-	vec4 waveMapSample = mix( waveMapSampleA, waveMapSampleB, u_phaseAlpha );
-	waveMapSample -= 0.5;
-	waveMapSample *= 2.0;
+	out_waterVelocity = velocityDataC.zw;
+	out_uv = in_uv;
 
-	normal += waveMapSample.xyz * mix( 0.2, 1.0, length(waterVelocity) );
-	normal = normalize(normal);
+	vec3 normal = reconstructNormal(normalDataC.xy);
 	out_normal = normal;
 
 	vec4 position = vec4(in_position, 1.0f);
@@ -125,8 +99,6 @@ void main(void)
 	position.y += waterHeight;
 	position.y += miscDataC.y * u_mapHeightOffset;
 	out_worldPosition = position;
-
-	vec3 lightDir = normalize(u_lightDir * u_lightDistance - position.xyz);
 
 	float alpha = min( waterHeight / u_waterDepthToOpaque, 1.0 );
 	out_alpha = alpha;
@@ -143,37 +115,38 @@ void main(void)
 	// Diffuse
 	////////////////////////////////////////////////////////////////
 	{
-		float lighting = diffuse(normal, lightDir, 1.5f) * u_lightIntensity;
-		lighting += u_ambientLightIntensity;
-		float dissolvedDirtAlpha = min( dissolvedDirt / 0.0025, 1.0 );
+		//float lighting = diffuse(normal, lightDir, 1.5f) * u_lightIntensity;
+		//lighting += u_ambientLightIntensity;
+		float dissolvedDirtAlpha = min( dissolvedDirt / u_dissolvedDirtDepthToDiffuse, 1.0 );
+		out_dirtAlpha = dissolvedDirtAlpha;
 
-		out_diffuse.a = dissolvedDirtAlpha;
-		out_diffuse.rgb = mix( pow( u_waterColor * 0.5, vec3(2.2) ), pow( u_dirtColor, vec3(2.2) ), dissolvedDirtAlpha );
-		out_diffuse.rgb *= lighting;
+		//out_diffuse.a = dissolvedDirtAlpha;
+		//out_diffuse.rgb = mix( pow( u_waterColor * 0.5, vec3(2.2) ), pow( u_dirtColor, vec3(2.2) ), dissolvedDirtAlpha );
+		//out_diffuse.rgb *= lighting;
 	}
 
 	////////////////////////////////////////////////////////////////
 	// Reflections
 	////////////////////////////////////////////////////////////////
 	{
-		out_reflections = vec3(0.0);
+		//out_reflections = vec3(0.0);
 
-		vec3 eye = -normalize( viewPosition.xyz * mat3(u_viewMatrix) );
-		vec3 reflectVec = -reflect(eye, normal);
+		out_eyeVec = -normalize( viewPosition.xyz * mat3(u_viewMatrix) );
+		vec3 reflectVec = -reflect(out_eyeVec, normal);
 
 		// Fresnel
-		float fresnel = 1.0f - clamp(dot(normal, eye), 0.0f, 1.0f);
-		fresnel = pow( fresnel, u_fresnelPower );
-		fresnel = mix( 0.5, 1.0, fresnel );
+		//float fresnel = 1.0f - clamp(dot(normal, eye), 0.0f, 1.0f);
+		//fresnel = pow( fresnel, u_fresnelPower );
+		//fresnel = mix( 0.5, 1.0, fresnel );
 
 		// Specular
-		float waterSpecular = lightingGGX(normal, eye, lightDir, u_specularPower, 1.0) * u_lightIntensity * 0.1;
+		//float waterSpecular = lightingGGX(normal, eye, lightDir, u_specularPower, 1.0) * u_lightIntensity * 0.1;
 		//vec3 waterSpecular = vec3( specular( normal, lightDir, -eye, u_specularPower ) * u_lightIntensity );
-		out_reflections += waterSpecular * u_waterColor * fresnel;
+		//out_reflections += waterSpecular * u_waterColor * fresnel;
 
 		// Sky
-		float skyReflect = specular(normal, vec3(0.0,1.0,0.0), -eye, 1.0);
-		out_reflections += skyReflect * 0.5 * fresnel * u_ambientLightIntensity;
+		//float skyReflect = specular(normal, vec3(0.0,1.0,0.0), -eye, 1.0);
+		//out_reflections += skyReflect * 0.5 * fresnel * u_ambientLightIntensity;
 
 		// Specular occlusion
 		float shadowing = 0.0;
@@ -212,6 +185,6 @@ void main(void)
 			}
 		}
 		
-		out_reflections *= 1.0-shadowing;
+		out_specularOcclusion = 1.0-shadowing;
 	}
 } 
