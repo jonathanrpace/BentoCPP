@@ -9,19 +9,15 @@ namespace bento
 		, SerializableBase("TerrainMaterial")
 		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, moltenPlateDetailTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
-		, steamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, foamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
 		moltenPlateDetailTexture.TexImage2D("textures/MoltenPlateDetail.png");
 		rockDiffuseTexture.TexImage2D("textures/Rock_Diff.png");
-		steamTexture.TexImage2D("textures/Steam.png");
-		steamTexture.GenerateMipMaps();
-
+		foamTexture.TexImage2D("textures/Foam.png");
 		smokeTexture.TexImage2D("textures/Smoke.png");
-
-		//texture3D.TexImage3D("textures/Texture3D.png");
 
 		// Rock
 		SerializableMember("rockColorA", vec3(0.1f, 0.1f, 0.1f), &rockColorA);
@@ -34,12 +30,9 @@ namespace bento
 		SerializableMember("rockDetailDiffuseStrength", 1.0f, &rockDetailDiffuseStrength);
 
 		// Hot rock
-		SerializableMember("hotRockColorA", vec3(0.1f, 0.1f, 0.1f), &hotRockColorA);
-		SerializableMember("hotRockColorB", vec3(0.1f, 0.1f, 0.1f), &hotRockColorB);
-		SerializableMember("hotRockRoughnessA", 0.0f, &hotRockRoughnessA);
-		SerializableMember("hotRockRoughnessB", 0.1f, &hotRockRoughnessB);
-		SerializableMember("hotRockFresnelA", 1.0f, &hotRockFresnelA);
-		SerializableMember("hotRockFresnelB", 1.0f, &hotRockFresnelB);
+		SerializableMember("hotRockColor", vec3(0.1f, 0.1f, 0.1f), &hotRockColor);
+		SerializableMember("hotRockRoughness", 0.0f, &hotRockRoughness);
+		SerializableMember("hotRockFresnel", 1.0f, &hotRockFresnel);
 
 		// Molten
 		SerializableMember("moltenColor", vec3(1.0f, 0.5f, 0.01f), &moltenColor);
@@ -51,17 +44,24 @@ namespace bento
 		SerializableMember("waterColor", vec3(0.219f, 0.286f, 0.278f), &waterColor);
 		SerializableMember("waterSpecularPower", 80.0f, &waterSpecularPower);
 		SerializableMember("waterIndexOfRefraction", 0.33f, &waterIndexOfRefraction);
-		SerializableMember("waterDepthToOpaque", 0.01f, &waterDepthToOpaque);
+		SerializableMember("waterDepthToReflection", 0.05f, &waterDepthToReflect);
+		SerializableMember("waterDepthToFilter", 0.05f, &waterDepthToFilter);
 		SerializableMember("waterDepthToDiffuse", 0.05f, &waterDepthToDiffuse);
-		SerializableMember("dissolvedDirtDepthToDiffuse", 0.02f, &dissolvedDirtDepthToDiffuse);
+		SerializableMember("dissolvedDirtDesnsityScalar", 1.0f, &dissolvedDirtDesntiyScalar);
 		SerializableMember("waterFlowSpeed", 0.02f, &waterFlowSpeed);
 		SerializableMember("waterFlowOffset", 0.01f, &waterFlowOffset);
 		SerializableMember("waterFlowRepeat", 1.0f, &waterFlowRepeat);
 		SerializableMember("waterWaveSpeed", 0.02f, &waterWaveSpeed);
 
+		// Foam
+		SerializableMember("foamReat", 1.0f, &foamRepeat);
+		SerializableMember("foamDistortStrength", 0.1f, &foamDistortStrength);
+		SerializableMember("foamAlphaStrength", 1.0f, &foamAlphaStrength);
+
 		// Dirt
 		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
 		SerializableMember("dirtTextureRepeat", 1.0, &dirtTextureRepeat);
+		SerializableMember("dirtHeightToOpaque", 1.0, &dirtHeightToOpaque);
 
 		// Lighting
 		SerializableMember("lightAzimuth", 0.0f, &lightAzimuth);
@@ -96,12 +96,9 @@ namespace bento
 		ImGui::Spacing();
 		ImGui::Text("Hot rock");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
-		ImGui::ColorEdit3("Color B##hotRock", glm::value_ptr(hotRockColorB));
-		ImGui::ColorEdit3("Color A##hotRock", glm::value_ptr(hotRockColorA));
-		ImGui::SliderFloat("Roughness A##hotRock", &hotRockRoughnessA, 0.0f, 1.0f);
-		ImGui::SliderFloat("Roughness B##hotRock", &hotRockRoughnessB, 0.0f, 1.0f);
-		ImGui::SliderFloat("Fresnel A##hotRock", &hotRockFresnelA, 0.0f, 1.0f);
-		ImGui::SliderFloat("Fresnel B##hotRock", &hotRockFresnelB, 0.0f, 1.0f);
+		ImGui::ColorEdit3("Color##hotRock", glm::value_ptr(hotRockColor));
+		ImGui::SliderFloat("Roughness##hotRock", &hotRockRoughness, 0.0f, 1.0f);
+		ImGui::SliderFloat("Fresnel##hotRock", &hotRockFresnel, 0.0f, 1.0f);
 
 		ImGui::Spacing();
 		ImGui::Text("Molten");
@@ -114,21 +111,30 @@ namespace bento
 		ImGui::Spacing();
 		ImGui::Text("Water");
 		ImGui::SliderFloat("FlowSpeed", &waterFlowSpeed, 0.0f, 1.0f);
-		ImGui::SliderFloat("FlowOffset", &waterFlowOffset, 0.0f, 1.0f);
+		ImGui::SliderFloat("FlowOffset", &waterFlowOffset, 0.0f, 5.0f);
 		ImGui::SliderFloat("FlowRepeat", &waterFlowRepeat, 1.0f, 10.0f);
 		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 0.0f, 1.0f);
 		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.95f, 1.05f);
 		ImGui::ColorEdit3("Color##water", glm::value_ptr(waterColor));
-		ImGui::SliderFloat("DepthToOpaque", &waterDepthToOpaque, 0.0f, 0.01f, "%.4f");
-		ImGui::SliderFloat("DepthToDiffuse", &waterDepthToDiffuse, 0.0f, 1.0f, "%.4f");
-		ImGui::SliderFloat("DirtDepthToDiffuse", &dissolvedDirtDepthToDiffuse, 0.0f, 1.0f, "%.4f");
+		ImGui::SliderFloat("DepthToReflect", &waterDepthToReflect, 0.0f, 0.01f, "%.4f");
+		ImGui::SliderFloat("DepthToFilter", &waterDepthToFilter, 0.0f, 0.1f);
+		ImGui::SliderFloat("DepthToDiffuse", &waterDepthToDiffuse, 0.0f, 0.1f);
+		ImGui::SliderFloat("DissolvedDirtDesntityScalar", &dissolvedDirtDesntiyScalar, 0.0f, 1000.0f);
 		ImGui::SliderFloat("WaveSpeed", &waterWaveSpeed, 0.0f, 0.1f, "%.4f");
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::Text("Foam");
+		ImGui::SliderFloat("Repeat##foam", &foamRepeat, 0.0f, 10.0f);
+		ImGui::SliderFloat("Distortion##foam", &foamDistortStrength, 0.0f, 1.0f);
+		ImGui::SliderFloat("AlphaStrength##foam", &foamAlphaStrength, 0.0f, 10.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Text("Dirt");
 		ImGui::ColorEdit3("Color##dirt", glm::value_ptr(dirtColor));
 		ImGui::SliderFloat("TextureRepeat##dirt", &dirtTextureRepeat, 0.0f, 20.0f);
+		ImGui::SliderFloat("HeightToOpaque##dirt", &dirtHeightToOpaque, 0.0f, 0.1f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

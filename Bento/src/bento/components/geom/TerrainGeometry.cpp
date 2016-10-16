@@ -21,7 +21,7 @@ namespace bento
 		, m_velocityData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_miscData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_normalData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_moltenMapData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_moltenMapData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_smudgeData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 	{

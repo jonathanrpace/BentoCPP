@@ -25,7 +25,7 @@ uniform vec3 u_moltenColor;
 uniform float u_moltenAlphaScalar;
 uniform float u_moltenAlphaPower;
 
-uniform vec3 u_dirtColor;
+uniform float u_dirtHeightToOpaque;
 
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
@@ -108,23 +108,14 @@ void main(void)
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += rockHeight;
 	position.y += moltenHeight;
-	//position.y += dirtHeight;
+	position.y += dirtHeight;
 	position.y += moltenMapValue * u_mapHeightOffset;
 
 	vec4 viewPosition = u_modelViewMatrix * position;
 
 	// Dirt
-	/*
-	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));// * mix(0.0, 1.0, diffuseData.z);
-	dirtDiffuse *= pow( texture( s_dirtDiffuse, in_uv ).rgb, vec3(2.2) );
-
-	float dirtAlpha = clamp((dirtHeight / 0.003), 0.0, 1.0);
-	diffuse = mix(diffuse, dirtDiffuse, dirtAlpha);
+	float dirtAlpha = min((dirtHeight / u_dirtHeightToOpaque), 1.0);
 	
-	rockNormal += rockDetailBump * u_rockDetailBumpStrength * (1.0-dirtAlpha);
-	rockNormal = normalize(rockNormal);
-	*/
-
 	// Molten
 	float moltenAlpha = max( max(heat-0.2, 0.0) * u_moltenAlphaScalar, 0.0 );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 1.25, moltenAlpha ), vec3(2.2) );
@@ -172,9 +163,9 @@ void main(void)
 		out_worldPosition = position.xyz;
 		out_viewPosition = viewPosition;
 		out_uv = in_uv;
-		out_dirtAlpha = 1.0;
 		out_moltenColor = moltenColor;
 		out_moltenAlpha = moltenAlpha;
+		out_dirtAlpha = dirtAlpha;
 		out_rockNormal = rockNormal;
 		out_occlusion = occlusion;
 		out_heat = heat;

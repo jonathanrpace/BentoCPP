@@ -29,10 +29,9 @@ namespace bento
 		// Textures
 		TextureSquare someTexture;
 		TextureSquare moltenPlateDetailTexture;
-		TextureSquare steamTexture;
 		TextureSquare smokeTexture;
 		TextureSquare rockDiffuseTexture;
-		Texture3D texture3D;
+		TextureSquare foamTexture;
 
 		// Rock
 		vec3 rockColorA;
@@ -45,12 +44,9 @@ namespace bento
 		float rockDetailBumpStrength;
 
 		// Hot rock
-		vec3 hotRockColorA;
-		vec3 hotRockColorB;
-		float hotRockRoughnessA;
-		float hotRockRoughnessB;
-		float hotRockFresnelA;
-		float hotRockFresnelB;
+		vec3 hotRockColor;
+		float hotRockRoughness;
+		float hotRockFresnel;
 
 		// Molten
 		vec3 moltenColor;
@@ -61,18 +57,25 @@ namespace bento
 		// Dirt
 		vec3 dirtColor;
 		float dirtTextureRepeat;
+		float dirtHeightToOpaque;
 
 		// Water
 		vec3 waterColor;
 		float waterSpecularPower;
 		float waterIndexOfRefraction;
-		float waterDepthToOpaque;
+		float waterDepthToReflect;
+		float waterDepthToFilter;
 		float waterDepthToDiffuse;
-		float dissolvedDirtDepthToDiffuse;
+		float dissolvedDirtDesntiyScalar;
 		float waterFlowSpeed;
 		float waterFlowOffset;
 		float waterFlowRepeat;
 		float waterWaveSpeed;
+		
+		// Foam
+		float foamRepeat;
+		float foamDistortStrength;
+		float foamAlphaStrength;
 
 		// Lighting
 		float lightAzimuth;

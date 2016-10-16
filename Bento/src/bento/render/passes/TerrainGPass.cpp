@@ -49,10 +49,10 @@ namespace bento
 		
 		SetUniform("u_moltenColor", _material.moltenColor);
 		SetUniform("u_moltenAlphaScalar", _material.moltenMapAlphaScalar);
+
+		SetUniform("u_dirtHeightToOpaque", _material.dirtHeightToOpaque);
 		
 		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
-
-		SetUniform("u_dirtColor", _material.dirtColor);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightDistance", _material.lightDistance);
@@ -82,16 +82,15 @@ namespace bento
 		SetUniform("u_rockFresnelA", _material.rockFresnelA);
 		SetUniform("u_rockFresnelB", _material.rockFresnelB);
 
-		SetUniform("u_hotRockColorA", _material.hotRockColorA);
-		SetUniform("u_hotRockColorB", _material.hotRockColorB);
-		SetUniform("u_hotRockRoughnessA", _material.hotRockRoughnessA);
-		SetUniform("u_hotRockRoughnessB", _material.hotRockRoughnessB);
-		SetUniform("u_hotRockFresnelA", _material.hotRockFresnelA);
-		SetUniform("u_hotRockFresnelB", _material.hotRockFresnelB);
+		SetUniform("u_hotRockColor", _material.hotRockColor);
+		SetUniform("u_hotRockRoughness", _material.hotRockRoughness);
+		SetUniform("u_hotRockFresnel", _material.hotRockFresnel);
 
 		SetUniform("u_moltenAlphaPower", _material.moltenMapAlphaPower);
 		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
+
+		SetUniform("u_dirtColor", _material.dirtColor);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightDistance", _material.lightDistance);

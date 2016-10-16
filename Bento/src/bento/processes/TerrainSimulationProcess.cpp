@@ -77,6 +77,14 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("drainRate",				0.0f,		&m_drainRate);
 	SerializableMember("drainMaxDepth",			0.01f,		&m_drainMaxDepth);
 
+	// Dirt
+	SerializableMember("dirtViscosity",			0.2f,		&m_dirtViscosity);
+	SerializableMember("dirtMaxAngle",			0.2f,		&m_dirtMaxSlope);
+
+	// Foam
+	SerializableMember("foamSpawnStrength",		1.0f,		&m_foamSpawnStrength);
+	SerializableMember("foamDecayRate",			0.95f,		&m_foamDecayRate);
+
 	// Erosion
 	SerializableMember("erosionStrength",		0.0f,		&m_erosionStrength);
 	SerializableMember("erosionDirtDepthMax",	0.01f,		&m_erosionDirtDepthMax);
@@ -155,29 +163,39 @@ void TerrainSimulationProcess::AddUIElements()
 
 	ImGui::Spacing();
 	ImGui::Text("Water");
-	ImGui::SliderFloat("FluxDamping2", &m_waterFluxDamping, 0.9f, 1.0f);
 	ImGui::SliderFloat("Viscosity", &m_waterViscosity, 0.01f, 0.5f);
+	ImGui::SliderFloat("FluxDamping##water", &m_waterFluxDamping, 0.7f, 1.0f);
+	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 100.0f, "%.2f");
+	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.1f, 1.0f);
+	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.00001f, "%.8f");
 	ImGui::SliderFloat("EvapourationRate", &m_evapourationRate, 0.00f, 0.0001f, "%.8f");
-	ImGui::SliderFloat("RainRate", &m_rainRate, 0.00f, 0.000002f, "%.8f");
-	ImGui::SliderFloat("VelocityScalar", &m_waterVelocityScalar, 0.0f, 50.0f, "%.2f");
-	ImGui::SliderFloat("VelocityDamping", &m_waterVelocityDamping, 0.1f, 1.0f, "%.3f");
-	ImGui::SliderFloat("BoilSpeed", &m_boilSpeed, 0.0f, 0.001f, "%.4f");
 	ImGui::SliderFloat("DrainRate", &m_drainRate, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("DrainMaxDepth", &m_drainMaxDepth, 0.0f, 0.05f, "%.3f");
+	ImGui::SliderFloat("BoilSpeed", &m_boilSpeed, 0.0f, 0.001f, "%.4f");
+	ImGui::Spacing();
+
+	ImGui::Spacing();
+	ImGui::Text("Dirt");
+	ImGui::SliderFloat("Viscosity##dirt", &m_dirtViscosity, 0.01f, 1.0f);
+	ImGui::SliderFloat("MaxSlope##dirt", &m_dirtMaxSlope, 0.0f, 0.05f, "%.4f");
+	ImGui::Spacing();
+
+	ImGui::Spacing();
+	ImGui::Text("Foam");
+	ImGui::SliderFloat("SpawnStrength##foam", &m_foamSpawnStrength, 0.0f, 1.0f);
+	ImGui::SliderFloat("DecayRate##foam", &m_foamDecayRate, 0.9f, 1.0f);
 	ImGui::Spacing();
 
 	ImGui::Text("Erosion");
-	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.0001f, "%.6f");
-	ImGui::SliderFloat("DirtDepthMax", &m_erosionDirtDepthMax, 0.0f, 0.1f, "%.4f");
-	ImGui::SliderFloat("WaterDepthMin", &m_erosionWaterDepthMin, 0.0f, 0.001f, "%.5f");
-	ImGui::SliderFloat("WaterDepthMax", &m_erosionWaterDepthMax, 0.0f, 0.001f, "%.5f");
-	ImGui::SliderFloat("WaterSpeedMax", &m_erosionWaterSpeedMax, 0.0f, 0.1f, "%.3f");
+	ImGui::SliderFloat("Strength", &m_erosionStrength, 0.0f, 0.000001f, "%.9f");
+	ImGui::SliderFloat("DirtDepthMax", &m_erosionDirtDepthMax, 0.0f, 0.03f, "%.4f");
+	ImGui::SliderFloat("WaterSpeedMax##erode", &m_erosionWaterSpeedMax, 0.0f, 0.1f, "%.3f");
 
 	ImGui::Text("Dirt Transport");
-	ImGui::SliderFloat("PickupMinWaterSpeed", &m_dirtPickupMinWaterSpeed, 0.0f, 0.1f, "%.7f");
-	ImGui::SliderFloat("PickupRate", &m_dirtPickupRate, 0.0f, 0.0005f, "%.7f");
-	ImGui::SliderFloat("TransportSpeed", &m_dirtTransportSpeed, 0.0f, 0.01f, "%.4f");
-	ImGui::SliderFloat("DepositSpeed", &m_dirtDepositSpeed, 0.0f, 0.1f, "%.7f");
+	ImGui::SliderFloat("WaterSpeedMax##pickup", &m_dirtPickupMinWaterSpeed, 0.0f, 0.1f, "%.7f");
+	ImGui::SliderFloat("PickupRate", &m_dirtPickupRate, 0.0f, 0.00001f, "%.7f");
+	ImGui::SliderFloat("TransportSpeed", &m_dirtTransportSpeed, 0.0f, 0.1f, "%.4f");
+	ImGui::SliderFloat("DepositRate", &m_dirtDepositSpeed, 0.0f, 0.05f, "%.7f");
 	ImGui::SliderFloat("DissolvedDirtSmoothing", &m_dissolvedDirtSmoothing, 0.0f, 1.0f, "%.5f");
 	ImGui::Spacing();
 
@@ -211,14 +229,15 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	vec2 normalisedMousePos = inputManager.GetMousePosition();
 	normalisedMousePos /= m_scene->GetWindow().GetWindowSize();
 
-	bool mouseIsDown = inputManager.IsMouseDown(1);
+	float dirtScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_ALT) ? 1.0f : 0.0f;
+	float waterScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f && dirtScalar == 0.0f;
+	float moltenScalar = (dirtScalar == 0.0f && waterScalar == 0.0f) ? 1.0f : 0.0f;
+	float mouseIsDown = inputManager.IsMouseDown(1) ? 1.0f : 0.0f;
 
-	float moltenScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 0.0f : 1.0f;
-	float moltenVolumeAmount = (inputManager.IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * moltenScalar;
-	float heatChangeAmount = (inputManager.IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseHeatStrength * moltenScalar;
-
-	float waterScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f;
-	float waterVolumeAmount = (inputManager.IsMouseDown(1) ? 1.0f : 0.0f) * m_mouseVolumeStrength * waterScalar;
+	float moltenVolumeAmount = mouseIsDown * m_mouseVolumeStrength * moltenScalar;
+	float dirtVolumeAmount = mouseIsDown * m_mouseVolumeStrength * dirtScalar;
+	float waterVolumeAmount = mouseIsDown * m_mouseVolumeStrength * waterScalar;
+	float heatChangeAmount = mouseIsDown * m_mouseHeatStrength * moltenScalar;
 
 	vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 
@@ -279,6 +298,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_mouseMoltenVolumeStrength",	moltenVolumeAmount);
 		fragShader.SetUniform("u_mouseMoltenHeatStrength",		heatChangeAmount);
 		fragShader.SetUniform("u_mouseWaterVolumeStrength",		waterVolumeAmount);
+		fragShader.SetUniform("u_mouseDirtVolumeStrength",		dirtVolumeAmount);
 		
 		// Environment
 		fragShader.SetUniform("u_ambientTemp",					m_ambientTemperature);
@@ -303,6 +323,14 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_drainRate",					m_drainRate);
 		fragShader.SetUniform("u_drainMaxDepth",				m_drainMaxDepth);
 
+		// Dirt
+		fragShader.SetUniform("u_dirtViscosity",				m_dirtViscosity);
+		fragShader.SetUniform("u_dirtMaxSlope",					m_dirtMaxSlope);
+
+		// Foam
+		fragShader.SetUniform("u_foamSpawnStrength",			m_foamSpawnStrength);
+		fragShader.SetUniform("u_foamDecayRate",				m_foamDecayRate);
+
 		// Erosion
 		fragShader.SetUniform("u_erosionStrength",				m_erosionStrength);
 		fragShader.SetUniform("u_erosionMaxDepth",				m_erosionDirtDepthMax);
@@ -315,6 +343,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_dirtPickupMinWaterSpeed",		m_dirtPickupMinWaterSpeed);
 		fragShader.SetUniform("u_dirtPickupRate",				m_dirtPickupRate);
 		fragShader.SetUniform("u_dirtDepositSpeed",				m_dirtDepositSpeed);
+		fragShader.SetUniform("u_dissolvedDirtSmoothing",		m_dissolvedDirtSmoothing);
 
 		// Misc
 		fragShader.SetUniform("u_cellSize",						cellSize);

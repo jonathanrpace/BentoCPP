@@ -32,6 +32,7 @@ uniform float u_mouseRadius;
 uniform float u_mouseMoltenVolumeStrength;
 uniform float u_mouseWaterVolumeStrength;
 uniform float u_mouseMoltenHeatStrength;
+uniform float u_mouseDirtVolumeStrength;
 
 // Environment
 uniform float u_ambientTemp;
@@ -56,19 +57,28 @@ uniform float u_boilSpeed;
 uniform float u_drainRate;
 uniform float u_drainMaxDepth;
 
+// Dirt
+uniform float u_dirtViscosity;
+uniform float u_dirtMaxSlope;
+
+// Foam
+uniform float u_foamSpawnStrength;
+uniform float u_foamDecayRate;
+
 // Erosion
 uniform float u_erosionStrength;
 uniform float u_erosionMaxDepth;
 uniform float u_erosionWaterDepthMin;
 uniform float u_erosionWaterDepthMax;
 uniform float u_erosionWaterSpeedMax;
-uniform float u_rockToDirtRatio = 1.5;
+uniform float u_rockToDirtRatio = 4.0;
 
 // Dirt transport
 uniform float u_dirtTransportSpeed;
 uniform float u_dirtPickupMinWaterSpeed;
 uniform float u_dirtPickupRate;
 uniform float u_dirtDepositSpeed;
+uniform float u_dissolvedDirtSmoothing;
 
 // Misc
 uniform vec2 u_cellSize;
@@ -166,13 +176,22 @@ float exchange( vec4 _heightDataC, vec4 _heightDataN, vec4 _miscDataC, vec4 _mis
 {
 	float viscosity = mix( CalcMoltenViscosity(_miscDataC.x, _heightDataC.y), CalcMoltenViscosity(_miscDataN.x, _heightDataN.y), 0.5 );
 	float diff = max( (_heightDataC.x + _heightDataC.y) - (_heightDataN.x + _heightDataN.y), 0.0 );
-	return diff * _scalar * viscosity;
+	diff = min( _heightDataC.y, diff * _scalar * viscosity );
+	return diff;
 }
 
 float exchangeHeat( float _volumeFromN, vec4 _heightDataN, vec4 _miscDataN, float _limit )
 {
 	float advectSpeed = mix( u_heatAdvectSpeed * 100.0, u_heatAdvectSpeed, clamp( _volumeFromN / 0.1, 0.0, 1.0 ) );
 	return min( _volumeFromN / max(_heightDataN.y, 0.01), _limit) * _miscDataN.x * u_heatAdvectSpeed;
+}
+
+float exchangeDirt( vec4 _heightDataC, vec4 _heightDataN, float _scalar )
+{
+	float diff = max( (_heightDataC.x + _heightDataC.y + _heightDataC.z) - (_heightDataN.x + _heightDataN.y + _heightDataN.z), 0.0 );
+	float slopeScalar = smoothstep( u_dirtMaxSlope * 0.8, u_dirtMaxSlope, diff );
+	diff = min( _heightDataC.z, diff );
+	return diff * _scalar * u_dirtViscosity * slopeScalar;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -311,6 +330,9 @@ void main(void)
 		// Cooling
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
 
+		// Add a bit of smoke for general heat
+		out_smudgeData.z += pow(max( heatC-u_rockMeltingPoint, 0.0), 2.0) * 0.03;
+
 		// Add some lava near the mouse
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
 		float heatTextureScalar = pow( 1.0-diffuseSampleC.x, 2.0 );
@@ -318,8 +340,6 @@ void main(void)
 		heatC   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.1, heatTextureScalar) ) / (1.0+heatC*10.0);
 		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.5, 0.6, heightTextureScalar) ) / (1.0+heightC);
 		heatC = max(0.0, heatC);
-
-		//out_smudgeData.z += mouseRatio * u_mouseMoltenHeatStrength * 0.1;
 
 		out_heightData.y = heightC;
 		out_miscData.x = heatC;
@@ -348,10 +368,57 @@ void main(void)
 	}
 
 	////////////////////////////////////////////////////////////////
-	// Update water
+	// Add some dirt at mouse position
 	////////////////////////////////////////////////////////////////
 	{
-		float waterHeight = heightDataC.w;
+		float dirtHeight = out_heightData.z;
+
+		dirtHeight += pow(mouseRatio, 0.7) * u_mouseDirtVolumeStrength;
+
+		out_heightData.z = dirtHeight;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Update dirt
+	////////////////////////////////////////////////////////////////
+	{
+		float dirtHeightC =  out_heightData.z;
+		
+		// Transmit some of this cell's volume to neighbours
+		float toU = exchangeDirt( heightDataC, heightDataU, 0.19 );
+		float toD = exchangeDirt( heightDataC, heightDataD, 0.19 );
+		float toL = exchangeDirt( heightDataC, heightDataL, 0.19 );
+		float toR = exchangeDirt( heightDataC, heightDataR, 0.19 );
+		float toTL = exchangeDirt( heightDataC, heightDataTL, 0.05 );
+		float toTR = exchangeDirt( heightDataC, heightDataTR, 0.05 );
+		float toBL = exchangeDirt( heightDataC, heightDataBL, 0.05 );
+		float toBR = exchangeDirt( heightDataC, heightDataBR, 0.05 );
+
+		float totalOut = toL + toR + toU + toD + toTL + toTR + toBL + toBR;
+
+		// Bring some volume from neighbours
+		float fromL = exchangeDirt( heightDataL, heightDataC, 0.19 );
+		float fromR = exchangeDirt( heightDataR, heightDataC, 0.19 );
+		float fromU = exchangeDirt( heightDataU, heightDataC, 0.19 );
+		float fromD = exchangeDirt( heightDataD, heightDataC, 0.19 );
+		float fromTL = exchangeDirt( heightDataTL, heightDataC, 0.05 );
+		float fromTR = exchangeDirt( heightDataTR, heightDataC, 0.05 );
+		float fromBL = exchangeDirt( heightDataBL, heightDataC, 0.05 );
+		float fromBR = exchangeDirt( heightDataBR, heightDataC, 0.05 );
+
+		float totalIn = fromL + fromR + fromU + fromD + fromTL + fromTR + fromBL + fromBR;
+
+		dirtHeightC -= totalOut;
+		dirtHeightC += totalIn;
+
+		out_heightData.z = dirtHeightC;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Update water height and velocity
+	////////////////////////////////////////////////////////////////
+	{
+		float waterHeight = out_heightData.w;
 		
 		vec4 fluxC = texelFetchC(s_waterFluxData);
 		vec4 fluxL = texelFetchL(s_waterFluxData);
@@ -360,90 +427,134 @@ void main(void)
 		vec4 fluxD = texelFetchD(s_waterFluxData);
 		vec4 fluxN = vec4(fluxL.y, fluxR.x, fluxU.w, fluxD.z);
 
-		// Update water height based on flux
 		float fluxChange = ((fluxN.x+fluxN.y+fluxN.z+fluxN.w)-(fluxC.x+fluxC.y+fluxC.z+fluxC.w));
 		waterHeight += fluxChange * u_waterViscosity;
 
-		// Add some water near the mouse
+		out_heightData.w = waterHeight;
+
+		////////////////////////////////////////////////////////////////
+		// Update water velocity
+		////////////////////////////////////////////////////////////////
+		vec2 waterVelocity = out_velocityData.zw;
+
+		waterVelocity += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity ) * u_waterVelocityScalar;
+		waterVelocity *= u_waterVelocityDamping;
+
+		out_velocityData.zw = waterVelocity;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Add some water near the mouse
+	////////////////////////////////////////////////////////////////
+	{
+		float waterHeight = out_heightData.w;
+
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv*2.0+mousePos*0.1);
 		float waterMouseScalar = mix( 1.0, pow( diffuseSampleC.x, 1.0 ), 0.2 );
 		waterHeight += pow(mouseRatio, 1.1) * u_mouseWaterVolumeStrength * waterMouseScalar;
 
-		// Drainage
-		waterHeight -= min( waterHeight / u_drainMaxDepth, 1.0 ) * u_drainRate;
+		out_heightData.w = waterHeight;
+	}
 
+	////////////////////////////////////////////////////////////////
+	// Water environment
+	////////////////////////////////////////////////////////////////
+	{
+		float waterHeight = out_heightData.w;
+		float moltenHeight = out_heightData.y;
+		float heat = out_miscData.x;
+
+		// Rain / Evapouration / Drainage
+		waterHeight -= min( waterHeight / u_drainMaxDepth, 1.0 ) * u_drainRate;
 		waterHeight += u_rainRate;
 		waterHeight -= u_evapourationRate;
-
 		waterHeight = max(waterHeight, 0.0);
 
-		// Boil off any water due to heat
-		float heat = out_miscData.x;
-		float waterToBoilOff = min(waterHeight, max(heat-u_rockMeltingPoint, 0.0) * u_boilSpeed);
+		// Boil from heat
+		float waterToBoilOff = min(waterHeight, heat * u_boilSpeed);
 		waterHeight -= waterToBoilOff;
-		float moltenHeight = out_heightData.y;
+		
+		// Cool molten based on water boiling
 		heat -= min( heat, (waterToBoilOff / (1.0+moltenHeight)) * 10.0 );
+
 		out_heightData.w = waterHeight;
 		out_miscData.x = heat;
-		out_smudgeData.z += waterToBoilOff * 100.0;
-
-		// Add a bit of smoke for general heat
-		out_smudgeData.z += pow(heat, 2.0) * 0.03;
+	}	
 		
-		
-		////////////////////////////////////////////////////////////////
-		// Erosion
-		////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
+	// Erosion
+	////////////////////////////////////////////////////////////////
+	{
+		float solidHeight = out_heightData.x;
+		float dirtHeight = out_heightData.z;
+		float waterHeight = out_heightData.w;
+		vec2 waterVelocity = out_velocityData.zw;
+		float waterSpeed = length(waterVelocity);
 
 		// Only erode up to a certain depth
-		float dirtHeight = out_heightData.z;
-		float erosionDirtDepthScalar = 1.0 - min(dirtHeight / u_erosionMaxDepth, 1.0);
+		float erosionDirtDepthScalar = 1.0 - smoothstep( 0.0, u_erosionMaxDepth, dirtHeight );
 
-		// Erode more as water depth increases from zero, up to a point, then diminish.
-		float erosionWaterDepthScalar =        smoothstep(0.0,                    u_erosionWaterDepthMin, waterHeight) 
-										* (1.0-smoothstep(u_erosionWaterDepthMin, u_erosionWaterDepthMax, waterHeight));
+		// Erode more as depth increases, up to a limit
+		float erosionWaterDepthScalar = smoothstep( 0.0, u_erosionWaterDepthMax, waterHeight );
+		
+		// Erode more as speed increases, up to a limit
+		float erosionWaterSpeedScalar = smoothstep( 0.0, u_erosionWaterSpeedMax, waterSpeed );
 
-		// Erode more if water is moving fast
-		vec2 waterVelocityC = velocityDataC.zw;
-		float waterSpeedC = 1.0;//length(waterVelocityC);
-		if ( isnan(waterSpeedC) ) waterSpeedC = 0.0;
-		if ( isinf(waterSpeedC) ) waterSpeedC = 0.0;
-		float erosionWaterSpeedScalar = smoothstep( 0.0, u_erosionWaterSpeedMax, waterSpeedC );
+		float rockToDirt = min( erosionWaterSpeedScalar * u_erosionStrength * erosionWaterDepthScalar, solidHeight );
 
-		float solidHeight = out_heightData.x;
-		float rockToDirt = min( erosionDirtDepthScalar * erosionWaterDepthScalar * erosionWaterSpeedScalar * u_erosionStrength, solidHeight );
 		solidHeight -= rockToDirt;
 		dirtHeight += rockToDirt * u_rockToDirtRatio;
 		
 		out_heightData.x = solidHeight;
-		
-		////////////////////////////////////////////////////////////////
-		// Deposit some of the dissolved dirt
-		////////////////////////////////////////////////////////////////
-		float dissolvedDirt = miscDataC.z;
+		out_heightData.z = dirtHeight;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Deposit some of the dissolved dirt
+	////////////////////////////////////////////////////////////////
+	{
+		float dissolvedDirt = out_miscData.z;
+		float dirtHeight = out_heightData.z;
+
 		float amountDeposited = dissolvedDirt * u_dirtDepositSpeed;
 		
 		dirtHeight += amountDeposited;
 		dissolvedDirt -= amountDeposited;
 		dissolvedDirt = max(0.0,dissolvedDirt);
 
-		////////////////////////////////////////////////////////////////
-		// Pickup dirt and dissolve it in water
-		////////////////////////////////////////////////////////////////
-		float amountPickedUp = min( max( waterSpeedC-u_dirtPickupMinWaterSpeed, 0.0 ) * u_dirtPickupRate, dirtHeight-amountDeposited );
+		out_miscData.z = dissolvedDirt;
+		out_heightData.z = dirtHeight;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Pickup dirt and dissolve it in water
+	////////////////////////////////////////////////////////////////
+	{
+		float dissolvedDirt = out_miscData.z;
+		float dirtHeight = out_heightData.z;
+
+		vec2 waterVelocity = out_velocityData.zw;
+		float waterSpeed = length(waterVelocity);
+
+		float amountPickedUp = smoothstep( 0.0, u_dirtPickupMinWaterSpeed, waterSpeed ) * u_dirtPickupRate;
+		amountPickedUp = min( amountPickedUp, dirtHeight );
 		
 		dirtHeight -= amountPickedUp;
 		dissolvedDirt += amountPickedUp;
-		dissolvedDirt = max(0.0,dissolvedDirt);
 		
+		out_miscData.z = dissolvedDirt;
 		out_heightData.z = dirtHeight;
-
+	}
 		
-		////////////////////////////////////////////////////////////////
-		// Move dissolved dirt between cells
-		////////////////////////////////////////////////////////////////
-		float transferedAwayX = min( abs(waterVelocityC.x) * u_dirtTransportSpeed, dissolvedDirt * 0.25 );
-		float transferedAwayY = min( abs(waterVelocityC.y) * u_dirtTransportSpeed, dissolvedDirt * 0.25 );
+	////////////////////////////////////////////////////////////////
+	// Move dissolved dirt between cells
+	////////////////////////////////////////////////////////////////
+	{
+		float dissolvedDirt = out_miscData.z;
+		vec2 waterVelocity = out_velocityData.zw;
+
+		float transferedAwayX = min( abs(waterVelocity.x) * u_dirtTransportSpeed, dissolvedDirt * 0.25 );
+		float transferedAwayY = min( abs(waterVelocity.y) * u_dirtTransportSpeed, dissolvedDirt * 0.25 );
 		float transferedAway = transferedAwayX + transferedAwayY;
 
 		float dissolvedDirtL = miscDataL.z;
@@ -463,18 +574,28 @@ void main(void)
 
 		float transferedIn = transferedInL + transferedInR + transferedInU + transferedInD;
 
-		dissolvedDirt += (transferedIn - transferedAway);
+		dissolvedDirt += transferedIn;
+		dissolvedDirt -= transferedAway;
 		dissolvedDirt = max(0.0, dissolvedDirt);
 
-		out_miscData.z = dissolvedDirt;
-		
-		////////////////////////////////////////////////////////////////
-		// Update water velocity
-		////////////////////////////////////////////////////////////////
-		waterVelocityC += VelocityFromFlux( fluxC, fluxL, fluxR, fluxU, fluxD, u_waterViscosity ) * u_waterVelocityScalar;
-		waterVelocityC *= u_waterVelocityDamping;
+		// Diffuse the dissolved dirt by lerping it towards it's next highest mip. Cheap, but effective. Not volume preserving however.
+		dissolvedDirt = mix( dissolvedDirt, textureLod(s_miscData, in_uv, 1).z, u_dissolvedDirtSmoothing );
 
-		out_velocityData.zw = waterVelocityC;
+		out_miscData.z = dissolvedDirt;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Spawn Foam
+	////////////////////////////////////////////////////////////////
+	{
+		vec2 waterVelocity = out_velocityData.zw;
+
+		float foamAmount = smudgeDataC.w;
+		foamAmount *= u_foamDecayRate;
+		foamAmount += length( waterVelocity ) * u_foamSpawnStrength;
+		foamAmount = min(1.0, foamAmount);
+
+		out_smudgeData.w = foamAmount;
 	}
 
 	////////////////////////////////////////////////////////////////
@@ -502,17 +623,11 @@ void main(void)
 		
 		out_heightData.x += dirtToMolten;
 		out_heightData.z -= dirtToMolten;
-
-		out_smudgeData.z += dirtToMolten * 100.0;
-
-		// Dampen the amount of steam
-		out_smudgeData.z *= 0.997;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Rock normal
 	//////////////////////////////////////////////////////////////////////////////////
-	vec3 rockNormal;
 	{
 		vec2 texelSize = vec2(1.0) / vec2(textureSize(s_heightData, 0));
 
@@ -528,55 +643,31 @@ void main(void)
 		vec4 smudgeDataU = texture(s_smudgeData, uvU);
 		vec4 smudgeDataD = texture(s_smudgeData, uvD);
 
-		float strength = 1.0;
-		float totalStrength = 0.0;
-		float moltenMapResultC = 0.0;
-		for ( int i = 0; i < 1; i++ )
-		{
-			moltenMapResultC += textureLod(s_moltenMapData, uvC, i).x * strength;
-
-			totalStrength += strength;
-			strength *= 0.0;
-		}
-		moltenMapResultC /= totalStrength;
-
-		float moltenMapResultL = miscDataL.y;
-		float moltenMapResultR = miscDataR.y;
-		float moltenMapResultU = miscDataU.y;
-		float moltenMapResultD = miscDataD.y;
-
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z; + moltenMapResultC * u_mapHeightOffset;
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z; + moltenMapResultR * u_mapHeightOffset;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z; + moltenMapResultL * u_mapHeightOffset;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z; + moltenMapResultU * u_mapHeightOffset;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z; + moltenMapResultD * u_mapHeightOffset;
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z;
+		float heightR = heightDataR.x + heightDataR.y + heightDataR.z;
+		float heightL = heightDataL.x + heightDataL.y + heightDataL.z;
+		float heightU = heightDataU.x + heightDataU.y + heightDataU.z;
+		float heightD = heightDataD.x + heightDataD.y + heightDataD.z;
 		
 		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
 
 		va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
 		vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
-		rockNormal = -cross(va,vb);
+		vec3 rockNormal = -cross(va,vb);
 
 		out_normalData.zw = rockNormal.xz;
-		out_miscData.y = moltenMapResultC;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Water normal
 	//////////////////////////////////////////////////////////////////////////////////
 	{
-		//float moltenMapResultC = out_miscData.y;
-		//float moltenMapResultL = miscDataL.y;
-		//float moltenMapResultR = miscDataR.y;
-		//float moltenMapResultU = miscDataU.y;
-		//float moltenMapResultD = miscDataD.y;
-
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w;// + moltenMapResultC * u_mapHeightOffset;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w;// + moltenMapResultL * u_mapHeightOffset;
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w;// + moltenMapResultR * u_mapHeightOffset;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w;// + moltenMapResultU * u_mapHeightOffset;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w;// + moltenMapResultD * u_mapHeightOffset;
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w;
+		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w;
+		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w;
+		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w;
+		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w;
 
 		vec3 va = normalize(vec3(u_cellSize.x*2.0, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y*2.0));

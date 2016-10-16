@@ -31,13 +31,15 @@ namespace bento
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());
 
 		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
-		SetUniform("u_waterDepthToOpaque", _material.waterDepthToOpaque);
-		SetUniform("u_dissolvedDirtDepthToDiffuse", _material.dissolvedDirtDepthToDiffuse);
+		SetUniform("u_depthToReflect", _material.waterDepthToReflect);
+		SetUniform("u_dissolvedDirtDensityScalar", _material.dissolvedDirtDesntiyScalar);
 
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
+		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
+		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 	}
 
 	////////////////////////////////////////////
@@ -70,8 +72,16 @@ namespace bento
 		SetUniform("u_dirtColor", _material.dirtColor);
 		SetUniform("u_indexOfRefraction", _material.waterIndexOfRefraction);
 		SetUniform("u_specularPower", _material.waterSpecularPower);
-		SetUniform("u_waterDepthToDiffuse", _material.waterDepthToDiffuse);
+
+		SetUniform("u_depthToFilter", _material.waterDepthToFilter);
+		SetUniform("u_depthToDiffuse", _material.waterDepthToDiffuse);
+
+		// Foam
+		SetUniform("u_foamRepeat", _material.foamRepeat);
+		SetUniform("u_foamDistortStrength", _material.foamDistortStrength);
+		SetUniform("u_foamAlphaStrength", _material.foamAlphaStrength);
 		
+		// Lighting
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightDistance", _material.lightDistance);
 		SetUniform("u_lightIntensity", _material.directLightIntensity);
@@ -82,6 +92,7 @@ namespace bento
 
 		SetTexture("s_output", RenderParams::RenderTarget().OutputTextureA());
 		SetTexture("s_positionBuffer", RenderParams::RenderTarget().PositionTexture());
+		SetTexture("s_foamMap", _material.foamTexture);
 	}
 
 	////////////////////////////////////////////

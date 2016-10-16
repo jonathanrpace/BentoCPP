@@ -103,6 +103,10 @@ namespace bento
 		float m_tempChangeSpeed;
 		float m_moltenVelocityScalar;
 
+		// Dirt
+		float m_dirtViscosity;
+		float m_dirtMaxSlope;
+
 		// Water
 		float m_waterFluxDamping;
 		float m_waterViscosity;
@@ -115,6 +119,10 @@ namespace bento
 		float m_boilSpeed;
 		float m_drainRate;
 		float m_drainMaxDepth;
+
+		// Foam
+		float m_foamSpawnStrength;
+		float m_foamDecayRate;
 
 		// Erosion
 		float m_erosionStrength;

@@ -14,6 +14,8 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
+uniform sampler2D s_smudgeData;
+uniform sampler2D s_moltenMapData;
  
 // Uniforms
 uniform mat4 u_mvpMatrix;
@@ -21,8 +23,8 @@ uniform mat4 u_modelViewMatrix;
 uniform mat4 u_viewMatrix;
 
 uniform float u_mapHeightOffset;
-uniform float u_waterDepthToOpaque;
-uniform float u_dissolvedDirtDepthToDiffuse;
+uniform float u_depthToReflect;
+uniform float u_dissolvedDirtDensityScalar;
 
 
 ////////////////////////////////////////////////////////////////
@@ -41,12 +43,13 @@ out Varying
 	vec3 out_normal;
 	vec4 out_viewPosition;
 	vec4 out_worldPosition;
-	float out_alpha;
-	float out_dirtAlpha;
+	float out_reflectAlpha;
+	float out_dissolvedDirtAlpha;
 	vec3 out_eyeVec;
 	float out_specularOcclusion;
 	vec2 out_waterVelocity;
 	vec2 out_uv;
+	float out_foamStrength;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -78,13 +81,18 @@ void main(void)
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
-	vec4 normalDataC = textureLod(s_normalData, in_uv, 0);
+	vec4 normalDataC = texture(s_normalData, in_uv);
+	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
+	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
 	float dissolvedDirt = miscDataC.z;
+	float bumpHeight = moltenMapValue * u_mapHeightOffset;
+
+	out_foamStrength = min( smudgeDataC.w, 1.0 );
 
 	out_waterVelocity = velocityDataC.zw;
 	out_uv = in_uv;
@@ -97,56 +105,33 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 	position.y += waterHeight;
-	position.y += miscDataC.y * u_mapHeightOffset;
+	position.y += bumpHeight;
 	out_worldPosition = position;
 
-	float alpha = min( waterHeight / u_waterDepthToOpaque, 1.0 );
-	out_alpha = alpha;
+	float reflectAlpha = min( max(waterHeight, 0.0) / u_depthToReflect, 1.0 );
+	out_reflectAlpha = reflectAlpha;
 
 	vec4 viewPosition = u_modelViewMatrix * position;
 	viewPosition.w = 1.0;
 	out_viewPosition = viewPosition;
 
 	vec4 screenPos = u_mvpMatrix * position;
-	//out_screenPosition = screenPos;
 	gl_Position = screenPos;
 
 	////////////////////////////////////////////////////////////////
-	// Diffuse
+	// Dissolved Dirt Alpha
 	////////////////////////////////////////////////////////////////
 	{
-		//float lighting = diffuse(normal, lightDir, 1.5f) * u_lightIntensity;
-		//lighting += u_ambientLightIntensity;
-		float dissolvedDirtAlpha = min( dissolvedDirt / u_dissolvedDirtDepthToDiffuse, 1.0 );
-		out_dirtAlpha = dissolvedDirtAlpha;
-
-		//out_diffuse.a = dissolvedDirtAlpha;
-		//out_diffuse.rgb = mix( pow( u_waterColor * 0.5, vec3(2.2) ), pow( u_dirtColor, vec3(2.2) ), dissolvedDirtAlpha );
-		//out_diffuse.rgb *= lighting;
+		float dissolvedDirtAlpha = min( dissolvedDirt * u_dissolvedDirtDensityScalar, 1.0 );
+		out_dissolvedDirtAlpha = dissolvedDirtAlpha;
 	}
 
 	////////////////////////////////////////////////////////////////
-	// Reflections
+	// Specular occlusion
 	////////////////////////////////////////////////////////////////
 	{
-		//out_reflections = vec3(0.0);
-
 		out_eyeVec = -normalize( viewPosition.xyz * mat3(u_viewMatrix) );
 		vec3 reflectVec = -reflect(out_eyeVec, normal);
-
-		// Fresnel
-		//float fresnel = 1.0f - clamp(dot(normal, eye), 0.0f, 1.0f);
-		//fresnel = pow( fresnel, u_fresnelPower );
-		//fresnel = mix( 0.5, 1.0, fresnel );
-
-		// Specular
-		//float waterSpecular = lightingGGX(normal, eye, lightDir, u_specularPower, 1.0) * u_lightIntensity * 0.1;
-		//vec3 waterSpecular = vec3( specular( normal, lightDir, -eye, u_specularPower ) * u_lightIntensity );
-		//out_reflections += waterSpecular * u_waterColor * fresnel;
-
-		// Sky
-		//float skyReflect = specular(normal, vec3(0.0,1.0,0.0), -eye, 1.0);
-		//out_reflections += skyReflect * 0.5 * fresnel * u_ambientLightIntensity;
 
 		// Specular occlusion
 		float shadowing = 0.0;

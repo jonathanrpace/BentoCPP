@@ -2,7 +2,6 @@
 
 // Samplers
 uniform sampler2D s_heightData;
-uniform sampler2D s_miscData;
 uniform sampler2D s_waterFluxData;
 
 // Inputs
@@ -12,7 +11,6 @@ in Varying
 };
 
 uniform float u_waterFluxDamping;
-uniform float u_mapHeightOffset;
 
 // Outputs
 layout( location = 0 ) out vec4 out_waterFluxData;
@@ -31,28 +29,20 @@ void main(void)
 	vec4 heightDataU = texelFetch(s_heightData, texelCoordU, 0);
 	vec4 heightDataD = texelFetch(s_heightData, texelCoordD, 0);
 
-	vec4 miscDataC = texelFetch(s_miscData, texelCoordC, 0);
-	vec4 miscDataL = texelFetch(s_miscData, texelCoordL, 0);
-	vec4 miscDataR = texelFetch(s_miscData, texelCoordR, 0);
-	vec4 miscDataU = texelFetch(s_miscData, texelCoordU, 0);
-	vec4 miscDataD = texelFetch(s_miscData, texelCoordD, 0);
-
 	vec4 rockHeightC   = vec4(heightDataC.x);
 	vec4 moltenHeightC = vec4(heightDataC.y);
 	vec4 dirtHeightC   = vec4(heightDataC.z);
 	vec4 waterHeightC  = vec4(heightDataC.w);
-	vec4 bumpHeightC = vec4(miscDataC.y * u_mapHeightOffset);
 	
 	vec4 rockHeightN   = vec4(heightDataL.x, heightDataR.x, heightDataU.x, heightDataD.x);
 	vec4 moltenHeightN = vec4(heightDataL.y, heightDataR.y, heightDataU.y, heightDataD.y);
 	vec4 dirtHeightN   = vec4(heightDataL.z, heightDataR.z, heightDataU.z, heightDataD.z);
 	vec4 waterHeightN  = vec4(heightDataL.w, heightDataR.w, heightDataU.w, heightDataD.w);
-	vec4 bumpHeightN  = vec4(miscDataL.y, miscDataR.y, miscDataU.y, miscDataD.y) * u_mapHeightOffset;
 
 	// Water flux
 	{
-		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC;// + bumpHeightC;
-		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + waterHeightN;// + bumpHeightN;
+		vec4 heightC = rockHeightC + dirtHeightC + moltenHeightC + waterHeightC;
+		vec4 heightN = rockHeightN + dirtHeightN + moltenHeightN + waterHeightN;
 		vec4 heightDiff = max( heightC - heightN, vec4(0.0f) );
 
 		vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
