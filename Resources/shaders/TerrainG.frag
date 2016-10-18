@@ -48,10 +48,16 @@ uniform float u_lightDistance;
 uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
+uniform float u_bearingCreaseScalar;
+uniform float u_lateralCreaseScalar;
+uniform float u_creaseMipLevel;
+uniform float u_creaseForwardScalar;
+
 // Textures
 uniform sampler2D s_rockDiffuse;
 uniform sampler2D s_moltenMapData;
 uniform sampler2D s_smudgeData;
+uniform sampler2D s_velocityData;
 
 
 ////////////////////////////////////////////////////////////////
@@ -188,6 +194,25 @@ void main(void)
 	float heatGlowAlpha = max( pow(1.0-moltenMapValue, 2.0) * hotRockMaterialLerp * 0.4, 0.0f);
 	outColor += in_moltenColor * heatGlowAlpha;
 	outColor += in_moltenColor * pow( heatGlowAlpha, 4.0 ) * 5000.0;
+
+	// Creases
+	{
+		vec2 velocity = textureLod( s_velocityData, in_uv, u_creaseMipLevel ).xy;
+		vec2 forwardVelocity = textureLod( s_velocityData, in_uv + normalize(velocity) * u_creaseForwardScalar, u_creaseMipLevel ).xy;
+
+		float projectionLength = dot( forwardVelocity, velocity / length(velocity) );
+
+		projectionLength -= length(velocity) * 0.5;
+
+		forwardVelocity *= u_bearingCreaseScalar;
+		forwardVelocity = clamp( forwardVelocity, vec2(-1.0), vec2(1.0) );
+		forwardVelocity += 1.0;
+		forwardVelocity *= 0.5;
+
+		outColor = vec3(forwardVelocity, 0.0);
+
+		outColor = vec3(max(0, -projectionLength), max(0, projectionLength), 0.0) * u_bearingCreaseScalar;
+	}
 
 	out_forward = vec4( outColor, 1.0 );
 	out_viewPosition = in_viewPosition;

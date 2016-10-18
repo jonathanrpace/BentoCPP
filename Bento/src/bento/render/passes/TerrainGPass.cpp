@@ -97,10 +97,17 @@ namespace bento
 		SetUniform("u_lightIntensity", _material.directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 
+		// Creases
+		SetUniform("u_bearingCreaseScalar", _material.bearingCreaseScalar);
+		SetUniform("u_lateralCreaseScalar", _material.lateralCreaseScalar);
+		SetUniform("u_creaseMipLevel", _material.creaseMipLevel);
+		SetUniform("u_creaseForwardScalar", _material.creaseForwardScalar);
+
 		// Textures
 		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
 		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
+		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 
 
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();

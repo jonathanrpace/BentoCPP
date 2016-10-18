@@ -29,6 +29,12 @@ namespace bento
 		SerializableMember("rockDetailBumpStrength", 1.0f, &rockDetailBumpStrength);
 		SerializableMember("rockDetailDiffuseStrength", 1.0f, &rockDetailDiffuseStrength);
 
+		// Creases
+		SerializableMember("bearingCreaseScalar", 1.0f, &bearingCreaseScalar);
+		SerializableMember("lateralCreaseScalar", 1.0f, &lateralCreaseScalar);
+		SerializableMember("creaseMipLevel", 0.0f, &creaseMipLevel);
+		SerializableMember("creaseForwardScalar", 1.0f, &creaseForwardScalar);
+
 		// Hot rock
 		SerializableMember("hotRockColor", vec3(0.1f, 0.1f, 0.1f), &hotRockColor);
 		SerializableMember("hotRockRoughness", 0.0f, &hotRockRoughness);
@@ -92,6 +98,7 @@ namespace bento
 		ImGui::SliderFloat("Fresnel B##rock", &rockFresnelB, 0.0f, 1.0f);
 		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 100.0f);
 		ImGui::SliderFloat("Detail Diffuse Strength B##rock", &rockDetailDiffuseStrength, 0.0f, 1.0f);
+		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Text("Hot rock");
@@ -99,6 +106,15 @@ namespace bento
 		ImGui::ColorEdit3("Color##hotRock", glm::value_ptr(hotRockColor));
 		ImGui::SliderFloat("Roughness##hotRock", &hotRockRoughness, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel##hotRock", &hotRockFresnel, 0.0f, 1.0f);
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::Text("Creases");
+		ImGui::SliderFloat("BearingScalar", &bearingCreaseScalar, 0.0f, 1000.0f);
+		ImGui::SliderFloat("LateralScalar", &lateralCreaseScalar, 0.0f, 1000.0f);
+		ImGui::SliderFloat("MipLevel##crease", &creaseMipLevel, 0.0f, 8.0f);
+		ImGui::SliderFloat("ForwardScalar##crease", &creaseForwardScalar, 0.0f, 1.0f);
+		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Text("Molten");

@@ -361,6 +361,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.HeightData().GetWrite().GenerateMipMaps();
 		_geom.NormalData().GetWrite().GenerateMipMaps();
 		_geom.MiscData().GetWrite().GenerateMipMaps();
+		_geom.VelocityData().GetWrite().GenerateMipMaps();
 
 		_geom.HeightData().Swap();
 		_geom.VelocityData().Swap();

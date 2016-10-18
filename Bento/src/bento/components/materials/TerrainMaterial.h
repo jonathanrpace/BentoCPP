@@ -43,6 +43,12 @@ namespace bento
 		float rockDetailDiffuseStrength;
 		float rockDetailBumpStrength;
 
+		// Creases
+		float bearingCreaseScalar;
+		float lateralCreaseScalar;
+		float creaseForwardScalar;
+		float creaseMipLevel;
+
 		// Hot rock
 		vec3 hotRockColor;
 		float hotRockRoughness;
