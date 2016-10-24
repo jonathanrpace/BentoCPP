@@ -11,6 +11,7 @@ namespace bento
 		, moltenPlateDetailTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
 		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, foamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, creaseTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
@@ -18,6 +19,7 @@ namespace bento
 		rockDiffuseTexture.TexImage2D("textures/Rock_Diff.png");
 		foamTexture.TexImage2D("textures/Foam.png");
 		smokeTexture.TexImage2D("textures/Smoke.png");
+		creaseTexture.TexImage2D("textures/Crease.png");
 
 		// Rock
 		SerializableMember("rockColorA", vec3(0.1f, 0.1f, 0.1f), &rockColorA);
@@ -32,8 +34,13 @@ namespace bento
 		// Creases
 		SerializableMember("bearingCreaseScalar", 1.0f, &bearingCreaseScalar);
 		SerializableMember("lateralCreaseScalar", 1.0f, &lateralCreaseScalar);
+		SerializableMember("creaseRatio", 0.1f, &creaseRatio);
 		SerializableMember("creaseMipLevel", 0.0f, &creaseMipLevel);
 		SerializableMember("creaseForwardScalar", 1.0f, &creaseForwardScalar);
+		SerializableMember("creaseMapRepeat", 1.0f, &creaseMapRepeat);
+		SerializableMember("creaseGridRepeat", 1.0f, &creaseGridRepeat);
+		SerializableMember("creaseFlowSpeed", 0.02f, &creaseFlowSpeed);
+		SerializableMember("creaseFlowOffset", 0.01f, &creaseFlowOffset);
 
 		// Hot rock
 		SerializableMember("hotRockColor", vec3(0.1f, 0.1f, 0.1f), &hotRockColor);
@@ -42,8 +49,13 @@ namespace bento
 
 		// Molten
 		SerializableMember("moltenColor", vec3(1.0f, 0.5f, 0.01f), &moltenColor);
-		SerializableMember("moltenMapAlphaScalar", 1.0f, &moltenMapAlphaScalar);
-		SerializableMember("moltenMapAlphaPower", 1.0f, &moltenMapAlphaPower);
+		SerializableMember("moltemColorScalar", 1.5f, &moltenColorScalar);
+		SerializableMember("moltenAlphaScalar", 1.0f, &moltenAlphaScalar);
+		SerializableMember("moltenAlphaPower", 1.0f, &moltenAlphaPower);
+		SerializableMember("moltenPlateAlpha", 1.0f, &moltenPlateAlpha);
+		SerializableMember("moltenPlateAlphaPower", 1.0f, &moltenPlateAlphaPower);
+		SerializableMember("moltenCreaseAlpha", 1.0f, &moltenCreaseAlpha);
+		SerializableMember("moltenCreaseAlphaPower", 1.0f, &moltenCreaseAlphaPower);
 		SerializableMember("moltenMapOffset", 0.0f, &moltenMapOffset);
 
 		// Water
@@ -110,24 +122,34 @@ namespace bento
 
 		ImGui::Spacing();
 		ImGui::Text("Creases");
-		ImGui::SliderFloat("BearingScalar", &bearingCreaseScalar, 0.0f, 1000.0f);
-		ImGui::SliderFloat("LateralScalar", &lateralCreaseScalar, 0.0f, 1000.0f);
+		ImGui::SliderFloat("BearingScalar", &bearingCreaseScalar, 0.0f, 10.0f);
+		ImGui::SliderFloat("LateralScalar", &lateralCreaseScalar, 0.0f, 10.0f);
+		ImGui::SliderFloat("Ratio##crease", &creaseRatio, -1.5f, 1.5f);
 		ImGui::SliderFloat("MipLevel##crease", &creaseMipLevel, 0.0f, 8.0f);
-		ImGui::SliderFloat("ForwardScalar##crease", &creaseForwardScalar, 0.0f, 1.0f);
+		ImGui::SliderFloat("ForwardScalar##crease", &creaseForwardScalar, 0.0f, 0.1f);
+		ImGui::SliderFloat("MapRepeat##crease", &creaseMapRepeat, 0.0f, 10.0f);
+		ImGui::SliderFloat("GridRepeat##crease", &creaseGridRepeat, 0.0f, 50.0f);
+		ImGui::SliderFloat("FlowSpeed##crease", &creaseFlowSpeed, 0.0f, 1.0f);
+		ImGui::SliderFloat("FlowOffset##crease", &creaseFlowOffset, 0.0f, 5.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Text("Molten");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
 		ImGui::ColorEdit3("Color##molten", glm::value_ptr(moltenColor));
-		ImGui::SliderFloat("Alpha Scale##molten", &moltenMapAlphaScalar, 0.0f, 8.0f);
-		ImGui::SliderFloat("Alpha Power##molten", &moltenMapAlphaPower, 0.0f, 8.0f);
+		ImGui::SliderFloat("Color Scale##molten", &moltenColorScalar, 1.0f, 4.0f);
+		ImGui::SliderFloat("Alpha Scale##molten", &moltenAlphaScalar, 0.0f, 4.0f);
+		ImGui::SliderFloat("Alpha Power##molten", &moltenAlphaPower, 0.0f, 4.0f);
+		ImGui::SliderFloat("Plate Alpha##molten", &moltenPlateAlpha, 0.0f, 1.0f);
+		ImGui::SliderFloat("Plate Alpha Power##molten", &moltenPlateAlphaPower, 0.0f, 4.0f);
+		ImGui::SliderFloat("Crease Alpha##molten", &moltenCreaseAlpha, 0.0f, 1.0f);
+		ImGui::SliderFloat("Crease Alpha Power##molten", &moltenCreaseAlphaPower, 0.0f, 4.0f);
 		ImGui::SliderFloat("Offset##molten", &moltenMapOffset, 0.0f, 0.5f);
 
 		ImGui::Spacing();
 		ImGui::Text("Water");
-		ImGui::SliderFloat("FlowSpeed", &waterFlowSpeed, 0.0f, 1.0f);
-		ImGui::SliderFloat("FlowOffset", &waterFlowOffset, 0.0f, 5.0f);
+		ImGui::SliderFloat("FlowSpeed##water", &waterFlowSpeed, 0.0f, 1.0f);
+		ImGui::SliderFloat("FlowOffset##water", &waterFlowOffset, 0.0f, 5.0f);
 		ImGui::SliderFloat("FlowRepeat", &waterFlowRepeat, 1.0f, 10.0f);
 		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 0.0f, 1.0f);
 		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.95f, 1.05f);

@@ -63,6 +63,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
 	SerializableMember("moltenVelocityScalar",	1.0f,		&m_moltenVelocityScalar);
+	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
 
 	// Water
 	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
@@ -159,6 +160,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.0001f, "%.6f");
 	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
+	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -312,6 +314,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
 		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
 		fragShader.SetUniform("u_mapHeightOffset",				_material.moltenMapOffset);
+		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);
 
 		// Water
 		fragShader.SetUniform("u_waterViscosity",				m_waterViscosity);
@@ -362,6 +365,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.NormalData().GetWrite().GenerateMipMaps();
 		_geom.MiscData().GetWrite().GenerateMipMaps();
 		_geom.VelocityData().GetWrite().GenerateMipMaps();
+		_geom.SmudgeData().GetWrite().GenerateMipMaps();
 
 		_geom.HeightData().Swap();
 		_geom.VelocityData().Swap();

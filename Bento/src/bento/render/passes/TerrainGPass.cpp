@@ -48,7 +48,9 @@ namespace bento
 		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 		
 		SetUniform("u_moltenColor", _material.moltenColor);
-		SetUniform("u_moltenAlphaScalar", _material.moltenMapAlphaScalar);
+		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
+		SetUniform("u_moltenAlphaScalar", _material.moltenAlphaScalar);
+		SetUniform("u_moltenAlphaPower", _material.moltenAlphaPower);
 
 		SetUniform("u_dirtHeightToOpaque", _material.dirtHeightToOpaque);
 		
@@ -72,6 +74,17 @@ namespace bento
 	{
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
+		float phase = fmodf( (float)glfwGetTime() * _material.creaseFlowSpeed, 1.0f );
+		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
+		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
+		float alphaB = fabs( 0.5f - phase ) * 2.0f;
+		float alphaA = 1.0f - alphaB;
+
+		SetUniform( "u_phaseA", phaseA );
+		SetUniform( "u_phaseB", phaseB );
+		SetUniform( "u_phaseAlpha", alphaB );
+		SetUniform( "u_flowOffset", _material.creaseFlowOffset );
+
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
@@ -86,7 +99,11 @@ namespace bento
 		SetUniform("u_hotRockRoughness", _material.hotRockRoughness);
 		SetUniform("u_hotRockFresnel", _material.hotRockFresnel);
 
-		SetUniform("u_moltenAlphaPower", _material.moltenMapAlphaPower);
+		SetUniform("u_moltenPlateAlpha", _material.moltenPlateAlpha);
+		SetUniform("u_moltenPlateAlphaPower", _material.moltenPlateAlphaPower);
+		SetUniform("u_moltenCreaseAlpha", _material.moltenCreaseAlpha);
+		SetUniform("u_moltenCreaseAlphaPower", _material.moltenCreaseAlphaPower);
+
 		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 
@@ -100,16 +117,19 @@ namespace bento
 		// Creases
 		SetUniform("u_bearingCreaseScalar", _material.bearingCreaseScalar);
 		SetUniform("u_lateralCreaseScalar", _material.lateralCreaseScalar);
+		SetUniform("u_creaseRatio", _material.creaseRatio);
 		SetUniform("u_creaseMipLevel", _material.creaseMipLevel);
 		SetUniform("u_creaseForwardScalar", _material.creaseForwardScalar);
+		SetUniform("u_creaseMapRepeat", _material.creaseMapRepeat);
+		SetUniform("u_creaseGridRepeat", _material.creaseGridRepeat);
 
 		// Textures
 		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
+		SetTexture("s_creaseMap", _material.creaseTexture);
 		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
-
-
+		
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(terrainMousePos), &terrainMousePos, GL_DYNAMIC_COPY);

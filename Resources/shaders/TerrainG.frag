@@ -35,7 +35,10 @@ uniform vec3 u_hotRockColor;
 uniform float u_hotRockRoughness;
 uniform float u_hotRockFresnel;
 
-uniform float u_moltenAlphaPower;
+uniform float u_moltenPlateAlpha;
+uniform float u_moltenPlateAlphaPower;
+uniform float u_moltenCreaseAlpha;
+uniform float u_moltenCreaseAlphaPower;
 
 uniform vec3 u_dirtColor;
 
@@ -50,11 +53,20 @@ uniform float u_ambientLightIntensity;
 
 uniform float u_bearingCreaseScalar;
 uniform float u_lateralCreaseScalar;
+uniform float u_creaseRatio;
 uniform float u_creaseMipLevel;
 uniform float u_creaseForwardScalar;
+uniform float u_creaseMapRepeat;
+uniform float u_creaseGridRepeat;
+
+uniform float u_phaseA;
+uniform float u_phaseB;
+uniform float u_phaseAlpha;
+uniform float u_flowOffset;
 
 // Textures
 uniform sampler2D s_rockDiffuse;
+uniform sampler2D s_creaseMap;
 uniform sampler2D s_moltenMapData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_velocityData;
@@ -141,6 +153,52 @@ vec3 rotateZ( vec3 _dir, float _angle )
 	);
 }
 
+vec2 rotateBy( vec2 _pt, float _angle )
+{
+	float cosValue = cos(_angle);
+	float sinValue = sin(_angle);
+	return vec2( _pt.x * cosValue - _pt.y * sinValue, _pt.x * sinValue + _pt.y * cosValue );
+}
+
+float sampleCreaseMapLong( vec2 _uv, vec2 _velocity, float _angle )
+{
+	_velocity = rotateBy( _velocity, _angle );
+
+	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
+	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
+
+	float sampleA = texture( s_creaseMap, uvA ).x;
+	float sampleB = texture( s_creaseMap, uvB ).x;
+
+	return mix( sampleA, sampleB, u_phaseAlpha );
+}
+
+float sampleCreaseMapLat( vec2 _uv, vec2 _velocity, float _angle )
+{
+	_velocity = rotateBy( _velocity, _angle );
+
+	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
+	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
+
+	float sampleA = texture( s_creaseMap, uvA ).y;
+	float sampleB = texture( s_creaseMap, uvB ).y;
+
+	return mix( sampleA, sampleB, u_phaseAlpha );
+}
+
+float sampleCreaseMapStill( vec2 _uv, vec2 _velocity, float _angle )
+{
+	//_velocity = rotateBy( _velocity, _angle );
+
+	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
+	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
+
+	float sampleA = texture( s_creaseMap, uvA ).z;
+	float sampleB = texture( s_creaseMap, uvB ).z;
+
+	return mix( sampleA, sampleB, u_phaseAlpha );
+}
+
 void main(void)
 {
 	UpdateMousePosition();
@@ -153,10 +211,88 @@ void main(void)
 
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 
+	// Creases
+	float creaseAmount = 1.0;
+	{
+		vec2 velocity2 = texture( s_velocityData, in_uv ).xy * 1000;
+
+		vec2 velocity = textureLod( s_smudgeData, in_uv, u_creaseMipLevel ).xy;
+		vec2 forwardVelocity = textureLod( s_smudgeData, in_uv + normalize(velocity) * u_creaseForwardScalar, u_creaseMipLevel ).xy;
+
+		float projectionLength = dot( forwardVelocity, velocity / length(velocity) );
+		projectionLength -= length(velocity) * u_creaseRatio;
+
+		float stretchRatio = clamp( max(0, projectionLength) * u_bearingCreaseScalar, 0.0, 1.0 );
+		float compressionRatio = clamp( max(0, -projectionLength) * u_lateralCreaseScalar, 0.0, 1.0 );
+		
+		float gridSize = 1.0 / u_creaseGridRepeat;
+		ivec2 gridCell = ivec2( in_uv * u_creaseGridRepeat );
+
+		vec2 gridCellPos = in_uv * u_creaseGridRepeat;
+
+		vec2 gridCellCenterTL = (gridCell * gridSize);
+		vec2 gridCellCenterTR = ((gridCell + ivec2(1,0)) * gridSize);
+		vec2 gridCellCenterBL = ((gridCell + ivec2(0,1)) * gridSize);
+		vec2 gridCellCenterBR = ((gridCell + ivec2(1,1)) * gridSize);
+		vec2 ratio = (gridCellPos - gridCell);
+
+		float angle = -atan(velocity.y, velocity.x );
+
+		vec2 creaseUV_TL = in_uv-gridCellCenterTL;
+		creaseUV_TL = rotateBy( creaseUV_TL, angle );
+		creaseUV_TL += gridCellCenterTL;
+		float creaseSampleLongTL = sampleCreaseMapLong( creaseUV_TL, velocity2, angle );
+		float creaseSampleLatTL = sampleCreaseMapLat( creaseUV_TL, velocity2, angle );
+
+		vec2 creaseUV_TR = in_uv-gridCellCenterTR;
+		creaseUV_TR = rotateBy( creaseUV_TR, angle );
+		creaseUV_TR += gridCellCenterTR;
+		float creaseSampleLongTR = sampleCreaseMapLong( creaseUV_TR, velocity2, angle );
+		float creaseSampleLatTR = sampleCreaseMapLat( creaseUV_TR, velocity2, angle );
+
+		vec2 creaseUV_BL = in_uv-gridCellCenterBL;
+		creaseUV_BL = rotateBy( creaseUV_BL, angle );
+		creaseUV_BL += gridCellCenterBL;
+		float creaseSampleLongBL = sampleCreaseMapLong( creaseUV_BL, velocity2, angle );
+		float creaseSampleLatBL = sampleCreaseMapLat( creaseUV_BL, velocity2, angle );
+
+		vec2 creaseUV_BR = in_uv-gridCellCenterBR;
+		creaseUV_BR = rotateBy( creaseUV_BR, angle );
+		creaseUV_BR += gridCellCenterBR;
+		float creaseSampleLongBR = sampleCreaseMapLong( creaseUV_BR, velocity2, angle );
+		float creaseSampleLatBR = sampleCreaseMapLat( creaseUV_BR, velocity2, angle );
+		
+		// Bilinear interpolation
+		float creaseSampleLong = ratio.x * ratio.y * creaseSampleLongBR;
+		creaseSampleLong += (1.0-ratio.x) * ratio.y * creaseSampleLongBL;
+		creaseSampleLong += ratio.x * (1.0-ratio.y) * creaseSampleLongTR;
+		creaseSampleLong += (1.0-ratio.x) * (1.0-ratio.y) * creaseSampleLongTL;
+
+		float creaseSampleLat = ratio.x * ratio.y * creaseSampleLatBR;
+		creaseSampleLat += (1.0-ratio.x) * ratio.y * creaseSampleLatBL;
+		creaseSampleLat += ratio.x * (1.0-ratio.y) * creaseSampleLatTR;
+		creaseSampleLat += (1.0-ratio.x) * (1.0-ratio.y) * creaseSampleLatTL;
+
+		creaseAmount = sampleCreaseMapStill( in_uv, velocity2, angle );
+		creaseAmount = mix( creaseAmount, creaseSampleLong, stretchRatio );
+		creaseAmount = mix( creaseAmount, creaseSampleLat, compressionRatio );
+
+		creaseAmount = clamp(creaseAmount, 0.0, 1.0);
+
+		//outColor = pow( vec3( outCrease ), vec3(2.2) );
+
+		//outColor = vec3(velocity2 * 1000, 0.0);
+		//outColor = pow( vec3( gridCellCenterC, 0.0), vec3(2.2) );
+		//outColor = vec3(max(0, -projectionLength), max(0, projectionLength), 0.0) * u_bearingCreaseScalar;
+	}
+
+	//powedMoltenMapValue -= creaseAmount;
+	//moltenMapValue -= creaseAmount * 0.5;
+
 	// Rock material
-	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, powedMoltenMapValue ), vec3(2.2) );
-	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, powedMoltenMapValue );
-	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, powedMoltenMapValue );
+	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, moltenMapValue ), vec3(2.2) );
+	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, moltenMapValue );
+	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, moltenMapValue );
 
 	// Mix rock and hot rock together
 	float hotRockMaterialLerp = min( in_heat / 0.1, 1.0 );
@@ -170,7 +306,7 @@ void main(void)
 	vec2 moltenMapDerivative = textureLod( s_moltenMapData, in_uv, bumpLod ).yz;
 
 	// Normal detail
-	vec2 angle = moltenMapDerivative * mix( u_rockDetailBumpStrength, u_rockDetailBumpStrength * 0.2, pow(in_rockNormal.y, 4.0) );
+	vec2 angle = moltenMapDerivative * mix( u_rockDetailBumpStrength, u_rockDetailBumpStrength * 0.0, pow(in_rockNormal.y, 2.0) );
 	rockNormal = rotateX( rockNormal, -angle.x ); 
 	rockNormal = rotateZ( rockNormal, angle.y ); 
 	rockNormal = normalize(rockNormal);
@@ -187,32 +323,21 @@ void main(void)
 
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
-	float moltenAlpha = in_moltenAlpha * (1.0-moltenMapValue);
-	outColor = mix( outColor, in_moltenColor * (1.0-pow(clamp(moltenMapValue,0.0,1.0), u_moltenAlphaPower)), moltenAlpha );
+
+	// Add emissve elements
+	float moltenAlpha = in_moltenAlpha - ( pow(moltenMapValue,u_moltenPlateAlphaPower) * u_moltenPlateAlpha );
+
+	moltenAlpha *= 1.0 - (pow(creaseAmount, u_moltenCreaseAlphaPower) * u_moltenCreaseAlpha);
+	moltenAlpha = max(moltenAlpha, 0.0);
+
+	outColor = mix( outColor, in_moltenColor, moltenAlpha );
 	
 	// Heat glow
-	float heatGlowAlpha = max( pow(1.0-moltenMapValue, 2.0) * hotRockMaterialLerp * 0.4, 0.0f);
-	outColor += in_moltenColor * heatGlowAlpha;
-	outColor += in_moltenColor * pow( heatGlowAlpha, 4.0 ) * 5000.0;
+	//float heatGlowAlpha = max( pow(1.0-moltenMapValue, 2.0) * hotRockMaterialLerp * 0.4, 0.0f);
+	//outColor += in_moltenColor * heatGlowAlpha;
+	//outColor += in_moltenColor * pow( heatGlowAlpha, 4.0 ) * 5000.0;
 
-	// Creases
-	{
-		vec2 velocity = textureLod( s_velocityData, in_uv, u_creaseMipLevel ).xy;
-		vec2 forwardVelocity = textureLod( s_velocityData, in_uv + normalize(velocity) * u_creaseForwardScalar, u_creaseMipLevel ).xy;
-
-		float projectionLength = dot( forwardVelocity, velocity / length(velocity) );
-
-		projectionLength -= length(velocity) * 0.5;
-
-		forwardVelocity *= u_bearingCreaseScalar;
-		forwardVelocity = clamp( forwardVelocity, vec2(-1.0), vec2(1.0) );
-		forwardVelocity += 1.0;
-		forwardVelocity *= 0.5;
-
-		outColor = vec3(forwardVelocity, 0.0);
-
-		outColor = vec3(max(0, -projectionLength), max(0, projectionLength), 0.0) * u_bearingCreaseScalar;
-	}
+	
 
 	out_forward = vec4( outColor, 1.0 );
 	out_viewPosition = in_viewPosition;

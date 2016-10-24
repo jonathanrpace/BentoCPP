@@ -102,6 +102,7 @@ namespace bento
 		float m_condenseSpeed;
 		float m_tempChangeSpeed;
 		float m_moltenVelocityScalar;
+		float m_smudgeChangeRate;
 
 		// Dirt
 		float m_dirtViscosity;

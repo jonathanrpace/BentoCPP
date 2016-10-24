@@ -14,7 +14,7 @@ in Varying
 
 void main(void)
 {
-	float textureSample = texture( s_texture, in_uv ).x;
-	float color = in_color * (1.0-textureSample);
+	//float textureSample = texture( s_texture, in_uv ).x;
+	float color = in_color;// * (1.0-textureSample);
 	out_fragColor = vec4(color, dFdx(color), dFdy(color), 0.0);
 } 

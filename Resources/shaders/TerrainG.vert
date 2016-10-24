@@ -22,6 +22,7 @@ uniform float u_rockDetailBumpStrength;
 uniform float u_rockDetailDiffuseStrength;
 
 uniform vec3 u_moltenColor;
+uniform float u_moltenColorScalar;
 uniform float u_moltenAlphaScalar;
 uniform float u_moltenAlphaPower;
 
@@ -117,8 +118,9 @@ void main(void)
 	float dirtAlpha = min((dirtHeight / u_dirtHeightToOpaque), 1.0);
 	
 	// Molten
-	float moltenAlpha = max( max(heat-0.2, 0.0) * u_moltenAlphaScalar, 0.0 );
-	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * 1.25, moltenAlpha ), vec3(2.2) );
+	float moltenAlpha = min( max(heat-0.2, 0.0) * u_moltenAlphaScalar, 1.0 );
+	moltenAlpha = pow( moltenAlpha, u_moltenAlphaPower );
+	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * u_moltenColorScalar, moltenAlpha ), vec3(2.2) );
 	
 	// Shadowing
 	float shadowing = 0.0;

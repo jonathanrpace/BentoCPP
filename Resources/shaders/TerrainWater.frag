@@ -232,6 +232,25 @@ void main(void)
 	}
 
 	////////////////////////////////////////////////////////////////
+	// Foam
+	////////////////////////////////////////////////////////////////
+	{
+		vec2 uvA = (in_uv * u_foamRepeat) - u_phaseA * in_waterVelocity * u_waterFlowOffset * 1.0;
+		vec2 uvB = (in_uv * u_foamRepeat) - u_phaseB * in_waterVelocity * u_waterFlowOffset * 1.0;
+		uvB += vec2(0.5);
+
+		float foamSampleA = texture(s_foamMap, uvA).x;
+		float foamSampleB = texture(s_foamMap, uvB).x;
+		float foamSample = mix(foamSampleA, foamSampleB, u_phaseAlpha);
+		
+		float foamAlpha = foamSample * in_foamStrength + max( 0.0, foamSample - (1.0-in_foamStrength) );
+		foamAlpha *= u_foamAlphaStrength;
+		foamAlpha *= in_reflectAlpha;
+
+		outColor = mix( outColor, vec3(diffuseLighting) * 0.5, foamAlpha );
+	}
+
+	////////////////////////////////////////////////////////////////
 	// Specular reflections
 	////////////////////////////////////////////////////////////////
 	{
@@ -250,24 +269,7 @@ void main(void)
 		outColor += getSkyColor(reflectVec) * u_ambientLightIntensity * 0.5 * in_reflectAlpha * fresnel * in_specularOcclusion;
 	}
 
-	////////////////////////////////////////////////////////////////
-	// Foam
-	////////////////////////////////////////////////////////////////
-	{
-		vec2 uvA = (in_uv * u_foamRepeat) - u_phaseA * in_waterVelocity * u_waterFlowOffset * 1.0;
-		vec2 uvB = (in_uv * u_foamRepeat) - u_phaseB * in_waterVelocity * u_waterFlowOffset * 1.0;
-		uvB += vec2(0.5);
-
-		float foamSampleA = texture(s_foamMap, uvA).x;
-		float foamSampleB = texture(s_foamMap, uvB).x;
-		float foamSample = mix(foamSampleA, foamSampleB, u_phaseAlpha);
-		
-		float foamAlpha = foamSample * in_foamStrength + max( 0.0, foamSample - (1.0-in_foamStrength) );
-		foamAlpha *= u_foamAlphaStrength;
-		foamAlpha *= in_reflectAlpha;
-
-		outColor = mix( outColor, vec3(diffuseLighting) * 0.5, foamAlpha );
-	}
+	
 
 	/*
 	////////////////////////////////////////////////////////////////

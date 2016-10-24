@@ -32,6 +32,7 @@ namespace bento
 		TextureSquare smokeTexture;
 		TextureSquare rockDiffuseTexture;
 		TextureSquare foamTexture;
+		TextureSquare creaseTexture;
 
 		// Rock
 		vec3 rockColorA;
@@ -47,7 +48,12 @@ namespace bento
 		float bearingCreaseScalar;
 		float lateralCreaseScalar;
 		float creaseForwardScalar;
+		float creaseRatio;
 		float creaseMipLevel;
+		float creaseMapRepeat;
+		float creaseGridRepeat;
+		float creaseFlowSpeed;
+		float creaseFlowOffset;
 
 		// Hot rock
 		vec3 hotRockColor;
@@ -56,9 +62,14 @@ namespace bento
 
 		// Molten
 		vec3 moltenColor;
-		float moltenMapAlphaScalar;
-		float moltenMapAlphaPower;
+		float moltenAlphaScalar;
+		float moltenAlphaPower;
+		float moltenColorScalar;
 		float moltenMapOffset; 
+		float moltenPlateAlpha;
+		float moltenPlateAlphaPower;
+		float moltenCreaseAlpha;
+		float moltenCreaseAlphaPower;
 
 		// Dirt
 		vec3 dirtColor;

@@ -31,7 +31,7 @@ void main(void)
 	vec3 screenPos = in_vertexPosition;
 
 	// Scale the particle geom vertex
-	screenPos.xy *= mix(0.05, 0.07, pow(in_particleProperties.w, 2.0));
+	screenPos.xy *= mix(0.09, 0.14, pow(in_particleProperties.w, 2.0));
 
 	// Rotate and squish the geom vertex based on smudge data sample
 	vec2 smudgeVector = texture( s_smudgeData, in_particlePosition.xz ).xy;
