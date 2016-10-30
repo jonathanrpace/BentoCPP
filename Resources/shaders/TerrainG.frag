@@ -40,6 +40,11 @@ uniform float u_moltenPlateAlphaPower;
 uniform float u_moltenCreaseAlpha;
 uniform float u_moltenCreaseAlphaPower;
 
+uniform float u_glowScalar;
+uniform float u_glowPower;
+uniform float u_glowDetailScalar;
+uniform float u_glowDetailPower;
+
 uniform vec3 u_dirtColor;
 
 uniform vec3 u_cameraPos;
@@ -206,7 +211,8 @@ void main(void)
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos);
 	vec4 moltenMapSample = texture(s_moltenMapData, in_uv);
-	float moltenMapValue = moltenMapSample.x;
+	float moltenMapValue = clamp( moltenMapSample.x, 0.0, 1.0 );
+
 	float powedMoltenMapValue = pow(moltenMapValue, mix( 1.0, 0.1, in_rockNormal.y ));
 
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
@@ -289,13 +295,15 @@ void main(void)
 	//powedMoltenMapValue -= creaseAmount;
 	//moltenMapValue -= creaseAmount * 0.5;
 
+	float diffuseRatio = moltenMapValue * creaseAmount;
+
 	// Rock material
-	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, moltenMapValue ), vec3(2.2) );
-	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, moltenMapValue );
-	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, moltenMapValue );
+	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, diffuseRatio ), vec3(2.2) );
+	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, diffuseRatio );
+	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, diffuseRatio );
 
 	// Mix rock and hot rock together
-	float hotRockMaterialLerp = min( in_heat / 0.1, 1.0 );
+	float hotRockMaterialLerp = min( in_heat / 0.2, 1.0 );
 	vec3 diffuse = mix( rockDiffuse, pow( u_hotRockColor, vec3(2.2) ), hotRockMaterialLerp );
 	float roughness = mix( rockRoughness, u_hotRockRoughness, hotRockMaterialLerp );
 	float fresnel = mix( rockFresnel, u_hotRockFresnel, hotRockMaterialLerp );
@@ -324,18 +332,20 @@ void main(void)
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
 
+	
+
 	// Add emissve elements
-	float moltenAlpha = in_moltenAlpha - ( pow(moltenMapValue,u_moltenPlateAlphaPower) * u_moltenPlateAlpha );
-
-	moltenAlpha *= 1.0 - (pow(creaseAmount, u_moltenCreaseAlphaPower) * u_moltenCreaseAlpha);
-	moltenAlpha = max(moltenAlpha, 0.0);
-
+	float moltenPlateScalar = 1.0 - (pow(moltenMapValue, u_moltenPlateAlphaPower) * u_moltenPlateAlpha);
+	float moltenCreaseScalar = 1.0 - (pow(creaseAmount, u_moltenCreaseAlphaPower) * u_moltenCreaseAlpha);
+	float moltenAlpha = in_moltenAlpha * moltenPlateScalar * moltenCreaseScalar;
 	outColor = mix( outColor, in_moltenColor, moltenAlpha );
 	
 	// Heat glow
-	//float heatGlowAlpha = max( pow(1.0-moltenMapValue, 2.0) * hotRockMaterialLerp * 0.4, 0.0f);
-	//outColor += in_moltenColor * heatGlowAlpha;
-	//outColor += in_moltenColor * pow( heatGlowAlpha, 4.0 ) * 5000.0;
+	float heatGlowAlpha = pow(1.0-moltenMapValue, u_glowPower) * in_heat * u_glowScalar;
+	outColor += in_moltenColor * heatGlowAlpha * (1.0-moltenAlpha);
+
+	float heatGlowDetailAlpha = pow(1.0-creaseAmount, u_glowDetailPower) * in_heat * u_glowDetailScalar;
+	outColor += in_moltenColor * heatGlowDetailAlpha * (1.0-moltenAlpha);
 
 	
 

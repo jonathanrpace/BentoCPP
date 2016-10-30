@@ -16,7 +16,6 @@ out gl_PerVertex
 out Varying
 {
 	float out_color;
-	vec2 out_uv;
 };
 
 vec2 rotateBy( vec2 _pt, float _angle )
@@ -31,7 +30,7 @@ void main(void)
 	vec3 screenPos = in_vertexPosition;
 
 	// Scale the particle geom vertex
-	screenPos.xy *= mix(0.09, 0.14, pow(in_particleProperties.w, 2.0));
+	screenPos.xy *= 0.08;//mix(0.09, 0.14, pow(in_particleProperties.w, 2.0));
 
 	// Rotate and squish the geom vertex based on smudge data sample
 	vec2 smudgeVector = texture( s_smudgeData, in_particlePosition.xz ).xy;
@@ -58,5 +57,5 @@ void main(void)
 	gl_Position = vec4( screenPos, 1.0 );
 	out_color = screenPos.z;
 
-	out_uv = (in_vertexPosition.xy + 1.0) * 0.5;
+	//out_uv = (in_vertexPosition.xy + 1.0) * 0.5;
 } 

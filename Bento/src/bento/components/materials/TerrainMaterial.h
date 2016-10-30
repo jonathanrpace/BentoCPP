@@ -71,6 +71,12 @@ namespace bento
 		float moltenCreaseAlpha;
 		float moltenCreaseAlphaPower;
 
+		// Glow
+		float glowScalar;
+		float glowPower;
+		float glowDetailScalar;
+		float glowDetailPower;
+
 		// Dirt
 		vec3 dirtColor;
 		float dirtTextureRepeat;

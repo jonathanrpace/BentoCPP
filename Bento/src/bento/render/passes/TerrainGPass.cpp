@@ -104,6 +104,13 @@ namespace bento
 		SetUniform("u_moltenCreaseAlpha", _material.moltenCreaseAlpha);
 		SetUniform("u_moltenCreaseAlphaPower", _material.moltenCreaseAlphaPower);
 
+		SetUniform("u_glowScalar", _material.glowScalar);
+		SetUniform("u_glowPower", _material.glowPower);
+		SetUniform("u_glowDetailScalar", _material.glowDetailScalar);
+		SetUniform("u_glowDetailPower", _material.glowDetailPower);
+
+
+
 		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 

@@ -337,10 +337,10 @@ void main(void)
 
 		// Add some lava near the mouse
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
-		float heatTextureScalar = 0.5;//pow( 1.0-diffuseSampleC.x, 2.0 );
-		float heightTextureScalar = 0.5;//pow( diffuseSampleC.x, 2.0 );
-		heatC   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.1, heatTextureScalar) ) / (1.0+heatC*10.0);
-		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.5, 0.6, heightTextureScalar) ) / (1.0+heightC);
+		float heatTextureScalar = pow( diffuseSampleC.x, 1.0 );
+		float heightTextureScalar = diffuseSampleC.x;
+		heatC   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.02, heatTextureScalar) );
+		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.1, 0.2, heightTextureScalar) );
 		heatC = max(0.0, heatC);
 
 		out_heightData.y = heightC;
@@ -471,7 +471,7 @@ void main(void)
 		waterHeight -= waterToBoilOff;
 		
 		// Cool molten based on water boiling
-		heat -= min( heat, (waterToBoilOff / (1.0+moltenHeight)) * 10.0 );
+		heat -= min( heat, (waterToBoilOff / (1.0+moltenHeight)) * 50.0 );
 
 		out_heightData.w = waterHeight;
 		out_miscData.x = heat;
@@ -699,6 +699,7 @@ void main(void)
 		}
 		occlusion /= totalStrength;
 		occlusion *= 2.0;
+		occlusion = min(1.0, occlusion);
 
 		out_miscData.w = occlusion;
 	}

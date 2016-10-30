@@ -153,7 +153,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Text("Molten");
-	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 1.0f);
+	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 2.0f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
 	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 10.0f);
 	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);

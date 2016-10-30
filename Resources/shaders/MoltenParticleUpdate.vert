@@ -40,7 +40,7 @@ void main(void)
 	else
 	{
 		float speed = length(moltenVelocity);
-		float lifeDecay = speed * mix( 0.06, 0.05, in_properties.w ) * 300.0;
+		float lifeDecay = speed * mix( 0.06, 0.05, in_properties.w ) * 100.0;
 		life -= lifeDecay;
 		life = max(0,life);
 	}

@@ -58,6 +58,12 @@ namespace bento
 		SerializableMember("moltenCreaseAlphaPower", 1.0f, &moltenCreaseAlphaPower);
 		SerializableMember("moltenMapOffset", 0.0f, &moltenMapOffset);
 
+		// Glow
+		SerializableMember("glowScalar", 1.0f, &glowScalar);
+		SerializableMember("glowPower", 1.0f, &glowPower);
+		SerializableMember("glowDetailScalar", 1.0f, &glowDetailScalar);
+		SerializableMember("glowDetailPwoerr", 1.0f, &glowDetailPower);
+
 		// Water
 		SerializableMember("waterColor", vec3(0.219f, 0.286f, 0.278f), &waterColor);
 		SerializableMember("waterSpecularPower", 80.0f, &waterSpecularPower);
@@ -137,14 +143,22 @@ namespace bento
 		ImGui::Text("Molten");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
 		ImGui::ColorEdit3("Color##molten", glm::value_ptr(moltenColor));
-		ImGui::SliderFloat("Color Scale##molten", &moltenColorScalar, 1.0f, 4.0f);
-		ImGui::SliderFloat("Alpha Scale##molten", &moltenAlphaScalar, 0.0f, 4.0f);
+		ImGui::SliderFloat("Color Scale##molten", &moltenColorScalar, 1.0f, 20.0f);
+		ImGui::SliderFloat("Alpha Scale##molten", &moltenAlphaScalar, 0.0f, 10.0f);
 		ImGui::SliderFloat("Alpha Power##molten", &moltenAlphaPower, 0.0f, 4.0f);
 		ImGui::SliderFloat("Plate Alpha##molten", &moltenPlateAlpha, 0.0f, 1.0f);
 		ImGui::SliderFloat("Plate Alpha Power##molten", &moltenPlateAlphaPower, 0.0f, 4.0f);
 		ImGui::SliderFloat("Crease Alpha##molten", &moltenCreaseAlpha, 0.0f, 1.0f);
 		ImGui::SliderFloat("Crease Alpha Power##molten", &moltenCreaseAlphaPower, 0.0f, 4.0f);
 		ImGui::SliderFloat("Offset##molten", &moltenMapOffset, 0.0f, 0.5f);
+
+		ImGui::Spacing();
+		ImGui::Text("Glow");
+		ImGui::SliderFloat("Scale##glow", &glowScalar, 0.0f, 1.0f);
+		ImGui::SliderFloat("Power##glow", &glowPower, 0.0f, 10.0f);
+		ImGui::SliderFloat("Detail Scale##glow", &glowDetailScalar, 0.0f, 1.0f);
+		ImGui::SliderFloat("Detail Power##glow", &glowDetailPower, 0.0f, 10.0f);
+		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Text("Water");
