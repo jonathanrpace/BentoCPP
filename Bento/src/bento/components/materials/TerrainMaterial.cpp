@@ -29,7 +29,7 @@ namespace bento
 		SerializableMember("rockFresnelA", 1.0f, &rockFresnelA);
 		SerializableMember("rockFresnelB", 1.0f, &rockFresnelB);
 		SerializableMember("rockDetailBumpStrength", 1.0f, &rockDetailBumpStrength);
-		SerializableMember("rockDetailDiffuseStrength", 1.0f, &rockDetailDiffuseStrength);
+		SerializableMember("rockDetailBumpSlopePower", 1.0f, &rockDetailBumpSlopePower);
 
 		// Creases
 		SerializableMember("bearingCreaseScalar", 1.0f, &bearingCreaseScalar);
@@ -115,7 +115,7 @@ namespace bento
 		ImGui::SliderFloat("Fresnel A##rock", &rockFresnelA, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel B##rock", &rockFresnelB, 0.0f, 1.0f);
 		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 100.0f);
-		ImGui::SliderFloat("Detail Diffuse Strength B##rock", &rockDetailDiffuseStrength, 0.0f, 1.0f);
+		ImGui::SliderFloat("Detail Bump Slope Power B##rock", &rockDetailBumpSlopePower, 0.0f, 20.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

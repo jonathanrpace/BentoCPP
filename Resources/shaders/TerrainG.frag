@@ -48,8 +48,8 @@ uniform float u_glowDetailPower;
 uniform vec3 u_dirtColor;
 
 uniform vec3 u_cameraPos;
-uniform float u_rockDetailDiffuseStrength;
 uniform float u_rockDetailBumpStrength;
+uniform float u_rockDetailBumpSlopePower;
 
 uniform vec3 u_lightDir;
 uniform float u_lightDistance;
@@ -295,12 +295,14 @@ void main(void)
 	//powedMoltenMapValue -= creaseAmount;
 	//moltenMapValue -= creaseAmount * 0.5;
 
-	float diffuseRatio = moltenMapValue * creaseAmount;
+	float diffuseRatio = moltenMapValue;
 
 	// Rock material
 	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, diffuseRatio ), vec3(2.2) );
 	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, diffuseRatio );
 	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, diffuseRatio );
+
+	rockDiffuse *= mix( 1.0, (1.0-creaseAmount), 0.75 );
 
 	// Mix rock and hot rock together
 	float hotRockMaterialLerp = min( in_heat / 0.2, 1.0 );
@@ -310,11 +312,12 @@ void main(void)
 	
 	// Rock normal
 	vec3 rockNormal = in_rockNormal;
-	float bumpLod = in_dirtAlpha * 8;
+	float slopeScalar = pow(in_rockNormal.y, u_rockDetailBumpSlopePower);
+	float bumpLod = -0.5 + in_dirtAlpha * 7 + in_rockNormal.y * 2.0;
 	vec2 moltenMapDerivative = textureLod( s_moltenMapData, in_uv, bumpLod ).yz;
 
 	// Normal detail
-	vec2 angle = moltenMapDerivative * mix( u_rockDetailBumpStrength, u_rockDetailBumpStrength * 0.0, pow(in_rockNormal.y, 2.0) );
+	vec2 angle = moltenMapDerivative * u_rockDetailBumpStrength * max(1.0-slopeScalar, 0.2);
 	rockNormal = rotateX( rockNormal, -angle.x ); 
 	rockNormal = rotateZ( rockNormal, angle.y ); 
 	rockNormal = normalize(rockNormal);

@@ -45,7 +45,6 @@ namespace bento
 		SetUniform("u_fogColorTowards", _material.fogColorTowards);
 				
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
-		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 		
 		SetUniform("u_moltenColor", _material.moltenColor);
 		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
@@ -111,8 +110,8 @@ namespace bento
 
 
 
-		SetUniform("u_rockDetailDiffuseStrength", _material.rockDetailDiffuseStrength);
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
+		SetUniform("u_rockDetailBumpSlopePower", _material.rockDetailBumpSlopePower);
 
 		SetUniform("u_dirtColor", _material.dirtColor);
 

@@ -339,8 +339,8 @@ void main(void)
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
 		float heatTextureScalar = pow( diffuseSampleC.x, 1.0 );
 		float heightTextureScalar = diffuseSampleC.x;
-		heatC   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.01, 0.02, heatTextureScalar) );
-		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.1, 0.2, heightTextureScalar) );
+		heatC   += ( pow(mouseRatio, 2.0) * u_mouseMoltenHeatStrength   * mix(0.005, 0.02, heatTextureScalar) );
+		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.18, 0.2, heightTextureScalar) );
 		heatC = max(0.0, heatC);
 
 		out_heightData.y = heightC;
@@ -677,7 +677,7 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	{
 		float occlusion = 0.0f;
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset + smudgeDataC.w;
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset;
 
 		float strength = 1.0;
 		float totalStrength = 0.0;
@@ -687,7 +687,7 @@ void main(void)
 			vec4 mippedMiscDataC = textureLod(s_miscData, in_uv, float(i));
 			vec4 mippedSmudgeDataC = textureLod(s_smudgeData, in_uv, float(i));
 
-			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_mapHeightOffset + mippedSmudgeDataC.w;
+			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_mapHeightOffset;
 			float diff = max(0.0f, mippedHeight - heightC);
 			float ratio = diff / u_cellSize.x;
 			float angle = atan(ratio);

@@ -19,7 +19,6 @@ uniform vec3 u_cameraPos;
 
 uniform float u_moltenMapOffset;
 uniform float u_rockDetailBumpStrength;
-uniform float u_rockDetailDiffuseStrength;
 
 uniform vec3 u_moltenColor;
 uniform float u_moltenColorScalar;
