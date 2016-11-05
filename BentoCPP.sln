@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloWorld", "HelloWorld\HelloWorld.vcxproj", "{B7156BC7-BE9A-48A0-90A0-92B8003B402B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GodBox", "GodBox\GodBox.vcxproj", "{B7156BC7-BE9A-48A0-90A0-92B8003B402B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{96545C22-E144-432C-A5D3-F8B684D35159} = {96545C22-E144-432C-A5D3-F8B684D35159}
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70} = {C7F5A34E-8939-4DB1-BFCD-670C7F068A70}
@@ -27,12 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GLEW", "GLEW\GLEW.vcxproj",
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug MX|x64 = Debug MX|x64
-		Debug MX|x86 = Debug MX|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
-		Release MX|x64 = Release MX|x64
-		Release MX|x86 = Release MX|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -92,7 +88,6 @@ Global
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x64.ActiveCfg = Debug|x64
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x64.Build.0 = Debug|x64
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x86.ActiveCfg = Debug|Win32
-		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Debug|x86.Build.0 = Debug|Win32
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release MX|x64.ActiveCfg = Release|x64
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release MX|x64.Build.0 = Release|x64
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release MX|x86.ActiveCfg = Release|Win32
@@ -100,7 +95,6 @@ Global
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x64.ActiveCfg = Release|x64
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x64.Build.0 = Release|x64
 		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x86.ActiveCfg = Release|Win32
-		{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}.Release|x86.Build.0 = Release|Win32
 		{74363F64-4422-455B-A5AC-71CBA6406779}.Debug MX|x64.ActiveCfg = Debug|x64
 		{74363F64-4422-455B-A5AC-71CBA6406779}.Debug MX|x64.Build.0 = Debug|x64
 		{74363F64-4422-455B-A5AC-71CBA6406779}.Debug MX|x86.ActiveCfg = Debug|Win32
