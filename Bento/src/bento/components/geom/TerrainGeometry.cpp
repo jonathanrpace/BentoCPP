@@ -242,10 +242,10 @@ namespace bento
 		m_waterFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_waterFluxData.GetWrite().GenerateMipMaps();
 
-		BufferVertexData(0, &positions[0], positions.size());
-		BufferVertexData(1, &uvs[0], uvs.size());
-		BufferVertexData(2, &randData[0], randData.size());
-		BufferIndexData(0, &indices[0], indices.size());
+		BufferVertexData(0, &positions[0], (int)positions.size());
+		BufferVertexData(1, &uvs[0], (int)uvs.size());
+		BufferVertexData(2, &randData[0], (int)randData.size());
+		BufferIndexData(0, &indices[0], (int)indices.size());
 	}
 
 	void TerrainGeometry::OnInvalidate()

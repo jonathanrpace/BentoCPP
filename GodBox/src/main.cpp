@@ -1,3 +1,15 @@
+#define GLM_FORCE_PURE
+#define GLEW_STATIC
+
+#ifdef B_DEBUG
+	#define ENABLE_TRACE
+	#define GL_DEBUG_CONTEXT
+	#define ENABLE_GL_CHECKS
+#endif
+
+#ifdef B_RELEASE
+#endif
+
 #include <windows.h>
 
 #include <stdlib.h>

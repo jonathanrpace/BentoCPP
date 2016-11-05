@@ -5,8 +5,6 @@
 *.user
 *.lib
 */bin/
-*/Debug/
-*/tmp/
 .vs/
 *.opendb
 *.VC.db

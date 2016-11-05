@@ -73,7 +73,7 @@ namespace bento
 	{
 		_SetNamespace("global");
 		std::string str = m_data.dump(4);
-		fileUtil::SaveFile(m_filepath.c_str(), str.c_str(), str.size());
+		fileUtil::SaveFile(m_filepath.c_str(), str.c_str(), (unsigned long)str.size());
 	}
 
 	void DefaultsManager::_SetNamespace(std::string _namespace)

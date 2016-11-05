@@ -79,27 +79,27 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>tmp\$(TargetName)\$(Configuration)\$(PlatformName)\</IntDir>
-    <TargetName>glew32s</TargetName>
-    <OutDir>$(LIB_DIR)\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</IntDir>
+    <TargetName>glew</TargetName>
+    <OutDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</OutDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(LIB_DIR)\$(Configuration)\$(PlatformName)\</OutDir>
-    <IntDir>tmp\$(TargetName)\$(Configuration)\$(PlatformName)\</IntDir>
-    <TargetName>glew32s</TargetName>
+    <OutDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</IntDir>
+    <TargetName>glew</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(LIB_DIR)\$(PlatformName)\$(Configuration)\</OutDir>
-    <IntDir>tmp\$(TargetName)\$(Configuration)\$(PlatformName)\</IntDir>
-    <TargetName>glew32s</TargetName>
+    <OutDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</IntDir>
+    <TargetName>glew</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(LIB_DIR)\$(Configuration)\$(PlatformName)\</OutDir>
-    <IntDir>tmp\$(TargetName)\$(Configuration)\$(PlatformName)\</IntDir>
-    <TargetName>glew32sd</TargetName>
+    <OutDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\bin\$(PlatformName)\$(Configuration)\</IntDir>
+    <TargetName>glew</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);src;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
