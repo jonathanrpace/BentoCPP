@@ -9,3 +9,4 @@
 *.opendb
 *.VC.db
 HelloWorld/HelloWorld.vcxproj.jpace.nvuser
+*.pdb
