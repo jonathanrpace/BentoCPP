@@ -302,14 +302,14 @@ void main(void)
 	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, diffuseRatio );
 	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, diffuseRatio );
 
-	rockDiffuse *= mix( 1.0, (1.0-creaseAmount), 0.75 );
-
 	// Mix rock and hot rock together
-	float hotRockMaterialLerp = min( in_heat / 0.2, 1.0 );
+	float hotRockMaterialLerp = min( in_heat / 0.05, 1.0 );
 	vec3 diffuse = mix( rockDiffuse, pow( u_hotRockColor, vec3(2.2) ), hotRockMaterialLerp );
 	float roughness = mix( rockRoughness, u_hotRockRoughness, hotRockMaterialLerp );
 	float fresnel = mix( rockFresnel, u_hotRockFresnel, hotRockMaterialLerp );
 	
+	diffuse *= mix( 1.0, creaseAmount, 0.8 );
+
 	// Rock normal
 	vec3 rockNormal = in_rockNormal;
 	float slopeScalar = pow(in_rockNormal.y, u_rockDetailBumpSlopePower);
@@ -330,7 +330,7 @@ void main(void)
 	float directLight = lightingGGX( rockNormal, viewDir, lightDir, roughness, fresnel ) * u_lightIntensity * (1.0-in_shadowing);
 
 	// Ambient light
-	float ambientlight = lightingGGX( rockNormal, viewDir, normalize(vec3(0.0,1.0,0.0) + rockNormal), roughness, fresnel ) * u_ambientLightIntensity * in_occlusion;
+	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * in_occlusion;
 
 	// Bring it all together
 	vec3 outColor = (diffuse * (directLight + ambientlight));
