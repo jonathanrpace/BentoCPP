@@ -11,6 +11,8 @@ namespace bento
 {
 	GLuint ShaderStageBase::s_standardLibShaderNameVert(0);
 	GLuint ShaderStageBase::s_standardLibShaderNameFrag(0);
+	GLuint ShaderStageBase::s_activeShaderPipeline(-1);
+	GLuint ShaderStageBase::s_activeShaderProgram(-1);
 
 	void ShaderStageBase::StaticInit()
 	{
@@ -51,7 +53,8 @@ namespace bento
 		m_filename(_filename),
 		m_useSSO(_useSSO),
 		m_pipelineName(-1),
-		m_programName(-1)
+		m_programName(-1),
+		m_uniformMap()
 	{
 		bool isVertex = std::strstr(m_filename, ".vert") != nullptr;
 		bool isFragment = std::strstr(m_filename, ".frag") != nullptr;
@@ -131,12 +134,27 @@ namespace bento
 		}
 	}
 
+	int ShaderStageBase::GetUniformLocation( const char * _name )
+	{
+		std::string str = std::string(_name);
+
+		auto iter = m_uniformMap.find(str);
+		if (  iter != m_uniformMap.end() )
+		{
+			return iter->second;
+		}
+
+		GLint location = -1;
+		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
+
+		m_uniformMap[str] = (int)location;
+		return location;
+	}
+
 	void ShaderStageBase::SetUniform(const char * _name, mat4 & _value, bool _transposed)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GLfloat* data = (GLfloat*)glm::value_ptr(_value);
 		GL_CHECK(glUniformMatrix4fv(location, 1, _transposed, data));
 	}
@@ -144,9 +162,7 @@ namespace bento
 	void ShaderStageBase::SetUniform(const char * _name, mat3 & _value, bool _transposed)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GLfloat* data = (GLfloat*)glm::value_ptr(_value);
 		GL_CHECK(glUniformMatrix3fv(location, 1, _transposed, data));
 	}
@@ -154,60 +170,47 @@ namespace bento
 	void ShaderStageBase::SetUniform(const char * _name, float _value)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GL_CHECK(glUniform1f(location, _value));
 	}
 
 	void ShaderStageBase::SetUniform(const char * _name, vec2& _value)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GL_CHECK(glUniform2f(location, _value.x, _value.y));
 	}
 
 	void ShaderStageBase::SetUniform(const char * _name, vec3& _value)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GL_CHECK(glUniform3f(location, _value.x, _value.y, _value.z));
 	}
 
 	void ShaderStageBase::SetUniform(const char * _name, vec4& _value)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GL_CHECK(glUniform4f(location, _value.x, _value.y, _value.z, _value.w));
 	}
 
 	void ShaderStageBase::SetUniform(const char * _name, ivec2& _value)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GL_CHECK(glUniform2i(location, _value.x, _value.y));
 	}
 
 	void ShaderStageBase::SetUniform(const char * _name, int _value)
 	{
 		SetAsActiveShader();
-		GLint location = -1;
-		GL_CHECK(location = glGetUniformLocation(m_programName, (GLchar*)_name));
-		// assert(location != -1);
+		GLint location = (GLint)GetUniformLocation(_name);
 		GL_CHECK(glUniform1i(location, _value));
 	}
 
 	void ShaderStageBase::SetTexture(const char * _name, TextureSquare& _texture)
 	{
-		SetAsActiveShader();
 		SetUniform(_name, *m_textureUnit);
 		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
 		glBindTexture(GL_TEXTURE_2D, _texture.TextureName());
@@ -216,7 +219,6 @@ namespace bento
 
 	void ShaderStageBase::SetTexture(const char * _name, RectangleTexture& _texture)
 	{
-		SetAsActiveShader();
 		SetUniform(_name, *m_textureUnit);
 		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
 		glBindTexture(GL_TEXTURE_RECTANGLE, _texture.TextureName());
@@ -225,7 +227,6 @@ namespace bento
 
 	void ShaderStageBase::SetTexture(const char * _name, Texture3D& _texture)
 	{
-		SetAsActiveShader();
 		SetUniform(_name, *m_textureUnit);
 		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
 		glBindTexture(GL_TEXTURE_3D, _texture.TextureName());
@@ -234,7 +235,12 @@ namespace bento
 
 	void ShaderStageBase::SetAsActiveShader()
 	{
-		GL_CHECK(glActiveShaderProgram(m_pipelineName, m_programName);)
+		if (  s_activeShaderPipeline != m_pipelineName || s_activeShaderProgram != m_programName )
+		{
+			s_activeShaderPipeline = m_pipelineName;
+			s_activeShaderProgram = m_programName;
+			GL_CHECK(glActiveShaderProgram(m_pipelineName, m_programName);)
+		}
 	}
 
 	void ShaderStageBase::BindPerPass(int* _textureUnit)

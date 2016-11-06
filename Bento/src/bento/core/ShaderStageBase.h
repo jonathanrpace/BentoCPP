@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <bento.h>
 
 #include <bento/core/AbstractValidatable.h>
@@ -21,6 +23,8 @@ namespace bento
 	protected:
 		static GLuint s_standardLibShaderNameVert;
 		static GLuint s_standardLibShaderNameFrag;
+		static GLuint s_activeShaderPipeline;
+		static GLuint s_activeShaderProgram;
 
 	public:
 		ShaderStageBase(const char* _filename, bool _useSSO = true);
@@ -47,6 +51,7 @@ namespace bento
 		void Validate();
 		void OnInvalidate();
 		virtual void OnPreLink();
+		int GetUniformLocation(const char * _name);
 
 		bool m_useSSO;
 		const char* m_filename;
@@ -54,6 +59,8 @@ namespace bento
 		GLuint m_programName;
 		GLenum m_shaderType;
 		int* m_textureUnit;
+
+		std::map<std::string, int> m_uniformMap;
 
 		void SetAsActiveShader();
 	};

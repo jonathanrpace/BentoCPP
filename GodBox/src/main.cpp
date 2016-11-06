@@ -61,9 +61,12 @@ void mainLoop(GLFWwindow* window)
 
 	// Processes
 	scene.AddProcess(bento::OrbitCamera::Create());
-	scene.AddProcess(bento::InspectorUIProcess::Create());
 	scene.AddProcess(bento::TerrainSimulationProcess::Create());
 	
+	#ifndef B_RELEASE
+		scene.AddProcess(bento::InspectorUIProcess::Create());
+	#endif
+
 	auto renderer = bento::DefaultRenderer::Create();
 	// Render passes
 	{
@@ -110,7 +113,7 @@ int main(int argc, char **argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef GL_DEBUG_CONTEXT
+#ifdef B_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "Hello World", NULL, NULL);

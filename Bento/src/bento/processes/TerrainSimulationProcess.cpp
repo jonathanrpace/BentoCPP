@@ -254,7 +254,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 		m_updateFluxShader.BindPerPass();
-		auto fragShader = m_updateFluxShader.FragmentShader();
+		UpdateTerrainFluxFrag& fragShader = m_updateFluxShader.FragmentShader();
 
 		fragShader.SetTexture("s_heightData", _geom.HeightData().GetRead());
 		fragShader.SetTexture("s_miscData", _geom.MiscData().GetRead());
@@ -273,7 +273,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	// Update Data
 	{
 		m_updateDataShader.BindPerPass();
-		auto fragShader = m_updateDataShader.FragmentShader();
+		UpdateTerrainDataFrag& fragShader = m_updateDataShader.FragmentShader();
 
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.VelocityData().GetWrite());
@@ -387,7 +387,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		GL_CHECK(glBeginTransformFeedback(GL_POINTS));
 		GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
 
-		auto vertexShader = m_moltenParticleUpdateShader.VertexShader();
+		MoltenParticleUpdateVert& vertexShader = m_moltenParticleUpdateShader.VertexShader();
 
 		vertexShader.SetTexture("s_heightData", _geom.HeightData().GetRead());
 		vertexShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead());
@@ -418,8 +418,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		// Bind shaders
 		m_moltenMapShader.BindPerPass();
-		auto fragShader = m_moltenMapShader.FragmentShader();
-		auto vertShader = m_moltenMapShader.VertexShader();
+		MoltenMapFrag& fragShader = m_moltenMapShader.FragmentShader();
+		MoltenMapVert& vertShader = m_moltenMapShader.VertexShader();
 
 		// Set uniforms
 		vertShader.SetTexture("s_smudgeData", _geom.SmudgeData().GetRead() );
