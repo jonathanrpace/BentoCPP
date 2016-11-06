@@ -32,8 +32,8 @@
 #include <bento/util/GLErrorUtil.h>
 
 // Local 
-#include "RenderPasses/IMGUIRenderPass.h"
-#include "Processes/InspectorUIProcess.h"
+#include "render/passes/IMGUIRenderPass.h"
+#include "processes/InspectorUIProcess.h"
 #include "imgui/imgui_impl_glfw_gl3.cpp"
 
 void mainLoop(GLFWwindow* window)
