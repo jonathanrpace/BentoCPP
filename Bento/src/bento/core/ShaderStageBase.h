@@ -5,7 +5,6 @@
 #include <bento.h>
 
 #include <bento/core/AbstractValidatable.h>
-#include <bento/render/RenderParams.h>
 #include <bento/components/textures/RectangleTexture.h>
 #include <bento/components/textures/TextureSquare.h>
 #include <bento/components/textures/Texture3D.h>

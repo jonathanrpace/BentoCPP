@@ -170,9 +170,8 @@
     <ClInclude Include="src\bento\core\NodeGroupProcess.h" />
     <ClInclude Include="src\bento\core\Reflection.h" />
     <ClInclude Include="src\bento\core\SerializableBase.h" />
-    <ClInclude Include="src\bento\render\DefaultRenderer.h" />
+    <ClInclude Include="src\bento\render\RendererBase.h" />
     <ClInclude Include="src\bento\render\passes\TerrainSteamPass.h" />
-    <ClInclude Include="src\bento\render\RenderParams.h" />
     <ClInclude Include="src\bento\core\eRenderPhase.h" />
     <ClInclude Include="src\bento\core\RenderTargetBase.h" />
     <ClInclude Include="src\bento\core\ShaderBase.h" />
@@ -192,7 +191,7 @@
     <ClInclude Include="src\bento\render\passes\TerrainFoamPass.h" />
     <ClInclude Include="src\bento\render\passes\TerrainGPass.h" />
     <ClInclude Include="src\bento\render\passes\TerrainWaterPass.h" />
-    <ClInclude Include="src\bento\render\DeferredRenderTarget.h" />
+    <ClInclude Include="src\bento\render\RenderParams.h" />
     <ClInclude Include="src\bento\render\shaders\NullFrag.h" />
     <ClInclude Include="src\bento\render\shaders\RectTextureFrag.h" />
     <ClInclude Include="src\bento\render\shaders\ScreenQuadVert.h" />
@@ -232,10 +231,11 @@
     <ClCompile Include="src\bento\core\DefaultsManager.cpp" />
     <ClCompile Include="src\bento\components\geom\FoamParticleGeom.cpp" />
     <ClCompile Include="src\bento\core\SerializableBase.cpp" />
-    <ClCompile Include="src\bento\render\DefaultRenderer.cpp" />
+    <ClCompile Include="src\bento\render\RendererBase.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainFoamPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainSteamPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainWaterPass.cpp" />
+    <ClCompile Include="src\bento\render\RenderParams.cpp" />
     <ClCompile Include="src\bento\util\FileUtil.cpp" />
     <ClCompile Include="src\bento\util\Rand.cpp" />
     <ClCompile Include="src\bento\util\TextureUtil.cpp" />
@@ -250,7 +250,6 @@
     <ClCompile Include="src\bento\core\Entity.cpp" />
     <ClCompile Include="src\bento\core\InputManagerImpl.cpp" />
     <ClCompile Include="src\bento\core\Process.cpp" />
-    <ClCompile Include="src\bento\render\RenderParams.cpp" />
     <ClCompile Include="src\bento\core\RenderPass.cpp" />
     <ClCompile Include="src\bento\core\RenderTargetBase.cpp" />
     <ClCompile Include="src\bento\core\Scene.cpp" />
@@ -268,7 +267,6 @@
     <ClCompile Include="src\bento\processes\TerrainSimulationProcess.cpp" />
     <ClCompile Include="src\bento\render\passes\GPass.cpp" />
     <ClCompile Include="src\bento\render\passes\TerrainGPass.cpp" />
-    <ClCompile Include="src\bento\render\DeferredRenderTarget.cpp" />
     <ClCompile Include="src\bento\render\shaders\RectTextureToScreenShader.cpp" />
     <ClCompile Include="src\bento\components\textures\RectangleTexture.cpp" />
     <ClCompile Include="src\bento\components\textures\TextureSquare.cpp" />
