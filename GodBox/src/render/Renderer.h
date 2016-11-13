@@ -8,16 +8,20 @@
 #include <bento/render/RendererBase.h>
 #include <bento/core/Process.h>
 #include <bento/core/Scene.h>
+#include <bento/core/SharedObject.h>
 #include <bento/render/shaders/RectTextureToScreenShader.h>
 
 // app
 #include <render/RenderTarget.h>
 #include <render/RenderParams.h>
 
+using namespace bento;
+
 namespace godBox
 {
 	class Renderer 
-		: public bento::RendererBase
+		: public RendererBase
+		, public SharedObject<Renderer>
 	{
 	public:
 		Renderer(std::string _name = "Renderer");
@@ -28,6 +32,6 @@ namespace godBox
 
 	private:
 		RenderTarget m_renderTarget;
-		bento::RectTextureToScreenShader m_rectTextureToScreenShader;
+		RectTextureToScreenShader m_rectTextureToScreenShader;
 	};
 }

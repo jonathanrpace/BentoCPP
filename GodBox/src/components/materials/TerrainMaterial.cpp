@@ -2,7 +2,7 @@
 
 #include <imgui.h>
 
-namespace bento
+namespace godBox
 {
 	TerrainMaterial::TerrainMaterial(std::string _name)
 		: Component(_name, typeid(TerrainMaterial))

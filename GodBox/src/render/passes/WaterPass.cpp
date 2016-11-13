@@ -1,34 +1,39 @@
-#include "TerrainWaterPass.h"
+#include "WaterPass.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-
-#include <bento/core/Logging.h>
 
 #include <glm/gtx/polar_coordinates.hpp>
 #include <glm/glm.hpp>
 
 #include <glfw3.h>
 
+// bento
 #include <bento/core/Logging.h>
 #include <bento/render/RenderParams.h>
 
-namespace bento
+// app
+#include <render/RenderParams.h>
+#include <render/eRenderPhase.h>
+
+using namespace bento;
+
+namespace godBox
 {
 	////////////////////////////////////////////
 	// Vertex shader
 	////////////////////////////////////////////
 
-	TerrainWaterVert::TerrainWaterVert()
+	WaterVert::WaterVert()
 		: ShaderStageBase("shaders/TerrainWater.vert") 
 	{
 	}
 
-	void TerrainWaterVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
+	void WaterVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
-		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
-		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
-		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());
+		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix());
+		SetUniform("u_modelViewMatrix", bento::RenderParams::ModelViewMatrix());
+		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
 
 		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
 		SetUniform("u_depthToReflect", _material.waterDepthToReflect);
@@ -46,12 +51,12 @@ namespace bento
 	// Fragment shader
 	////////////////////////////////////////////
 
-	TerrainWaterFrag::TerrainWaterFrag()
+	WaterFrag::WaterFrag()
 		: ShaderStageBase("shaders/TerrainWater.frag") 
 	{
 	}
 
-	void TerrainWaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
+	void WaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
 		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
 		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
@@ -87,11 +92,11 @@ namespace bento
 		SetUniform("u_lightIntensity", _material.directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 
-		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix(), true);
-		SetUniform("u_viewMatrix", RenderParams::ViewMatrix());
+		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix(), true);
+		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
 
-		SetTexture("s_output", RenderParams::RenderTarget().OutputTextureA());
-		SetTexture("s_positionBuffer", RenderParams::RenderTarget().PositionTexture());
+		SetTexture("s_output", RenderParams::GetRenderTarget().ColorTexture());
+		SetTexture("s_positionBuffer", RenderParams::GetRenderTarget().PositionTexture());
 		SetTexture("s_foamMap", _material.foamTexture);
 	}
 
@@ -99,13 +104,13 @@ namespace bento
 	// Pass
 	////////////////////////////////////////////
 
-	TerrainWaterPass::TerrainWaterPass(std::string _name)
-		: NodeGroupProcess(_name, typeid(TerrainWaterPass))
-		, RenderPass(eRenderPhase_Forward)
+	WaterPass::WaterPass(std::string _name)
+		: NodeGroupProcess(_name, typeid(WaterPass))
+		, RenderPass(godBox::eRenderPhase_Transparent)
 	{
 	}
 
-	void TerrainWaterPass::Advance(double _dt)
+	void WaterPass::Advance(double _dt)
 	{
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_FALSE);
@@ -113,7 +118,7 @@ namespace bento
 		m_shader.BindPerPass();
 		for (auto node : m_nodeGroup.Nodes())
 		{
-			RenderParams::SetModelMatrix(node->transform->matrix);
+			bento::RenderParams::SetModelMatrix(node->transform->matrix);
 			
 			auto& geom = *node->geom;
 			auto& material = *node->material;

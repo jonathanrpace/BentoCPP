@@ -82,10 +82,7 @@ uniform sampler2D s_velocityData;
 ////////////////////////////////////////////////////////////////
 
 layout( location = 0 ) out vec4 out_viewPosition;
-layout( location = 1 ) out vec4 out_viewNormal;
-layout( location = 2 ) out vec4 out_albedo;
-layout( location = 3 ) out vec4 out_material;
-layout( location = 4 ) out vec4 out_forward;
+layout( location = 1 ) out vec4 out_forward;
 
 ////////////////////////////////////////////////////////////////
 // Read/Write buffers
@@ -351,10 +348,6 @@ void main(void)
 	outColor += in_moltenColor * heatGlowDetailAlpha * (1.0-moltenAlpha);
 
 	
-
-	out_forward = vec4( outColor, 1.0 );
 	out_viewPosition = in_viewPosition;
-	out_viewNormal = vec4(0.0);
-	out_albedo = vec4(0.0);
-	out_material = vec4(0.0);
+	out_forward = vec4( outColor, 1.0 );
 }

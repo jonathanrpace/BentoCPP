@@ -3,9 +3,8 @@
 #include <bento/util/Rand.h>
 #include <math.h>
 
-namespace bento
+namespace godBox
 {
-
 	MoltenParticleGeom::MoltenParticleGeom(std::string _name)
 		: Component(_name, typeid(MoltenParticleGeom)),
 		m_particleVertexArrayA(-1),

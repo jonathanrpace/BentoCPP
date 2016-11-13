@@ -3,13 +3,18 @@
 #include <string>
 
 #include <gl/glew.h>
+
+// bento
 #include <bento/core/SharedObject.h>
 #include <bento/core/Component.h>
 #include <bento/core/AbstractValidatable.h>
 
-#include <bento/components/geom/MoltenPlateGeometry.h>
+// app
+#include <components/geom/MoltenPlateGeometry.h>
 
-namespace bento
+using namespace bento;
+
+namespace godBox
 {
 	class MoltenParticleGeom :
 		public Component,

@@ -1,17 +1,22 @@
 #pragma once
 
+// bento
 #include <bento/core/NodeGroupProcess.h>
 #include <bento/core/RenderPass.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
-#include <bento/components/geom/TerrainGeometry.h>
-#include <bento/components/geom/SteamParticleGeom.h>
 #include <bento/components/Transform.h>
-#include <bento/components/materials/TerrainMaterial.h>
 #include <bento/render/shaders/NullFrag.h>
 
-namespace bento
+// app
+#include <components/materials/TerrainMaterial.h>
+#include <components/geom/TerrainGeometry.h>
+#include <components/geom/SteamParticleGeom.h>
+
+using namespace bento;
+
+namespace godBox
 {
 	struct SteamParticleUpdateVert : ShaderStageBase
 	{
@@ -19,21 +24,24 @@ namespace bento
 		virtual void OnPreLink() override;
 	};
 
-	struct SteamParticleUpdateShader	: ShaderBase<SteamParticleUpdateVert, NullFrag> {};
-
-	struct TerrainSteamVert
-		: ShaderStageBase
+	struct SteamParticleUpdateShader	
+		: ShaderBase<SteamParticleUpdateVert, NullFrag> 
 	{
-		TerrainSteamVert();
 	};
 
-	struct TerrainSteamFrag
+	struct SteamVert
 		: ShaderStageBase
 	{
-		struct TerrainSteamFrag();
+		SteamVert();
 	};
 
-	struct TerrainSteamShader : ShaderBase<TerrainSteamVert, TerrainSteamFrag>	{};
+	struct SteamFrag
+		: ShaderStageBase
+	{
+		struct SteamFrag();
+	};
+
+	struct SteamShader : ShaderBase<SteamVert, SteamFrag>	{};
 
 	DEFINE_NODE_4
 	(
@@ -44,19 +52,19 @@ namespace bento
 		SteamParticleGeom, particleGeom
 	)
 
-	class TerrainSteamPass
+	class SteamPass
 		: public NodeGroupProcess<TerrainSteamPassNode>
 		, public RenderPass
-		, public SharedObject<TerrainSteamPass>
+		, public SharedObject<SteamPass>
 	{
 	public:
-		TerrainSteamPass(std::string _name = "TerrainSteamPass");
+		SteamPass(std::string _name = "SteamPass");
 
 		// From Process
 		virtual void Advance(double _dt) override;
 
 	private:
-		TerrainSteamShader m_drawShader;
+		SteamShader m_drawShader;
 		SteamParticleUpdateShader m_updateShader;
 	};
 }

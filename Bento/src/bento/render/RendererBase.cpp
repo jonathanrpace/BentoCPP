@@ -6,6 +6,7 @@
 
 #include <bento/components/PerspectiveLens.h>
 #include <bento/components/Transform.h>
+#include <bento/render/RenderParams.h>
 
 namespace bento
 {
@@ -52,6 +53,8 @@ namespace bento
 		auto transform = Transform::Create();
 		m_scene->AddComponentToEntity(lens, m_camera);
 		m_scene->AddComponentToEntity(transform, m_camera);
+
+		RenderParams::SetCameraTransform(transform);
 
 		for (auto iter : m_renderPassesByPhase)
 		{
@@ -104,14 +107,14 @@ namespace bento
 	// PRIVATE
 	//////////////////////////////////////////////////////////////////////////
 
-	void RendererBase::AddRenderPhase(eRenderPhase _renderPhase)
+	void RendererBase::AddRenderPhase(int _renderPhase)
 	{
 		// TODO - assert phase does not already exist
 		RenderPassList* list = new RenderPassList();
 		m_renderPassesByPhase.insert(std::make_pair(_renderPhase, list));
 	}
 
-	void RendererBase::RenderPassesInPhase(eRenderPhase _renderPhase, double _dt)
+	void RendererBase::RenderPassesInPhase(int _renderPhase, double _dt)
 	{
 		RenderPassList passes = *m_renderPassesByPhase[_renderPhase];
 		for (RenderPassPtr renderPass : passes)

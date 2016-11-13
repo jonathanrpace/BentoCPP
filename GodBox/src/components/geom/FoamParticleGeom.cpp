@@ -3,9 +3,8 @@
 #include <bento/util/Rand.h>
 #include <math.h>
 
-namespace bento
+namespace godBox
 {
-
 	FoamParticleGeom::FoamParticleGeom(std::string _name)
 		: Component(_name, typeid(FoamParticleGeom)),
 		m_vertexArrayA(-1),

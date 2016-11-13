@@ -25,4 +25,5 @@ namespace bento
 	glm::mat4 RenderParams::s_prevViewProjectionMatrix;
 	glm::mat4 RenderParams::s_prevInvViewProjectionMatrix;
 	glm::vec3 RenderParams::s_cameraPos;
+	std::shared_ptr<Transform> RenderParams::s_cameraTransform;
 }

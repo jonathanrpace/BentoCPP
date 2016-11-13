@@ -2,6 +2,7 @@
 
 #include <bento.h>
 #include <bento/core/ILens.h>
+#include <bento/components/Transform.h>
 
 namespace bento
 {
@@ -31,6 +32,7 @@ namespace bento
 		static mat4 PrevViewProjectionMatrix()		{ return s_prevViewProjectionMatrix; }
 		static mat4 PrevInvViewProjectionMatrix()	{ return s_prevInvViewProjectionMatrix; }
 
+		static std::shared_ptr<Transform> CameraTransform() { return s_cameraTransform; }
 		static vec3 CameraPosition() { return s_cameraPos; }
 
 		int BackBufferWidth() const { return s_backBufferWidth; }
@@ -70,6 +72,11 @@ namespace bento
 			s_backBufferHeight = _height;
 		}
 
+		static void SetCameraTransform(std::shared_ptr<Transform> _cameraTransform)
+		{
+			s_cameraTransform = _cameraTransform;
+		}
+
 	private:
 		static int s_backBufferWidth;
 		static int s_backBufferHeight;
@@ -97,6 +104,7 @@ namespace bento
 		static mat4 s_prevViewProjectionMatrix;
 		static mat4 s_prevInvViewProjectionMatrix;
 
+		static std::shared_ptr<Transform> s_cameraTransform;
 		static vec3 s_cameraPos;
 	};
 }

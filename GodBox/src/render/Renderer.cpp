@@ -7,9 +7,11 @@
 // bento
 #include <bento/components/PerspectiveLens.h>
 #include <bento/components/Transform.h>
+#include <bento/render/RenderParams.h>
 
 // app
 #include <render/RenderParams.h>
+#include <render/eRenderPhase.h>
 
 namespace godBox
 {
@@ -19,25 +21,25 @@ namespace godBox
 	Renderer::Renderer(std::string _name)
 		: RendererBase(_name, typeid(Renderer))
 	{
-		AddRenderPhase(eRenderPhase_OffScreen);
+		AddRenderPhase(eRenderPhase_Forward);
 		AddRenderPhase(eRenderPhase_Transparent);
 		AddRenderPhase(eRenderPhase_UI);
 	}
 
 	Renderer::~Renderer()
 	{
-		RendererBase::~RendererBase();
+		bento::RenderParams::SetCameraTransform(nullptr);
 	}
 
 	void Renderer::Advance(double dt)
 	{
 		// Update RenderParams
-		auto lens = m_scene->GetComponentForEntity<bento::PerspectiveLens>(m_camera);
-		bento::IWindow& window = m_scene->GetWindow();
+		auto lens = m_scene->GetComponentForEntity<PerspectiveLens>(m_camera);
+		IWindow& window = m_scene->GetWindow();
 		ivec2 windowSize = window.GetWindowSize();
 		lens->SetAspectRatio((float)windowSize.x / windowSize.y);
 		bento::RenderParams::SetBackBufferDimensions(windowSize.x, windowSize.y);
-		auto cameraTransform = m_scene->GetComponentForEntity<bento::Transform>(m_camera);
+		auto cameraTransform = m_scene->GetComponentForEntity<Transform>(m_camera);
 		bento::RenderParams::SetViewMatrices(cameraTransform->matrix, *lens);
 		godBox::RenderParams::SetRenderTarget(m_renderTarget);
 		m_renderTarget.SetSize(windowSize.x, windowSize.y);
@@ -56,7 +58,8 @@ namespace godBox
 		glDepthFunc(GL_LESS);
 		RenderPassesInPhase(eRenderPhase_Forward, dt);
 
-		// Pre-transparent phase
+		// Copy the current forward buffer over to the 'post transparent' buffer.
+		// If we dont do this, only fragments touched by a transparent shader will appear in the final output.
 		m_renderTarget.BindForTransparentPhase();
 		glDisable(GL_DEPTH_TEST);
 		glDepthMask(GL_FALSE);

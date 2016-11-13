@@ -2,9 +2,11 @@
 
 #include <imgui.h>
 
+// bento
 #include <bento/core/IInputManager.h>
 #include <bento/Components/Transform.h>
-#include <bento/render/DefaultRenderer.h>
+#include <bento/render/RenderParams.h>
+
 
 namespace bento
 {
@@ -91,13 +93,8 @@ namespace bento
 		m_matrix = glm::rotate(m_matrix, m_rotation.x, vec3(0.0f, 1.0f, 0.0f));
 		m_matrix = glm::translate(m_matrix, m_position);
 		
-		auto renderer = m_scene->GetProcess<DefaultRenderer>();
-		if (renderer)
-		{
-			EntityPtr camera = renderer->GetCamera();
-			auto cameraTransform = m_scene->GetComponentForEntity<Transform>(camera);
-			cameraTransform->matrix = m_matrix;
-		}
+		auto cameraTransform = bento::RenderParams::CameraTransform();
+		cameraTransform->matrix = m_matrix;
 	}
 
 	void OrbitCamera::OnMouseButtonPress(int _button)

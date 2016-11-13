@@ -7,7 +7,9 @@
 #include <bento/core/Component.h>
 #include <bento/core/AbstractValidatable.h>
 
-namespace bento
+using namespace bento;
+
+namespace godBox
 {
 	class SteamParticleGeom :
 		public Component,

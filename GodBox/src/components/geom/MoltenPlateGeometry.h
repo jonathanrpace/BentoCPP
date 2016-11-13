@@ -3,11 +3,14 @@
 #include <typeinfo>
 #include <string>
 
+// bento
 #include <bento/core/Component.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/AbstractValidatable.h>
 
-namespace bento
+using namespace bento;
+
+namespace godBox
 {
 	class MoltenPlateGeometry : 
 		public AbstractValidatable,

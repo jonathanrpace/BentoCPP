@@ -2,23 +2,28 @@
 
 #include <map>
 
+// bento
 #include <bento.h>
 #include <bento/core/IInspectable.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/NodeGroupProcess.h>
+#include <bento/core/RenderTargetBase.h>
 #include <bento/core/ShaderStageBase.h>
 #include <bento/core/ShaderBase.h>
-#include <bento/core/RenderTargetBase.h>
+#include <bento/core/SerializableBase.h>
 #include <bento/render/shaders/ScreenQuadVert.h>
 #include <bento/render/shaders/NullFrag.h>
-#include <bento/components/geom/TerrainGeometry.h>
 #include <bento/components/geom/ScreenQuadGeometry.h>
-#include <bento/components/geom/MoltenParticleGeom.h>
-#include <bento/components/materials/TerrainMaterial.h>
 #include <bento/components/Transform.h>
-#include <bento/core/SerializableBase.h>
 
-namespace bento
+// app
+#include <components/materials/TerrainMaterial.h>
+#include <components/geom/TerrainGeometry.h>
+#include <components/geom/MoltenParticleGeom.h>
+
+using namespace bento;
+
+namespace godBox
 {
 	struct UpdateTerrainFluxFrag : ShaderStageBase
 	{

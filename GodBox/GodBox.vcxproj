@@ -19,8 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\components\geom\FoamParticleGeom.cpp" />
+    <ClCompile Include="src\components\geom\MoltenParticleGeom.cpp" />
+    <ClCompile Include="src\components\geom\MoltenPlateGeometry.cpp" />
+    <ClCompile Include="src\components\geom\SteamParticleGeom.cpp" />
+    <ClCompile Include="src\components\geom\TerrainGeometry.cpp" />
+    <ClCompile Include="src\components\materials\TerrainMaterial.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Processes\InspectorUIProcess.cpp" />
+    <ClCompile Include="src\processes\TerrainSimulationProcess.cpp" />
+    <ClCompile Include="src\render\passes\FoamPass.cpp" />
+    <ClCompile Include="src\render\passes\TerrainPass.cpp" />
+    <ClCompile Include="src\render\passes\SteamPass.cpp" />
+    <ClCompile Include="src\render\passes\WaterPass.cpp" />
     <ClCompile Include="src\render\Renderer.cpp" />
     <ClCompile Include="src\render\RenderTarget.cpp" />
     <ClCompile Include="src\Render\Passes\IMGUIRenderPass.cpp" />
@@ -30,7 +41,19 @@
     <ClInclude Include="Dependencies\GLEW\include\glew.h" />
     <ClInclude Include="Dependencies\GLEW\include\glxew.h" />
     <ClInclude Include="Dependencies\GLEW\include\wglew.h" />
+    <ClInclude Include="src\components\geom\FoamParticleGeom.h" />
+    <ClInclude Include="src\components\geom\MoltenParticleGeom.h" />
+    <ClInclude Include="src\components\geom\MoltenPlateGeometry.h" />
+    <ClInclude Include="src\components\geom\SteamParticleGeom.h" />
+    <ClInclude Include="src\components\geom\TerrainGeometry.h" />
+    <ClInclude Include="src\components\materials\TerrainMaterial.h" />
     <ClInclude Include="src\Processes\InspectorUIProcess.h" />
+    <ClInclude Include="src\processes\TerrainSimulationProcess.h" />
+    <ClInclude Include="src\render\eRenderPhase.h" />
+    <ClInclude Include="src\render\passes\FoamPass.h" />
+    <ClInclude Include="src\render\passes\TerrainPass.h" />
+    <ClInclude Include="src\render\passes\SteamPass.h" />
+    <ClInclude Include="src\render\passes\WaterPass.h" />
     <ClInclude Include="src\render\Renderer.h" />
     <ClInclude Include="src\render\RenderTarget.h" />
     <ClInclude Include="src\Render\Passes\IMGUIRenderPass.h" />
@@ -95,25 +118,25 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\glfw\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\glfw\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\glfw\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
+    <IncludePath>$(ProjectDir)src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)GLFW\include\glfw\;$(SolutionDir)GLEW\include\;$(SolutionDir)GLM\;$(SolutionDir)Bento\src;$(SolutionDir)IMGUI\</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

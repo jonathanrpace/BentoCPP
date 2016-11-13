@@ -6,7 +6,9 @@
 #include <bento/components/textures/TextureSquare.h>
 #include <bento/components/textures/PingPongTextureSquare.h>
 
-namespace bento
+using namespace bento;
+
+namespace godBox
 {
 	struct TerrainMousePos
 	{

@@ -7,7 +7,7 @@
 
 #include <imgui.h>
 
-namespace bento
+namespace godBox
 {
 //////////////////////////////////////////////////////////////////////////
 UpdateTerrainFluxFrag::UpdateTerrainFluxFrag()

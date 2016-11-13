@@ -1,18 +1,22 @@
 #pragma once
 
+// bento
 #include <bento/core/NodeGroupProcess.h>
 #include <bento/core/RenderPass.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
-#include <bento/components/geom/TerrainGeometry.h>
-#include <bento/components/geom/FoamParticleGeom.h>
 #include <bento/components/Transform.h>
-#include <bento/components/materials/TerrainMaterial.h>
-#include <bento/components/geom/FoamParticleGeom.h>
 #include <bento/render/shaders/NullFrag.h>
 
-namespace bento
+// app
+#include <components/materials/TerrainMaterial.h>
+#include <components/geom/TerrainGeometry.h>
+#include <components/geom/FoamParticleGeom.h>
+
+using namespace bento;
+
+namespace godBox
 {
 	struct FoamParticleUpdateVert : ShaderStageBase
 	{
@@ -24,42 +28,42 @@ namespace bento
 
 
 
-	struct TerrainFoamVert
+	struct FoamVert
 		: ShaderStageBase
 	{
-		TerrainFoamVert();
+		FoamVert();
 	};
 
-	struct TerrainFoamFrag
+	struct FoamFrag
 		: ShaderStageBase
 	{
-		struct TerrainFoamFrag();
+		struct FoamFrag();
 	};
 
-	struct TerrainFoamShader : ShaderBase<TerrainFoamVert, TerrainFoamFrag>	{};
+	struct FoamShader : ShaderBase<FoamVert, FoamFrag>	{};
 
 	DEFINE_NODE_4
 	(
-		TerrainFoamPassNode,
+		FoamPassNode,
 		TerrainGeometry, geom,
 		Transform, transform,
 		TerrainMaterial, material,
 		FoamParticleGeom, foamGeom
 	)
 
-	class TerrainFoamPass
-		: public NodeGroupProcess<TerrainFoamPassNode>
+	class FoamPass
+		: public NodeGroupProcess<FoamPassNode>
 		, public RenderPass
-		, public SharedObject<TerrainFoamPass>
+		, public SharedObject<FoamPass>
 	{
 	public:
-		TerrainFoamPass(std::string _name = "TerrainFoamPass");
+		FoamPass(std::string _name = "FoamPass");
 
 		// From Process
 		virtual void Advance(double _dt) override;
 
 	private:
-		TerrainFoamShader m_shader;
+		FoamShader m_shader;
 		FoamParticleUpdateShader m_foamParticleUpdateShader;
 	};
 }

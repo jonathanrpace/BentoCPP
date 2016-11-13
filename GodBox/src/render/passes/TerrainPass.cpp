@@ -1,25 +1,29 @@
-#include "TerrainGPass.h"
+#include "TerrainPass.h"
 
 #include <glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/polar_coordinates.hpp>
 
+// bento
 #include <bento/core/Logging.h>
 #include <bento/render/RenderParams.h>
 
-namespace bento
+// app
+#include <render/eRenderPhase.h>
+
+namespace godBox
 {
 	////////////////////////////////////////////
 	// Vertex shader
 	////////////////////////////////////////////
 
-	TerrainGVert::TerrainGVert() 
+	TerrainVert::TerrainVert() 
 		: ShaderStageBase("shaders/TerrainG.vert") 
 	{
 	}
 
-	void TerrainGVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
+	void TerrainVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
 		// Textures
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
@@ -63,13 +67,13 @@ namespace bento
 	// Fragment shader
 	////////////////////////////////////////////
 
-	TerrainGFrag::TerrainGFrag() 
+	TerrainFrag::TerrainFrag() 
 		: ShaderStageBase("shaders/TerrainG.frag") 
 	{
 
 	}
 
-	void TerrainGFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
+	void TerrainFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
@@ -146,13 +150,13 @@ namespace bento
 	// Pass
 	////////////////////////////////////////////
 
-	TerrainGPass::TerrainGPass(std::string _name)
-		: NodeGroupProcess(_name, typeid(TerrainGPass))
-		, RenderPass(eRenderPhase_G)
+	TerrainPass::TerrainPass(std::string _name)
+		: NodeGroupProcess(_name, typeid(TerrainPass))
+		, RenderPass(eRenderPhase_Forward)
 	{
 	}
 
-	void TerrainGPass::Advance(double _dt)
+	void TerrainPass::Advance(double _dt)
 	{
 		m_shader.BindPerPass();
 		for (auto node : m_nodeGroup.Nodes())

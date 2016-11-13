@@ -13,7 +13,9 @@
 #include <bento/core/IInspectable.h>
 #include <bento/core/SerializableBase.h>
 
-namespace bento
+using namespace bento;
+
+namespace godBox
 {
 	class TerrainMaterial
 		: public Component

@@ -1,4 +1,4 @@
-#include "TerrainFoamPass.h"
+#include "SteamPass.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -12,20 +12,24 @@
 
 #include <glfw3.h>
 
+// bento
 #include <bento/core/Logging.h>
 #include <bento/render/RenderParams.h>
 
-namespace bento
+// app
+#include <render/eRenderPhase.h>
+
+namespace godBox
 {
 	////////////////////////////////////////////
 	// Update shader
 	////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////
-	FoamParticleUpdateVert::FoamParticleUpdateVert()
-		: ShaderStageBase("shaders/FoamParticleUpdate.vert", false)
+	SteamParticleUpdateVert::SteamParticleUpdateVert()
+		: ShaderStageBase("shaders/SteamParticleUpdate.vert", false)
 	{}
 
-	void FoamParticleUpdateVert::OnPreLink()
+	void SteamParticleUpdateVert::OnPreLink()
 	{
 		const char * varyings[] = { "out_position", "out_velocity" };
 		GL_CHECK(glTransformFeedbackVaryings(m_programName, 2, varyings, GL_SEPARATE_ATTRIBS));
@@ -35,16 +39,16 @@ namespace bento
 	// Vertex shader
 	////////////////////////////////////////////
 
-	TerrainFoamVert::TerrainFoamVert()
-		: ShaderStageBase("shaders/FoamParticle.vert")
+	SteamVert::SteamVert()
+		: ShaderStageBase("shaders/SteamParticle.vert")
 	{
 	}
 	////////////////////////////////////////////
 	// Fragment shader
 	////////////////////////////////////////////
 
-	TerrainFoamFrag::TerrainFoamFrag()
-		: ShaderStageBase("shaders/FoamParticle.frag")
+	SteamFrag::SteamFrag()
+		: ShaderStageBase("shaders/SteamParticle.frag")
 	{
 	}
 
@@ -52,25 +56,25 @@ namespace bento
 	// Pass
 	////////////////////////////////////////////
 
-	TerrainFoamPass::TerrainFoamPass(std::string _name)
-		: NodeGroupProcess(_name, typeid(TerrainFoamPass))
+	SteamPass::SteamPass(std::string _name)
+		: NodeGroupProcess(_name, typeid(SteamPass))
 		, RenderPass(eRenderPhase_Forward)
 	{
 	}
 
-	void TerrainFoamPass::Advance(double _dt)
+	void SteamPass::Advance(double _dt)
 	{
 		for (auto node : m_nodeGroup.Nodes())
 		{
-			TerrainGeometry& terrainGeom = *node->geom;
-			FoamParticleGeom& particleGeom = *node->foamGeom;
-			TerrainMaterial& material = *node->material;
+			auto& terrainGeom = *node->terrainGeom;
+			auto& particleGeom = *node->particleGeom;
+			auto& material = *node->material;
 
 			// Update
 			{
 				glBindProgramPipeline(GL_NONE);
 
-				m_foamParticleUpdateShader.BindPerPass();
+				m_updateShader.BindPerPass();
 			
 				if (particleGeom.Switch())
 				{
@@ -86,10 +90,10 @@ namespace bento
 				GL_CHECK(glBeginTransformFeedback(GL_POINTS));
 				GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
 
-				auto& vertexShader = m_foamParticleUpdateShader.VertexShader();
+				auto& vs = m_updateShader.VertexShader();
 
-				vertexShader.SetTexture("s_heightData", terrainGeom.HeightData().GetRead());
-				vertexShader.SetTexture("s_velocityData", terrainGeom.VelocityData().GetRead());
+				vs.SetTexture("s_heightData", terrainGeom.HeightData().GetRead());
+				vs.SetTexture("s_smudgeData", terrainGeom.SmudgeData().GetRead());
 
 				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
 
@@ -102,14 +106,15 @@ namespace bento
 
 			// Draw
 			{
-				m_shader.BindPerPass();
+				m_drawShader.BindPerPass();
 
 				glEnable(GL_BLEND);
 				glBlendEquation(GL_FUNC_ADD);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				glEnable(GL_DEPTH_TEST);
 				glDepthMask(GL_FALSE);
-				glPointSize(1.0f);
+				glEnable(GL_DEPTH_TEST);
+				glDepthFunc(GL_LESS);
+				glPointSize(16.0f);
 
 				RenderParams::SetModelMatrix(node->transform->matrix);
 
@@ -117,20 +122,30 @@ namespace bento
 
 				GL_CHECK(glBindVertexArray(vertexArray));
 
-				m_shader.BindPerPass();
-				m_shader.VertexShader().SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
+				m_drawShader.BindPerPass();
+				auto& vs = m_drawShader.VertexShader();
 
-				m_shader.VertexShader().SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
-				m_shader.VertexShader().SetUniform("u_lightIntensity", material.directLightIntensity);
-				m_shader.VertexShader().SetUniform("u_ambientLightIntensity", material.ambientLightIntensity);
+				vs.SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 
-				//glEnable(GL_PROGRAM_POINT_SIZE);
+				vs.SetUniform("u_cameraPos", RenderParams::CameraPosition());
+				vs.SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
+				vs.SetUniform("u_moltenColor", material.moltenColor);
+
+				vs.SetTexture("s_miscData", terrainGeom.MiscData().GetRead());
+
+				m_drawShader.FragmentShader().SetTexture( "s_texture", material.smokeTexture );
+				m_drawShader.FragmentShader().SetUniform("u_moltenColor", material.moltenColor);
+				//vs.SetUniform("u_lightDir", -glm::euclidean(vec2(material.lightAltitude, material.lightAzimuth)));
+				//vs.SetUniform("u_lightIntensity", material.directLightIntensity);
+				//vs.SetUniform("u_ambientLightIntensity", material.ambientLightIntensity);
+
+				glEnable(GL_PROGRAM_POINT_SIZE);
 				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
-				//glDisable(GL_PROGRAM_POINT_SIZE);
+				glDisable(GL_PROGRAM_POINT_SIZE);
 
 				glBindVertexArray(GL_NONE);
-				glEnable(GL_DEPTH_TEST);
-				glDepthMask(GL_TRUE);
+				//glDepthMask(GL_TRUE);
+				//glEnable(GL_DEPTH_TEST);
 				glDisable(GL_BLEND);
 			}
 		}

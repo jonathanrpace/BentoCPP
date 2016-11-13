@@ -6,7 +6,7 @@
 #include <math.h>
 #include <bento/util/Rand.h>
 
-namespace bento
+namespace godBox
 {
 	//////////////////////////////////////////////////////////////////////////
 	// PUBLIC

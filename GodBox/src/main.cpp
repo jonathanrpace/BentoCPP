@@ -7,78 +7,79 @@
 #include <iostream>
 
 #include <gl/glew.h>
-#include <GLFW/glfw3.h>
+#include <glfw3.h>
+#include <imgui/imgui_impl_glfw_gl3.cpp>
 
-// Bento
+// bento
 #include <bento.h>
 #include <bento/Core/Entity.h>
 #include <bento/core/InputManagerImpl.h>
 #include <bento/core/WindowImpl.h>
-#include <bento/render/DefaultRenderer.h>
 #include <bento/Components/Transform.h>
-#include <bento/components/materials/TerrainMaterial.h>
+#include <components/materials/TerrainMaterial.h>
 #include <bento/components/geom/ScreenQuadGeometry.h>
-#include <bento/components/geom/TerrainGeometry.h>
 #include <bento/components/geom/PlaneGeometry.h>
-#include <bento/components/geom/FoamParticleGeom.h>
-#include <bento/components/geom/SteamParticleGeom.h>
-#include <bento/render/passes/GPass.h>
-#include <bento/render/passes/TerrainGPass.h>
-#include <bento/render/passes/TerrainWaterPass.h>
-#include <bento/render/passes/TerrainFoamPass.h>
-#include <bento/render/passes/TerrainSteamPass.h>
-#include <bento/processes/TerrainSimulationProcess.h>
 #include <bento/processes/OrbitCamera.h>
 #include <bento/util/GLErrorUtil.h>
 
-// Local 
-#include "render/passes/IMGUIRenderPass.h"
-#include "processes/InspectorUIProcess.h"
-#include "imgui/imgui_impl_glfw_gl3.cpp"
+// app 
+#include <render/Renderer.h>
+#include <render/passes/TerrainPass.h>
+#include <render/passes/WaterPass.h>
+#include <render/passes/FoamPass.h>
+#include <render/passes/SteamPass.h>
+#include <render/passes/IMGUIRenderPass.h>
+#include <processes/TerrainSimulationProcess.h>
+#include <processes/InspectorUIProcess.h>
+#include <components/geom/TerrainGeometry.h>
+#include <components/geom/FoamParticleGeom.h>
+#include <components/geom/SteamParticleGeom.h>
+
+using namespace bento;
+using namespace godBox;
 
 void mainLoop(GLFWwindow* window)
 {
-	auto inputManager = new bento::InputManagerImpl(window);
-	auto bentoWindow = new bento::WindowImpl(window);
+	auto inputManager = new InputManagerImpl(window);
+	auto bentoWindow = new WindowImpl(window);
 	bento::Scene scene(inputManager, bentoWindow);
 	{
 		auto entity = bento::Entity::Create();
 		entity->Name("Terrain");
 		scene.AddEntity(entity);
-		auto geom = bento::TerrainGeometry::Create();
+		auto geom = TerrainGeometry::Create();
 		scene.AddComponentToEntity(geom, entity);
-		auto transform = bento::Transform::Create();
+		auto transform = Transform::Create();
 		scene.AddComponentToEntity(transform, entity);
-		auto material = bento::TerrainMaterial::Create();
+		auto material = TerrainMaterial::Create();
 		scene.AddComponentToEntity(material, entity);
-		//auto foamParticleGeom = bento::FoamParticleGeom::Create();
+		//auto foamParticleGeom = FoamParticleGeom::Create();
 		//scene.AddComponentToEntity(foamParticleGeom, entity);
-		auto steamParticleGeom = bento::SteamParticleGeom::Create();
+		auto steamParticleGeom = SteamParticleGeom::Create();
 		scene.AddComponentToEntity(steamParticleGeom, entity);
-		auto moltenParticleGeom = bento::MoltenParticleGeom::Create();
+		auto moltenParticleGeom = MoltenParticleGeom::Create();
 		scene.AddComponentToEntity(moltenParticleGeom, entity);
 	}
 
 	// Processes
-	scene.AddProcess(bento::OrbitCamera::Create());
-	scene.AddProcess(bento::TerrainSimulationProcess::Create());
+	scene.AddProcess(OrbitCamera::Create());
+	scene.AddProcess(TerrainSimulationProcess::Create());
 	
 	#ifndef B_RELEASE
 		scene.AddProcess(bento::InspectorUIProcess::Create());
 	#endif
-
-	auto renderer = bento::DefaultRenderer::Create();
+		
+	auto renderer = godBox::Renderer::Create();
 	// Render passes
 	{
-		renderer->AddRenderPass(bento::GPass::Create());
-		renderer->AddRenderPass(bento::TerrainGPass::Create());
-		renderer->AddRenderPass(bento::TerrainWaterPass::Create());
-		//renderer->AddRenderPass(bento::TerrainFoamPass::Create());
-		//renderer->AddRenderPass(bento::TerrainSteamPass::Create());
-		renderer->AddRenderPass(bento::IMGUIRenderPass::Create());
+		renderer->AddRenderPass(TerrainPass::Create());
+		renderer->AddRenderPass(WaterPass::Create());
+		//renderer->AddRenderPass(TerrainFoamPass::Create());
+		//renderer->AddRenderPass(TerrainSteamPass::Create());
+		renderer->AddRenderPass(IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);
-
+	
 	/* Loop until the user closes the window */
 	
 	while (!glfwWindowShouldClose(window))
@@ -143,14 +144,14 @@ int main(int argc, char **argv)
 	// glfw is generating some gl errors and not checking for them
 	while (glGetError() != GL_NONE) {}
 
-	bento::Config::Init("../../../../Resources/", "../../../../Defaults/");
-	bento::DefaultsManager::Init("../../../../Defaults/defaults.json");
+	Config::Init("../../../../Resources/", "../../../../Defaults/");
+	DefaultsManager::Init("../../../../Defaults/defaults.json");
 
 	mainLoop(window);
 
-	bento::Config::Shutdown();
-	bento::DefaultsManager::Flush();
-	bento::DefaultsManager::Shutdown();
+	Config::Shutdown();
+	DefaultsManager::Flush();
+	DefaultsManager::Shutdown();
 
 	ImGui_ImplGlfwGL3_Shutdown();
 	glfwTerminate();

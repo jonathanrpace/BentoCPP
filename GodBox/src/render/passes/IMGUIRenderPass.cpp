@@ -4,14 +4,15 @@
 #include <imgui.h>
 
 #include <bento/core/Scene.h>
-
 #include <bento/util/GLErrorUtil.h>
+
+#include <render/eRenderPhase.h>
 
 namespace bento
 {
 	IMGUIRenderPass::IMGUIRenderPass(std::string _name)
 		: Process(_name, typeid(IMGUIRenderPass))
-		, RenderPass(eRenderPhase_UI)
+		, RenderPass(godBox::eRenderPhase_UI)
 	{
 	}
 

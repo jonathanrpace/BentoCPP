@@ -8,7 +8,7 @@
 #include <bento/util/Rand.h>
 #include <bento/util/TextureUtil.h>
 
-namespace bento
+namespace godBox
 {
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))

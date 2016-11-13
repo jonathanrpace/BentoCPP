@@ -1,55 +1,60 @@
 #pragma once
 
+// bento
 #include <bento/core/NodeGroupProcess.h>
 #include <bento/core/RenderPass.h>
 #include <bento/core/SharedObject.h>
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
-#include <bento/components/geom/TerrainGeometry.h>
 #include <bento/components/Transform.h>
-#include <bento/components/materials/TerrainMaterial.h>
 
-namespace bento
+// app
+#include <components/materials/TerrainMaterial.h>
+#include <components/geom/TerrainGeometry.h>
+
+using namespace bento;
+
+namespace godBox
 {
-	struct TerrainGVert
+	struct TerrainVert
 		: ShaderStageBase
 	{
-		TerrainGVert();
+		TerrainVert();
 		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material);
 	};
 
-	struct TerrainGFrag
+	struct TerrainFrag
 		: ShaderStageBase
 	{
-		TerrainGFrag();
+		TerrainFrag();
 		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material);
 	};
 
-	struct TerrainGShader
-		: ShaderBase<TerrainGVert, TerrainGFrag>
+	struct TerrainShader
+		: ShaderBase<TerrainVert, TerrainFrag>
 	{
 	};
 
 	DEFINE_NODE_3
 	(
-		TerrainGPassNode,
+		TerrainPassNode,
 		TerrainGeometry, geom,
 		Transform, transform,
 		TerrainMaterial, material
 	)
 
-	class TerrainGPass
-		: public NodeGroupProcess<TerrainGPassNode>
+	class TerrainPass
+		: public NodeGroupProcess<TerrainPassNode>
 		, public RenderPass
-		, public SharedObject<TerrainGPass>
+		, public SharedObject<TerrainPass>
 	{
 	public:
-		TerrainGPass(std::string _name = "TerrainGPass");
+		TerrainPass(std::string _name = "TerrainGPass");
 
 		// From Process
 		virtual void Advance(double _dt) override;
 
 	private:
-		TerrainGShader m_shader;
+		TerrainShader m_shader;
 	};
 }

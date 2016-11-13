@@ -3,9 +3,8 @@
 #include <bento/util/Rand.h>
 #include <math.h>
 
-namespace bento
+namespace godBox
 {
-
 	SteamParticleGeom::SteamParticleGeom(std::string _name)
 		: Component(_name, typeid(SteamParticleGeom)),
 		m_vertexArrayA(-1),
