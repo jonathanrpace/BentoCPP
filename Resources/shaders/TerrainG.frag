@@ -40,6 +40,9 @@ uniform float u_moltenPlateAlphaPower;
 uniform float u_moltenCreaseAlpha;
 uniform float u_moltenCreaseAlphaPower;
 
+uniform vec3 u_moltenColor;
+uniform float u_moltenColorScalar;
+
 uniform float u_glowScalar;
 uniform float u_glowPower;
 uniform float u_glowDetailScalar;
@@ -75,7 +78,8 @@ uniform sampler2D s_creaseMap;
 uniform sampler2D s_moltenMapData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_velocityData;
-
+uniform sampler2D s_miscData;
+uniform sampler2D s_heightData;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -323,6 +327,40 @@ void main(void)
 	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));
 	diffuse = mix( diffuse, dirtDiffuse, in_dirtAlpha );
 
+	// Local glow from heat
+	vec3 heatLight = vec3(0.0);
+	{
+		float dis = 0.2;
+		int mipLevel = 2;
+		float strength = 1.0;
+		float totalStrength = 0.0;
+		for ( int i = 0; i < 3; i++ )
+		{
+			vec3 samplePos = in_worldPosition + rockNormal * dis;
+			vec2 sampleUV = samplePos.xz + vec2(0.5);
+			vec4 sampleHeightData = texture(s_heightData, sampleUV);
+			samplePos.y = sampleHeightData.x + sampleHeightData.y + sampleHeightData.z;
+			
+			float sampleHeat = textureLod( s_miscData, sampleUV, mipLevel ).x;
+			vec3 sampleDir = normalize( samplePos - in_worldPosition );
+
+			totalStrength += strength;
+			dis *= 2.0;
+			strength *= 0.5;
+			mipLevel++;
+
+			float sampleHeatLight = lightingGGX( rockNormal, viewDir, sampleDir, roughness, fresnel );
+			sampleHeatLight *= max( 0.0, sampleHeat-0.1) * (dot( rockNormal, sampleDir ) + 1.0) * 0.5;
+
+			heatLight += sampleHeatLight;
+		}
+
+		heatLight /= totalStrength;
+
+		//heatLight = lightingGGX( normalize(rockNormal + sampleDir), viewDir, sampleDir, roughness, fresnel );
+		heatLight *=  vec3(1.0,0.1,0.0) * 40.0;// * in_occlusion;
+	}
+
 	// Direct light
 	float directLight = lightingGGX( rockNormal, viewDir, lightDir, roughness, fresnel ) * u_lightIntensity * (1.0-in_shadowing);
 
@@ -330,9 +368,9 @@ void main(void)
 	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * in_occlusion;
 
 	// Bring it all together
-	vec3 outColor = (diffuse * (directLight + ambientlight));
+	vec3 outColor = (diffuse * (directLight + ambientlight)) + diffuse * heatLight;
 
-	
+	//outColor = vec3( vec3(in_worldPosition + rockNormal * 0.05).xz, 0.0 );
 
 	// Add emissve elements
 	float moltenPlateScalar = 1.0 - (pow(moltenMapValue, u_moltenPlateAlphaPower) * u_moltenPlateAlpha);

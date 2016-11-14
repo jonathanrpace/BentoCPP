@@ -112,7 +112,8 @@ namespace godBox
 		SetUniform("u_glowDetailScalar", _material.glowDetailScalar);
 		SetUniform("u_glowDetailPower", _material.glowDetailPower);
 
-
+		SetUniform("u_moltenColor", _material.moltenColor);
+		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
 
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 		SetUniform("u_rockDetailBumpSlopePower", _material.rockDetailBumpSlopePower);
@@ -139,6 +140,8 @@ namespace godBox
 		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
+		SetTexture("s_miscData", _geometry.MiscData().GetRead());
+		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;

@@ -86,7 +86,7 @@ void main(void)
 	// Pluck some values out of the texture data
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
-	vec4 miscDataC = textureLod(s_miscData, in_uv, 1);
+	vec4 miscDataC = textureLod(s_miscData, in_uv, 0);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	vec4 diffuseData = texture(s_diffuseMap, in_uv);
 	
@@ -100,6 +100,7 @@ void main(void)
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
 	float heat = miscDataC.x;
+	//heat = max( heat, textureLod(s_miscData, in_uv, 4).x );
 	float occlusion = 1.0f - miscDataC.w;
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
