@@ -81,6 +81,18 @@ uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_heightData;
 
+uniform sampler2D s_lavaAlbedo;
+uniform sampler2D s_lavaNormal;
+uniform sampler2D s_lavaMaterial;
+
+uniform sampler2D s_lavaLongAlbedo;
+uniform sampler2D s_lavaLongNormal;
+uniform sampler2D s_lavaLongMaterial;
+
+uniform sampler2D s_lavaLatAlbedo;
+uniform sampler2D s_lavaLatNormal;
+uniform sampler2D s_lavaLatMaterial;
+
 ////////////////////////////////////////////////////////////////
 // Outputs
 ////////////////////////////////////////////////////////////////
@@ -166,6 +178,15 @@ vec2 rotateBy( vec2 _pt, float _angle )
 	return vec2( _pt.x * cosValue - _pt.y * sinValue, _pt.x * sinValue + _pt.y * cosValue );
 }
 
+vec2 rotateAroundBy( vec2 _pt, float _angle, vec2 _offset )
+{
+	_pt -= _offset;
+	_pt = rotateBy( _pt, _angle );
+	_pt += _offset;
+
+	return _pt;
+}
+
 float sampleCreaseMapLong( vec2 _uv, vec2 _velocity, float _angle )
 {
 	_velocity = rotateBy( _velocity, _angle );
@@ -192,10 +213,8 @@ float sampleCreaseMapLat( vec2 _uv, vec2 _velocity, float _angle )
 	return mix( sampleA, sampleB, u_phaseAlpha );
 }
 
-float sampleCreaseMapStill( vec2 _uv, vec2 _velocity, float _angle )
+float sampleCreaseMapStill( vec2 _uv, vec2 _velocity )
 {
-	//_velocity = rotateBy( _velocity, _angle );
-
 	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
 	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
 
@@ -204,6 +223,57 @@ float sampleCreaseMapStill( vec2 _uv, vec2 _velocity, float _angle )
 
 	return mix( sampleA, sampleB, u_phaseAlpha );
 }
+
+vec4 bilinearMix( vec4 _valueTL, vec4 _valueTR, vec4 _valueBL, vec4 _valueBR, vec2 _ratio )
+{
+	vec4 ret = _ratio.x * _ratio.y * _valueBR;
+	ret += (1.0-_ratio.x) * _ratio.y * _valueBL;
+	ret += _ratio.x * (1.0-_ratio.y) * _valueTR;
+	ret += (1.0-_ratio.x) * (1.0-_ratio.y) * _valueTL;
+
+	return ret;
+}
+
+vec4 samplePhasedMap( sampler2D _sampler, vec2 _uv, vec2 _velocity, float _angle )
+{
+	_velocity = rotateBy( _velocity, _angle );
+
+	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
+	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
+
+	vec4 sampleA = texture( _sampler, uvA );
+	vec4 sampleB = texture( _sampler, uvB );
+	return mix( sampleA, sampleB, u_phaseAlpha );
+}
+
+vec4 sampleBilinearPhasedMap( sampler2D _sampler, vec2 _uvTL, vec2 _uvTR, vec2 _uvBL, vec2 _uvBR, vec2 _velocity, float _angle, vec2 _ratio )
+{
+	vec4 sampleTL = samplePhasedMap( _sampler, _uvTL, _velocity, _angle );
+	vec4 sampleTR = samplePhasedMap( _sampler, _uvTR, _velocity, _angle );
+	vec4 sampleBL = samplePhasedMap( _sampler, _uvBL, _velocity, _angle );
+	vec4 sampleBR = samplePhasedMap( _sampler, _uvBR, _velocity, _angle );
+
+	return bilinearMix(sampleTL, sampleTR, sampleBL, sampleBR, _ratio);
+}
+
+/*
+void sampleMaps
+( 
+	vec2 _uv, vec2 _velocity, 
+	out vec3 o_longAlbedo, out vec3 o_longNormal, out vec3 o_longMaterial,
+	out vec3 o_latAlbedo, out vec3 o_latNormal, out vec3 o_latMaterial,
+)
+{
+	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
+	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
+
+	o_longAlbedo = samplePhasedMap( s_lavaLongAlbedo, uvA, uvB );
+	o_longNormal = samplePhasedMap( s_lavaLongNormal uvA, uvB );
+	o_longMaterial = samplePhasedMap( s_lavaLongMaterial uvA, uvB );
+
+
+}
+*/
 
 void main(void)
 {
@@ -223,18 +293,16 @@ void main(void)
 	{
 		vec2 velocity2 = texture( s_velocityData, in_uv ).xy * 1000;
 
-		vec2 velocity = textureLod( s_smudgeData, in_uv, u_creaseMipLevel ).xy;
-		vec2 forwardVelocity = textureLod( s_smudgeData, in_uv + normalize(velocity) * u_creaseForwardScalar, u_creaseMipLevel ).xy;
+		vec2 flow = textureLod( s_smudgeData, in_uv, u_creaseMipLevel ).xy;
+		vec2 forwardFlow = textureLod( s_smudgeData, in_uv + normalize(flow) * u_creaseForwardScalar, u_creaseMipLevel ).xy;
 
-		float projectionLength = dot( forwardVelocity, velocity / length(velocity) );
-		projectionLength -= length(velocity) * u_creaseRatio;
-
+		float projectionLength = dot( forwardFlow, flow / length(flow) );
+		projectionLength -= length(flow) * u_creaseRatio;
 		float stretchRatio = clamp( max(0, projectionLength) * u_bearingCreaseScalar, 0.0, 1.0 );
 		float compressionRatio = clamp( max(0, -projectionLength) * u_lateralCreaseScalar, 0.0, 1.0 );
 		
 		float gridSize = 1.0 / u_creaseGridRepeat;
 		ivec2 gridCell = ivec2( in_uv * u_creaseGridRepeat );
-
 		vec2 gridCellPos = in_uv * u_creaseGridRepeat;
 
 		vec2 gridCellCenterTL = (gridCell * gridSize);
@@ -243,47 +311,19 @@ void main(void)
 		vec2 gridCellCenterBR = ((gridCell + ivec2(1,1)) * gridSize);
 		vec2 ratio = (gridCellPos - gridCell);
 
-		float angle = -atan(velocity.y, velocity.x );
+		float angle = -atan(flow.y, flow.x );
 
-		vec2 creaseUV_TL = in_uv-gridCellCenterTL;
-		creaseUV_TL = rotateBy( creaseUV_TL, angle );
-		creaseUV_TL += gridCellCenterTL;
-		float creaseSampleLongTL = sampleCreaseMapLong( creaseUV_TL, velocity2, angle );
-		float creaseSampleLatTL = sampleCreaseMapLat( creaseUV_TL, velocity2, angle );
+		vec2 uvTL = rotateAroundBy( in_uv, angle, gridCellCenterTL);
+		vec2 uvTR = rotateAroundBy( in_uv, angle, gridCellCenterTR);
+		vec2 uvBL = rotateAroundBy( in_uv, angle, gridCellCenterBL);
+		vec2 uvBR = rotateAroundBy( in_uv, angle, gridCellCenterBR);
 
-		vec2 creaseUV_TR = in_uv-gridCellCenterTR;
-		creaseUV_TR = rotateBy( creaseUV_TR, angle );
-		creaseUV_TR += gridCellCenterTR;
-		float creaseSampleLongTR = sampleCreaseMapLong( creaseUV_TR, velocity2, angle );
-		float creaseSampleLatTR = sampleCreaseMapLat( creaseUV_TR, velocity2, angle );
+		float creaseSampleLong = sampleBilinearPhasedMap( s_creaseMap, uvTL, uvTR, uvBL, uvBR, velocity2, angle, ratio ).x;
+		float creaseSampleLat = sampleBilinearPhasedMap( s_creaseMap, uvTL, uvTR, uvBL, uvBR, velocity2, angle, ratio ).y;
+		float creaseSampleStill = sampleBilinearPhasedMap( s_creaseMap, uvTL, uvTR, uvBL, uvBR, velocity2, 0.0, ratio ).z;
 
-		vec2 creaseUV_BL = in_uv-gridCellCenterBL;
-		creaseUV_BL = rotateBy( creaseUV_BL, angle );
-		creaseUV_BL += gridCellCenterBL;
-		float creaseSampleLongBL = sampleCreaseMapLong( creaseUV_BL, velocity2, angle );
-		float creaseSampleLatBL = sampleCreaseMapLat( creaseUV_BL, velocity2, angle );
-
-		vec2 creaseUV_BR = in_uv-gridCellCenterBR;
-		creaseUV_BR = rotateBy( creaseUV_BR, angle );
-		creaseUV_BR += gridCellCenterBR;
-		float creaseSampleLongBR = sampleCreaseMapLong( creaseUV_BR, velocity2, angle );
-		float creaseSampleLatBR = sampleCreaseMapLat( creaseUV_BR, velocity2, angle );
-		
-		// Bilinear interpolation
-		float creaseSampleLong = ratio.x * ratio.y * creaseSampleLongBR;
-		creaseSampleLong += (1.0-ratio.x) * ratio.y * creaseSampleLongBL;
-		creaseSampleLong += ratio.x * (1.0-ratio.y) * creaseSampleLongTR;
-		creaseSampleLong += (1.0-ratio.x) * (1.0-ratio.y) * creaseSampleLongTL;
-
-		float creaseSampleLat = ratio.x * ratio.y * creaseSampleLatBR;
-		creaseSampleLat += (1.0-ratio.x) * ratio.y * creaseSampleLatBL;
-		creaseSampleLat += ratio.x * (1.0-ratio.y) * creaseSampleLatTR;
-		creaseSampleLat += (1.0-ratio.x) * (1.0-ratio.y) * creaseSampleLatTL;
-
-		creaseAmount = sampleCreaseMapStill( in_uv, velocity2, angle );
-		creaseAmount = mix( creaseAmount, creaseSampleLong, stretchRatio );
+		creaseAmount = mix( creaseSampleStill, creaseSampleLong, stretchRatio );
 		creaseAmount = mix( creaseAmount, creaseSampleLat, compressionRatio );
-
 		creaseAmount = clamp(creaseAmount, 0.0, 1.0);
 
 		//outColor = pow( vec3( outCrease ), vec3(2.2) );

@@ -36,6 +36,18 @@ namespace godBox
 		TextureSquare foamTexture;
 		TextureSquare creaseTexture;
 
+		TextureSquare lavaAlb;
+		TextureSquare lavaNrm;
+		TextureSquare lavaMat;
+
+		TextureSquare lavaLongAlb;
+		TextureSquare lavaLongNrm;
+		TextureSquare lavaLongMat;
+
+		TextureSquare lavaLatAlb;
+		TextureSquare lavaLatNrm;
+		TextureSquare lavaLatMat;
+
 		// Rock
 		vec3 rockColorA;
 		vec3 rockColorB;

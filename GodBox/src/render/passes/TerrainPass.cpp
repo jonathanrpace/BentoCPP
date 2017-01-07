@@ -35,6 +35,18 @@ namespace godBox
 		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
 		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 
+		SetTexture("s_lavaAlbedo", _material.lavaAlb);
+		SetTexture("s_lavaNormal", _material.lavaNrm);
+		SetTexture("s_lavalMaterial", _material.lavaMat);
+
+		SetTexture("s_lavaLongAlbedo", _material.lavaLongAlb);
+		SetTexture("s_lavaLongNormal", _material.lavaLongNrm);
+		SetTexture("s_lavaLonglMaterial", _material.lavaLongMat);
+
+		SetTexture("s_lavaLatAlbedo", _material.lavaLatAlb);
+		SetTexture("s_lavaLatNormal", _material.lavaLatNrm);
+		SetTexture("s_lavaLatlMaterial", _material.lavaLatMat);
+
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
