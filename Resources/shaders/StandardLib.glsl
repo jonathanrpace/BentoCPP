@@ -136,3 +136,35 @@ float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 )
 
 	return min( 10.0f, dotNL * D * F * vis );
 }
+
+vec3 lightingGGXAlbedo( vec3 N, vec3 V, vec3 L, float roughness, float F0, float reflectivity, vec3 albedo )
+{
+	float alpha = roughness*roughness;
+
+	vec3 H = normalize(V+L);
+
+	float dotNL = clamp(dot(N,L), 0.0f, 1.0f);
+	float dotNV = clamp(dot(N,V), 0.0f, 1.0f);
+	float dotNH = clamp(dot(N,H), 0.0f, 1.0f);
+	float dotLH = clamp(dot(L,H), 0.0f, 1.0f);
+	float dotVH = clamp(dot(V,H), 0.0f, 1.0f);
+
+	// D
+	float alphaSqr = alpha*alpha;
+	float pi = 3.14159f;
+	float denom = dotNH * dotNH *(alphaSqr-1.0) + 1.0f;
+	float D = alphaSqr/(pi * denom * denom);
+
+	// F
+	float F = lightingFresnel(dotVH, F0);
+
+	// V
+	float k = alpha/2.0f;
+	float vis = lightingVis(dotNL,k)*lightingVis(dotNV,k);
+
+	vec3 specResponse = vec3( dotNL * D * F * vis );
+	vec3 diffuseResponse = dotNL * albedo;
+
+	return mix( diffuseResponse, specResponse, reflectivity );
+
+}

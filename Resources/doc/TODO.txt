@@ -1,1 +1,5 @@
 Apply dirt volume scalar - a little bit of rock inflates into more dirt (avoids needing large gorges to get interesting dirt distribution)
+
+
+// Volumetric smoke/atmospherics with analytical normals!
+https://www.shadertoy.com/view/XttSz2

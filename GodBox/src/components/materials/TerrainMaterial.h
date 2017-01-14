@@ -51,8 +51,7 @@ namespace godBox
 		// Rock
 		vec3 rockColorA;
 		vec3 rockColorB;
-		float rockRoughnessA;
-		float rockRoughnessB;
+		float rockReflectivity;
 		float rockFresnelA;
 		float rockFresnelB;
 		float rockDetailBumpStrength;

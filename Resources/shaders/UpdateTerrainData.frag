@@ -339,7 +339,7 @@ void main(void)
 		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
 		float heatTextureScalar = pow( diffuseSampleC.x, 1.0 );
 		float heightTextureScalar = diffuseSampleC.x;
-		heatC   += ( pow(mouseRatio, 0.7) * u_mouseMoltenHeatStrength   * mix(0.005, 0.02, heatTextureScalar) );
+		heatC   += ( pow(mouseRatio, 0.7) * u_mouseMoltenHeatStrength   * mix(0.02, 0.02, heatTextureScalar) );
 		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.18, 0.2, heightTextureScalar) );
 		heatC = max(0.0, heatC);
 

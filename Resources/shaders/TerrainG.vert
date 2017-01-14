@@ -118,7 +118,7 @@ void main(void)
 	float dirtAlpha = min((dirtHeight / u_dirtHeightToOpaque), 1.0);
 	
 	// Molten
-	float moltenAlpha = min( max(heat-0.2, 0.0) * u_moltenAlphaScalar, 1.0 );
+	float moltenAlpha = min( max(heat-0.0, 0.0) * u_moltenAlphaScalar, 1.0 );
 	moltenAlpha = pow( moltenAlpha, u_moltenAlphaPower );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * u_moltenColorScalar, moltenAlpha ), vec3(2.2) );
 	

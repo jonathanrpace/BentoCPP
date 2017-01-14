@@ -35,18 +35,6 @@ namespace godBox
 		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
 		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 
-		SetTexture("s_lavaAlbedo", _material.lavaAlb);
-		SetTexture("s_lavaNormal", _material.lavaNrm);
-		SetTexture("s_lavalMaterial", _material.lavaMat);
-
-		SetTexture("s_lavaLongAlbedo", _material.lavaLongAlb);
-		SetTexture("s_lavaLongNormal", _material.lavaLongNrm);
-		SetTexture("s_lavaLonglMaterial", _material.lavaLongMat);
-
-		SetTexture("s_lavaLatAlbedo", _material.lavaLatAlb);
-		SetTexture("s_lavaLatNormal", _material.lavaLatNrm);
-		SetTexture("s_lavaLatlMaterial", _material.lavaLatMat);
-
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
@@ -105,8 +93,7 @@ namespace godBox
 
 		SetUniform("u_rockColorA", _material.rockColorA);
 		SetUniform("u_rockColorB", _material.rockColorB);
-		SetUniform("u_rockRoughnessA", _material.rockRoughnessA);
-		SetUniform("u_rockRoughnessB", _material.rockRoughnessB);
+		SetUniform("u_rockReflectivity", _material.rockReflectivity);
 		SetUniform("u_rockFresnelA", _material.rockFresnelA);
 		SetUniform("u_rockFresnelB", _material.rockFresnelB);
 
@@ -155,6 +142,18 @@ namespace godBox
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		
+		SetTexture("s_lavaAlbedo", _material.lavaAlb);
+		SetTexture("s_lavaNormal", _material.lavaNrm);
+		SetTexture("s_lavaMaterial", _material.lavaMat);
+
+		SetTexture("s_lavaLongAlbedo", _material.lavaLongAlb);
+		SetTexture("s_lavaLongNormal", _material.lavaLongNrm);
+		SetTexture("s_lavaLongMaterial", _material.lavaLongMat);
+
+		SetTexture("s_lavaLatAlbedo", _material.lavaLatAlb);
+		SetTexture("s_lavaLatNormal", _material.lavaLatNrm);
+		SetTexture("s_lavaLatMaterial", _material.lavaLatMat);
+
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(terrainMousePos), &terrainMousePos, GL_DYNAMIC_COPY);

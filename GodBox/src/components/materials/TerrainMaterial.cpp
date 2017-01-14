@@ -12,6 +12,15 @@ namespace godBox
 		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, foamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, creaseTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLongAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLongNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLongMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLatAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLatNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLatMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
 		someTexture.TexImage2D("textures/DataMap.png");
@@ -20,12 +29,32 @@ namespace godBox
 		foamTexture.TexImage2D("textures/Foam.png");
 		smokeTexture.TexImage2D("textures/Smoke.png");
 		creaseTexture.TexImage2D("textures/Crease.png");
+		
+		lavaAlb.TexImage2D("textures/Lava_Albedo.png");
+		//lavaAlb.GenerateMipMaps();
+		lavaNrm.TexImage2D("textures/Lava_Normal.png");
+		//lavaNrm.GenerateMipMaps();
+		lavaMat.TexImage2D("textures/Lava_Material.png");
+		//lavaMat.GenerateMipMaps();
 
+		lavaLongAlb.TexImage2D("textures/LavaLong_Albedo.png");
+		//lavaLongAlb.GenerateMipMaps();
+		lavaLongNrm.TexImage2D("textures/LavaLong_Normal.png");
+		//lavaLongNrm.GenerateMipMaps();
+		lavaLongMat.TexImage2D("textures/LavaLong_Material.png");
+		//lavaLongMat.GenerateMipMaps();
+
+		lavaLatAlb.TexImage2D("textures/LavaLat_Albedo.png");
+		//lavaLatAlb.GenerateMipMaps();
+		lavaLatNrm.TexImage2D("textures/LavaLat_Normal.png");
+		//lavaLatNrm.GenerateMipMaps();
+		lavaLatMat.TexImage2D("textures/LavaLat_Material.png");
+		//lavaLatMat.GenerateMipMaps();
+		
 		// Rock
 		SerializableMember("rockColorA", vec3(0.1f, 0.1f, 0.1f), &rockColorA);
 		SerializableMember("rockColorB", vec3(0.1f, 0.1f, 0.1f), &rockColorB);
-		SerializableMember("rockRoughnessA", 0.1f, &rockRoughnessA);
-		SerializableMember("rockRoughnessB", 0.0f, &rockRoughnessB);
+		SerializableMember("rockReflectivity", 0.1f, &rockReflectivity);
 		SerializableMember("rockFresnelA", 1.0f, &rockFresnelA);
 		SerializableMember("rockFresnelB", 1.0f, &rockFresnelB);
 		SerializableMember("rockDetailBumpStrength", 1.0f, &rockDetailBumpStrength);
@@ -110,11 +139,10 @@ namespace godBox
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
 		ImGui::ColorEdit3("Color A##rock", glm::value_ptr(rockColorA));
 		ImGui::ColorEdit3("Color B##rock", glm::value_ptr(rockColorB));
-		ImGui::SliderFloat("Roughness A##rock", &rockRoughnessA, 0.0f, 1.0f);
-		ImGui::SliderFloat("Roughness B##rock", &rockRoughnessB, 0.0f, 1.0f);
+		ImGui::SliderFloat("Reflectivity A##rock", &rockReflectivity, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel A##rock", &rockFresnelA, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel B##rock", &rockFresnelB, 0.0f, 1.0f);
-		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 100.0f);
+		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 2.0f);
 		ImGui::SliderFloat("Detail Bump Slope Power B##rock", &rockDetailBumpSlopePower, 0.0f, 20.0f);
 		ImGui::Spacing();
 

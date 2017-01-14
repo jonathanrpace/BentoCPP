@@ -1,6 +1,5 @@
 #version 430 core
 
-
 ////////////////////////////////////////////////////////////////
 // Inputs
 ////////////////////////////////////////////////////////////////
@@ -26,8 +25,7 @@ uniform ivec2 u_windowSize;
 
 uniform vec3 u_rockColorA;
 uniform vec3 u_rockColorB;
-uniform float u_rockRoughnessA;
-uniform float u_rockRoughnessB;
+uniform float u_rockReflectivity;
 uniform float u_rockFresnelA;
 uniform float u_rockFresnelB;
 
@@ -115,6 +113,7 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
 float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
+vec3 lightingGGXAlbedo( vec3 N, vec3 V, vec3 L, float roughness, float F0, float reflectivity, vec3 albedo );
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar );
 
 ////////////////////////////////////////////////////////////////
@@ -224,9 +223,34 @@ float sampleCreaseMapStill( vec2 _uv, vec2 _velocity )
 	return mix( sampleA, sampleB, u_phaseAlpha );
 }
 
-vec4 bilinearMix( vec4 _valueTL, vec4 _valueTR, vec4 _valueBL, vec4 _valueBR, vec2 _ratio )
+vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float _heightB, float _blendWidth )
 {
-	vec4 ret = _ratio.x * _ratio.y * _valueBR;
+	//_heightA = max( 0.0, _heightA - _alpha );
+	//_heightB = -(1.0-_alpha) + _heightB;
+
+	_heightB *= _alpha;
+	_heightA *= (1.0-_alpha);
+
+	return _heightA > _heightB ? _valueA : _valueB;
+
+	float diff = _heightB - _heightA;
+
+	if ( diff >= 0.0 )
+	{
+		return mix( _valueA, _valueB, min(1.0, diff / _blendWidth) );
+	}
+
+	return mix( _valueB, _valueA, min(1.0, (-diff) / _blendWidth) );
+	
+
+
+	//float blendAlpha = diff * _blendWidth;
+	//return mix( _valueA, _valueB, blendAlpha );
+}
+
+vec3 bilinearMix( vec3 _valueTL, vec3 _valueTR, vec3 _valueBL, vec3 _valueBR, vec2 _ratio )
+{
+	vec3 ret = _ratio.x * _ratio.y * _valueBR;
 	ret += (1.0-_ratio.x) * _ratio.y * _valueBL;
 	ret += _ratio.x * (1.0-_ratio.y) * _valueTR;
 	ret += (1.0-_ratio.x) * (1.0-_ratio.y) * _valueTL;
@@ -234,46 +258,32 @@ vec4 bilinearMix( vec4 _valueTL, vec4 _valueTR, vec4 _valueBL, vec4 _valueBR, ve
 	return ret;
 }
 
-vec4 samplePhasedMap( sampler2D _sampler, vec2 _uv, vec2 _velocity, float _angle )
+vec3 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec2 _velocity, float _angle )
 {
 	_velocity = rotateBy( _velocity, _angle );
 
 	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
 	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
 
-	vec4 sampleA = texture( _sampler, uvA );
-	vec4 sampleB = texture( _sampler, uvB );
-	return mix( sampleA, sampleB, u_phaseAlpha );
+	vec3 sampleA = texture( _sampler, uvA ).rgb;
+	vec3 sampleB = texture( _sampler, uvB ).rgb;
+
+	float heightSampleA = texture( _heightSampler, uvA ).x;
+	float heightSampleB = texture( _heightSampler, uvB ).x;
+
+	return heightMix( sampleA, sampleB, u_phaseAlpha, heightSampleA, heightSampleB, u_hotRockRoughness );
 }
 
-vec4 sampleBilinearPhasedMap( sampler2D _sampler, vec2 _uvTL, vec2 _uvTR, vec2 _uvBL, vec2 _uvBR, vec2 _velocity, float _angle, vec2 _ratio )
+vec3 sampleBilinearPhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uvTL, vec2 _uvTR, vec2 _uvBL, vec2 _uvBR, vec2 _velocity, float _angle, vec2 _ratio )
 {
-	vec4 sampleTL = samplePhasedMap( _sampler, _uvTL, _velocity, _angle );
-	vec4 sampleTR = samplePhasedMap( _sampler, _uvTR, _velocity, _angle );
-	vec4 sampleBL = samplePhasedMap( _sampler, _uvBL, _velocity, _angle );
-	vec4 sampleBR = samplePhasedMap( _sampler, _uvBR, _velocity, _angle );
+	vec3 sampleTL = samplePhasedMap( _sampler, _heightSampler, _uvTL, _velocity, _angle );
+	vec3 sampleTR = samplePhasedMap( _sampler, _heightSampler, _uvTR, _velocity, _angle );
+	vec3 sampleBL = samplePhasedMap( _sampler, _heightSampler, _uvBL, _velocity, _angle );
+	vec3 sampleBR = samplePhasedMap( _sampler, _heightSampler, _uvBR, _velocity, _angle );
 
 	return bilinearMix(sampleTL, sampleTR, sampleBL, sampleBR, _ratio);
 }
 
-/*
-void sampleMaps
-( 
-	vec2 _uv, vec2 _velocity, 
-	out vec3 o_longAlbedo, out vec3 o_longNormal, out vec3 o_longMaterial,
-	out vec3 o_latAlbedo, out vec3 o_latNormal, out vec3 o_latMaterial,
-)
-{
-	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
-	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
-
-	o_longAlbedo = samplePhasedMap( s_lavaLongAlbedo, uvA, uvB );
-	o_longNormal = samplePhasedMap( s_lavaLongNormal uvA, uvB );
-	o_longMaterial = samplePhasedMap( s_lavaLongMaterial uvA, uvB );
-
-
-}
-*/
 
 void main(void)
 {
@@ -288,10 +298,14 @@ void main(void)
 
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 
-	// Creases
+	vec3 sampledAlbedo;
+	vec3 sampledNormal;
+	vec3 sampledMaterial;
 	float creaseAmount = 1.0;
 	{
-		vec2 velocity2 = texture( s_velocityData, in_uv ).xy * 1000;
+		vec2 velocity = texture( s_velocityData, in_uv ).xy * 1000;
+		float clampScalar = min( 1.0, 0.2 / length(velocity) );
+		velocity *= clampScalar;
 
 		vec2 flow = textureLod( s_smudgeData, in_uv, u_creaseMipLevel ).xy;
 		vec2 forwardFlow = textureLod( s_smudgeData, in_uv + normalize(flow) * u_creaseForwardScalar, u_creaseMipLevel ).xy;
@@ -311,30 +325,70 @@ void main(void)
 		vec2 gridCellCenterBR = ((gridCell + ivec2(1,1)) * gridSize);
 		vec2 ratio = (gridCellPos - gridCell);
 
-		float angle = -atan(flow.y, flow.x );
+		float angle = -atan(min( flow.y, 0.000001), flow.x);
 
 		vec2 uvTL = rotateAroundBy( in_uv, angle, gridCellCenterTL);
 		vec2 uvTR = rotateAroundBy( in_uv, angle, gridCellCenterTR);
 		vec2 uvBL = rotateAroundBy( in_uv, angle, gridCellCenterBL);
 		vec2 uvBR = rotateAroundBy( in_uv, angle, gridCellCenterBR);
 
-		float creaseSampleLong = sampleBilinearPhasedMap( s_creaseMap, uvTL, uvTR, uvBL, uvBR, velocity2, angle, ratio ).x;
-		float creaseSampleLat = sampleBilinearPhasedMap( s_creaseMap, uvTL, uvTR, uvBL, uvBR, velocity2, angle, ratio ).y;
-		float creaseSampleStill = sampleBilinearPhasedMap( s_creaseMap, uvTL, uvTR, uvBL, uvBR, velocity2, 0.0, ratio ).z;
+		float blendWidth = u_hotRockRoughness;
 
-		creaseAmount = mix( creaseSampleStill, creaseSampleLong, stretchRatio );
-		creaseAmount = mix( creaseAmount, creaseSampleLat, compressionRatio );
-		creaseAmount = clamp(creaseAmount, 0.0, 1.0);
+		vec3 sampledMaterialStill = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_uv, velocity, 0.0 ).rgb;
+		vec3 sampledMaterialLong = sampleBilinearPhasedMap( s_lavaLongMaterial, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).rgb;
+		vec3 sampledMaterialLat = sampleBilinearPhasedMap( s_lavaLatMaterial, s_lavaLatMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).rgb;
+		sampledMaterial = mix( sampledMaterialStill, sampledMaterialLong, compressionRatio );
+		sampledMaterial = mix( sampledMaterial, sampledMaterialLat, stretchRatio );
+		
+		vec3 sampledAlbedoStill = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_uv, velocity, 0.0 ).rgb;
+		vec3 sampledAlbedoLong = sampleBilinearPhasedMap( s_lavaLongAlbedo, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).rgb;
+		vec3 sampledAlbedoLat = sampleBilinearPhasedMap( s_lavaLatAlbedo, s_lavaLatMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).rgb;
+		sampledAlbedo = mix( sampledAlbedoStill, sampledAlbedoLong, compressionRatio );
+		sampledAlbedo = mix( sampledAlbedo, sampledAlbedoLat, stretchRatio );
+		sampledAlbedo = pow(sampledAlbedo, vec3(2.2));
+		
 
-		//outColor = pow( vec3( outCrease ), vec3(2.2) );
+		vec3 sampledNormalStill = samplePhasedMap( s_lavaNormal, s_lavaMaterial, in_uv, velocity, 0.0 ).xyz;
+		sampledNormalStill -= 0.5;
+		sampledNormalStill *= 2.0;
 
-		//outColor = vec3(velocity2 * 1000, 0.0);
-		//outColor = pow( vec3( gridCellCenterC, 0.0), vec3(2.2) );
-		//outColor = vec3(max(0, -projectionLength), max(0, projectionLength), 0.0) * u_bearingCreaseScalar;
+		vec3 sampledNormalLong = sampleBilinearPhasedMap( s_lavaLongNormal, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).xyz;
+		sampledNormalLong -= 0.5;
+		sampledNormalLong *= 2.0;
+		sampledNormalLong = rotateZ( sampledNormalLong, angle );
+
+		vec3 sampledNormalLat = sampleBilinearPhasedMap( s_lavaLatNormal, s_lavaLatMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).xyz;
+		sampledNormalLat -= 0.5;
+		sampledNormalLat *= 2.0;
+		sampledNormalLat = rotateZ( sampledNormalLong, angle );
+
+		sampledNormal = mix( sampledNormalStill, sampledNormalLong, compressionRatio );
+		sampledNormal = mix( sampledNormal, sampledNormalLat, stretchRatio );
+
+		//sampledNormal -= 0.5;
+		//sampledNormal *= 2.0;
+		sampledNormal = normalize(sampledNormal);
 	}
 
-	//powedMoltenMapValue -= creaseAmount;
-	//moltenMapValue -= creaseAmount * 0.5;
+	// Rock normal
+	vec3 rockNormal = in_rockNormal;
+	rockNormal = rotateX( rockNormal, sampledNormal.y * u_rockDetailBumpStrength ); 
+	rockNormal = rotateZ( rockNormal, -sampledNormal.x * u_rockDetailBumpStrength ); 
+	rockNormal = normalize(rockNormal);
+
+	// Direct light
+	float roughness = sampledMaterial.g;
+	float textureAO = sampledMaterial.b;
+	float reflectivity = u_rockReflectivity;
+	vec3 directLight = lightingGGXAlbedo( rockNormal, viewDir, lightDir, roughness, u_rockFresnelA, reflectivity, sampledAlbedo ) * u_lightIntensity * (1.0-in_shadowing) * textureAO;
+
+	// Ambient light
+	vec3 ambientLight = lightingGGXAlbedo( rockNormal, viewDir, rockNormal, roughness, u_rockFresnelB, reflectivity, sampledAlbedo ) * u_ambientLightIntensity * in_occlusion * textureAO;
+
+	
+
+
+	/*
 
 	float diffuseRatio = moltenMapValue;
 
@@ -366,11 +420,12 @@ void main(void)
 	// Dirt
 	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));
 	diffuse = mix( diffuse, dirtDiffuse, in_dirtAlpha );
+	*/
 
 	// Local glow from heat
 	vec3 heatLight = vec3(0.0);
 	{
-		float dis = 0.2;
+		float dis = 0.1;
 		int mipLevel = 2;
 		float strength = 1.0;
 		float totalStrength = 0.0;
@@ -389,7 +444,7 @@ void main(void)
 			strength *= 0.5;
 			mipLevel++;
 
-			float sampleHeatLight = lightingGGX( rockNormal, viewDir, sampleDir, roughness, fresnel );
+			float sampleHeatLight = lightingGGX( rockNormal, viewDir, sampleDir, roughness, u_rockFresnelA );
 			sampleHeatLight *= max( 0.0, sampleHeat-0.1) * (dot( rockNormal, sampleDir ) + 1.0) * 0.5;
 
 			heatLight += sampleHeatLight;
@@ -398,9 +453,31 @@ void main(void)
 		heatLight /= totalStrength;
 
 		//heatLight = lightingGGX( normalize(rockNormal + sampleDir), viewDir, sampleDir, roughness, fresnel );
-		heatLight *=  vec3(1.0,0.1,0.0) * 40.0;// * in_occlusion;
+		heatLight *=  vec3(1.0,0.1,0.0) * 10.0 * textureAO;
 	}
 
+	
+
+
+	// Bring it all together
+	vec3 outColor = directLight + ambientLight + heatLight;
+
+
+	// Add emissve elements
+	float moltenAlpha = mix( max( in_moltenAlpha - (sampledMaterial.r * sampledMaterial.b), 0.0 ), in_moltenAlpha * (1.0 - sampledMaterial.r * sampledMaterial.b), 0.3 );
+
+	outColor *= (1.0-(moltenAlpha*2.0));
+
+	outColor = mix( outColor, in_moltenColor, moltenAlpha * sampledMaterial.g );
+	
+
+
+	out_viewPosition = in_viewPosition;
+	out_forward = vec4( outColor, 1.0 );
+
+
+
+	/*
 	// Direct light
 	float directLight = lightingGGX( rockNormal, viewDir, lightDir, roughness, fresnel ) * u_lightIntensity * (1.0-in_shadowing);
 
@@ -412,15 +489,7 @@ void main(void)
 
 	//outColor = vec3( vec3(in_worldPosition + rockNormal * 0.05).xz, 0.0 );
 
-	// Add emissve elements
-	float moltenPlateScalar = 1.0 - (pow(moltenMapValue, u_moltenPlateAlphaPower) * u_moltenPlateAlpha);
-	float moltenCreaseScalar = 1.0 - (pow(creaseAmount, u_moltenCreaseAlphaPower) * u_moltenCreaseAlpha);
-	float moltenAlpha = in_moltenAlpha * moltenPlateScalar * moltenCreaseScalar;
-	outColor = mix( outColor, in_moltenColor, moltenAlpha );
 	
-	// Heat glow
-	float heatGlowAlpha = pow(1.0-moltenMapValue, u_glowPower) * in_heat * u_glowScalar;
-	outColor += in_moltenColor * heatGlowAlpha * (1.0-moltenAlpha);
 
 	float heatGlowDetailAlpha = pow(1.0-creaseAmount, u_glowDetailPower) * in_heat * u_glowDetailScalar;
 	outColor += in_moltenColor * heatGlowDetailAlpha * (1.0-moltenAlpha);
@@ -428,4 +497,5 @@ void main(void)
 	
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
+	*/
 }

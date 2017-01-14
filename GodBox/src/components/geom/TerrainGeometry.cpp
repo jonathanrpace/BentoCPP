@@ -13,9 +13,9 @@ namespace godBox
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.0f)
-		, m_numVerticesPerDimension(256)
+		, m_numVerticesPerDimension(512)
 		, m_terrainMousePos()
-		, m_moltenMapResScalar(6)
+		, m_moltenMapResScalar(3)
 
 		, m_heightData		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_velocityData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
