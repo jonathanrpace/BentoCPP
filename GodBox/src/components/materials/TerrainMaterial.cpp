@@ -7,11 +7,9 @@ namespace godBox
 	TerrainMaterial::TerrainMaterial(std::string _name)
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
-		, someTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, moltenPlateDetailTexture(16, GL_RGBA8, GL_LINEAR, GL_NEAREST, GL_CLAMP, GL_CLAMP)
+		, grungeTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, foamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, creaseTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, lavaAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, lavaNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, lavaMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
@@ -23,12 +21,9 @@ namespace godBox
 		, lavaLatMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
-		someTexture.TexImage2D("textures/DataMap.png");
-		moltenPlateDetailTexture.TexImage2D("textures/MoltenPlateDetail.png");
-		rockDiffuseTexture.TexImage2D("textures/Rock_Diff.png");
+		grungeTexture.TexImage2D("textures/DataMap.png");
 		foamTexture.TexImage2D("textures/Foam.png");
 		smokeTexture.TexImage2D("textures/Smoke.png");
-		creaseTexture.TexImage2D("textures/Crease.png");
 		
 		lavaAlb.TexImage2D("textures/Lava_Albedo.png");
 		//lavaAlb.GenerateMipMaps();
@@ -51,9 +46,10 @@ namespace godBox
 		lavaLatMat.TexImage2D("textures/LavaLat_Material.png");
 		//lavaLatMat.GenerateMipMaps();
 		
+		// Global
+		SerializableMember("heightScalar", 0.0f, &heightOffset);
+
 		// Rock
-		SerializableMember("rockColorA", vec3(0.1f, 0.1f, 0.1f), &rockColorA);
-		SerializableMember("rockColorB", vec3(0.1f, 0.1f, 0.1f), &rockColorB);
 		SerializableMember("rockReflectivity", 0.1f, &rockReflectivity);
 		SerializableMember("rockFresnelA", 1.0f, &rockFresnelA);
 		SerializableMember("rockFresnelB", 1.0f, &rockFresnelB);
@@ -72,8 +68,6 @@ namespace godBox
 		SerializableMember("creaseFlowOffset", 0.01f, &creaseFlowOffset);
 
 		// Hot rock
-		SerializableMember("hotRockColor", vec3(0.1f, 0.1f, 0.1f), &hotRockColor);
-		SerializableMember("hotRockRoughness", 0.0f, &hotRockRoughness);
 		SerializableMember("hotRockFresnel", 1.0f, &hotRockFresnel);
 
 		// Molten
@@ -81,17 +75,9 @@ namespace godBox
 		SerializableMember("moltemColorScalar", 1.5f, &moltenColorScalar);
 		SerializableMember("moltenAlphaScalar", 1.0f, &moltenAlphaScalar);
 		SerializableMember("moltenAlphaPower", 1.0f, &moltenAlphaPower);
-		SerializableMember("moltenPlateAlpha", 1.0f, &moltenPlateAlpha);
-		SerializableMember("moltenPlateAlphaPower", 1.0f, &moltenPlateAlphaPower);
-		SerializableMember("moltenCreaseAlpha", 1.0f, &moltenCreaseAlpha);
-		SerializableMember("moltenCreaseAlphaPower", 1.0f, &moltenCreaseAlphaPower);
-		SerializableMember("moltenMapOffset", 0.0f, &moltenMapOffset);
 
 		// Glow
 		SerializableMember("glowScalar", 1.0f, &glowScalar);
-		SerializableMember("glowPower", 1.0f, &glowPower);
-		SerializableMember("glowDetailScalar", 1.0f, &glowDetailScalar);
-		SerializableMember("glowDetailPwoerr", 1.0f, &glowDetailPower);
 
 		// Water
 		SerializableMember("waterColor", vec3(0.219f, 0.286f, 0.278f), &waterColor);
@@ -135,10 +121,13 @@ namespace godBox
 	void TerrainMaterial::AddUIElements()
 	{
 		ImGui::Spacing();
+		ImGui::Text("Global");
+		ImGui::SliderFloat("Height Offset", &heightOffset, 0.0f, 0.1f);
+		ImGui::Spacing();
+
+		ImGui::Spacing();
 		ImGui::Text("Rock");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
-		ImGui::ColorEdit3("Color A##rock", glm::value_ptr(rockColorA));
-		ImGui::ColorEdit3("Color B##rock", glm::value_ptr(rockColorB));
 		ImGui::SliderFloat("Reflectivity A##rock", &rockReflectivity, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel A##rock", &rockFresnelA, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel B##rock", &rockFresnelB, 0.0f, 1.0f);
@@ -149,8 +138,6 @@ namespace godBox
 		ImGui::Spacing();
 		ImGui::Text("Hot rock");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
-		ImGui::ColorEdit3("Color##hotRock", glm::value_ptr(hotRockColor));
-		ImGui::SliderFloat("Roughness##hotRock", &hotRockRoughness, 0.0f, 1.0f);
 		ImGui::SliderFloat("Fresnel##hotRock", &hotRockFresnel, 0.0f, 1.0f);
 		ImGui::Spacing();
 
@@ -174,18 +161,10 @@ namespace godBox
 		ImGui::SliderFloat("Color Scale##molten", &moltenColorScalar, 1.0f, 20.0f);
 		ImGui::SliderFloat("Alpha Scale##molten", &moltenAlphaScalar, 0.0f, 10.0f);
 		ImGui::SliderFloat("Alpha Power##molten", &moltenAlphaPower, 0.0f, 4.0f);
-		ImGui::SliderFloat("Plate Alpha##molten", &moltenPlateAlpha, 0.0f, 1.0f);
-		ImGui::SliderFloat("Plate Alpha Power##molten", &moltenPlateAlphaPower, 0.0f, 4.0f);
-		ImGui::SliderFloat("Crease Alpha##molten", &moltenCreaseAlpha, 0.0f, 1.0f);
-		ImGui::SliderFloat("Crease Alpha Power##molten", &moltenCreaseAlphaPower, 0.0f, 4.0f);
-		ImGui::SliderFloat("Offset##molten", &moltenMapOffset, 0.0f, 0.5f);
 
 		ImGui::Spacing();
 		ImGui::Text("Glow");
-		ImGui::SliderFloat("Scale##glow", &glowScalar, 0.0f, 1.0f);
-		ImGui::SliderFloat("Power##glow", &glowPower, 0.0f, 10.0f);
-		ImGui::SliderFloat("Detail Scale##glow", &glowDetailScalar, 0.0f, 1.0f);
-		ImGui::SliderFloat("Detail Power##glow", &glowDetailPower, 0.0f, 10.0f);
+		ImGui::SliderFloat("Scale##glow", &glowScalar, 0.0f, 50.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

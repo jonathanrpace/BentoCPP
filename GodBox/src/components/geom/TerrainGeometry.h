@@ -30,7 +30,6 @@ namespace godBox
 		PingPongTextureSquare& VelocityData() { return m_velocityData; }
 		PingPongTextureSquare& MiscData() { return m_miscData; }
 		PingPongTextureSquare& NormalData() { return m_normalData; }
-		PingPongTextureSquare& MoltenMapData() { return m_moltenMapData; }
 		PingPongTextureSquare& SmudgeData() { return m_smudgeData; }
 		PingPongTextureSquare& WaterFluxData() { return m_waterFluxData; }
 		
@@ -51,11 +50,6 @@ namespace godBox
 			return m_numVerticesPerDimension;
 		}
 
-		inline int MoltenMapResScalar() const 
-		{ 
-			return m_moltenMapResScalar; 
-		}
-
 		inline float Size() const
 		{ 
 			return m_size; 
@@ -73,7 +67,6 @@ namespace godBox
 	private:
 		float m_size;
 		int m_numVerticesPerDimension;
-		int m_moltenMapResScalar;
 
 		GLuint m_mousePositionBuffer;
 		TerrainMousePos m_terrainMousePos;
@@ -82,7 +75,6 @@ namespace godBox
 		PingPongTextureSquare m_velocityData;
 		PingPongTextureSquare m_miscData;
 		PingPongTextureSquare m_normalData;
-		PingPongTextureSquare m_moltenMapData;
 		PingPongTextureSquare m_smudgeData;
 		PingPongTextureSquare m_waterFluxData;
 	};

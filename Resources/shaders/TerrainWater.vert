@@ -15,14 +15,13 @@ uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
-uniform sampler2D s_moltenMapData;
  
 // Uniforms
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat4 u_viewMatrix;
 
-uniform float u_mapHeightOffset;
+uniform float u_heightOffset;
 uniform float u_depthToReflect;
 uniform float u_dissolvedDirtDensityScalar;
 
@@ -83,14 +82,12 @@ void main(void)
 	vec4 miscDataC = texture(s_miscData, in_uv);
 	vec4 normalDataC = texture(s_normalData, in_uv);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
-	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
 	float dissolvedDirt = miscDataC.z;
-	float bumpHeight = moltenMapValue * u_mapHeightOffset;
 
 	out_foamStrength = min( smudgeDataC.w, 1.0 );
 
@@ -105,7 +102,6 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 	position.y += waterHeight;
-	position.y += bumpHeight;
 	out_worldPosition = position;
 
 	float reflectAlpha = min( max(waterHeight, 0.0) / u_depthToReflect, 1.0 );

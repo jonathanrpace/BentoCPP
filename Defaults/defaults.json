@@ -41,7 +41,8 @@
         "glowDetailPwoerr": 0.405000030994415,
         "glowDetailScalar": 0.115000002086163,
         "glowPower": 2.56800007820129,
-        "glowScalar": 0.41200003027916,
+        "glowScalar": 3.04100012779236,
+        "heightScalar": 0.0,
         "hotRockColor": {
             "x": 0.0588235296308994,
             "y": 0.0588235296308994,
@@ -96,7 +97,7 @@
             "z": 0.125490203499794
         },
         "rockDetailBumpSlopePower": 13.2430009841919,
-        "rockDetailBumpStrength": 1.05400002002716,
+        "rockDetailBumpStrength": 0.932000041007996,
         "rockDetailDiffuseStrength": 0.0,
         "rockFresnelA": 0.149000003933907,
         "rockFresnelB": 0.135000005364418,
@@ -208,7 +209,7 @@
         "mouseVolumeStrength": 0.00999999977648258,
         "rainRate": 0.0,
         "rockDiffuseStrength": 0.00499999988824129,
-        "rockMeltingPoint": 0.0,
+        "rockMeltingPoint": 0.0110000008717179,
         "smudgeChangeRate": 50.0,
         "tempChangeSpeed": 0.00139999995008111,
         "textureCycleSpeed": 0.0,

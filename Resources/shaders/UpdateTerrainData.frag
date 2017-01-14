@@ -20,10 +20,9 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
-uniform sampler2D s_moltenMapData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_waterFluxData;
-uniform sampler2D s_diffuseMap;
+uniform sampler2D s_grungeMap;
 
 
 // Mouse
@@ -37,6 +36,9 @@ uniform float u_mouseDirtVolumeStrength;
 // Environment
 uniform float u_ambientTemp;
 
+// Global
+uniform float u_heightOffset;
+
 // Molten
 uniform float u_heatAdvectSpeed;
 uniform float u_moltenViscosity;
@@ -45,7 +47,6 @@ uniform float u_tempChangeSpeed;
 uniform float u_condenseSpeed;
 uniform float u_meltSpeed;
 uniform float u_moltenVelocityScalar;
-uniform float u_mapHeightOffset;
 uniform float u_smudgeChangeRate;
 
 // Water
@@ -336,7 +337,7 @@ void main(void)
 		out_smudgeData.z *= 0.99;
 
 		// Add some lava near the mouse
-		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv+mousePos*0.1);
+		vec4 diffuseSampleC = texture(s_grungeMap, in_uv+mousePos*0.1);
 		float heatTextureScalar = pow( diffuseSampleC.x, 1.0 );
 		float heightTextureScalar = diffuseSampleC.x;
 		heatC   += ( pow(mouseRatio, 0.7) * u_mouseMoltenHeatStrength   * mix(0.02, 0.02, heatTextureScalar) );
@@ -445,7 +446,7 @@ void main(void)
 	{
 		float waterHeight = out_heightData.w;
 
-		vec4 diffuseSampleC = texture(s_diffuseMap, in_uv*2.0+mousePos*0.1);
+		vec4 diffuseSampleC = texture(s_grungeMap, in_uv*2.0+mousePos*0.1);
 		float waterMouseScalar = mix( 1.0, pow( diffuseSampleC.x, 1.0 ), 0.2 );
 		waterHeight += pow(mouseRatio, 1.1) * u_mouseWaterVolumeStrength * waterMouseScalar;
 
@@ -677,7 +678,7 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	{
 		float occlusion = 0.0f;
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_mapHeightOffset;
+		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + miscDataC.y * u_heightOffset;
 
 		float strength = 1.0;
 		float totalStrength = 0.0;
@@ -687,7 +688,7 @@ void main(void)
 			vec4 mippedMiscDataC = textureLod(s_miscData, in_uv, float(i));
 			vec4 mippedSmudgeDataC = textureLod(s_smudgeData, in_uv, float(i));
 
-			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_mapHeightOffset;
+			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_heightOffset;
 			float diff = max(0.0f, mippedHeight - heightC);
 			float ratio = diff / u_cellSize.x;
 			float angle = atan(ratio);

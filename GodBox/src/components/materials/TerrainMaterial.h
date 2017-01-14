@@ -29,12 +29,9 @@ namespace godBox
 		virtual void AddUIElements() override;
 
 		// Textures
-		TextureSquare someTexture;
-		TextureSquare moltenPlateDetailTexture;
+		TextureSquare grungeTexture;
 		TextureSquare smokeTexture;
-		TextureSquare rockDiffuseTexture;
 		TextureSquare foamTexture;
-		TextureSquare creaseTexture;
 
 		TextureSquare lavaAlb;
 		TextureSquare lavaNrm;
@@ -48,9 +45,10 @@ namespace godBox
 		TextureSquare lavaLatNrm;
 		TextureSquare lavaLatMat;
 
+		// Global
+		float heightOffset;
+
 		// Rock
-		vec3 rockColorA;
-		vec3 rockColorB;
 		float rockReflectivity;
 		float rockFresnelA;
 		float rockFresnelB;
@@ -69,8 +67,6 @@ namespace godBox
 		float creaseFlowOffset;
 
 		// Hot rock
-		vec3 hotRockColor;
-		float hotRockRoughness;
 		float hotRockFresnel;
 
 		// Molten
@@ -78,17 +74,9 @@ namespace godBox
 		float moltenAlphaScalar;
 		float moltenAlphaPower;
 		float moltenColorScalar;
-		float moltenMapOffset; 
-		float moltenPlateAlpha;
-		float moltenPlateAlphaPower;
-		float moltenCreaseAlpha;
-		float moltenCreaseAlphaPower;
 
 		// Glow
 		float glowScalar;
-		float glowPower;
-		float glowDetailScalar;
-		float glowDetailPower;
 
 		// Dirt
 		vec3 dirtColor;

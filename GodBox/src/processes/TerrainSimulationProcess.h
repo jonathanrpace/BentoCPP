@@ -35,27 +35,8 @@ namespace godBox
 		UpdateTerrainDataFrag();
 	};
 
-	struct MoltenParticleUpdateVert : ShaderStageBase
-	{
-		MoltenParticleUpdateVert();
-		virtual void OnPreLink() override;
-	};
-	
-	struct MoltenMapVert : ShaderStageBase
-	{
-		MoltenMapVert();
-	};
-
-	struct MoltenMapFrag : ShaderStageBase
-	{
-		struct MoltenMapFrag();
-	};
-	
 	struct UpdateTerrainFluxShader			: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader			: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
-	
-	struct MoltenParticleUpdateShader		: ShaderBase<MoltenParticleUpdateVert, NullFrag> {};
-	struct MoltenMapShader					: ShaderBase<MoltenMapVert, MoltenMapFrag> {};
 	
 	DEFINE_NODE_3
 	(
@@ -81,7 +62,7 @@ namespace godBox
 		virtual void AddUIElements() override;
 
 	private:
-		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, RenderTargetBase& _fragRenderTarget, MoltenParticleGeom & _moltenParticleGeom);
+		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, MoltenParticleGeom & _moltenParticleGeom);
 
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
@@ -89,10 +70,8 @@ namespace godBox
 		ScreenQuadGeometry m_screenQuadGeom;
 		UpdateTerrainFluxShader m_updateFluxShader;
 		UpdateTerrainDataShader m_updateDataShader;
-		MoltenParticleUpdateShader m_moltenParticleUpdateShader;
-		MoltenMapShader m_moltenMapShader;
+
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
-		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_fragRenderTargetByNodeMap;
 
 		// Input
 		float m_mouseRadius;

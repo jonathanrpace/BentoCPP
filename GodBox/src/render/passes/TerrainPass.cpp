@@ -31,9 +31,6 @@ namespace godBox
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
-		SetTexture("s_diffuseMap", _material.someTexture);
-		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
-		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
@@ -57,7 +54,7 @@ namespace godBox
 
 		SetUniform("u_dirtHeightToOpaque", _material.dirtHeightToOpaque);
 		
-		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
+		SetUniform("u_heightOffset", _material.heightOffset);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightDistance", _material.lightDistance);
@@ -91,25 +88,13 @@ namespace godBox
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
-		SetUniform("u_rockColorA", _material.rockColorA);
-		SetUniform("u_rockColorB", _material.rockColorB);
 		SetUniform("u_rockReflectivity", _material.rockReflectivity);
 		SetUniform("u_rockFresnelA", _material.rockFresnelA);
 		SetUniform("u_rockFresnelB", _material.rockFresnelB);
 
-		SetUniform("u_hotRockColor", _material.hotRockColor);
-		SetUniform("u_hotRockRoughness", _material.hotRockRoughness);
 		SetUniform("u_hotRockFresnel", _material.hotRockFresnel);
 
-		SetUniform("u_moltenPlateAlpha", _material.moltenPlateAlpha);
-		SetUniform("u_moltenPlateAlphaPower", _material.moltenPlateAlphaPower);
-		SetUniform("u_moltenCreaseAlpha", _material.moltenCreaseAlpha);
-		SetUniform("u_moltenCreaseAlphaPower", _material.moltenCreaseAlphaPower);
-
 		SetUniform("u_glowScalar", _material.glowScalar);
-		SetUniform("u_glowPower", _material.glowPower);
-		SetUniform("u_glowDetailScalar", _material.glowDetailScalar);
-		SetUniform("u_glowDetailPower", _material.glowDetailPower);
 
 		SetUniform("u_moltenColor", _material.moltenColor);
 		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
@@ -134,9 +119,6 @@ namespace godBox
 		SetUniform("u_creaseGridRepeat", _material.creaseGridRepeat);
 
 		// Textures
-		SetTexture("s_rockDiffuse", _material.rockDiffuseTexture);
-		SetTexture("s_creaseMap", _material.creaseTexture);
-		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());

@@ -35,7 +35,6 @@ namespace godBox
 		SetUniform("u_modelViewMatrix", bento::RenderParams::ModelViewMatrix());
 		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
 
-		SetUniform("u_mapHeightOffset", _material.moltenMapOffset);
 		SetUniform("u_depthToReflect", _material.waterDepthToReflect);
 		SetUniform("u_dissolvedDirtDensityScalar", _material.dissolvedDirtDesntiyScalar);
 
@@ -44,7 +43,6 @@ namespace godBox
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
-		SetTexture("s_moltenMapData", _geometry.MoltenMapData().GetRead());
 	}
 
 	////////////////////////////////////////////
@@ -64,11 +62,11 @@ namespace godBox
 		float alphaB = fabs( 0.5f - phase ) * 2.0f;
 		float alphaA = 1.0f - alphaB;
 
-		SetUniform( "u_phaseA", phaseA );
-		SetUniform( "u_phaseB", phaseB );
-		SetUniform( "u_phaseAlpha", alphaB );
-		SetUniform( "u_waterFlowOffset", _material.waterFlowOffset );
-		SetUniform( "u_waterFlowRepeat", _material.waterFlowRepeat );
+		SetUniform("u_phaseA", phaseA );
+		SetUniform("u_phaseB", phaseB );
+		SetUniform("u_phaseAlpha", alphaB );
+		SetUniform("u_waterFlowOffset", _material.waterFlowOffset );
+		SetUniform("u_waterFlowRepeat", _material.waterFlowRepeat );
 
 		float waveTime = (float)glfwGetTime() * _material.waterWaveSpeed;
 		SetUniform( "u_waveTime", waveTime );

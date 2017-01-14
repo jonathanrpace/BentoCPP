@@ -20,28 +20,6 @@ UpdateTerrainDataFrag::UpdateTerrainDataFrag()
 {}
 
 //////////////////////////////////////////////////////////////////////////
-MoltenParticleUpdateVert::MoltenParticleUpdateVert()
-	: ShaderStageBase("shaders/MoltenParticleUpdate.vert", false)
-{}
-
-void MoltenParticleUpdateVert::OnPreLink()
-{
-	const char * varyings[] = { "out_position" };
-	GL_CHECK(glTransformFeedbackVaryings(m_programName, 1, varyings, GL_SEPARATE_ATTRIBS));
-}
-
-//////////////////////////////////////////////////////////////////////////
-MoltenMapVert::MoltenMapVert()
-	: ShaderStageBase("shaders/MoltenMap.vert", false)
-{}
-
-//////////////////////////////////////////////////////////////////////////
-MoltenMapFrag::MoltenMapFrag() 
-	: ShaderStageBase("shaders/MoltenMap.frag", false)
-{}
-
-
-//////////////////////////////////////////////////////////////////////////
 // TerrainSimulationPass
 //////////////////////////////////////////////////////////////////////////
 	
@@ -117,13 +95,6 @@ TerrainSimulationProcess::~TerrainSimulationProcess()
 		delete renderTarget;
 	}
 	m_renderTargetByNodeMap.clear();
-
-	for( auto iter : m_fragRenderTargetByNodeMap)
-	{
-		RenderTargetBase* renderTarget = iter.second;
-		delete renderTarget;
-	}
-	m_fragRenderTargetByNodeMap.clear();
 }
 
 void TerrainSimulationProcess::Advance(double _dt)
@@ -133,8 +104,7 @@ void TerrainSimulationProcess::Advance(double _dt)
 	for (auto node : m_nodeGroup.Nodes())
 	{
 		RenderTargetBase* renderTarget = m_renderTargetByNodeMap[node];
-		RenderTargetBase* fragRenderTarget = m_fragRenderTargetByNodeMap[node];
-		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *fragRenderTarget, *(node->moltenParticleGeom));
+		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
 	}
 }
 
@@ -220,7 +190,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	TerrainGeometry & _geom, 
 	TerrainMaterial & _material, 
 	RenderTargetBase & _renderTarget,
-	RenderTargetBase & _fragRenderTarget,
 	MoltenParticleGeom & _moltenParticleGeom
 )
 {
@@ -261,7 +230,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_waterFluxData", _geom.WaterFluxData().GetRead());
 
 		fragShader.SetUniform("u_waterFluxDamping", m_waterFluxDamping);
-		fragShader.SetUniform("u_mapHeightOffset",	_material.moltenMapOffset);
 
 		m_screenQuadGeom.Draw();
 
@@ -289,10 +257,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_velocityData",					_geom.VelocityData().GetRead());
 		fragShader.SetTexture("s_miscData",						_geom.MiscData().GetRead());
 		fragShader.SetTexture("s_normalData",					_geom.NormalData().GetRead());
-		fragShader.SetTexture("s_moltenMapData",				_geom.MoltenMapData().GetRead());
 		fragShader.SetTexture("s_smudgeData",					_geom.SmudgeData().GetRead());
 		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxData().GetRead());
-		fragShader.SetTexture("s_diffuseMap",					_material.someTexture);
+		fragShader.SetTexture("s_grungeMap",					_material.grungeTexture);
 
 		// Mouse
 		fragShader.SetUniform("u_mousePos",						normalisedMousePos);
@@ -313,7 +280,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_condenseSpeed",				m_condenseSpeed);
 		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
 		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
-		fragShader.SetUniform("u_mapHeightOffset",				_material.moltenMapOffset);
+		fragShader.SetUniform("u_mapHeightOffset",				_material.heightOffset);
 		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);
 
 		// Water
@@ -373,68 +340,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.NormalData().Swap();
 		_geom.SmudgeData().Swap();
 	}
-
-	// Update molten particles
-	{
-		glBindProgramPipeline(GL_NONE);
-
-		m_moltenParticleUpdateShader.BindPerPass();
-			
-		GL_CHECK(glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _moltenParticleGeom.TransformFeedbackObjWrite()));
-		GL_CHECK(glBindVertexArray(_moltenParticleGeom.ParticleVertexArrayRead()));
-		
-
-		GL_CHECK(glBeginTransformFeedback(GL_POINTS));
-		GL_CHECK(glEnable(GL_RASTERIZER_DISCARD));
-
-		MoltenParticleUpdateVert& vertexShader = m_moltenParticleUpdateShader.VertexShader();
-
-		vertexShader.SetTexture("s_heightData", _geom.HeightData().GetRead());
-		vertexShader.SetTexture("s_velocityData", _geom.VelocityData().GetRead());
-		vertexShader.SetTexture("s_smudgeData", _geom.SmudgeData().GetRead());
-
-		GL_CHECK(glDrawArrays(GL_POINTS, 0, _moltenParticleGeom.NumParticles()));
-
-		GL_CHECK(glDisable(GL_RASTERIZER_DISCARD));
-		GL_CHECK(glEndTransformFeedback());
-		glUseProgram(GL_NONE);
-	}
-
-	// Render molten particles to a map
-	{
-		// Prepare the render target
-		GL_CHECK(glViewport(0, 0, _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar(), _geom.NumVerticesPerDimension() * _geom.MoltenMapResScalar()));
-		_fragRenderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenMapData().GetWrite());
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		_fragRenderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-		glClearDepth(0.0);
-		glClearColor(0.0f, 0.0, 0.0, 0.0);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		
-		// Set render states
-		glDepthFunc(GL_GREATER);
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(GL_TRUE);
-
-		// Bind shaders
-		m_moltenMapShader.BindPerPass();
-		MoltenMapFrag& fragShader = m_moltenMapShader.FragmentShader();
-		MoltenMapVert& vertShader = m_moltenMapShader.VertexShader();
-
-		// Set uniforms
-		vertShader.SetTexture("s_smudgeData", _geom.SmudgeData().GetRead() );
-
-		fragShader.SetTexture("s_texture", _material.moltenPlateDetailTexture );
-
-		// Draw!
-		_moltenParticleGeom.Draw();
-
-		glDepthFunc(GL_LESS);
-
-		_geom.MoltenMapData().GetWrite().GenerateMipMaps();
-		_geom.MoltenMapData().Swap();
-		_moltenParticleGeom.Switch();
-	}
 }
 
 void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)
@@ -447,15 +352,6 @@ void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)
 	);
 		
 	m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
-
-	RenderTargetBase* fragRenderTarget = new RenderTargetBase
-	(
-		_node.geom->NumVerticesPerDimension() * _node.geom->MoltenMapResScalar(), 
-		_node.geom->NumVerticesPerDimension() * _node.geom->MoltenMapResScalar(),
-		false, true, GL_RGBA16F
-	);
-		
-	m_fragRenderTargetByNodeMap.insert(std::make_pair(&_node, fragRenderTarget));
 }
 
 void TerrainSimulationProcess::OnNodeRemoved(const TerrainSimPassNode & _node)

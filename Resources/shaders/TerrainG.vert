@@ -30,7 +30,7 @@ uniform float u_dirtHeightToOpaque;
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat3 u_normalModelViewMatrix;
-uniform float u_mapHeightOffset;
+uniform float u_heightOffset;
 
 uniform vec3 u_lightDir;
 uniform float u_lightDistance;
@@ -40,11 +40,8 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
-uniform sampler2D s_diffuseMap;
 uniform sampler2D s_smudgeData;
-uniform sampler2D s_moltenMapData;
 uniform sampler2D s_dirtDiffuse;
-uniform sampler2D s_rockDiffuse;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -88,7 +85,6 @@ void main(void)
 	vec4 velocityDataC = texture(s_velocityData, in_uv);
 	vec4 miscDataC = textureLod(s_miscData, in_uv, 0);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
-	vec4 diffuseData = texture(s_diffuseMap, in_uv);
 	
 	vec2 rockNormalPacked = sampleCombinedMip(s_normalData, in_uv, 0, 1, 0.5).zw;
 	rockNormalPacked /= vec2(1.0 + 0.5 + 0.25);
@@ -104,13 +100,11 @@ void main(void)
 	float occlusion = 1.0f - miscDataC.w;
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
-	float moltenMapValue = texture(s_moltenMapData, in_uv).x;
 
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += rockHeight;
 	position.y += moltenHeight;
 	position.y += dirtHeight;
-	position.y += moltenMapValue * u_mapHeightOffset;
 
 	vec4 viewPosition = u_modelViewMatrix * position;
 
@@ -118,7 +112,7 @@ void main(void)
 	float dirtAlpha = min((dirtHeight / u_dirtHeightToOpaque), 1.0);
 	
 	// Molten
-	float moltenAlpha = min( max(heat-0.0, 0.0) * u_moltenAlphaScalar, 1.0 );
+	float moltenAlpha = min( heat * u_moltenAlphaScalar, 1.0 );
 	moltenAlpha = pow( moltenAlpha, u_moltenAlphaPower );
 	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * u_moltenColorScalar, moltenAlpha ), vec3(2.2) );
 	

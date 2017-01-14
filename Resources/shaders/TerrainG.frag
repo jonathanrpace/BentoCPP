@@ -23,29 +23,14 @@ in Varying
 uniform vec2 u_mouseScreenPos;
 uniform ivec2 u_windowSize;
 
-uniform vec3 u_rockColorA;
-uniform vec3 u_rockColorB;
 uniform float u_rockReflectivity;
 uniform float u_rockFresnelA;
 uniform float u_rockFresnelB;
 
-uniform vec3 u_hotRockColor;
 uniform float u_hotRockRoughness;
-uniform float u_hotRockFresnel;
-
-uniform float u_moltenPlateAlpha;
-uniform float u_moltenPlateAlphaPower;
-uniform float u_moltenCreaseAlpha;
-uniform float u_moltenCreaseAlphaPower;
-
 uniform vec3 u_moltenColor;
 uniform float u_moltenColorScalar;
-
 uniform float u_glowScalar;
-uniform float u_glowPower;
-uniform float u_glowDetailScalar;
-uniform float u_glowDetailPower;
-
 uniform vec3 u_dirtColor;
 
 uniform vec3 u_cameraPos;
@@ -71,9 +56,6 @@ uniform float u_phaseAlpha;
 uniform float u_flowOffset;
 
 // Textures
-uniform sampler2D s_rockDiffuse;
-uniform sampler2D s_creaseMap;
-uniform sampler2D s_moltenMapData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
@@ -186,43 +168,6 @@ vec2 rotateAroundBy( vec2 _pt, float _angle, vec2 _offset )
 	return _pt;
 }
 
-float sampleCreaseMapLong( vec2 _uv, vec2 _velocity, float _angle )
-{
-	_velocity = rotateBy( _velocity, _angle );
-
-	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
-	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
-
-	float sampleA = texture( s_creaseMap, uvA ).x;
-	float sampleB = texture( s_creaseMap, uvB ).x;
-
-	return mix( sampleA, sampleB, u_phaseAlpha );
-}
-
-float sampleCreaseMapLat( vec2 _uv, vec2 _velocity, float _angle )
-{
-	_velocity = rotateBy( _velocity, _angle );
-
-	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
-	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
-
-	float sampleA = texture( s_creaseMap, uvA ).y;
-	float sampleB = texture( s_creaseMap, uvB ).y;
-
-	return mix( sampleA, sampleB, u_phaseAlpha );
-}
-
-float sampleCreaseMapStill( vec2 _uv, vec2 _velocity )
-{
-	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
-	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
-
-	float sampleA = texture( s_creaseMap, uvA ).z;
-	float sampleB = texture( s_creaseMap, uvB ).z;
-
-	return mix( sampleA, sampleB, u_phaseAlpha );
-}
-
 vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float _heightB, float _blendWidth )
 {
 	//_heightA = max( 0.0, _heightA - _alpha );
@@ -242,8 +187,6 @@ vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float 
 
 	return mix( _valueB, _valueA, min(1.0, (-diff) / _blendWidth) );
 	
-
-
 	//float blendAlpha = diff * _blendWidth;
 	//return mix( _valueA, _valueB, blendAlpha );
 }
@@ -291,11 +234,6 @@ void main(void)
 
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos);
-	vec4 moltenMapSample = texture(s_moltenMapData, in_uv);
-	float moltenMapValue = clamp( moltenMapSample.x, 0.0, 1.0 );
-
-	float powedMoltenMapValue = pow(moltenMapValue, mix( 1.0, 0.1, in_rockNormal.y ));
-
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 
 	vec3 sampledAlbedo;
@@ -325,7 +263,8 @@ void main(void)
 		vec2 gridCellCenterBR = ((gridCell + ivec2(1,1)) * gridSize);
 		vec2 ratio = (gridCellPos - gridCell);
 
-		float angle = -atan(min( flow.y, 0.000001), flow.x);
+		float angle = -atan(flow.y, flow.x);
+		angle = isnan(angle) ? 0.0 : angle;
 
 		vec2 uvTL = rotateAroundBy( in_uv, angle, gridCellCenterTL);
 		vec2 uvTR = rotateAroundBy( in_uv, angle, gridCellCenterTR);
@@ -347,7 +286,6 @@ void main(void)
 		sampledAlbedo = mix( sampledAlbedo, sampledAlbedoLat, stretchRatio );
 		sampledAlbedo = pow(sampledAlbedo, vec3(2.2));
 		
-
 		vec3 sampledNormalStill = samplePhasedMap( s_lavaNormal, s_lavaMaterial, in_uv, velocity, 0.0 ).xyz;
 		sampledNormalStill -= 0.5;
 		sampledNormalStill *= 2.0;
@@ -365,8 +303,6 @@ void main(void)
 		sampledNormal = mix( sampledNormalStill, sampledNormalLong, compressionRatio );
 		sampledNormal = mix( sampledNormal, sampledNormalLat, stretchRatio );
 
-		//sampledNormal -= 0.5;
-		//sampledNormal *= 2.0;
 		sampledNormal = normalize(sampledNormal);
 	}
 
@@ -385,57 +321,21 @@ void main(void)
 	// Ambient light
 	vec3 ambientLight = lightingGGXAlbedo( rockNormal, viewDir, rockNormal, roughness, u_rockFresnelB, reflectivity, sampledAlbedo ) * u_ambientLightIntensity * in_occlusion * textureAO;
 
-	
-
-
-	/*
-
-	float diffuseRatio = moltenMapValue;
-
-	// Rock material
-	vec3 rockDiffuse = pow( mix( u_rockColorA, u_rockColorB, diffuseRatio ), vec3(2.2) );
-	float rockRoughness = mix( u_rockRoughnessA, u_rockRoughnessB, diffuseRatio );
-	float rockFresnel = mix( u_rockFresnelA, u_rockFresnelB, diffuseRatio );
-
-	// Mix rock and hot rock together
-	float hotRockMaterialLerp = min( in_heat / 0.05, 1.0 );
-	vec3 diffuse = mix( rockDiffuse, pow( u_hotRockColor, vec3(2.2) ), hotRockMaterialLerp );
-	float roughness = mix( rockRoughness, u_hotRockRoughness, hotRockMaterialLerp );
-	float fresnel = mix( rockFresnel, u_hotRockFresnel, hotRockMaterialLerp );
-	
-	diffuse *= mix( 1.0, creaseAmount, 0.8 );
-
-	// Rock normal
-	vec3 rockNormal = in_rockNormal;
-	float slopeScalar = pow(in_rockNormal.y, u_rockDetailBumpSlopePower);
-	float bumpLod = -0.5 + in_dirtAlpha * 7 + in_rockNormal.y * 2.0;
-	vec2 moltenMapDerivative = textureLod( s_moltenMapData, in_uv, bumpLod ).yz;
-
-	// Normal detail
-	vec2 angle = moltenMapDerivative * u_rockDetailBumpStrength * max(1.0-slopeScalar, 0.2);
-	rockNormal = rotateX( rockNormal, -angle.x ); 
-	rockNormal = rotateZ( rockNormal, angle.y ); 
-	rockNormal = normalize(rockNormal);
-
-	// Dirt
-	vec3 dirtDiffuse = pow(u_dirtColor, vec3(2.2));
-	diffuse = mix( diffuse, dirtDiffuse, in_dirtAlpha );
-	*/
-
 	// Local glow from heat
 	vec3 heatLight = vec3(0.0);
 	{
 		float dis = 0.1;
-		int mipLevel = 2;
+		int mipLevel = 3;
 		float strength = 1.0;
 		float totalStrength = 0.0;
-		for ( int i = 0; i < 3; i++ )
+		vec3 sampleDir = normalize( vec3( rockNormal.x, 0.0, rockNormal.z ) );
+		for ( int i = 0; i < 2; i++ )
 		{
-			vec3 samplePos = in_worldPosition + rockNormal * dis;
+			vec3 samplePos = in_worldPosition + sampleDir * dis;
 			vec2 sampleUV = samplePos.xz + vec2(0.5);
 			vec4 sampleHeightData = texture(s_heightData, sampleUV);
 			samplePos.y = sampleHeightData.x + sampleHeightData.y + sampleHeightData.z;
-			
+
 			float sampleHeat = textureLod( s_miscData, sampleUV, mipLevel ).x;
 			vec3 sampleDir = normalize( samplePos - in_worldPosition );
 
@@ -451,13 +351,8 @@ void main(void)
 		}
 
 		heatLight /= totalStrength;
-
-		//heatLight = lightingGGX( normalize(rockNormal + sampleDir), viewDir, sampleDir, roughness, fresnel );
-		heatLight *=  vec3(1.0,0.1,0.0) * 10.0 * textureAO;
+		heatLight *=  vec3(1.0,0.1,0.0) * u_glowScalar * textureAO;
 	}
-
-	
-
 
 	// Bring it all together
 	vec3 outColor = directLight + ambientLight + heatLight;
@@ -466,36 +361,11 @@ void main(void)
 	// Add emissve elements
 	float moltenAlpha = mix( max( in_moltenAlpha - (sampledMaterial.r * sampledMaterial.b), 0.0 ), in_moltenAlpha * (1.0 - sampledMaterial.r * sampledMaterial.b), 0.3 );
 
-	outColor *= (1.0-(moltenAlpha*2.0));
+	// Dark hot areas
+	outColor *= (1.0-(moltenAlpha*20.0));
 
 	outColor = mix( outColor, in_moltenColor, moltenAlpha * sampledMaterial.g );
 	
-
-
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
-
-
-
-	/*
-	// Direct light
-	float directLight = lightingGGX( rockNormal, viewDir, lightDir, roughness, fresnel ) * u_lightIntensity * (1.0-in_shadowing);
-
-	// Ambient light
-	float ambientlight = lightingGGX( rockNormal, viewDir, rockNormal, roughness, fresnel ) * u_ambientLightIntensity * in_occlusion;
-
-	// Bring it all together
-	vec3 outColor = (diffuse * (directLight + ambientlight)) + diffuse * heatLight;
-
-	//outColor = vec3( vec3(in_worldPosition + rockNormal * 0.05).xz, 0.0 );
-
-	
-
-	float heatGlowDetailAlpha = pow(1.0-creaseAmount, u_glowDetailPower) * in_heat * u_glowDetailScalar;
-	outColor += in_moltenColor * heatGlowDetailAlpha * (1.0-moltenAlpha);
-
-	
-	out_viewPosition = in_viewPosition;
-	out_forward = vec4( outColor, 1.0 );
-	*/
 }
