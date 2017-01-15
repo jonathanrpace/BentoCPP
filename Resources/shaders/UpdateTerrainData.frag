@@ -184,7 +184,7 @@ float exchange( vec4 _heightDataC, vec4 _heightDataN, vec4 _miscDataC, vec4 _mis
 
 float exchangeHeat( float _volumeFromN, vec4 _heightDataN, vec4 _miscDataN, float _limit )
 {
-	float advectSpeed = mix( u_heatAdvectSpeed * 100.0, u_heatAdvectSpeed, clamp( _volumeFromN / 0.1, 0.0, 1.0 ) );
+	float advectSpeed = mix( u_heatAdvectSpeed * 100.0, u_heatAdvectSpeed, clamp( _volumeFromN / 0.01, 0.0, 1.0 ) );
 	return min( _volumeFromN / max(_heightDataN.y, 0.04), _limit) * _miscDataN.x * u_heatAdvectSpeed;
 }
 
@@ -296,8 +296,8 @@ void main(void)
 		heatGained += exchangeHeat( fromBL, heightDataBL, miscDataBL, 0.05 );
 		heatGained += exchangeHeat( fromBR, heightDataBR, miscDataBR, 0.05 );
 
-		heatC -= heatLossed;
-		heatC += heatGained;
+		heatC -= heatLossed * 0.25;
+		heatC += heatGained * 0.25;
 
 		float totalHeatBefore = (miscDataL.x + miscDataR.x + miscDataU.x + miscDataD.x) * 0.19 + (miscDataTL.x + miscDataTR.x + miscDataBL.x + miscDataBR.x) * 0.05 + miscDataC.x;
 		heatC = clamp( min(heatC, totalHeatBefore), 0.0, 2.0 );
@@ -340,8 +340,8 @@ void main(void)
 		vec4 diffuseSampleC = texture(s_grungeMap, in_uv+mousePos*0.1);
 		float heatTextureScalar = pow( diffuseSampleC.x, 1.0 );
 		float heightTextureScalar = diffuseSampleC.x;
-		heatC   += ( pow(mouseRatio, 0.7) * u_mouseMoltenHeatStrength   * mix(0.02, 0.02, heatTextureScalar) );
-		heightC += ( pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix(0.18, 0.2, heightTextureScalar) );
+		heatC   += pow(mouseRatio, 0.7) * u_mouseMoltenHeatStrength * 0.05;
+		heightC += pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix( 0.5 - u_mouseMoltenHeatStrength * 0.4, 0.4, heightTextureScalar);
 		heatC = max(0.0, heatC);
 
 		out_heightData.y = heightC;
@@ -696,10 +696,10 @@ void main(void)
 
 			occlusion += occlusionFoThisMip * strength;
 			totalStrength += strength;
-			strength *= 0.5;
+			strength *= 1.25;
 		}
 		occlusion /= totalStrength;
-		occlusion *= 2.0;
+		//occlusion *= 2.0;
 		occlusion = min(1.0, occlusion);
 
 		out_miscData.w = occlusion;

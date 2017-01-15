@@ -21,11 +21,11 @@ vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, 
 	return ret;
 }
 
-vec3 reconstructNormal( vec2 normal2 )
+vec3 decodeNormalDXT( vec4 _sample )
 {
-	float len = length(normal2);
-	vec3 normal3 = vec3(normal2.x, (1.0-len), normal2.y);
-	return normalize(normal3);
+	vec3 n = vec3(_sample.w, _sample.x, 0.0) * 2.0 - 1.0;
+	n.z = sqrt(1.0-(n.x*n.x + n.y*n.y));
+	return n;
 }
 
 vec3 ApplyFog( vec3 rgb, vec3 c, vec3 p, vec3 sunDir, float height, vec3 colorAway, vec3 colorTowards, float density )

@@ -24,6 +24,7 @@ namespace bento
 		);
 		~TextureBase();
 
+		int Load(const char* _filename);
 		void TexImage2D(GLenum _format, GLenum _type, const GLvoid* _data, int _level = 0);
 		void TexImage2D(const char* _filename);
 

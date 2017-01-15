@@ -9,42 +9,33 @@ namespace godBox
 		, SerializableBase("TerrainMaterial")
 		, grungeTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
 		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, foamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLongAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLongNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLongMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLatAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLatNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLatMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
+		, foamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLongAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLongNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLongMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLatAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLatNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, lavaLatMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
-		grungeTexture.TexImage2D("textures/DataMap.png");
-		foamTexture.TexImage2D("textures/Foam.png");
-		smokeTexture.TexImage2D("textures/Smoke.png");
+		grungeTexture.Load("textures/DataMap.dds");
+		foamTexture.Load("textures/Foam.dds");
+		//smokeTexture.TexImage2D("textures/Smoke.png");
 		
-		lavaAlb.TexImage2D("textures/Lava_Albedo.png");
-		//lavaAlb.GenerateMipMaps();
-		lavaNrm.TexImage2D("textures/Lava_Normal.png");
-		//lavaNrm.GenerateMipMaps();
-		lavaMat.TexImage2D("textures/Lava_Material.png");
-		//lavaMat.GenerateMipMaps();
+		lavaAlb.Load("textures/Lava_Albedo.dds");
+		lavaNrm.Load("textures/Lava_Normal.dds");
+		lavaMat.Load("textures/Lava_Material.dds");
 
-		lavaLongAlb.TexImage2D("textures/LavaLong_Albedo.png");
-		//lavaLongAlb.GenerateMipMaps();
-		lavaLongNrm.TexImage2D("textures/LavaLong_Normal.png");
-		//lavaLongNrm.GenerateMipMaps();
-		lavaLongMat.TexImage2D("textures/LavaLong_Material.png");
-		//lavaLongMat.GenerateMipMaps();
+		lavaLongAlb.Load("textures/LavaLong_Albedo.dds");
+		lavaLongNrm.Load("textures/LavaLong_Normal.dds");
+		lavaLongMat.Load("textures/LavaLong_Material.dds");
 
-		lavaLatAlb.TexImage2D("textures/LavaLat_Albedo.png");
-		//lavaLatAlb.GenerateMipMaps();
-		lavaLatNrm.TexImage2D("textures/LavaLat_Normal.png");
-		//lavaLatNrm.GenerateMipMaps();
-		lavaLatMat.TexImage2D("textures/LavaLat_Material.png");
-		//lavaLatMat.GenerateMipMaps();
+		lavaLatAlb.Load("textures/LavaLat_Albedo.dds");
+		lavaLatNrm.Load("textures/LavaLat_Normal.dds");
+		lavaLatMat.Load("textures/LavaLat_Material.dds");
 		
 		// Global
 		SerializableMember("heightScalar", 0.0f, &heightOffset);

@@ -121,8 +121,6 @@ namespace godBox
 				positions[float3Index + 1] = 0.0f;
 				positions[float3Index + 2] = (zRatio * m_size) - m_size * 0.5f;
 
-				
-
 				heightData[float4Index + 0] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 1] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 2] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
@@ -133,17 +131,6 @@ namespace godBox
 				randData[float4Index + 2] =	Rand();
 				randData[float4Index + 3] =	Rand();
 
-				/*
-				fluxData[float4Index + 0] = 0.0f;
-				fluxData[float4Index + 1] = 0.0f;
-				fluxData[float4Index + 2] = 0.0f;
-				fluxData[float4Index + 3] = 0.0f;
-
-				mappingData[float4Index + 0] = 0.0f;// 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
-				mappingData[float4Index + 1] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
-				mappingData[float4Index + 2] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
-				mappingData[float4Index + 3] = 0.0f;// static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX);
-				*/
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
 					if (hexGrid)
@@ -193,10 +180,8 @@ namespace godBox
 
 		m_heightData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_heightData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_heightData.GetRead().GenerateMipMaps();
 		m_heightData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_heightData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_heightData.GetWrite().GenerateMipMaps();
 
 		m_velocityData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_velocityData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
@@ -205,17 +190,13 @@ namespace godBox
 
 		m_miscData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_miscData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_miscData.GetRead().GenerateMipMaps();
 		m_miscData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_miscData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_miscData.GetWrite().GenerateMipMaps();
 
 		m_normalData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_normalData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_normalData.GetRead().GenerateMipMaps();
 		m_normalData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_normalData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_normalData.GetWrite().GenerateMipMaps();
 
 		m_smudgeData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_smudgeData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
@@ -224,11 +205,8 @@ namespace godBox
 
 		m_waterFluxData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_waterFluxData.GetRead().GenerateMipMaps();
-
 		m_waterFluxData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_waterFluxData.GetWrite().GenerateMipMaps();
 
 		BufferVertexData(0, &positions[0], (int)positions.size());
 		BufferVertexData(1, &uvs[0], (int)uvs.size());

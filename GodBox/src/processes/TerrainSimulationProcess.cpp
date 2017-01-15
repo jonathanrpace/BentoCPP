@@ -114,7 +114,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Text("Input");
 	ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
 	ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 5.0f, "%.2f");
+	ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 1.0f, "%.2f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();

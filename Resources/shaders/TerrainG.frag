@@ -30,8 +30,11 @@ uniform float u_rockFresnelB;
 uniform float u_hotRockRoughness;
 uniform vec3 u_moltenColor;
 uniform float u_moltenColorScalar;
-uniform float u_glowScalar;
 uniform vec3 u_dirtColor;
+
+uniform float u_glowScalar;
+uniform float u_glowMipLevel = 4;
+uniform float u_glowDistance = 0.1;
 
 uniform vec3 u_cameraPos;
 uniform float u_rockDetailBumpStrength;
@@ -73,6 +76,8 @@ uniform sampler2D s_lavaLatAlbedo;
 uniform sampler2D s_lavaLatNormal;
 uniform sampler2D s_lavaLatMaterial;
 
+uniform float u_textureBias = -1.0;
+
 ////////////////////////////////////////////////////////////////
 // Outputs
 ////////////////////////////////////////////////////////////////
@@ -97,6 +102,7 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
 vec3 lightingGGXAlbedo( vec3 N, vec3 V, vec3 L, float roughness, float F0, float reflectivity, vec3 albedo );
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar );
+vec3 decodeNormalDXT( vec4 _sample );
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -168,6 +174,29 @@ vec2 rotateAroundBy( vec2 _pt, float _angle, vec2 _offset )
 	return _pt;
 }
 
+vec4 heightMix( vec4 _valueA, vec4 _valueB, float _alpha, float _heightA, float _heightB, float _blendWidth )
+{
+	//_heightA = max( 0.0, _heightA - _alpha );
+	//_heightB = -(1.0-_alpha) + _heightB;
+
+	_heightB *= _alpha;
+	_heightA *= (1.0-_alpha);
+
+	return _heightA > _heightB ? _valueA : _valueB;
+
+	float diff = _heightB - _heightA;
+
+	if ( diff >= 0.0 )
+	{
+		return mix( _valueA, _valueB, min(1.0, diff / _blendWidth) );
+	}
+
+	return mix( _valueB, _valueA, min(1.0, (-diff) / _blendWidth) );
+	
+	//float blendAlpha = diff * _blendWidth;
+	//return mix( _valueA, _valueB, blendAlpha );
+}
+
 vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float _heightB, float _blendWidth )
 {
 	//_heightA = max( 0.0, _heightA - _alpha );
@@ -191,6 +220,16 @@ vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float 
 	//return mix( _valueA, _valueB, blendAlpha );
 }
 
+vec4 bilinearMix( vec4 _valueTL, vec4 _valueTR, vec4 _valueBL, vec4 _valueBR, vec2 _ratio )
+{
+	vec4 ret = _ratio.x * _ratio.y * _valueBR;
+	ret += (1.0-_ratio.x) * _ratio.y * _valueBL;
+	ret += _ratio.x * (1.0-_ratio.y) * _valueTR;
+	ret += (1.0-_ratio.x) * (1.0-_ratio.y) * _valueTL;
+
+	return ret;
+}
+
 vec3 bilinearMix( vec3 _valueTL, vec3 _valueTR, vec3 _valueBL, vec3 _valueBR, vec2 _ratio )
 {
 	vec3 ret = _ratio.x * _ratio.y * _valueBR;
@@ -201,30 +240,56 @@ vec3 bilinearMix( vec3 _valueTL, vec3 _valueTR, vec3 _valueBL, vec3 _valueBR, ve
 	return ret;
 }
 
-vec3 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec2 _velocity, float _angle )
+vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec2 _velocity, float _angle )
 {
 	_velocity = rotateBy( _velocity, _angle );
 
 	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
 	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
 
-	vec3 sampleA = texture( _sampler, uvA ).rgb;
-	vec3 sampleB = texture( _sampler, uvB ).rgb;
+	vec4 sampleA = texture( _sampler, uvA, u_textureBias );
+	vec4 sampleB = texture( _sampler, uvB, u_textureBias );
 
-	float heightSampleA = texture( _heightSampler, uvA ).x;
-	float heightSampleB = texture( _heightSampler, uvB ).x;
+	float heightSampleA = texture( _heightSampler, uvA, u_textureBias ).x;
+	float heightSampleB = texture( _heightSampler, uvB, u_textureBias ).x;
 
 	return heightMix( sampleA, sampleB, u_phaseAlpha, heightSampleA, heightSampleB, u_hotRockRoughness );
 }
 
-vec3 sampleBilinearPhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uvTL, vec2 _uvTR, vec2 _uvBL, vec2 _uvBR, vec2 _velocity, float _angle, vec2 _ratio )
+vec3 samplePhasedMapNormalDXT( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec2 _velocity, float _angle )
 {
-	vec3 sampleTL = samplePhasedMap( _sampler, _heightSampler, _uvTL, _velocity, _angle );
-	vec3 sampleTR = samplePhasedMap( _sampler, _heightSampler, _uvTR, _velocity, _angle );
-	vec3 sampleBL = samplePhasedMap( _sampler, _heightSampler, _uvBL, _velocity, _angle );
-	vec3 sampleBR = samplePhasedMap( _sampler, _heightSampler, _uvBR, _velocity, _angle );
+	_velocity = rotateBy( _velocity, _angle );
+
+	vec2 uvA = (_uv * u_creaseMapRepeat) - u_phaseA * _velocity * u_flowOffset;
+	vec2 uvB = (_uv * u_creaseMapRepeat) - u_phaseB * _velocity * u_flowOffset;
+
+	vec3 sampleA = decodeNormalDXT( texture( _sampler, uvA, u_textureBias ) );
+	vec3 sampleB = decodeNormalDXT( texture( _sampler, uvB, u_textureBias ) );
+
+	float heightSampleA = texture( _heightSampler, uvA, u_textureBias ).x;
+	float heightSampleB = texture( _heightSampler, uvB, u_textureBias ).x;
+
+	return normalize( heightMix( sampleA, sampleB, u_phaseAlpha, heightSampleA, heightSampleB, u_hotRockRoughness ) );
+}
+
+vec4 sampleBilinearPhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uvTL, vec2 _uvTR, vec2 _uvBL, vec2 _uvBR, vec2 _velocity, float _angle, vec2 _ratio )
+{
+	vec4 sampleTL = samplePhasedMap( _sampler, _heightSampler, _uvTL, _velocity, _angle );
+	vec4 sampleTR = samplePhasedMap( _sampler, _heightSampler, _uvTR, _velocity, _angle );
+	vec4 sampleBL = samplePhasedMap( _sampler, _heightSampler, _uvBL, _velocity, _angle );
+	vec4 sampleBR = samplePhasedMap( _sampler, _heightSampler, _uvBR, _velocity, _angle );
 
 	return bilinearMix(sampleTL, sampleTR, sampleBL, sampleBR, _ratio);
+}
+
+vec3 sampleBilinearPhasedMapNormalDXT( sampler2D _sampler, sampler2D _heightSampler, vec2 _uvTL, vec2 _uvTR, vec2 _uvBL, vec2 _uvBR, vec2 _velocity, float _angle, vec2 _ratio )
+{
+	vec3 sampleTL = samplePhasedMapNormalDXT( _sampler, _heightSampler, _uvTL, _velocity, _angle );
+	vec3 sampleTR = samplePhasedMapNormalDXT( _sampler, _heightSampler, _uvTR, _velocity, _angle );
+	vec3 sampleBL = samplePhasedMapNormalDXT( _sampler, _heightSampler, _uvBL, _velocity, _angle );
+	vec3 sampleBR = samplePhasedMapNormalDXT( _sampler, _heightSampler, _uvBR, _velocity, _angle );
+
+	return normalize( bilinearMix(sampleTL, sampleTR, sampleBL, sampleBR, _ratio) );
 }
 
 
@@ -286,18 +351,12 @@ void main(void)
 		sampledAlbedo = mix( sampledAlbedo, sampledAlbedoLat, stretchRatio );
 		sampledAlbedo = pow(sampledAlbedo, vec3(2.2));
 		
-		vec3 sampledNormalStill = samplePhasedMap( s_lavaNormal, s_lavaMaterial, in_uv, velocity, 0.0 ).xyz;
-		sampledNormalStill -= 0.5;
-		sampledNormalStill *= 2.0;
+		vec3 sampledNormalStill = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_uv, velocity, 0.0 );
 
-		vec3 sampledNormalLong = sampleBilinearPhasedMap( s_lavaLongNormal, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).xyz;
-		sampledNormalLong -= 0.5;
-		sampledNormalLong *= 2.0;
+		vec3 sampledNormalLong = sampleBilinearPhasedMapNormalDXT( s_lavaLongNormal, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).xyz;
 		sampledNormalLong = rotateZ( sampledNormalLong, angle );
 
-		vec3 sampledNormalLat = sampleBilinearPhasedMap( s_lavaLatNormal, s_lavaLatMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).xyz;
-		sampledNormalLat -= 0.5;
-		sampledNormalLat *= 2.0;
+		vec3 sampledNormalLat = sampleBilinearPhasedMapNormalDXT( s_lavaLatNormal, s_lavaLatMaterial, uvTL, uvTR, uvBL, uvBR, velocity, angle, ratio ).xyz;
 		sampledNormalLat = rotateZ( sampledNormalLong, angle );
 
 		sampledNormal = mix( sampledNormalStill, sampledNormalLong, compressionRatio );
@@ -316,6 +375,10 @@ void main(void)
 	float roughness = sampledMaterial.g;
 	float textureAO = sampledMaterial.b;
 	float reflectivity = u_rockReflectivity;
+
+	sampledAlbedo *= max(0.0, (1.0-in_moltenAlpha*1.0));
+	reflectivity *= max(0.0, (1.0-in_moltenAlpha*10.0));
+
 	vec3 directLight = lightingGGXAlbedo( rockNormal, viewDir, lightDir, roughness, u_rockFresnelA, reflectivity, sampledAlbedo ) * u_lightIntensity * (1.0-in_shadowing) * textureAO;
 
 	// Ambient light
@@ -324,45 +387,31 @@ void main(void)
 	// Local glow from heat
 	vec3 heatLight = vec3(0.0);
 	{
-		float dis = 0.1;
-		int mipLevel = 3;
-		float strength = 1.0;
-		float totalStrength = 0.0;
-		vec3 sampleDir = normalize( vec3( rockNormal.x, 0.0, rockNormal.z ) );
-		for ( int i = 0; i < 2; i++ )
-		{
-			vec3 samplePos = in_worldPosition + sampleDir * dis;
-			vec2 sampleUV = samplePos.xz + vec2(0.5);
-			vec4 sampleHeightData = texture(s_heightData, sampleUV);
-			samplePos.y = sampleHeightData.x + sampleHeightData.y + sampleHeightData.z;
+		vec3 sampleOffset = normalize( vec3( rockNormal.x, 0.0, rockNormal.z ) );
+		
+		vec3 samplePos = in_worldPosition + sampleOffset * u_glowDistance;
+		vec2 sampleUV = samplePos.xz + vec2(0.5);
+		vec4 sampleHeightData = texture(s_heightData, sampleUV);
+		samplePos.y = sampleHeightData.x + sampleHeightData.y + sampleHeightData.z;
 
-			float sampleHeat = textureLod( s_miscData, sampleUV, mipLevel ).x;
-			vec3 sampleDir = normalize( samplePos - in_worldPosition );
+		float sampleHeat = textureLod( s_miscData, sampleUV, u_glowMipLevel ).x;
+		vec3 sampleDir = samplePos - in_worldPosition;
+		float sampleDis = length(sampleDir);
+		sampleDir = normalize(sampleDir);
 
-			totalStrength += strength;
-			dis *= 2.0;
-			strength *= 0.5;
-			mipLevel++;
+		float sampleHeatLight = lightingGGX( rockNormal, viewDir, sampleDir, roughness, u_rockFresnelA );
+		sampleHeatLight *= max( 0.0, sampleHeat - 0.1 );
+		sampleHeatLight /= 1.0 + sampleDis*sampleDis;
 
-			float sampleHeatLight = lightingGGX( rockNormal, viewDir, sampleDir, roughness, u_rockFresnelA );
-			sampleHeatLight *= max( 0.0, sampleHeat-0.1) * (dot( rockNormal, sampleDir ) + 1.0) * 0.5;
-
-			heatLight += sampleHeatLight;
-		}
-
-		heatLight /= totalStrength;
+		heatLight += sampleHeatLight;
 		heatLight *=  vec3(1.0,0.1,0.0) * u_glowScalar * textureAO;
 	}
 
 	// Bring it all together
 	vec3 outColor = directLight + ambientLight + heatLight;
 
-
 	// Add emissve elements
 	float moltenAlpha = mix( max( in_moltenAlpha - (sampledMaterial.r * sampledMaterial.b), 0.0 ), in_moltenAlpha * (1.0 - sampledMaterial.r * sampledMaterial.b), 0.3 );
-
-	// Dark hot areas
-	outColor *= (1.0-(moltenAlpha*20.0));
 
 	outColor = mix( outColor, in_moltenColor, moltenAlpha * sampledMaterial.g );
 	

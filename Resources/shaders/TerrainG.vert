@@ -72,8 +72,12 @@ out Varying
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar );
-vec3 reconstructNormal( vec2 normal2 );
-float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
+
+vec3 reconstructNormal( vec2 n )
+{
+	float len = length(n);
+	return normalize( vec3(n.x, (1.0-len), n.y) );
+}
 
 ////////////////////////////////////////////////////////////////
 // MAIN

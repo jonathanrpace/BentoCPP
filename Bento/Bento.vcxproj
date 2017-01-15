@@ -73,22 +73,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)GLI\;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)GLI\;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)GLI\;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)GLEW\include\;$(SolutionDir)GLFW\include\glfw;$(SolutionDir)GLI\;$(SolutionDir)IMGUI\;$(SolutionDir)GLM\;$(ProjectDir)src\;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)bin\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
