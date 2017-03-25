@@ -32,6 +32,7 @@ namespace godBox
 		PingPongTextureSquare& NormalData() { return m_normalData; }
 		PingPongTextureSquare& SmudgeData() { return m_smudgeData; }
 		PingPongTextureSquare& WaterFluxData() { return m_waterFluxData; }
+		PingPongTextureSquare& UVOffsetData() { return m_uvOffsetData; }
 		
 		void ResetTerrainMousePos();
 
@@ -77,5 +78,6 @@ namespace godBox
 		PingPongTextureSquare m_normalData;
 		PingPongTextureSquare m_smudgeData;
 		PingPongTextureSquare m_waterFluxData;
+		PingPongTextureSquare m_uvOffsetData;
 	};
 }

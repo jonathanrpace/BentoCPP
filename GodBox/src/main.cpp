@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 	// glfw is generating some gl errors and not checking for them
 	while (glGetError() != GL_NONE) {}
 
-	Config::Init("../../../../Resources/", "../../../../Defaults/");
+	Config::Init("../../../../Resources/runtime/", "../../../../Defaults/");
 	DefaultsManager::Init("../../../../Defaults/defaults.json");
 
 	mainLoop(window);

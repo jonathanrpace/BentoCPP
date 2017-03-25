@@ -19,7 +19,7 @@ namespace godBox
 	////////////////////////////////////////////
 
 	TerrainVert::TerrainVert() 
-		: ShaderStageBase("shaders/TerrainG.vert") 
+		: ShaderStageBase("shaders/Terrain.vert") 
 	{
 	}
 
@@ -27,7 +27,6 @@ namespace godBox
 	{
 		// Textures
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
-		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
@@ -44,8 +43,6 @@ namespace godBox
 		SetUniform("u_fogHeight", _material.fogHeight);
 		SetUniform("u_fogColorAway", _material.fogColorAway);
 		SetUniform("u_fogColorTowards", _material.fogColorTowards);
-				
-		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 		
 		SetUniform("u_moltenColor", _material.moltenColor);
 		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
@@ -65,7 +62,7 @@ namespace godBox
 	////////////////////////////////////////////
 
 	TerrainFrag::TerrainFrag() 
-		: ShaderStageBase("shaders/TerrainG.frag") 
+		: ShaderStageBase("shaders/Terrain.frag") 
 	{
 
 	}
@@ -75,8 +72,8 @@ namespace godBox
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
 		float phase = fmodf( (float)glfwGetTime() * _material.creaseFlowSpeed, 1.0f );
-		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
-		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
+		float phaseA = fmodf( phase + 0.0f, 1.0f );// * 2.0f - 1.0f;
+		float phaseB = fmodf( phase + 0.5f, 1.0f );// * 2.0f - 1.0f;
 		float alphaB = fabs( 0.5f - phase ) * 2.0f;
 		float alphaA = 1.0f - alphaB;
 
@@ -89,18 +86,12 @@ namespace godBox
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
 		SetUniform("u_rockReflectivity", _material.rockReflectivity);
-		SetUniform("u_rockFresnelA", _material.rockFresnelA);
-		SetUniform("u_rockFresnelB", _material.rockFresnelB);
-
-		SetUniform("u_hotRockFresnel", _material.hotRockFresnel);
-
-		SetUniform("u_glowScalar", _material.glowScalar);
-
-		SetUniform("u_moltenColor", _material.moltenColor);
-		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
-
 		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
 		SetUniform("u_rockDetailBumpSlopePower", _material.rockDetailBumpSlopePower);
+
+		SetUniform("u_glowScalar", _material.glowScalar);
+		SetUniform("u_moltenColor", _material.moltenColor);
+		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
 
 		SetUniform("u_dirtColor", _material.dirtColor);
 
@@ -123,18 +114,19 @@ namespace godBox
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
+		SetTexture("s_uvOffsetData", _geometry.UVOffsetData().GetRead());
 		
 		SetTexture("s_lavaAlbedo", _material.lavaAlb);
 		SetTexture("s_lavaNormal", _material.lavaNrm);
 		SetTexture("s_lavaMaterial", _material.lavaMat);
 
-		SetTexture("s_lavaLongAlbedo", _material.lavaLongAlb);
-		SetTexture("s_lavaLongNormal", _material.lavaLongNrm);
-		SetTexture("s_lavaLongMaterial", _material.lavaLongMat);
+		SetTexture("s_lavaLongAlbedo", _material.lavaAlb);
+		SetTexture("s_lavaLongNormal", _material.lavaNrm);
+		SetTexture("s_lavaLongMaterial", _material.lavaMat);
 
-		SetTexture("s_lavaLatAlbedo", _material.lavaLatAlb);
-		SetTexture("s_lavaLatNormal", _material.lavaLatNrm);
-		SetTexture("s_lavaLatMaterial", _material.lavaLatMat);
+		SetTexture("s_lavaLatAlbedo", _material.lavaAlb);
+		SetTexture("s_lavaLatNormal", _material.lavaNrm);
+		SetTexture("s_lavaLatMaterial", _material.lavaMat);
 
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;

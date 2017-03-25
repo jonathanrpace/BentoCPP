@@ -42,8 +42,6 @@ namespace godBox
 
 		// Rock
 		SerializableMember("rockReflectivity", 0.1f, &rockReflectivity);
-		SerializableMember("rockFresnelA", 1.0f, &rockFresnelA);
-		SerializableMember("rockFresnelB", 1.0f, &rockFresnelB);
 		SerializableMember("rockDetailBumpStrength", 1.0f, &rockDetailBumpStrength);
 		SerializableMember("rockDetailBumpSlopePower", 1.0f, &rockDetailBumpSlopePower);
 
@@ -57,9 +55,6 @@ namespace godBox
 		SerializableMember("creaseGridRepeat", 1.0f, &creaseGridRepeat);
 		SerializableMember("creaseFlowSpeed", 0.02f, &creaseFlowSpeed);
 		SerializableMember("creaseFlowOffset", 0.01f, &creaseFlowOffset);
-
-		// Hot rock
-		SerializableMember("hotRockFresnel", 1.0f, &hotRockFresnel);
 
 		// Molten
 		SerializableMember("moltenColor", vec3(1.0f, 0.5f, 0.01f), &moltenColor);
@@ -120,16 +115,8 @@ namespace godBox
 		ImGui::Text("Rock");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
 		ImGui::SliderFloat("Reflectivity A##rock", &rockReflectivity, 0.0f, 1.0f);
-		ImGui::SliderFloat("Fresnel A##rock", &rockFresnelA, 0.0f, 1.0f);
-		ImGui::SliderFloat("Fresnel B##rock", &rockFresnelB, 0.0f, 1.0f);
 		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 2.0f);
 		ImGui::SliderFloat("Detail Bump Slope Power B##rock", &rockDetailBumpSlopePower, 0.0f, 20.0f);
-		ImGui::Spacing();
-
-		ImGui::Spacing();
-		ImGui::Text("Hot rock");
-		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
-		ImGui::SliderFloat("Fresnel##hotRock", &hotRockFresnel, 0.0f, 1.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -141,8 +128,8 @@ namespace godBox
 		ImGui::SliderFloat("ForwardScalar##crease", &creaseForwardScalar, 0.0f, 0.1f);
 		ImGui::SliderFloat("MapRepeat##crease", &creaseMapRepeat, 0.0f, 10.0f);
 		ImGui::SliderFloat("GridRepeat##crease", &creaseGridRepeat, 0.0f, 50.0f);
-		ImGui::SliderFloat("FlowSpeed##crease", &creaseFlowSpeed, 0.0f, 1.0f);
-		ImGui::SliderFloat("FlowOffset##crease", &creaseFlowOffset, 0.0f, 5.0f);
+		ImGui::SliderFloat("FlowSpeed##crease", &creaseFlowSpeed, 0.0f, 0.5f);
+		ImGui::SliderFloat("FlowOffset##crease", &creaseFlowOffset, 0.0f, 0.50f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

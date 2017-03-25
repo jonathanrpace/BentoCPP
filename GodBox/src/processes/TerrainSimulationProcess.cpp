@@ -123,13 +123,13 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Text("Molten");
-	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 2.0f);
+	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 1.0f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
 	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 50.0f);
 	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.0001f, "%.6f");
-	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.1f, "%.5f");
+	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 50.0f, "%.5f");
 	ImGui::Spacing();
 
@@ -210,6 +210,15 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	float waterVolumeAmount = mouseIsDown * m_mouseVolumeStrength * waterScalar;
 	float heatChangeAmount = mouseIsDown * m_mouseHeatStrength * moltenScalar;
 
+	float phase = fmodf( (float)glfwGetTime() * _material.creaseFlowSpeed, 1.0f );
+	float phaseA = fmodf( phase + 0.0f, 1.0f );
+	float phaseB = fmodf( phase + 0.5f, 1.0f );
+
+	bool m_phaseALatch = m_prevPhaseA > phaseA;
+	bool m_phaseBLatch = m_prevPhaseB > phaseB;
+	m_prevPhaseA = phaseA;
+	m_prevPhaseB = phaseB;
+
 	vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
 
 	glDisable(GL_DEPTH_TEST);
@@ -248,8 +257,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscData().GetWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.NormalData().GetWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.SmudgeData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT5, _geom.UVOffsetData().GetWrite());
 
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 			
 		// Samplers
@@ -259,6 +269,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_normalData",					_geom.NormalData().GetRead());
 		fragShader.SetTexture("s_smudgeData",					_geom.SmudgeData().GetRead());
 		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxData().GetRead());
+		fragShader.SetTexture("s_uvOffsetData",					_geom.UVOffsetData().GetRead());
 		fragShader.SetTexture("s_grungeMap",					_material.grungeTexture);
 
 		// Mouse
@@ -271,6 +282,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		
 		// Environment
 		fragShader.SetUniform("u_ambientTemp",					m_ambientTemperature);
+		fragShader.SetUniform("u_phaseALatch",					m_phaseALatch);
+		fragShader.SetUniform("u_phaseBLatch",					m_phaseBLatch);
 
 		// Molten
 		fragShader.SetUniform("u_heatAdvectSpeed",				m_heatAdvectSpeed);
@@ -339,6 +352,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.MiscData().Swap();
 		_geom.NormalData().Swap();
 		_geom.SmudgeData().Swap();
+		_geom.UVOffsetData().Swap();
 	}
 }
 

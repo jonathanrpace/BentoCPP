@@ -13,7 +13,7 @@ namespace godBox
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.0f)
-		, m_numVerticesPerDimension(512)
+		, m_numVerticesPerDimension(256)
 		, m_terrainMousePos()
 
 		, m_heightData		(m_numVerticesPerDimension,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -22,6 +22,7 @@ namespace godBox
 		, m_normalData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_smudgeData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_waterFluxData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_uvOffsetData	(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
@@ -207,6 +208,11 @@ namespace godBox
 		m_waterFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_waterFluxData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+
+		m_uvOffsetData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_uvOffsetData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_uvOffsetData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
+		m_uvOffsetData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
 		BufferVertexData(0, &positions[0], (int)positions.size());
 		BufferVertexData(1, &uvs[0], (int)uvs.size());

@@ -50,8 +50,6 @@ namespace godBox
 
 		// Rock
 		float rockReflectivity;
-		float rockFresnelA;
-		float rockFresnelB;
 		float rockDetailBumpStrength;
 		float rockDetailBumpSlopePower;
 
@@ -65,9 +63,6 @@ namespace godBox
 		float creaseGridRepeat;
 		float creaseFlowSpeed;
 		float creaseFlowOffset;
-
-		// Hot rock
-		float hotRockFresnel;
 
 		// Molten
 		vec3 moltenColor;

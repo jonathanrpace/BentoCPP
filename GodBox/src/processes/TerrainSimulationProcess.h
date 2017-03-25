@@ -73,6 +73,9 @@ namespace godBox
 
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
 
+		float m_prevPhaseA = 0.0f;
+		float m_prevPhaseB = 0.0f;
+
 		// Input
 		float m_mouseRadius;
 		float m_mouseVolumeStrength;
