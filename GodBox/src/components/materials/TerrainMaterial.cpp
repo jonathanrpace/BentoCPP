@@ -7,36 +7,19 @@ namespace godBox
 	TerrainMaterial::TerrainMaterial(std::string _name)
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
-		, grungeTexture(256, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, smokeTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR, GL_REPEAT, GL_REPEAT)
-		, foamTexture(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLongAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLongNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLongMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLatAlb(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLatNrm(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
-		, lavaLatMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
+		, grungeTexture("textures/GrungeMap.dds", GL_LINEAR, GL_LINEAR)
+		//, smokeTexture("textures/Smoke.png")
+		, foamTexture("textures/Foam.dds")
+		, lavaAlb("textures/Lava_Albedo.dds")
+		, lavaNrm("textures/Lava_Normal.dds")
+		, lavaMat("textures/Lava_Material.dds")
+		, lavaLongAlb("textures/LavaLong_Albedo.dds")
+		, lavaLongNrm("textures/LavaLong_Normal.dds")
+		, lavaLongMat("textures/LavaLong_Material.dds")
+		, lavaLatAlb("textures/LavaLat_Albedo.dds")
+		, lavaLatNrm("textures/LavaLat_Normal.dds")
+		, lavaLatMat("textures/LavaLat_Material.dds")
 	{
-		// Textures
-		grungeTexture.Load("textures/GrungeMap.dds");
-		foamTexture.Load("textures/Foam.dds");
-		//smokeTexture.TexImage2D("textures/Smoke.png");
-		
-		lavaAlb.Load("textures/Lava_Albedo.dds");
-		lavaNrm.Load("textures/Lava_Normal.dds");
-		lavaMat.Load("textures/Lava_Material.dds");
-
-		lavaLongAlb.Load("textures/LavaLong_Albedo.dds");
-		lavaLongNrm.Load("textures/LavaLong_Normal.dds");
-		lavaLongMat.Load("textures/LavaLong_Material.dds");
-
-		lavaLatAlb.Load("textures/LavaLat_Albedo.dds");
-		lavaLatNrm.Load("textures/LavaLat_Normal.dds");
-		lavaLatMat.Load("textures/LavaLat_Material.dds");
-		
 		// Global
 		SerializableMember("heightScalar", 0.0f, &heightOffset);
 

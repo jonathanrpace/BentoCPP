@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bento/components/textures/RectangleTexture.h>
 #include <bento/core/ShaderStageBase.h>
 
 namespace bento

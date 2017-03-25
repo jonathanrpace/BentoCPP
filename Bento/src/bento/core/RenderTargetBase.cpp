@@ -63,11 +63,20 @@ namespace bento
 		for (auto& iter : m_texturesByAttachment) 
 		{
 			GLenum attachment = iter.first;
-			ITexture2D& texture = *iter.second;
+			ITexture* texture = iter.second;
 			int level = m_levelsByAttachment[attachment];
-			texture.SetSize(m_width << level, m_height << level);
 
-			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, textureTarget, texture.TextureName(), level));
+			if ( m_isRectangular )
+			{
+				((RectangleTexture*) texture)->Width(m_width << level);
+				((RectangleTexture*) texture)->Height(m_height << level);
+			}
+			else
+			{
+				((TextureSquare*) texture)->Size(m_width << level);
+			}
+
+			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texture->Target(), texture->TextureName(), level));
 		}
 
 		if (m_hasDepthStencil)
@@ -130,7 +139,7 @@ namespace bento
 		assert(!m_isRectangular);
 
 		// Attach immediately if we're ready to go
-		if (_texture.Width() == m_width && _texture.Height() == m_height)
+		if (_texture.Size() == m_width && _texture.Size() == m_height)
 		{
 			m_texturesByAttachment[_attachment] = &_texture;
 			m_levelsByAttachment[_attachment] = _level;

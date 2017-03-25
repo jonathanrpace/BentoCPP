@@ -151,7 +151,7 @@
   <ItemGroup>
     <ClInclude Include="src\bento\components\PerspectiveLens.h" />
     <ClInclude Include="src\bento\components\textures\PingPongTextureSquare.h" />
-    <ClInclude Include="src\bento\components\textures\Texture3D.h" />
+    <ClInclude Include="src\bento\components\textures\TextureResource.h" />
     <ClInclude Include="src\bento\components\Transform.h" />
     <ClInclude Include="src\bento\core\DefaultsManager.h" />
     <ClInclude Include="src\bento\core\Entity.h" />
@@ -161,9 +161,6 @@
     <ClInclude Include="src\bento\core\RenderPass.h" />
     <ClInclude Include="src\bento\core\IRenderTarget.h" />
     <ClInclude Include="src\bento\core\ITexture.h" />
-    <ClInclude Include="src\bento\core\ITexture2D.h" />
-    <ClInclude Include="src\bento\core\ITextureRect.h" />
-    <ClInclude Include="src\bento\core\ITextureSquare.h" />
     <ClInclude Include="src\bento\core\NodeGroupProcess.h" />
     <ClInclude Include="src\bento\core\Reflection.h" />
     <ClInclude Include="src\bento\core\SerializableBase.h" />
@@ -211,7 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\bento\components\textures\PingPongTextureSquare.cpp" />
-    <ClCompile Include="src\bento\components\textures\Texture3D.cpp" />
+    <ClCompile Include="src\bento\components\textures\TextureResource.cpp" />
     <ClCompile Include="src\bento\core\DefaultsManager.cpp" />
     <ClCompile Include="src\bento\core\SerializableBase.cpp" />
     <ClCompile Include="src\bento\render\RendererBase.cpp" />

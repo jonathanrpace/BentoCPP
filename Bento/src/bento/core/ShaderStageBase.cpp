@@ -209,27 +209,11 @@ namespace bento
 		GL_CHECK(glUniform1i(location, _value));
 	}
 
-	void ShaderStageBase::SetTexture(const char * _name, TextureSquare& _texture)
+	void ShaderStageBase::SetTexture(const char * _name, ITexture& _texture)
 	{
 		SetUniform(_name, *m_textureUnit);
 		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
-		glBindTexture(GL_TEXTURE_2D, _texture.TextureName());
-		*(m_textureUnit) = *(m_textureUnit)+1;
-	}
-
-	void ShaderStageBase::SetTexture(const char * _name, RectangleTexture& _texture)
-	{
-		SetUniform(_name, *m_textureUnit);
-		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
-		glBindTexture(GL_TEXTURE_RECTANGLE, _texture.TextureName());
-		*(m_textureUnit) = *(m_textureUnit)+1;
-	}
-
-	void ShaderStageBase::SetTexture(const char * _name, Texture3D& _texture)
-	{
-		SetUniform(_name, *m_textureUnit);
-		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
-		glBindTexture(GL_TEXTURE_3D, _texture.TextureName());
+		glBindTexture(_texture.Target(), _texture.TextureName());
 		*(m_textureUnit) = *(m_textureUnit)+1;
 	}
 

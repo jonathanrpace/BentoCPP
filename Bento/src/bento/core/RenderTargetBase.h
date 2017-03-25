@@ -46,7 +46,7 @@ namespace bento
 		int m_width;
 		int m_height;
 
-		std::map<GLenum, ITexture2D*> m_texturesByAttachment;
+		std::map<GLenum, ITexture*> m_texturesByAttachment;
 		std::map<GLenum, int> m_levelsByAttachment;
 
 		virtual void Validate() override;

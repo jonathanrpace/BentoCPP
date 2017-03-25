@@ -9,7 +9,7 @@
 #include <bento/core/Component.h>
 #include <bento/core/SharedObject.h>
 #include <bento/components/textures/TextureSquare.h>
-#include <bento/components/textures/Texture3D.h>
+#include <bento/components/textures/TextureResource.h>
 #include <bento/core/IInspectable.h>
 #include <bento/core/SerializableBase.h>
 
@@ -29,21 +29,21 @@ namespace godBox
 		virtual void AddUIElements() override;
 
 		// Textures
-		TextureSquare grungeTexture;
-		TextureSquare smokeTexture;
-		TextureSquare foamTexture;
+		TextureResource grungeTexture;
+		TextureResource smokeTexture;
+		TextureResource foamTexture;
 
-		TextureSquare lavaAlb;
-		TextureSquare lavaNrm;
-		TextureSquare lavaMat;
+		TextureResource lavaAlb;
+		TextureResource lavaNrm;
+		TextureResource lavaMat;
 
-		TextureSquare lavaLongAlb;
-		TextureSquare lavaLongNrm;
-		TextureSquare lavaLongMat;
+		TextureResource lavaLongAlb;
+		TextureResource lavaLongNrm;
+		TextureResource lavaLongMat;
 
-		TextureSquare lavaLatAlb;
-		TextureSquare lavaLatNrm;
-		TextureSquare lavaLatMat;
+		TextureResource lavaLatAlb;
+		TextureResource lavaLatNrm;
+		TextureResource lavaLatMat;
 
 		// Global
 		float heightOffset;

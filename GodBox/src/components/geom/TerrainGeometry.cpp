@@ -125,7 +125,7 @@ namespace godBox
 				heightData[float4Index + 0] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 1] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
 				heightData[float4Index + 2] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
-				heightData[float4Index + 3] = 0.0f;// (static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.001f;
+				heightData[float4Index + 3] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.001f;
 
 				randData[float4Index + 0] = Rand();
 				randData[float4Index + 1] = Rand();
@@ -179,40 +179,13 @@ namespace godBox
 			}
 		}
 
-		m_heightData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_heightData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_heightData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_heightData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_velocityData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_velocityData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_velocityData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_velocityData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_miscData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_miscData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_miscData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_miscData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_normalData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_normalData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_normalData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_normalData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_smudgeData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_smudgeData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_smudgeData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_smudgeData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_waterFluxData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_waterFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_waterFluxData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_waterFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_uvOffsetData.GetRead().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
 		m_uvOffsetData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_uvOffsetData.GetWrite().SetSize(m_numVerticesPerDimension, m_numVerticesPerDimension);
-		m_uvOffsetData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
 		BufferVertexData(0, &positions[0], (int)positions.size());
 		BufferVertexData(1, &uvs[0], (int)uvs.size());
