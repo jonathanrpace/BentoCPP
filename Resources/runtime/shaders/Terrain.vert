@@ -96,7 +96,6 @@ void main(void)
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
 	float heat = miscDataC.x;
-	//heat = max( heat, textureLod(s_miscData, in_uv, 4).x );
 	float occlusion = max(1.0f - miscDataC.w * 1.4f, 0.0);
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;

@@ -61,8 +61,8 @@ namespace godBox
 		float creaseMipLevel;
 		float creaseMapRepeat;
 		float creaseGridRepeat;
-		float creaseFlowSpeed;
-		float creaseFlowOffset;
+		float moltenFlowSpeed;
+		float moltenFlowOffset;
 
 		// Molten
 		vec3 moltenColor;

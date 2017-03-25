@@ -210,7 +210,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	float waterVolumeAmount = mouseIsDown * m_mouseVolumeStrength * waterScalar;
 	float heatChangeAmount = mouseIsDown * m_mouseHeatStrength * moltenScalar;
 
-	float phase = fmodf( (float)glfwGetTime() * _material.creaseFlowSpeed, 1.0f );
+	float phase = fmodf( (float)glfwGetTime() * _material.moltenFlowSpeed, 1.0f );
 	float phaseA = fmodf( phase + 0.0f, 1.0f );
 	float phaseB = fmodf( phase + 0.5f, 1.0f );
 

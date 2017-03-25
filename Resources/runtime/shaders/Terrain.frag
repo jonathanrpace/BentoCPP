@@ -337,16 +337,14 @@ void main(void)
 
 	// Make shit dark when hot
 	sampledAlbedo *= max(0.0, (1.0-in_moltenAlpha*1.0));
-	vec3 specularColor = vec3(u_rockReflectivity);
+	vec3 specularColor = vec3(pow(u_rockReflectivity, 2.2));
 	specularColor *= max(0.0, (1.0-in_moltenAlpha*1.0));
 
+	// Direct light
 	vec3 lightColor = vec3(1.0,1.0,1.0);
-	//vec3 directLight = lightingGGXAlbedo( rockNormal, viewDir, lightDir, roughness, u_rockFresnelA, sampledAlbedo ) * u_lightIntensity * (1.0-in_shadowing);
 	vec3 directLight = pointLightContribution( rockNormal, lightDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_lightIntensity ) * (1.0-in_shadowing);
 
 	// Ambient light
-	//vec3 ambientLight = lightingGGXAlbedo( rockNormal, viewDir, vec3(0.0,1.0,0.0), roughness, u_rockFresnelA, sampledAlbedo ) * u_ambientLightIntensity * in_occlusion * textureAO;
-
 	vec3 ambientDir = normalize( vec3(0.0,3.0,0.0) - in_worldPosition );
 	vec3 ambientLight = pointLightContribution( rockNormal, ambientDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_ambientLightIntensity ) * in_occlusion * textureAO;
 

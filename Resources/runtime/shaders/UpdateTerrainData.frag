@@ -337,10 +337,12 @@ void main(void)
 
 		// Add some lava near the mouse
 		vec4 diffuseSampleC = texture(s_grungeMap, in_uv+mousePos*0.1);
-		float heatTextureScalar = pow( diffuseSampleC.x, 1.0 );
-		float heightTextureScalar = diffuseSampleC.x;
-		heatC   += pow(mouseRatio, 0.7) * u_mouseMoltenHeatStrength * 0.02;
-		heightC += pow(mouseRatio, 2.0) * u_mouseMoltenVolumeStrength * mix( 1.0 - u_mouseMoltenHeatStrength * 0.9, 0.1, heightTextureScalar);
+		float heatTextureScalar = 1.0-diffuseSampleC.x;
+		float volumeTextureScalar = diffuseSampleC.x;
+		float mouseScalar = pow(mouseRatio, 2.0);
+		float volumeStrength = mix( 0.5, volumeTextureScalar, min( u_mouseMoltenHeatStrength * 20.0, 1.0 ) );
+		heatC   += mouseScalar * heatTextureScalar * u_mouseMoltenHeatStrength * 0.02;
+		heightC += mouseScalar * volumeStrength * u_mouseMoltenVolumeStrength;
 		heatC = max(0.0, heatC);
 
 		out_heightData.y = heightC;

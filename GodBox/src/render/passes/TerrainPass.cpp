@@ -71,16 +71,16 @@ namespace godBox
 	{
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
-		float phase = fmodf( (float)glfwGetTime() * _material.creaseFlowSpeed, 1.0f );
-		float phaseA = fmodf( phase + 0.0f, 1.0f );// * 2.0f - 1.0f;
-		float phaseB = fmodf( phase + 0.5f, 1.0f );// * 2.0f - 1.0f;
+		float phase = fmodf( (float)glfwGetTime() * _material.moltenFlowSpeed, 1.0f );
+		float phaseA = fmodf( phase + 0.0f, 1.0f );
+		float phaseB = fmodf( phase + 0.5f, 1.0f );
 		float alphaB = fabs( 0.5f - phase ) * 2.0f;
 		float alphaA = 1.0f - alphaB;
 
 		SetUniform( "u_phaseA", phaseA );
 		SetUniform( "u_phaseB", phaseB );
 		SetUniform( "u_phaseAlpha", alphaB );
-		SetUniform( "u_flowOffset", _material.creaseFlowOffset );
+		SetUniform( "u_flowOffset", _material.moltenFlowOffset );
 
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());

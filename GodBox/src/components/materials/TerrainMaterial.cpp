@@ -21,7 +21,7 @@ namespace godBox
 		, lavaLatMat(16, GL_RGBA8, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_REPEAT)
 	{
 		// Textures
-		grungeTexture.Load("textures/DataMap.dds");
+		grungeTexture.Load("textures/GrungeMap.dds");
 		foamTexture.Load("textures/Foam.dds");
 		//smokeTexture.TexImage2D("textures/Smoke.png");
 		
@@ -53,8 +53,8 @@ namespace godBox
 		SerializableMember("creaseForwardScalar", 1.0f, &creaseForwardScalar);
 		SerializableMember("creaseMapRepeat", 1.0f, &creaseMapRepeat);
 		SerializableMember("creaseGridRepeat", 1.0f, &creaseGridRepeat);
-		SerializableMember("creaseFlowSpeed", 0.02f, &creaseFlowSpeed);
-		SerializableMember("creaseFlowOffset", 0.01f, &creaseFlowOffset);
+		SerializableMember("moltenFlowSpeed", 0.02f, &moltenFlowSpeed);
+		SerializableMember("moltenFlowOffset", 0.01f, &moltenFlowOffset);
 
 		// Molten
 		SerializableMember("moltenColor", vec3(1.0f, 0.5f, 0.01f), &moltenColor);
@@ -121,19 +121,20 @@ namespace godBox
 
 		ImGui::Spacing();
 		ImGui::Text("Creases");
-		ImGui::SliderFloat("BearingScalar", &bearingCreaseScalar, 0.0f, 10.0f);
-		ImGui::SliderFloat("LateralScalar", &lateralCreaseScalar, 0.0f, 10.0f);
+		ImGui::SliderFloat("Bearing Scalar#crease", &bearingCreaseScalar, 0.0f, 10.0f);
+		ImGui::SliderFloat("Lateral Scalar#crease", &lateralCreaseScalar, 0.0f, 10.0f);
 		ImGui::SliderFloat("Ratio##crease", &creaseRatio, -1.5f, 1.5f);
 		ImGui::SliderFloat("MipLevel##crease", &creaseMipLevel, 0.0f, 8.0f);
-		ImGui::SliderFloat("ForwardScalar##crease", &creaseForwardScalar, 0.0f, 0.1f);
-		ImGui::SliderFloat("MapRepeat##crease", &creaseMapRepeat, 0.0f, 10.0f);
-		ImGui::SliderFloat("GridRepeat##crease", &creaseGridRepeat, 0.0f, 50.0f);
-		ImGui::SliderFloat("FlowSpeed##crease", &creaseFlowSpeed, 0.0f, 0.5f);
-		ImGui::SliderFloat("FlowOffset##crease", &creaseFlowOffset, 0.0f, 0.50f);
+		ImGui::SliderFloat("Forward Scalar##crease", &creaseForwardScalar, 0.0f, 0.1f);
+		ImGui::SliderFloat("Map Repeat##crease", &creaseMapRepeat, 0.0f, 10.0f);
+		ImGui::SliderFloat("Grid Repeat##crease", &creaseGridRepeat, 0.0f, 50.0f);
+		
 		ImGui::Spacing();
 
 		ImGui::Spacing();
 		ImGui::Text("Molten");
+		ImGui::SliderFloat("Flow Speed##molten", &moltenFlowSpeed, 0.0f, 0.5f);
+		ImGui::SliderFloat("Flow Offset##molten", &moltenFlowOffset, 0.0f, 0.50f);
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
 		ImGui::ColorEdit3("Color##molten", glm::value_ptr(moltenColor));
 		ImGui::SliderFloat("Color Scale##molten", &moltenColorScalar, 1.0f, 20.0f);
