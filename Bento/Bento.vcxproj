@@ -149,6 +149,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\bento\components\geom\SkyboxGeometry.h" />
+    <ClInclude Include="src\bento\components\materials\CubeMapSkyMaterial.h" />
     <ClInclude Include="src\bento\components\PerspectiveLens.h" />
     <ClInclude Include="src\bento\components\textures\PingPongTextureSquare.h" />
     <ClInclude Include="src\bento\components\textures\TextureResource.h" />
@@ -164,6 +166,7 @@
     <ClInclude Include="src\bento\core\NodeGroupProcess.h" />
     <ClInclude Include="src\bento\core\Reflection.h" />
     <ClInclude Include="src\bento\core\SerializableBase.h" />
+    <ClInclude Include="src\bento\render\passes\CubeMapSkyPass.h" />
     <ClInclude Include="src\bento\render\RendererBase.h" />
     <ClInclude Include="src\bento\core\RenderTargetBase.h" />
     <ClInclude Include="src\bento\core\ShaderBase.h" />
@@ -207,10 +210,13 @@
     <ClInclude Include="src\stb\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bento\components\geom\SkyboxGeometry.cpp" />
+    <ClCompile Include="src\bento\components\materials\CubeMapSkyMaterial.cpp" />
     <ClCompile Include="src\bento\components\textures\PingPongTextureSquare.cpp" />
     <ClCompile Include="src\bento\components\textures\TextureResource.cpp" />
     <ClCompile Include="src\bento\core\DefaultsManager.cpp" />
     <ClCompile Include="src\bento\core\SerializableBase.cpp" />
+    <ClCompile Include="src\bento\render\passes\CubeMapSkyPass.cpp" />
     <ClCompile Include="src\bento\render\RendererBase.cpp" />
     <ClCompile Include="src\bento\render\RenderParams.cpp" />
     <ClCompile Include="src\bento\util\FileUtil.cpp" />

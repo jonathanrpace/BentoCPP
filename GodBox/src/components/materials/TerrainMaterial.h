@@ -32,6 +32,7 @@ namespace godBox
 		TextureResource grungeTexture;
 		TextureResource smokeTexture;
 		TextureResource foamTexture;
+		TextureResource envMap;
 
 		TextureResource lavaAlb;
 		TextureResource lavaNrm;

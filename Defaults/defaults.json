@@ -1,4 +1,8 @@
 {
+    "CubeMapSkyMaterial": {
+        "intensity": 0.305000007152557,
+        "mipLevel": 1.70700013637543
+    },
     "TerrainMaterial": {
         "MapHeightOffset": 0.00499999988824129,
         "ambientLightIntensity": 2.0,

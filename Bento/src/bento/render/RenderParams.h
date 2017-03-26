@@ -47,6 +47,8 @@ namespace bento
 			s_normalViewMatrix = mat3(_viewMatrix);
 			s_projectionMatrix = _lens.GetMatrix();
 
+			s_viewProjetionMatrix = s_projectionMatrix * s_viewMatrix;
+
 			s_invViewMatrix = inverse(s_viewMatrix);
 			s_invNormalViewMatrix = inverse(s_normalViewMatrix);
 			s_invProjectionMatrix = inverse(s_projectionMatrix);

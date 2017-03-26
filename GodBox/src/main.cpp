@@ -15,12 +15,14 @@
 #include <bento/Core/Entity.h>
 #include <bento/core/InputManagerImpl.h>
 #include <bento/core/WindowImpl.h>
-#include <bento/Components/Transform.h>
-#include <components/materials/TerrainMaterial.h>
+#include <bento/components/Transform.h>
+#include <bento/components/materials/CubeMapSkyMaterial.h>
 #include <bento/components/geom/ScreenQuadGeometry.h>
 #include <bento/components/geom/PlaneGeometry.h>
+#include <bento/components/geom/SkyboxGeometry.h>
 #include <bento/processes/OrbitCamera.h>
 #include <bento/util/GLErrorUtil.h>
+#include <bento/render/passes/CubeMapSkyPass.h>
 
 // app 
 #include <render/Renderer.h>
@@ -34,6 +36,7 @@
 #include <components/geom/TerrainGeometry.h>
 #include <components/geom/FoamParticleGeom.h>
 #include <components/geom/SteamParticleGeom.h>
+#include <components/materials/TerrainMaterial.h>
 
 using namespace bento;
 using namespace godBox;
@@ -42,6 +45,8 @@ void mainLoop(GLFWwindow* window)
 {
 	auto inputManager = new InputManagerImpl(window);
 	auto bentoWindow = new WindowImpl(window);
+
+	// Terrain
 	bento::Scene scene(inputManager, bentoWindow);
 	{
 		auto entity = bento::Entity::Create();
@@ -61,6 +66,17 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(moltenParticleGeom, entity);
 	}
 
+	// Sky
+	{
+		auto skyBoxGeom = bento::SkyboxGeometry::Create();	
+		auto skyBoxMaterial = bento::CubeMapSkyMaterial::Create();
+		auto entity = bento::Entity::Create();
+		entity->Name("Sky");
+		scene.AddEntity(entity);
+		scene.AddComponentToEntity(skyBoxGeom, entity);
+		scene.AddComponentToEntity(skyBoxMaterial, entity);
+	}
+
 	// Processes
 	scene.AddProcess(OrbitCamera::Create());
 	scene.AddProcess(TerrainSimulationProcess::Create());
@@ -72,6 +88,7 @@ void mainLoop(GLFWwindow* window)
 	auto renderer = godBox::Renderer::Create();
 	// Render passes
 	{
+		renderer->AddRenderPass(CubeMapSkyPass::Create()); // TODO - How do I specify renderPhase through shared object construction?
 		renderer->AddRenderPass(TerrainPass::Create());
 		renderer->AddRenderPass(WaterPass::Create());
 		//renderer->AddRenderPass(TerrainFoamPass::Create());
@@ -137,6 +154,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+
 	REQUIRE_CAPABILITY(GLEW_VERSION_4_3);
 	REQUIRE_CAPABILITY(GLEW_ARB_separate_shader_objects);
 
@@ -146,6 +164,8 @@ int main(int argc, char **argv)
 
 	Config::Init("../../../../Resources/runtime/", "../../../../Defaults/");
 	DefaultsManager::Init("../../../../Defaults/defaults.json");
+
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);     
 
 	mainLoop(window);
 

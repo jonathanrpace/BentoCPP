@@ -19,6 +19,7 @@ namespace godBox
 		, lavaLatAlb("textures/LavaLat_Albedo.dds")
 		, lavaLatNrm("textures/LavaLat_Normal.dds")
 		, lavaLatMat("textures/LavaLat_Material.dds")
+		, envMap("textures/EnvMap.dds")
 	{
 		// Global
 		SerializableMember("heightScalar", 0.0f, &heightOffset);

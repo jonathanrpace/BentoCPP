@@ -213,6 +213,7 @@ namespace bento
 	{
 		SetUniform(_name, *m_textureUnit);
 		glActiveTexture(GL_TEXTURE0 + *m_textureUnit);
+		// GL_TEXTURE_CUBE_MAP 0x8513
 		glBindTexture(_texture.Target(), _texture.TextureName());
 		*(m_textureUnit) = *(m_textureUnit)+1;
 	}
