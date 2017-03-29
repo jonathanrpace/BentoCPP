@@ -39,6 +39,7 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
+uniform samplerCube s_envMap;
 
 ////////////////////////////////////////////////////////////////
 // Outputs

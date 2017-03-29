@@ -15,6 +15,7 @@ uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
+uniform sampler2D s_fluxData;
  
 // Uniforms
 uniform mat4 u_mvpMatrix;
@@ -49,6 +50,7 @@ out Varying
 	vec2 out_waterVelocity;
 	vec2 out_uv;
 	float out_foamStrength;
+	float out_fluxAmount;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -86,6 +88,10 @@ void main(void)
 	vec4 miscDataC = texture(s_miscData, in_uv);
 	vec4 normalDataC = texture(s_normalData, in_uv);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
+	vec4 fluxDataC = texture(s_fluxData, in_uv);
+
+	vec4 absFlux = abs(fluxDataC);
+	out_fluxAmount = (absFlux.x + absFlux.y + absFlux.z + absFlux.w) * 100.0;
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;

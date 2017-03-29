@@ -2,6 +2,7 @@
 
 #define M_PI 3.1415926535897932384626433832795
 #define M_INV_PI 0.31830988618379067153776752674503
+#define M_INV_LOG2 1.4426950408889634073599246810019
 
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar )
 {
@@ -224,6 +225,22 @@ vec3 diffuseBRDF
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+vec3 microfacets_contrib(
+	float vdh,
+	float ndh,
+	float ndl,
+	float ndv,
+	vec3 Ks,
+	float Roughness)
+{
+// This is the contribution when using importance sampling with the GGX based
+// sample distribution. This means ct_contrib = ct_brdf / ggx_probability
+	return fresnel(vdh,Ks) * (visibility(ndl,ndv,Roughness) * vdh * ndl / ndh );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 vec3 pointLightContribution
 (
 	vec3 N,
@@ -241,4 +258,86 @@ vec3 pointLightContribution
 	vec3 spec = specularBRDF( N, L, V, specColor, roughness );
 
 	return dp * ( diffuse + spec ) * lightColor * lightIntensity * M_PI;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// use GGX / Trowbridge-Reitz, same as Disney and Unreal 4
+// cf http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf p3
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float normal_distrib(
+	float ndh,
+	float Roughness)
+{
+
+	float alpha = Roughness * Roughness;
+	float tmp = alpha / max(1e-8,(ndh*ndh*(alpha*alpha-1.0)+1.0));
+	return tmp * tmp * M_INV_PI;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float probabilityGGX(float ndh, float vdh, float Roughness)
+{
+	return normal_distrib(ndh, Roughness) * ndh / (4.0*vdh);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float distortion(vec3 Wn)
+{
+	// Computes the inverse of the solid angle of the (differential) pixel in
+	// the environment map pointed at by Wn
+	float sinT = sqrt(1.0-Wn.y*Wn.y);
+	return sinT;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+float computeLOD(vec3 L, float p, float maxLod)
+{
+	return max( 0.0, (maxLod-1.5) - 0.5 * log( p * distortion(L) ) * M_INV_LOG2 );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+vec3 IBLContribution
+(
+	vec3 N,
+	vec3 V,
+	vec3 diffColor,
+	vec3 specColor,
+	float roughness,
+	samplerCube envMap,
+	float lightIntensity,
+	float ambientOcclusion
+)
+{
+	vec3 L = -reflect(V,N);
+	vec3 H = normalize(V+L);
+	
+	float dotNL = max( 1e-8, abs(dot( L, N )) );
+	float dotNV = max( 1e-8, abs(dot( V, N )) );
+	float dotNH = max( 1e-8, abs(dot( H, N )) );
+	float dotLH = max( 1e-8, abs(dot( L, H )) );
+	float dotVH = max( 1e-8, abs(dot( V, H )) );
+	
+	float maxLod = 8.0; // TODO calculate from texture size
+
+	float lodS = roughness < 0.01 ? 0.0 : 
+		computeLOD
+		(
+			L,
+			probabilityGGX(dotNH, dotVH, roughness),
+			maxLod) 
+		;
+
+	vec3 result = textureLod(envMap, L, lodS).rgb * ambientOcclusion * lightIntensity;
+	result *= microfacets_contrib( dotVH, dotNH, dotNL, dotNV,	specColor,	roughness);
+	result += diffColor * (vec3(1.0,1.0,1.0)-specColor) * textureLod(envMap, L, maxLod).rgb;
+
+	return result;
 }

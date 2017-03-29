@@ -142,7 +142,7 @@ namespace godBox
 		ImGui::SliderFloat("DepthToFilter", &waterDepthToFilter, 0.0f, 0.1f);
 		ImGui::SliderFloat("DepthToDiffuse", &waterDepthToDiffuse, 0.0f, 0.1f);
 		ImGui::SliderFloat("DissolvedDirtDesntityScalar", &dissolvedDirtDesntiyScalar, 0.0f, 1000.0f);
-		ImGui::SliderFloat("WaveSpeed", &waterWaveSpeed, 0.0f, 0.1f, "%.4f");
+		ImGui::SliderFloat("WaveSpeed", &waterWaveSpeed, 0.0f, 0.2f, "%.4f");
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -165,7 +165,7 @@ namespace godBox
 		ImGui::SliderAngle("Altitude", &lightAltitude, -180.0f, 0.0f);
 		ImGui::SliderFloat("Distance", &lightDistance, 0.0f, 10.0f);
 		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 4.0f);
-		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 2.0f);
+		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 1.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

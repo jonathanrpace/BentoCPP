@@ -128,6 +128,8 @@ namespace godBox
 		SetTexture("s_lavaLatNormal", _material.lavaNrm);
 		SetTexture("s_lavaLatMaterial", _material.lavaMat);
 
+		SetTexture("s_envMap", _material.envMap);
+
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(terrainMousePos), &terrainMousePos, GL_DYNAMIC_COPY);

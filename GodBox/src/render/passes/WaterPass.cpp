@@ -43,6 +43,7 @@ namespace godBox
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
+		SetTexture("s_fluxData", _geometry.WaterFluxData().GetRead());
 	}
 
 	////////////////////////////////////////////
@@ -88,6 +89,8 @@ namespace godBox
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightDistance", _material.lightDistance);
 		SetUniform("u_lightIntensity", _material.directLightIntensity);
+
+		SetTexture("s_envMap", _material.envMap);
 		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
 
 		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix(), true);

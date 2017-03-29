@@ -74,6 +74,8 @@ uniform sampler2D s_lavaLatAlbedo;
 uniform sampler2D s_lavaLatNormal;
 uniform sampler2D s_lavaLatMaterial;
 
+uniform samplerCube s_envMap;
+
 uniform float u_textureBias = -0.5;
 
 ////////////////////////////////////////////////////////////////
@@ -97,10 +99,9 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 ////////////////////////////////////////////////////////////////
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
-float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
-vec3 lightingGGXAlbedo( vec3 N, vec3 V, vec3 L, float roughness, float F0, vec3 albedo );
 vec3 pointLightContribution(vec3 N,	vec3 L,	vec3 V,	vec3 diffColor,	vec3 specColor,	float roughness, vec3 lightColor, float lightIntensity );
-vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar );
+vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float roughness, samplerCube envMap, float lightIntensity, float ambientOcclusion);
+
 vec3 decodeNormalDXT( vec4 _sample );
 
 ////////////////////////////////////////////////////////////////
@@ -345,8 +346,10 @@ void main(void)
 	vec3 directLight = pointLightContribution( rockNormal, lightDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_lightIntensity ) * (1.0-in_shadowing);
 
 	// Ambient light
-	vec3 ambientDir = normalize( vec3(0.0,3.0,0.0) - in_worldPosition );
-	vec3 ambientLight = pointLightContribution( rockNormal, ambientDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_ambientLightIntensity ) * in_occlusion * textureAO;
+	//vec3 ambientDir = normalize( vec3(0.0,3.0,0.0) - in_worldPosition );
+	//vec3 ambientLight = pointLightContribution( rockNormal, ambientDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_ambientLightIntensity ) * in_occlusion * textureAO;
+	vec3 ambientLight = IBLContribution( rockNormal, viewDir, sampledAlbedo, specularColor, roughness, s_envMap, u_ambientLightIntensity, in_occlusion * textureAO);
+	//vec3 ambientLight = vec3(0.0,0.0,0.0);
 
 	// Local glow from heat
 	vec3 heatLight = vec3(0.0);

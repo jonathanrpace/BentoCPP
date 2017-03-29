@@ -17,6 +17,7 @@ in Varying
 	vec2 in_waterVelocity;
 	vec2 in_uv;
 	float in_foamStrength;
+	float in_fluxAmount;
 };
 
 // Uniforms ////////////////////////////////////////////////////
@@ -31,7 +32,7 @@ uniform vec3 u_dirtColor;
 uniform float u_indexOfRefraction;
 uniform float u_depthToFilter;
 uniform float u_depthToDiffuse;
-uniform float u_fresnelPower = 4.0f;
+uniform float u_fresnelPower = 2.0f;
 uniform float u_specularPower;
 
 // Flow map
@@ -47,9 +48,9 @@ uniform float u_foamDistortStrength;
 uniform float u_foamAlphaStrength;
 
 uniform float u_waveFrequency = 2.0;
-uniform float u_waveAmplitude = 0.03;
-uniform float u_waveChoppy = 1.0;
-uniform int u_waveLevels = 5;
+uniform float u_waveAmplitude = 0.04;
+uniform float u_waveChoppy = 3.0;
+uniform int u_waveLevels = 4;
 uniform float u_waveTime = 0.0;
 mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
 
@@ -57,6 +58,7 @@ mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
 uniform vec3 u_lightDir;
 uniform float u_lightDistance;
 uniform float u_lightIntensity;
+uniform samplerCube s_envMap;
 uniform float u_ambientLightIntensity;
 
 // Samplers
@@ -74,6 +76,7 @@ layout( location = 0 ) out vec4 out_forwad;
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
 float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
+vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float roughness, samplerCube envMap, float lightIntensity, float ambientOcclusion);
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -119,7 +122,7 @@ float waveNoise(vec3 p, int iter, float ampScalar, float _choppy)
     	d += waveNoiseOctave((uv-u_waveTime)*freq,choppy);
         h += d * amp;        
     	uv *= octave_m; 
-		freq *= 1.9; 
+		freq *= 1.5;
 		amp *= ampScalar;
         choppy = mix(choppy,1.0,0.2);
     }
@@ -172,12 +175,12 @@ void main(void)
 		vec2 uvB = (in_uv * u_waterFlowRepeat) - u_phaseB * in_waterVelocity * u_waterFlowOffset;
 		//uvB += vec2(0.5);
 
-		vec3 waveNrmA = waveNormal(vec3(uvA.x, in_worldPosition.y, uvA.y), 1.0 / 256.0, u_waveLevels, 0.22, u_waveChoppy);
-		vec3 waveNrmB = waveNormal(vec3(uvB.x, in_worldPosition.y, uvB.y), 1.0 / 256.0, u_waveLevels, 0.22, u_waveChoppy);
+		vec3 waveNrmA = waveNormal(vec3(uvA.x, in_worldPosition.y, uvA.y), 1.0 / 256.0, u_waveLevels, 0.25, u_waveChoppy);
+		vec3 waveNrmB = waveNormal(vec3(uvB.x, in_worldPosition.y, uvB.y), 1.0 / 256.0, u_waveLevels, 0.25, u_waveChoppy);
 		vec3 waveNrm = mix( waveNrmA, waveNrmB, u_phaseAlpha );
 		waveNrm = normalize(waveNrm);
 
-		float waveStrength = mix( 0.01, 5.0, length(in_waterVelocity) );
+		float waveStrength = min( 1.0, mix( 0.01, 1.0, in_fluxAmount ) );
 
 		vec3 tangent = cross( normal, vec3( 0.0, 0.0, 1.0 ) );
 		vec3 bitangent = -cross( normal, tangent );
@@ -234,6 +237,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Foam
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		vec2 uvA = (in_uv * u_foamRepeat) - u_phaseA * in_waterVelocity * u_waterFlowOffset * 1.0;
 		vec2 uvB = (in_uv * u_foamRepeat) - u_phaseB * in_waterVelocity * u_waterFlowOffset * 1.0;
@@ -249,10 +253,18 @@ void main(void)
 
 		outColor = mix( outColor, vec3(diffuseLighting) * 0.5, foamAlpha );
 	}
+	*/
+
+	{
+		vec3 reflections = IBLContribution(normal, eye, vec3(0.0), vec3(u_specularPower), 0.0, s_envMap, u_ambientLightIntensity, in_specularOcclusion * in_reflectAlpha);
+
+		outColor += reflections;
+	}
 
 	////////////////////////////////////////////////////////////////
 	// Specular reflections
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float waterSpecular = lightingGGX(normal, eye, lightDir, u_specularPower, 0.0) * u_lightIntensity * 0.025;
 		outColor += waterSpecular * in_reflectAlpha * in_specularOcclusion;
@@ -268,7 +280,7 @@ void main(void)
 		fresnel = mix(0.1, 1.0, fresnel);
 		outColor += getSkyColor(reflectVec) * u_ambientLightIntensity * 0.5 * in_reflectAlpha * fresnel * in_specularOcclusion;
 	}
-
+	*/
 	
 
 	/*
