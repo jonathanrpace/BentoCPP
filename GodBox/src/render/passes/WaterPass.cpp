@@ -25,12 +25,34 @@ namespace godBox
 	////////////////////////////////////////////
 
 	WaterVert::WaterVert()
-		: ShaderStageBase("shaders/TerrainWater.vert") 
+		: ShaderStageBase("shaders/Water.vert") 
 	{
 	}
 
 	void WaterVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
+		// Flow
+		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
+		float phaseA = fmodf( phase + 0.0f, 1.0f );
+		float phaseB = fmodf( phase + 0.5f, 1.0f );
+		float alphaB = fabs( 0.5f - phase ) * 2.0f;
+		float alphaA = 1.0f - alphaB;
+
+		SetUniform("u_phaseA", phaseA );
+		SetUniform("u_phaseB", phaseB );
+		SetUniform("u_phaseAlpha", alphaB );
+		SetUniform("u_waterFlowOffset", _material.waterFlowOffset );
+		SetUniform("u_waterFlowRepeat", _material.waterFlowRepeat );
+
+		// Waves
+		float waveTime = (float)glfwGetTime() * _material.waterWaveSpeed;
+		SetUniform( "u_waveTime", waveTime );
+		SetUniform( "u_waveLevels", _material.waterWaveLevels );
+		SetUniform( "u_waveAmplitude", _material.waterWaveAmplitude );
+		SetUniform( "u_waveFreqBase", _material.waterWaveFrquencyBase );
+		SetUniform( "u_waveFreqScalar", _material.waterWaveFrquencyScalar );
+		SetUniform( "u_waveRoughness", _material.waterWaveRoughness );
+
 		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", bento::RenderParams::ModelViewMatrix());
 		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
@@ -51,15 +73,16 @@ namespace godBox
 	////////////////////////////////////////////
 
 	WaterFrag::WaterFrag()
-		: ShaderStageBase("shaders/TerrainWater.frag") 
+		: ShaderStageBase("shaders/Water.frag") 
 	{
 	}
 
 	void WaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
 	{
+		// Flow
 		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
-		float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
-		float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
+		float phaseA = fmodf( phase + 0.0f, 1.0f );
+		float phaseB = fmodf( phase + 0.5f, 1.0f );
 		float alphaB = fabs( 0.5f - phase ) * 2.0f;
 		float alphaA = 1.0f - alphaB;
 
@@ -69,14 +92,21 @@ namespace godBox
 		SetUniform("u_waterFlowOffset", _material.waterFlowOffset );
 		SetUniform("u_waterFlowRepeat", _material.waterFlowRepeat );
 
+		// Waves
 		float waveTime = (float)glfwGetTime() * _material.waterWaveSpeed;
 		SetUniform( "u_waveTime", waveTime );
+		SetUniform( "u_waveLevels", _material.waterWaveLevels );
+		SetUniform( "u_waveAmplitude", _material.waterWaveAmplitude );
+		SetUniform( "u_waveFreqBase", _material.waterWaveFrquencyBase );
+		SetUniform( "u_waveFreqScalar", _material.waterWaveFrquencyScalar );
+		SetUniform( "u_waveRoughness", _material.waterWaveRoughness );
 
 		SetUniform("u_waterColor", _material.waterColor);
 		SetUniform("u_dirtColor", _material.dirtColor);
 		SetUniform("u_indexOfRefraction", _material.waterIndexOfRefraction);
 		SetUniform("u_specularPower", _material.waterSpecularPower);
 
+		//
 		SetUniform("u_depthToFilter", _material.waterDepthToFilter);
 		SetUniform("u_depthToDiffuse", _material.waterDepthToDiffuse);
 

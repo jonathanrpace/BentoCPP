@@ -1,7 +1,7 @@
 {
     "CubeMapSkyMaterial": {
         "intensity": 1.01400005817413,
-        "mipLevel": 1.01400005817413
+        "mipLevel": 0.0
     },
     "TerrainMaterial": {
         "MapHeightOffset": 0.00499999988824129,
@@ -118,26 +118,33 @@
             "z": 0.107404850423336
         },
         "waterColor": {
-            "x": 0.431526303291321,
-            "y": 0.863219082355499,
-            "z": 0.901960790157318
+            "x": 0.22991156578064,
+            "y": 0.901960790157318,
+            "z": 0.720112085342407
         },
         "waterDepthToDiffuse": 0.00300000002607703,
-        "waterDepthToFilter": 0.0130000002682209,
+        "waterDepthToFilter": 0.00027999997837469,
         "waterDepthToOpaque": 0.0007999999797903,
-        "waterDepthToReflection": 0.000199999994947575,
-        "waterFlowOffset": 0.304000020027161,
-        "waterFlowRepeat": 10.0,
+        "waterDepthToReflection": 0.00027999997837469,
+        "waterFlowOffset": 0.0110000008717179,
+        "waterFlowRepeat": 4.28400039672852,
         "waterFlowSpeed": 0.135000005364418,
         "waterFoamRepeat": 5.97600030899048,
-        "waterIndexOfRefraction": 0.986000061035156,
-        "waterSpecularPower": 0.0,
+        "waterIndexOfRefraction": 0.92600005865097,
+        "waterSpecularPower": 1.0,
         "waterTranslucentColor": {
             "x": 0.218999996781349,
             "y": 0.41100001335144,
             "z": 0.391999989748001
         },
-        "waterWaveSpeed": 0.0999999940395355,
+        "waterWaveAmplitude": 0.00188999995589256,
+        "waterWaveFrequencyBase": 11.7030010223389,
+        "waterWaveFrequencyScalar": 1.02700006961823,
+        "waterWaveLevels": 4,
+        "waterWaveRoughness": 0.5,
+        "waterWaveSpeed": 0.0769999995827675,
+        "waterWavesFrequencyBase": 5.16200017929077,
+        "waterWavesFrequencyScalar": 1.0,
         "waveAmplitude": 0.00100000004749745,
         "waveAmplitudeLacunarity": 0.351000010967255,
         "waveAngle0": 0.0,
@@ -184,7 +191,7 @@
         "dirtTransportSpeed": 0.00179999996908009,
         "dirtViscosity": 0.511000037193298,
         "drainMaxDepth": 0.0500000007450581,
-        "drainRate": 7.999999797903e-05,
+        "drainRate": 1.99999994947575e-05,
         "erosionDirtDepthMax": 0.00119999994058162,
         "erosionMaxDepth": 0.00300000002607703,
         "erosionStrength": 7.04000001405802e-07,
@@ -211,8 +218,8 @@
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
         "mouseHeatStrength": 0.0,
-        "mouseRadius": 0.0550000034272671,
-        "mouseVolumeStrength": 0.0011800000211224,
+        "mouseRadius": 0.0840000063180923,
+        "mouseVolumeStrength": 0.00413999985903502,
         "rainRate": 0.0,
         "rockDiffuseStrength": 0.00499999988824129,
         "rockMeltingPoint": 0.0,

@@ -35,7 +35,7 @@ uniform float u_depthToDiffuse;
 uniform float u_fresnelPower = 2.0f;
 uniform float u_specularPower;
 
-// Flow map
+// Flow
 uniform float u_phaseA;
 uniform float u_phaseB;
 uniform float u_phaseAlpha;
@@ -47,12 +47,15 @@ uniform float u_foamRepeat;
 uniform float u_foamDistortStrength;
 uniform float u_foamAlphaStrength;
 
-uniform float u_waveFrequency = 2.0;
-uniform float u_waveAmplitude = 0.04;
-uniform float u_waveChoppy = 3.0;
-uniform int u_waveLevels = 4;
-uniform float u_waveTime = 0.0;
-mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+// Waves
+const mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+uniform int u_waveLevels;
+uniform float u_waveTime;
+uniform float u_waveAmplitude;
+uniform float u_waveFreqBase;
+uniform float u_waveFreqScalar;
+uniform float u_waveRoughness;
+uniform float u_waveChoppy = 2.0;
 
 // Lighting
 uniform vec3 u_lightDir;
@@ -109,8 +112,8 @@ float waveNoiseOctave(vec2 uv, float choppy)
 
 float waveNoise(vec3 p, int iter, float ampScalar, float _choppy) 
 {
-    float freq = u_waveFrequency;
-    float amp = u_waveAmplitude;
+    float freq = u_waveFreqBase;
+    float amp = ampScalar;
     float choppy = _choppy;
     vec2 uv = p.xz * vec2(1.0, 0.75);
     
@@ -122,8 +125,8 @@ float waveNoise(vec3 p, int iter, float ampScalar, float _choppy)
     	d += waveNoiseOctave((uv-u_waveTime)*freq,choppy);
         h += d * amp;        
     	uv *= octave_m; 
-		freq *= 1.5;
-		amp *= ampScalar;
+		freq *= u_waveFreqScalar;
+		amp *= u_waveRoughness;
         choppy = mix(choppy,1.0,0.2);
     }
     return p.y - h;
@@ -137,16 +140,6 @@ vec3 waveNormal(vec3 p, float eps, int iter, float ampScalar, float choppy)
     n.z = waveNoise(vec3(p.x,p.y,p.z+eps), iter, ampScalar, choppy) - n.y;
     n.y = eps;
     return normalize(n);
-}
-
-vec3 getSkyColor(vec3 e) 
-{
-    e.y = max(e.y,0.0);
-    vec3 ret;
-    ret.x = pow(1.0-e.y,2.0);
-    ret.y = 0.1 +(1.0-e.y) * 0.9;
-    ret.z = 0.3+(1.0-e.y)*0.7;
-    return ret;
 }
 
 vec2 rotateBy( vec2 _pt, float _angle )
@@ -175,18 +168,21 @@ void main(void)
 		vec2 uvB = (in_uv * u_waterFlowRepeat) - u_phaseB * in_waterVelocity * u_waterFlowOffset;
 		//uvB += vec2(0.5);
 
-		vec3 waveNrmA = waveNormal(vec3(uvA.x, in_worldPosition.y, uvA.y), 1.0 / 256.0, u_waveLevels, 0.25, u_waveChoppy);
-		vec3 waveNrmB = waveNormal(vec3(uvB.x, in_worldPosition.y, uvB.y), 1.0 / 256.0, u_waveLevels, 0.25, u_waveChoppy);
+		float waveStrength = min( 1.0, mix( 0.01, 1.0, in_fluxAmount ) );
+		float waveAmplitude = u_waveAmplitude * waveStrength;
+
+		vec3 waveNrmA = waveNormal(vec3(uvA.x, 0.0, uvA.y), 1.0 / 256.0, u_waveLevels, waveAmplitude, u_waveChoppy);
+		vec3 waveNrmB = waveNormal(vec3(uvB.x, 0.0, uvB.y), 1.0 / 256.0, u_waveLevels, waveAmplitude, u_waveChoppy);
 		vec3 waveNrm = mix( waveNrmA, waveNrmB, u_phaseAlpha );
 		waveNrm = normalize(waveNrm);
 
-		float waveStrength = min( 1.0, mix( 0.01, 1.0, in_fluxAmount ) );
+		
 
 		vec3 tangent = cross( normal, vec3( 0.0, 0.0, 1.0 ) );
 		vec3 bitangent = -cross( normal, tangent );
 
-		normal += tangent * waveNrm.x * waveStrength;
-		normal += bitangent * waveNrm.z * waveStrength;
+		normal += tangent * waveNrm.x * 0.5;
+		normal += bitangent * waveNrm.z * 0.5;
 
 		normal = normalize(normal);
 	}
@@ -208,7 +204,7 @@ void main(void)
 		vec3 refractVec = refract(-eye, normal, u_indexOfRefraction);
 		
 		vec4 samplePos = vec4( in_worldPosition );
-		samplePos.xyz += refractVec;
+		samplePos.xyz += refractVec * viewDepth;
 		samplePos *= u_mvpMatrix;
 		samplePos.xyz /= samplePos.w;
 		samplePos.xy += 1.0;
@@ -256,7 +252,7 @@ void main(void)
 	*/
 
 	{
-		vec3 reflections = IBLContribution(normal, eye, vec3(0.0), vec3(u_specularPower), 0.0, s_envMap, u_ambientLightIntensity, in_specularOcclusion * in_reflectAlpha);
+		vec3 reflections = pow( IBLContribution(normal, eye, vec3(0.0), vec3(0.0), 0.0, s_envMap, u_ambientLightIntensity, in_specularOcclusion * in_reflectAlpha), vec3(u_specularPower) );
 
 		outColor += reflections;
 	}

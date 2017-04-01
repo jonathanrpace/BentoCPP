@@ -90,6 +90,13 @@ namespace godBox
 		float waterFlowSpeed;
 		float waterFlowOffset;
 		float waterFlowRepeat;
+
+		// Waves
+		int waterWaveLevels;
+		float waterWaveAmplitude;
+		float waterWaveFrquencyBase;
+		float waterWaveFrquencyScalar;
+		float waterWaveRoughness;
 		float waterWaveSpeed;
 		
 		// Foam

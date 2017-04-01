@@ -26,6 +26,23 @@ uniform float u_heightOffset;
 uniform float u_depthToReflect;
 uniform float u_dissolvedDirtDensityScalar;
 
+// Flow
+uniform float u_phaseA;
+uniform float u_phaseB;
+uniform float u_phaseAlpha;
+uniform float u_waterFlowOffset;
+uniform float u_waterFlowRepeat;
+
+// Waves
+const mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
+uniform int u_waveLevels;
+uniform float u_waveTime;
+uniform float u_waveAmplitude;
+uniform float u_waveFreqBase;
+uniform float u_waveFreqScalar;
+uniform float u_waveRoughness;
+uniform float u_waveChoppy = 2.0;
+
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -66,15 +83,52 @@ vec3 reconstructNormal( vec2 n )
 // Functions
 ////////////////////////////////////////////////////////////////
 
-float diffuse(vec3 n, vec3 l, float p)
+float hash( vec2 p ) 
 {
-    return pow(dot(n,l) * 0.5 + 1.0, p);
+	float h = dot(p,vec2(127.1,311.7));	
+    return fract(sin(h)*43758.5453123);
 }
 
-float specular(vec3 n, vec3 l, vec3 e, float s)
-{    
-    float nrm = (s + 8.0) / (3.1415 * 8.0);
-    return pow(max(dot(reflect(e,n),l),0.0),s) * nrm;
+float noise( in vec2 p ) 
+{
+    vec2 i = floor( p );
+    vec2 f = fract( p );	
+	vec2 u = f*f*(3.0-2.0*f);
+    return -1.0+2.0*mix( mix( hash( i + vec2(0.0,0.0) ), 
+                     hash( i + vec2(1.0,0.0) ), u.x),
+                mix( hash( i + vec2(0.0,1.0) ), 
+                     hash( i + vec2(1.0,1.0) ), u.x), u.y);
+}
+
+float waveNoiseOctave(vec2 uv, float choppy) 
+{
+    uv += noise(uv);        
+    vec2 wv = 1.0-abs(sin(uv));
+    vec2 swv = abs(cos(uv));    
+    wv = mix(wv,swv,wv);
+    return pow(1.0-pow(wv.x * wv.y,0.65),choppy);
+}
+
+float waveNoise(vec3 p, int iter, float ampScalar, float _choppy) 
+{
+    float freq = u_waveFreqBase;
+    float amp = ampScalar;
+    float choppy = _choppy;
+    vec2 uv = p.xz * vec2(1.0, 0.75);
+    
+    float d = 0.0;
+	float h = 0.0;    
+    for(int i = 0; i < iter; i++) 
+	{        
+    	d = waveNoiseOctave((uv+u_waveTime)*freq,choppy);
+    	d += waveNoiseOctave((uv-u_waveTime)*freq,choppy);
+        h += d * amp;        
+    	uv *= octave_m; 
+		freq *= u_waveFreqScalar;
+		amp *= u_waveRoughness;
+        choppy = mix(choppy,1.0,0.2);
+    }
+    return p.y - h;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -91,7 +145,8 @@ void main(void)
 	vec4 fluxDataC = texture(s_fluxData, in_uv);
 
 	vec4 absFlux = abs(fluxDataC);
-	out_fluxAmount = (absFlux.x + absFlux.y + absFlux.z + absFlux.w) * 100.0;
+	float fluxAmount = (absFlux.x + absFlux.y + absFlux.z + absFlux.w) * 100.0;
+	out_fluxAmount = fluxAmount;
 
 	float solidHeight = heightDataC.x;
 	float moltenHeight = heightDataC.y;
@@ -101,7 +156,8 @@ void main(void)
 
 	out_foamStrength = min( smudgeDataC.w, 1.0 );
 
-	out_waterVelocity = velocityDataC.zw;
+	vec2 waterVelocity = velocityDataC.zw;
+	out_waterVelocity = waterVelocity;
 	out_uv = in_uv;
 
 	vec3 normal = reconstructNormal(normalDataC.xy);
@@ -112,6 +168,22 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 	position.y += waterHeight;
+	
+	{
+		vec2 uvA = (in_uv * u_waterFlowRepeat) - u_phaseA * waterVelocity * u_waterFlowOffset;
+		vec2 uvB = (in_uv * u_waterFlowRepeat) - u_phaseB * waterVelocity * u_waterFlowOffset;
+		
+		float waveStrength = min( 1.0, mix( 0.01, 1.0, fluxAmount ) );
+		float waveAmplitude = u_waveAmplitude * waveStrength;
+
+		float waveHeightA = waveNoise(vec3(uvA.x, 0, uvA.y), u_waveLevels, waveAmplitude, u_waveChoppy);
+		float waveHeightB = waveNoise(vec3(uvB.x, 0, uvB.y), u_waveLevels, waveAmplitude, u_waveChoppy);
+		float waveHeight = mix( waveHeightA, waveHeightB, u_phaseAlpha );
+
+		waterHeight += waveHeight;
+		position.y += waveHeight;
+	}
+
 	out_worldPosition = position;
 
 	float reflectAlpha = min( max(waterHeight, 0.0) / u_depthToReflect, 1.0 );
@@ -176,6 +248,6 @@ void main(void)
 			}
 		}
 		
-		out_specularOcclusion = 1.0-shadowing;
+		out_specularOcclusion = 1.0;//1.0-shadowing;
 	}
 } 

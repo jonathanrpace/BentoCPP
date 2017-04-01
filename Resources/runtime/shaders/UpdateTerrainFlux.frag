@@ -47,7 +47,7 @@ void main(void)
 
 		vec4 waterFluxC = texelFetch(s_waterFluxData, texelCoordC, 0);
 		waterFluxC += heightDiff;
-		
+
 		// Need to scale down the new flux so that we can't drain more fluid than we have this step
 		float totalOutflow = waterFluxC.x + waterFluxC.y + waterFluxC.z + waterFluxC.w + 0.000001;
 		float limit = min(1.0f, waterHeightC.x / totalOutflow );
