@@ -17,6 +17,7 @@ in Varying
 	float in_occlusion;
 	float in_heat;
 	float in_shadowing;
+	vec2 in_scaledUV;
 };
 
 // Uniforms
@@ -75,6 +76,7 @@ uniform sampler2D s_lavaLatNormal;
 uniform sampler2D s_lavaLatMaterial;
 
 uniform samplerCube s_envMap;
+uniform samplerCube s_irrMap;
 
 uniform float u_textureBias = -0.5;
 
@@ -83,7 +85,8 @@ uniform float u_textureBias = -0.5;
 ////////////////////////////////////////////////////////////////
 
 layout( location = 0 ) out vec4 out_viewPosition;
-layout( location = 1 ) out vec4 out_forward;
+layout( location = 1 ) out vec4 out_worldNormal;
+layout( location = 2 ) out vec4 out_forward;
 
 ////////////////////////////////////////////////////////////////
 // Read/Write buffers
@@ -100,7 +103,7 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
 vec3 pointLightContribution(vec3 N,	vec3 L,	vec3 V,	vec3 diffColor,	vec3 specColor,	float roughness, vec3 lightColor, float lightIntensity );
-vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float roughness, samplerCube envMap, float lightIntensity, float ambientOcclusion);
+vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float roughness, samplerCube envMap, samplerCube irrMap, float lightIntensity, float ambientOcclusion);
 
 vec3 decodeNormalDXT( vec4 _sample );
 
@@ -299,20 +302,20 @@ void main(void)
 		vec2 uvBL = rotateAroundBy( in_uv, angle, gridCellCenterBL);
 		vec2 uvBR = rotateAroundBy( in_uv, angle, gridCellCenterBR);
 
-		vec4 sampledMaterialStill = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_uv, uvOffsetSample, 0.0 ).rgba;
+		vec4 sampledMaterialStill = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgba;
 		vec4 sampledMaterialLong = sampleBilinearPhasedMap( s_lavaLongMaterial, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, uvOffsetSample, angle, ratio ).rgba;
 		vec4 sampledMaterialLat = sampleBilinearPhasedMap( s_lavaLatMaterial, s_lavaLatMaterial, uvTL, uvTR, uvBL, uvBR, uvOffsetSample, angle, ratio ).rgba;
 		sampledMaterial = sampledMaterialStill;//mix( sampledMaterialStill, sampledMaterialLong, compressionRatio );
 		//sampledMaterial = mix( sampledMaterial, sampledMaterialLat, stretchRatio );
 		
-		vec3 sampledAlbedoStill = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_uv, uvOffsetSample, 0.0 ).rgb;
+		vec3 sampledAlbedoStill = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgb;
 		vec3 sampledAlbedoLong = sampleBilinearPhasedMap( s_lavaLongAlbedo, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, uvOffsetSample, angle, ratio ).rgb;
 		vec3 sampledAlbedoLat = sampleBilinearPhasedMap( s_lavaLatAlbedo, s_lavaLatMaterial, uvTL, uvTR, uvBL, uvBR, uvOffsetSample, angle, ratio ).rgb;
 		sampledAlbedo = sampledAlbedoStill;//mix( sampledAlbedoStill, sampledAlbedoLong, compressionRatio );
 		//sampledAlbedo = mix( sampledAlbedo, sampledAlbedoLat, stretchRatio );
 		sampledAlbedo = pow(sampledAlbedo, vec3(2.2));
 		
-		vec3 sampledNormalStill = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_uv, uvOffsetSample, 0.0 );
+		vec3 sampledNormalStill = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
 
 		vec3 sampledNormalLong = sampleBilinearPhasedMapNormalDXT( s_lavaLongNormal, s_lavaLongMaterial, uvTL, uvTR, uvBL, uvBR, uvOffsetSample, angle, ratio ).xyz;
 		sampledNormalLong = rotateZ( sampledNormalLong, angle );
@@ -348,7 +351,7 @@ void main(void)
 	// Ambient light
 	//vec3 ambientDir = normalize( vec3(0.0,3.0,0.0) - in_worldPosition );
 	//vec3 ambientLight = pointLightContribution( rockNormal, ambientDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_ambientLightIntensity ) * in_occlusion * textureAO;
-	vec3 ambientLight = IBLContribution( rockNormal, viewDir, sampledAlbedo, specularColor, roughness, s_envMap, u_ambientLightIntensity, in_occlusion * textureAO);
+	vec3 ambientLight = IBLContribution( rockNormal, viewDir, sampledAlbedo, specularColor, roughness, s_envMap, s_irrMap, u_ambientLightIntensity, in_occlusion * textureAO);
 	//vec3 ambientLight = vec3(0.0,0.0,0.0);
 
 	// Local glow from heat
@@ -388,6 +391,8 @@ void main(void)
 	float moltenAlpha = moltenAlphaA + moltenAlphaB;
 
 	outColor = mix( outColor, in_moltenColor, moltenAlpha );
+
+	out_worldNormal = vec4(rockNormal, 0.0);
 	
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );

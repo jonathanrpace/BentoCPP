@@ -9,7 +9,9 @@ layout(location = 0) in vec3 in_position;
 layout(location = 1) in vec2 in_uv;
 layout(location = 2) in vec4 in_rand;
 
-// Textures
+// Uniforms ////////////////////////////////////////////////////
+
+// Samplers
 uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
@@ -17,21 +19,21 @@ uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_fluxData;
  
-// Uniforms
+ // Matrices
 uniform mat4 u_mvpMatrix;
 uniform mat4 u_modelViewMatrix;
 uniform mat4 u_viewMatrix;
 
-uniform float u_heightOffset;
+// Depth
+uniform float u_localDepthMip;
+uniform float u_localDepthScalar;
 uniform float u_depthToReflect;
-uniform float u_dissolvedDirtDensityScalar;
 
 // Flow
 uniform float u_phaseA;
 uniform float u_phaseB;
 uniform float u_phaseAlpha;
 uniform float u_waterFlowOffset;
-uniform float u_waterFlowRepeat;
 
 // Waves
 const mat2 octave_m = mat2(1.6,1.2,-1.2,1.6);
@@ -41,8 +43,11 @@ uniform float u_waveAmplitude;
 uniform float u_waveFreqBase;
 uniform float u_waveFreqScalar;
 uniform float u_waveRoughness;
-uniform float u_waveChoppy = 2.0;
+uniform float u_waveChoppy;
+uniform float u_waveChoppyEase;
 
+// Dirt
+uniform float u_dirtScalar;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -60,7 +65,6 @@ out Varying
 	vec3 out_normal;
 	vec4 out_viewPosition;
 	vec4 out_worldPosition;
-	float out_reflectAlpha;
 	float out_dissolvedDirtAlpha;
 	vec3 out_eyeVec;
 	float out_specularOcclusion;
@@ -68,6 +72,8 @@ out Varying
 	vec2 out_uv;
 	float out_foamStrength;
 	float out_fluxAmount;
+	float out_localDepthRatio;
+	float out_reflectAlpha;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -126,7 +132,7 @@ float waveNoise(vec3 p, int iter, float ampScalar, float _choppy)
     	uv *= octave_m; 
 		freq *= u_waveFreqScalar;
 		amp *= u_waveRoughness;
-        choppy = mix(choppy,1.0,0.2);
+        choppy = mix(choppy,1.0,u_waveChoppyEase);
     }
     return p.y - h;
 }
@@ -168,48 +174,70 @@ void main(void)
 	position.y += moltenHeight;
 	position.y += dirtHeight;
 	position.y += waterHeight;
-	
+
+	vec4 viewPosition = u_modelViewMatrix * position;
+	viewPosition.w = 1.0;
+	out_viewPosition = viewPosition;
+	out_worldPosition = position;
+	vec4 screenPos = u_mvpMatrix * position;
+	gl_Position = screenPos;
+
+	vec3 eyeVec = -normalize( viewPosition.xyz * mat3(u_viewMatrix) );
+	out_eyeVec = eyeVec;
+
+	////////////////////////////////////////////////////////////////
+	// Depth offset
+	////////////////////////////////////////////////////////////////
+	out_localDepthRatio = 0.0;
 	{
-		vec2 uvA = (in_uv * u_waterFlowRepeat) - u_phaseA * waterVelocity * u_waterFlowOffset;
-		vec2 uvB = (in_uv * u_waterFlowRepeat) - u_phaseB * waterVelocity * u_waterFlowOffset;
+		// The frag shader uses the depth buffer to determine how deep the water is from the camera pos.
+		// This works fine generally, but doesn't take into acount that local waves 'thin' the depth
+		// Here we find the diff between this vertex's height, and the average (mipped) and use this
+		// to provide an offset - we modulate this effect by the view vector (looking straight down nullifies the effect).
+		vec4 heightDataMippedC = textureLod(s_heightData, in_uv, u_localDepthMip);
+		float waterHeightMipped = heightDataMippedC.w;
+		float localDepthRatio = max( waterHeight - waterHeightMipped, -1.0 ) * u_localDepthScalar;
+
+		localDepthRatio *= max( 1.0 - dot( eyeVec, vec3(0.0,1.0,0.0) ), 0.0 );
+		localDepthRatio *= mix( 0.25, 0.5, pow( max( 1.0 - dot( eyeVec, normal ), 0.0 ), 1.0 ) );
+
+		out_localDepthRatio = localDepthRatio;
+	}
+
+	////////////////////////////////////////////////////////////////
+	// Waves
+	////////////////////////////////////////////////////////////////
+	{
+		vec2 uvA = in_uv - u_phaseA * waterVelocity * u_waterFlowOffset;
+		vec2 uvB = in_uv - u_phaseB * waterVelocity * u_waterFlowOffset;
 		
-		float waveStrength = min( 1.0, mix( 0.01, 1.0, fluxAmount ) );
+		float waveStrength = min( 1.0, mix( 0.0, 1.0, fluxAmount * 3.0 ) );
 		float waveAmplitude = u_waveAmplitude * waveStrength;
 
 		float waveHeightA = waveNoise(vec3(uvA.x, 0, uvA.y), u_waveLevels, waveAmplitude, u_waveChoppy);
 		float waveHeightB = waveNoise(vec3(uvB.x, 0, uvB.y), u_waveLevels, waveAmplitude, u_waveChoppy);
 		float waveHeight = mix( waveHeightA, waveHeightB, u_phaseAlpha );
 
-		waterHeight += waveHeight;
-		position.y += waveHeight;
+		waterHeight -= waveHeight;
+		position.y -= waveHeight;
 	}
 
-	out_worldPosition = position;
-
-	float reflectAlpha = min( max(waterHeight, 0.0) / u_depthToReflect, 1.0 );
-	out_reflectAlpha = reflectAlpha;
-
-	vec4 viewPosition = u_modelViewMatrix * position;
-	viewPosition.w = 1.0;
-	out_viewPosition = viewPosition;
-
-	vec4 screenPos = u_mvpMatrix * position;
-	gl_Position = screenPos;
+	out_reflectAlpha = clamp( waterHeight / u_depthToReflect, 0.0, 1.0 );
 
 	////////////////////////////////////////////////////////////////
 	// Dissolved Dirt Alpha
 	////////////////////////////////////////////////////////////////
 	{
-		float dissolvedDirtAlpha = min( dissolvedDirt * u_dissolvedDirtDensityScalar, 1.0 );
+		float dissolvedDirtAlpha = min( dissolvedDirt * u_dirtScalar, 1.0 );
 		out_dissolvedDirtAlpha = dissolvedDirtAlpha;
 	}
 
 	////////////////////////////////////////////////////////////////
 	// Specular occlusion
 	////////////////////////////////////////////////////////////////
+	out_specularOcclusion = 1.0;
 	{
-		out_eyeVec = -normalize( viewPosition.xyz * mat3(u_viewMatrix) );
-		vec3 reflectVec = -reflect(out_eyeVec, normal);
+		vec3 reflectVec = -reflect(eyeVec, normal);
 
 		// Specular occlusion
 		float shadowing = 0.0;
@@ -248,6 +276,6 @@ void main(void)
 			}
 		}
 		
-		out_specularOcclusion = 1.0;//1.0-shadowing;
+		out_specularOcclusion = 1.0-shadowing;
 	}
 } 

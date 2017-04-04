@@ -31,8 +31,8 @@ namespace godBox
 		// Textures
 		TextureResource grungeTexture;
 		TextureResource smokeTexture;
-		TextureResource foamTexture;
 		TextureResource envMap;
+		TextureResource irrMap;
 
 		TextureResource lavaAlb;
 		TextureResource lavaNrm;
@@ -48,6 +48,7 @@ namespace godBox
 
 		// Global
 		float heightOffset;
+		float uvRepeat;
 
 		// Rock
 		float rockReflectivity;
@@ -78,31 +79,6 @@ namespace godBox
 		vec3 dirtColor;
 		float dirtTextureRepeat;
 		float dirtHeightToOpaque;
-
-		// Water
-		vec3 waterColor;
-		float waterSpecularPower;
-		float waterIndexOfRefraction;
-		float waterDepthToReflect;
-		float waterDepthToFilter;
-		float waterDepthToDiffuse;
-		float dissolvedDirtDesntiyScalar;
-		float waterFlowSpeed;
-		float waterFlowOffset;
-		float waterFlowRepeat;
-
-		// Waves
-		int waterWaveLevels;
-		float waterWaveAmplitude;
-		float waterWaveFrquencyBase;
-		float waterWaveFrquencyScalar;
-		float waterWaveRoughness;
-		float waterWaveSpeed;
-		
-		// Foam
-		float foamRepeat;
-		float foamDistortStrength;
-		float foamAlphaStrength;
 
 		// Lighting
 		float lightAzimuth;

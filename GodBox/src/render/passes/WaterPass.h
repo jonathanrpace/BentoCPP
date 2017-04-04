@@ -10,6 +10,7 @@
 
 // app
 #include <components/materials/TerrainMaterial.h>
+#include <components/materials/WaterMaterial.h>
 #include <components/geom/TerrainGeometry.h>
 
 using namespace bento;
@@ -20,14 +21,14 @@ namespace godBox
 		: ShaderStageBase
 	{
 		WaterVert();
-		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material);
+		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _terrainMaterial, WaterMaterial& _waterMaterial);
 	};
 
 	struct WaterFrag
 		: ShaderStageBase
 	{
 		WaterFrag();
-		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material);
+		void BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _terrainMaterial, WaterMaterial& _waterMaterial);
 	};
 
 	struct WaterShader
@@ -35,12 +36,13 @@ namespace godBox
 	{
 	};
 
-	DEFINE_NODE_3
+	DEFINE_NODE_4
 	(
 		WaterPassNode,
 		TerrainGeometry, geom,
 		Transform, transform,
-		TerrainMaterial, material
+		TerrainMaterial, terrainMaterial,
+		WaterMaterial, waterMaterial
 	)
 
 	class WaterPass

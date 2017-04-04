@@ -25,6 +25,7 @@
     <ClCompile Include="src\components\geom\SteamParticleGeom.cpp" />
     <ClCompile Include="src\components\geom\TerrainGeometry.cpp" />
     <ClCompile Include="src\components\materials\TerrainMaterial.cpp" />
+    <ClCompile Include="src\components\materials\WaterMaterial.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Processes\InspectorUIProcess.cpp" />
     <ClCompile Include="src\processes\TerrainSimulationProcess.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="src\components\geom\SteamParticleGeom.h" />
     <ClInclude Include="src\components\geom\TerrainGeometry.h" />
     <ClInclude Include="src\components\materials\TerrainMaterial.h" />
+    <ClInclude Include="src\components\materials\WaterMaterial.h" />
     <ClInclude Include="src\Processes\InspectorUIProcess.h" />
     <ClInclude Include="src\processes\TerrainSimulationProcess.h" />
     <ClInclude Include="src\render\eRenderPhase.h" />

@@ -6,7 +6,8 @@ namespace godBox
 {
 	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_POSITION = GL_COLOR_ATTACHMENT0;
 	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_COLOR = GL_COLOR_ATTACHMENT1;
-	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_COLOR_POST_TRANSPARENCY = GL_COLOR_ATTACHMENT2;
+	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_NORMAL = GL_COLOR_ATTACHMENT2;
+	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_COLOR_POST_TRANSPARENCY = GL_COLOR_ATTACHMENT3;
 	
 	RenderTarget::RenderTarget
 	(
@@ -16,10 +17,12 @@ namespace godBox
 		: RenderTargetBase(_width, _height, true)
 		, m_positionTexture(_width, _height, GL_RGBA16F, GL_NEAREST, GL_NEAREST)
 		, m_colorTexture(_width, _height, GL_RGBA16F)
+		, m_normalTexture(_width, _height, GL_RGBA16F)
 		, m_colorPostTransparencyTexture(_width, _height, GL_RGBA16F)
 	{
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_POSITION, m_positionTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_COLOR, m_colorTexture);
+		AttachTexture(FRAME_BUFFER_ATTACHMENT_NORMAL, m_normalTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_COLOR_POST_TRANSPARENCY, m_colorPostTransparencyTexture);
 	}
 
@@ -36,6 +39,7 @@ namespace godBox
 		static const GLenum drawBuffers[] = {
 			FRAME_BUFFER_ATTACHMENT_POSITION,
 			FRAME_BUFFER_ATTACHMENT_COLOR,
+			FRAME_BUFFER_ATTACHMENT_NORMAL,
 			FRAME_BUFFER_ATTACHMENT_COLOR_POST_TRANSPARENCY
 		};
 		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
@@ -53,6 +57,7 @@ namespace godBox
 
 		static const GLenum drawBuffers[] = {
 			FRAME_BUFFER_ATTACHMENT_POSITION,
+			FRAME_BUFFER_ATTACHMENT_NORMAL,
 			FRAME_BUFFER_ATTACHMENT_COLOR
 		};
 		GL_CHECK(glDrawBuffers(sizeof(drawBuffers) / sizeof(drawBuffers[0]), drawBuffers));
@@ -72,6 +77,11 @@ namespace godBox
 	bento::RectangleTexture& RenderTarget::PositionTexture()
 	{
 		return m_positionTexture;
+	}
+
+	bento::RectangleTexture& RenderTarget::NormalTexture()
+	{
+		return m_normalTexture;
 	}
 
 	bento::RectangleTexture& RenderTarget::ColorTexture()

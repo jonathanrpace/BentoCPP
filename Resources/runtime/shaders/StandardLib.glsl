@@ -312,6 +312,7 @@ vec3 IBLContribution
 	vec3 specColor,
 	float roughness,
 	samplerCube envMap,
+	samplerCube irrMap,
 	float lightIntensity,
 	float ambientOcclusion
 )
@@ -335,9 +336,10 @@ vec3 IBLContribution
 			maxLod) 
 		;
 
-	vec3 result = textureLod(envMap, L, lodS).rgb * ambientOcclusion * lightIntensity;
+	vec3 result = textureLod(envMap, L, lodS).rgb;
 	result *= microfacets_contrib( dotVH, dotNH, dotNL, dotNV,	specColor,	roughness);
-	result += diffColor * (vec3(1.0,1.0,1.0)-specColor) * textureLod(envMap, L, maxLod).rgb;
+	result += diffColor * (vec3(1.0,1.0,1.0)-specColor) * texture(irrMap, N).rgb;
+	result *=  ambientOcclusion * lightIntensity;
 
 	return result;
 }

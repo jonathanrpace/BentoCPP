@@ -52,6 +52,7 @@ namespace godBox
 		SetUniform("u_dirtHeightToOpaque", _material.dirtHeightToOpaque);
 		
 		SetUniform("u_heightOffset", _material.heightOffset);
+		SetUniform("u_uvRepeat", _material.uvRepeat);
 
 		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightDistance", _material.lightDistance);
@@ -129,6 +130,7 @@ namespace godBox
 		SetTexture("s_lavaLatMaterial", _material.lavaMat);
 
 		SetTexture("s_envMap", _material.envMap);
+		SetTexture("s_irrMap", _material.irrMap);
 
 		TerrainMousePos terrainMousePos = _geometry.GetTerrainMousePos();
 		terrainMousePos.z = INT_MAX;

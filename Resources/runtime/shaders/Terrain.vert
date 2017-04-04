@@ -11,6 +11,8 @@ layout(location = 1) in vec2 in_uv;
 // Uniforms
 uniform mat4 u_viewMatrix;
 
+uniform float u_uvRepeat;
+
 uniform vec3 u_fogColorAway;
 uniform vec3 u_fogColorTowards;
 uniform float u_fogHeight;
@@ -64,6 +66,7 @@ out Varying
 	float out_occlusion;
 	float out_heat;
 	float out_shadowing;
+	vec2 out_scaledUV;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -159,6 +162,7 @@ void main(void)
 		out_worldPosition = position.xyz;
 		out_viewPosition = viewPosition;
 		out_uv = in_uv;
+		out_scaledUV = in_uv * u_uvRepeat;
 		out_moltenColor = moltenColor;
 		out_moltenAlpha = moltenAlpha;
 		out_dirtAlpha = dirtAlpha;

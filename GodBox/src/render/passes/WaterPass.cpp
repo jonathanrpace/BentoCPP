@@ -29,43 +29,50 @@ namespace godBox
 	{
 	}
 
-	void WaterVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
+	void WaterVert::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _terrainMaterial, WaterMaterial& _waterMaterial)
 	{
-		// Flow
-		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
-		float phaseA = fmodf( phase + 0.0f, 1.0f );
-		float phaseB = fmodf( phase + 0.5f, 1.0f );
-		float alphaB = fabs( 0.5f - phase ) * 2.0f;
-		float alphaA = 1.0f - alphaB;
-
-		SetUniform("u_phaseA", phaseA );
-		SetUniform("u_phaseB", phaseB );
-		SetUniform("u_phaseAlpha", alphaB );
-		SetUniform("u_waterFlowOffset", _material.waterFlowOffset );
-		SetUniform("u_waterFlowRepeat", _material.waterFlowRepeat );
-
-		// Waves
-		float waveTime = (float)glfwGetTime() * _material.waterWaveSpeed;
-		SetUniform( "u_waveTime", waveTime );
-		SetUniform( "u_waveLevels", _material.waterWaveLevels );
-		SetUniform( "u_waveAmplitude", _material.waterWaveAmplitude );
-		SetUniform( "u_waveFreqBase", _material.waterWaveFrquencyBase );
-		SetUniform( "u_waveFreqScalar", _material.waterWaveFrquencyScalar );
-		SetUniform( "u_waveRoughness", _material.waterWaveRoughness );
-
-		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix());
-		SetUniform("u_modelViewMatrix", bento::RenderParams::ModelViewMatrix());
-		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
-
-		SetUniform("u_depthToReflect", _material.waterDepthToReflect);
-		SetUniform("u_dissolvedDirtDensityScalar", _material.dissolvedDirtDesntiyScalar);
-
+		// Samplers
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 		SetTexture("s_fluxData", _geometry.WaterFluxData().GetRead());
+
+		// Matrices
+		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix());
+		SetUniform("u_modelViewMatrix", bento::RenderParams::ModelViewMatrix());
+		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
+
+		// Depth
+		SetUniform("u_localDepthMip", _waterMaterial.localDepthMip);
+		SetUniform("u_localDepthScalar", _waterMaterial.localDepthScalar);
+		SetUniform("u_depthToReflect", _waterMaterial.depthToReflection);
+
+		// Flow
+		float phase = fmodf( (float)glfwGetTime() * _waterMaterial.flowSpeed, 1.0f );
+		float phaseA = fmodf( phase + 0.0f, 1.0f );
+		float phaseB = fmodf( phase + 0.5f, 1.0f );
+		float alphaB = fabs( 0.5f - phase ) * 2.0f;
+		float alphaA = 1.0f - alphaB;
+		SetUniform("u_phaseA", phaseA );
+		SetUniform("u_phaseB", phaseB );
+		SetUniform("u_phaseAlpha", alphaB );
+		SetUniform("u_waterFlowOffset", _waterMaterial.flowOffset );
+
+		// Waves
+		float waveTime = (float)glfwGetTime() * _waterMaterial.waveSpeed;
+		SetUniform( "u_waveTime", waveTime );
+		SetUniform( "u_waveLevels", _waterMaterial.waveLevels );
+		SetUniform( "u_waveAmplitude", _waterMaterial.waveAmplitude );
+		SetUniform( "u_waveFreqBase", _waterMaterial.waveFrquencyBase );
+		SetUniform( "u_waveFreqScalar", _waterMaterial.waveFrquencyScalar );
+		SetUniform( "u_waveRoughness", _waterMaterial.waveRoughness );
+		SetUniform( "u_waveChoppy", _waterMaterial.waveChoppy );
+		SetUniform( "u_waveChoppyEase", _waterMaterial.waveChoppyEase );
+
+		// Dirt
+		SetUniform("u_dirtScalar", _waterMaterial.dirtScalar);
 	}
 
 	////////////////////////////////////////////
@@ -77,10 +84,32 @@ namespace godBox
 	{
 	}
 
-	void WaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _material)
+	void WaterFrag::BindPerModel(TerrainGeometry& _geometry, TerrainMaterial& _terrainMaterial, WaterMaterial& _waterMaterial)
 	{
+		// Samplers
+		SetTexture("s_output", RenderParams::GetRenderTarget().ColorTexture());
+		SetTexture("s_positionBuffer", RenderParams::GetRenderTarget().PositionTexture());
+		SetTexture("s_normalBuffer", RenderParams::GetRenderTarget().NormalTexture());
+		SetTexture("s_foamMap", _waterMaterial.foamTexture);
+		SetTexture("s_envMap", _terrainMaterial.envMap);
+		SetTexture("s_irrMap", _terrainMaterial.irrMap);
+
+		// Matrices
+		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix(), true);
+		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
+
+		// Material 
+		SetUniform("u_filterColor", _waterMaterial.filterColor);
+		SetUniform("u_scatterColor", _waterMaterial.scatterColor);
+		SetUniform("u_indexOfRefraction", _waterMaterial.indexOfRefraction);
+		SetUniform("u_reflectivity", _waterMaterial.reflectivity);
+		SetUniform("u_depthToFilter", _waterMaterial.depthToFilter);
+		SetUniform("u_depthToDiffuse", _waterMaterial.depthToDiffuse);
+		SetUniform("u_depthPower", _waterMaterial.depthPower);
+		SetUniform("u_localDepthValue", _waterMaterial.localDepthValue);
+
 		// Flow
-		float phase = fmodf( (float)glfwGetTime() * _material.waterFlowSpeed, 1.0f );
+		float phase = fmodf( (float)glfwGetTime() * _waterMaterial.flowSpeed, 1.0f );
 		float phaseA = fmodf( phase + 0.0f, 1.0f );
 		float phaseB = fmodf( phase + 0.5f, 1.0f );
 		float alphaB = fabs( 0.5f - phase ) * 2.0f;
@@ -89,46 +118,31 @@ namespace godBox
 		SetUniform("u_phaseA", phaseA );
 		SetUniform("u_phaseB", phaseB );
 		SetUniform("u_phaseAlpha", alphaB );
-		SetUniform("u_waterFlowOffset", _material.waterFlowOffset );
-		SetUniform("u_waterFlowRepeat", _material.waterFlowRepeat );
+		SetUniform("u_waterFlowOffset", _waterMaterial.flowOffset );
 
 		// Waves
-		float waveTime = (float)glfwGetTime() * _material.waterWaveSpeed;
+		float waveTime = (float)glfwGetTime() * _waterMaterial.waveSpeed;
 		SetUniform( "u_waveTime", waveTime );
-		SetUniform( "u_waveLevels", _material.waterWaveLevels );
-		SetUniform( "u_waveAmplitude", _material.waterWaveAmplitude );
-		SetUniform( "u_waveFreqBase", _material.waterWaveFrquencyBase );
-		SetUniform( "u_waveFreqScalar", _material.waterWaveFrquencyScalar );
-		SetUniform( "u_waveRoughness", _material.waterWaveRoughness );
-
-		SetUniform("u_waterColor", _material.waterColor);
-		SetUniform("u_dirtColor", _material.dirtColor);
-		SetUniform("u_indexOfRefraction", _material.waterIndexOfRefraction);
-		SetUniform("u_specularPower", _material.waterSpecularPower);
-
-		//
-		SetUniform("u_depthToFilter", _material.waterDepthToFilter);
-		SetUniform("u_depthToDiffuse", _material.waterDepthToDiffuse);
+		SetUniform( "u_waveLevels", _waterMaterial.waveLevels );
+		SetUniform( "u_waveAmplitude", _waterMaterial.waveAmplitude );
+		SetUniform( "u_waveFreqBase", _waterMaterial.waveFrquencyBase );
+		SetUniform( "u_waveFreqScalar", _waterMaterial.waveFrquencyScalar );
+		SetUniform( "u_waveRoughness", _waterMaterial.waveRoughness );
+		SetUniform( "u_waveChoppy", _waterMaterial.waveChoppy );
+		SetUniform( "u_waveChoppyEase", _waterMaterial.waveChoppyEase );
 
 		// Foam
-		SetUniform("u_foamRepeat", _material.foamRepeat);
-		SetUniform("u_foamDistortStrength", _material.foamDistortStrength);
-		SetUniform("u_foamAlphaStrength", _material.foamAlphaStrength);
+		SetUniform("u_foamRepeat", _waterMaterial.foamRepeat);
+		SetUniform("u_foamStrength", _waterMaterial.foamStrength);
 		
+		// Dirt
+		SetUniform("u_dirtColor", _terrainMaterial.dirtColor);
+
 		// Lighting
-		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
-		SetUniform("u_lightDistance", _material.lightDistance);
-		SetUniform("u_lightIntensity", _material.directLightIntensity);
-
-		SetTexture("s_envMap", _material.envMap);
-		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
-
-		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix(), true);
-		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
-
-		SetTexture("s_output", RenderParams::GetRenderTarget().ColorTexture());
-		SetTexture("s_positionBuffer", RenderParams::GetRenderTarget().PositionTexture());
-		SetTexture("s_foamMap", _material.foamTexture);
+		SetUniform("u_lightDir", -glm::euclidean(vec2(_terrainMaterial.lightAltitude, _terrainMaterial.lightAzimuth)));
+		SetUniform("u_lightDistance", _terrainMaterial.lightDistance);
+		SetUniform("u_lightIntensity", _terrainMaterial.directLightIntensity);
+		SetUniform("u_ambientLightIntensity", _terrainMaterial.ambientLightIntensity);
 	}
 
 	////////////////////////////////////////////
@@ -152,10 +166,11 @@ namespace godBox
 			bento::RenderParams::SetModelMatrix(node->transform->matrix);
 			
 			auto& geom = *node->geom;
-			auto& material = *node->material;
+			auto& terrainMaterial = *node->terrainMaterial;
+			auto& waterMaterial = *node->waterMaterial;
 
-			m_shader.VertexShader().BindPerModel(geom, material);
-			m_shader.FragmentShader().BindPerModel(geom, material);
+			m_shader.VertexShader().BindPerModel(geom, terrainMaterial, waterMaterial);
+			m_shader.FragmentShader().BindPerModel(geom, terrainMaterial, waterMaterial);
 
 			geom.Bind();
 			geom.Draw();

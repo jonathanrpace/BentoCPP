@@ -669,11 +669,8 @@ void main(void)
 		float heightU = heightDataU.x + heightDataU.y + heightDataU.z;
 		float heightD = heightDataD.x + heightDataD.y + heightDataD.z;
 		
-		vec3 va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
-		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
-
-		va = normalize(vec3(u_cellSize.x, heightR-heightL, 0.0f));
-		vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y));
+		vec3 va = normalize(vec3(u_cellSize.x*2.0, heightR-heightL, 0.0f));
+		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y*2.0));
 		vec3 rockNormal = -cross(va,vb);
 
 		out_normalData.zw = rockNormal.xz;

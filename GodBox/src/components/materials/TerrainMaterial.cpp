@@ -8,8 +8,6 @@ namespace godBox
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
 		, grungeTexture("textures/GrungeMap.dds", GL_LINEAR, GL_LINEAR)
-		//, smokeTexture("textures/Smoke.png")
-		, foamTexture("textures/Foam.dds")
 		, lavaAlb("textures/Lava_Albedo.dds")
 		, lavaNrm("textures/Lava_Normal.dds")
 		, lavaMat("textures/Lava_Material.dds")
@@ -19,10 +17,12 @@ namespace godBox
 		, lavaLatAlb("textures/LavaLat_Albedo.dds")
 		, lavaLatNrm("textures/LavaLat_Normal.dds")
 		, lavaLatMat("textures/LavaLat_Material.dds")
-		, envMap("textures/EnvMap.dds")
+		, envMap("textures/EnvMap2.dds")
+		, irrMap("textures/IrrMap2.dds")
 	{
 		// Global
 		SerializableMember("heightScalar", 0.0f, &heightOffset);
+		SerializableMember("uvRepeat", 1.0f, &uvRepeat);
 
 		// Rock
 		SerializableMember("rockReflectivity", 0.1f, &rockReflectivity);
@@ -48,32 +48,6 @@ namespace godBox
 
 		// Glow
 		SerializableMember("glowScalar", 1.0f, &glowScalar);
-
-		// Water
-		SerializableMember("waterColor", vec3(0.219f, 0.286f, 0.278f), &waterColor);
-		SerializableMember("waterSpecularPower", 80.0f, &waterSpecularPower);
-		SerializableMember("waterIndexOfRefraction", 0.33f, &waterIndexOfRefraction);
-		SerializableMember("waterDepthToReflection", 0.05f, &waterDepthToReflect);
-		SerializableMember("waterDepthToFilter", 0.05f, &waterDepthToFilter);
-		SerializableMember("waterDepthToDiffuse", 0.05f, &waterDepthToDiffuse);
-		SerializableMember("dissolvedDirtDesnsityScalar", 1.0f, &dissolvedDirtDesntiyScalar);
-		SerializableMember("waterFlowSpeed", 0.02f, &waterFlowSpeed);
-		SerializableMember("waterFlowOffset", 0.01f, &waterFlowOffset);
-		SerializableMember("waterFlowRepeat", 1.0f, &waterFlowRepeat);
-		
-
-		// Waves
-		SerializableMember("waterWaveLevels", 3, &waterWaveLevels);
-		SerializableMember("waterWaveAmplitude", 0.1f, &waterWaveAmplitude);
-		SerializableMember("waterWaveFrequencyBase", 1.0f, &waterWaveFrquencyBase);
-		SerializableMember("waterWaveFrequencyScalar", 2.0f, &waterWaveFrquencyScalar);
-		SerializableMember("waterWaveRoughness", 0.5f, &waterWaveRoughness);
-		SerializableMember("waterWaveSpeed", 0.02f, &waterWaveSpeed);
-
-		// Foam
-		SerializableMember("foamReat", 1.0f, &foamRepeat);
-		SerializableMember("foamDistortStrength", 0.1f, &foamDistortStrength);
-		SerializableMember("foamAlphaStrength", 1.0f, &foamAlphaStrength);
 
 		// Dirt
 		SerializableMember("dirtColor", vec3(0.5, 0.5f, 0.5f), &dirtColor);
@@ -101,6 +75,7 @@ namespace godBox
 		ImGui::Spacing();
 		ImGui::Text("Global");
 		ImGui::SliderFloat("Height Offset", &heightOffset, 0.0f, 0.1f);
+		ImGui::SliderFloat("UV Repeat", &uvRepeat, 0.0f, 4.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -136,38 +111,6 @@ namespace godBox
 		ImGui::Spacing();
 		ImGui::Text("Glow");
 		ImGui::SliderFloat("Scale##glow", &glowScalar, 0.0f, 50.0f);
-		ImGui::Spacing();
-
-		ImGui::Spacing();
-		ImGui::Text("Water");
-		ImGui::SliderFloat("FlowSpeed##water", &waterFlowSpeed, 0.0f, 1.0f);
-		ImGui::SliderFloat("FlowOffset##water", &waterFlowOffset, 0.0f, 0.2f);
-		ImGui::SliderFloat("FlowRepeat", &waterFlowRepeat, 1.0f, 10.0f);
-		ImGui::SliderFloat("SpecularPower", &waterSpecularPower, 1.0f, 10.0f);
-		ImGui::SliderFloat("I.O.R", &waterIndexOfRefraction, 0.5f, 1.5f);
-		ImGui::ColorEdit3("Color##water", glm::value_ptr(waterColor));
-		ImGui::SliderFloat("DepthToReflect", &waterDepthToReflect, 0.0f, 0.001f, "%.5f");
-		ImGui::SliderFloat("DepthToFilter", &waterDepthToFilter, 0.0f, 0.001f, "%.5f");
-		ImGui::SliderFloat("DepthToDiffuse", &waterDepthToDiffuse, 0.0f, 0.1f);
-		ImGui::SliderFloat("DissolvedDirtDensityScalar", &dissolvedDirtDesntiyScalar, 0.0f, 1000.0f);
-		
-		ImGui::Spacing();
-
-		ImGui::Spacing();
-		ImGui::Text("Waves");
-		ImGui::SliderInt("Levels", &waterWaveLevels, 0, 8);
-		ImGui::SliderFloat("Amplitude", &waterWaveAmplitude, 0.0f, 0.01f, "%.5f");
-		ImGui::SliderFloat("Freq Base", &waterWaveFrquencyBase, 1.0f, 100.0f);
-		ImGui::SliderFloat("Freq Scalar", &waterWaveFrquencyScalar, 0.0f, 2.0f);
-		ImGui::SliderFloat("Roughness", &waterWaveRoughness, 0.0f, 1.0f);
-		ImGui::SliderFloat("Speed", &waterWaveSpeed, 0.0f, 0.2f, "%.4f");
-		ImGui::Spacing();
-
-		ImGui::Spacing();
-		ImGui::Text("Foam");
-		ImGui::SliderFloat("Repeat##foam", &foamRepeat, 0.0f, 10.0f);
-		ImGui::SliderFloat("Distortion##foam", &foamDistortStrength, 0.0f, 1.0f);
-		ImGui::SliderFloat("AlphaStrength##foam", &foamAlphaStrength, 0.0f, 10.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

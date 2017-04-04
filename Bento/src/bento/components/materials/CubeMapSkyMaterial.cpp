@@ -7,7 +7,7 @@ namespace bento
 	CubeMapSkyMaterial::CubeMapSkyMaterial(std::string _name)
 		: Component(_name, typeid(CubeMapSkyMaterial))
 		, SerializableBase("CubeMapSkyMaterial")
-		, envMap("textures/EnvMap.dds")
+		, envMap("textures/EnvMap2.dds")
 	{
 		// Global
 		SerializableMember("intensity", 1.0f, &intensity);
@@ -18,7 +18,7 @@ namespace bento
 
 	void CubeMapSkyMaterial::AddUIElements()
 	{
-		ImGui::SliderFloat("Intensity", &intensity, 0.0f, 10.0f);
+		ImGui::SliderFloat("Intensity", &intensity, 0.0f, 2.0f);
 		ImGui::SliderFloat("mipLevel", &mipLevel, 0.0f, 10.0f);
 
 		if (ImGui::Button("Reset"))

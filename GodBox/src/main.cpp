@@ -37,6 +37,7 @@
 #include <components/geom/FoamParticleGeom.h>
 #include <components/geom/SteamParticleGeom.h>
 #include <components/materials/TerrainMaterial.h>
+#include <components/materials/WaterMaterial.h>
 
 using namespace bento;
 using namespace godBox;
@@ -56,8 +57,10 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(geom, entity);
 		auto transform = Transform::Create();
 		scene.AddComponentToEntity(transform, entity);
-		auto material = TerrainMaterial::Create();
-		scene.AddComponentToEntity(material, entity);
+		auto terrainMaterial = TerrainMaterial::Create();
+		scene.AddComponentToEntity(terrainMaterial, entity);
+		auto waterMaterial = WaterMaterial::Create();
+		scene.AddComponentToEntity(waterMaterial, entity);
 		//auto foamParticleGeom = FoamParticleGeom::Create();
 		//scene.AddComponentToEntity(foamParticleGeom, entity);
 		auto steamParticleGeom = SteamParticleGeom::Create();
