@@ -27,7 +27,10 @@ in Varying
 uniform sampler2DRect s_output;
 uniform sampler2DRect s_positionBuffer;
 uniform sampler2DRect s_normalBuffer;
+uniform sampler2D s_heightData;
+uniform sampler2D s_miscData;
 uniform sampler2D s_foamMap;
+uniform sampler2D s_moltenGradient;
 uniform samplerCube s_envMap;
 uniform samplerCube s_irrMap;
 
@@ -76,6 +79,11 @@ uniform float u_lightDistance;
 uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
+// Glow
+uniform float u_glowScalar;
+uniform float u_glowMipLevel = 4;
+uniform float u_glowDistance = 0.1;
+
 ////////////////////////////////////////////////////////////////
 // Outputs
 ////////////////////////////////////////////////////////////////
@@ -85,7 +93,7 @@ layout( location = 0 ) out vec4 out_forwad;
 ////////////////////////////////////////////////////////////////
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
-float lightingGGX( vec3 N, vec3 V, vec3 L, float roughness, float F0 );
+vec3 pointLightContribution(vec3 N,	vec3 L,	vec3 V,	vec3 diffColor,	vec3 specColor,	float roughness, vec3 lightColor, float lightIntensity );
 vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float roughness, samplerCube envMap, samplerCube irrMap, float lightIntensity, float ambientOcclusion);
 
 ////////////////////////////////////////////////////////////////
@@ -280,6 +288,32 @@ void main(void)
 		vec3 reflections = IBLContribution(normal, eye, vec3(0.0), vec3(u_reflectivity), 0.0, s_envMap, s_irrMap, u_ambientLightIntensity, in_specularOcclusion * in_reflectAlpha);
 		outColor += reflections;
 	}
+
+	////////////////////////////////////////////////////////////////
+	// Local glow
+	////////////////////////////////////////////////////////////////
+	vec3 heatLight = vec3(0.0);
+	{
+		vec3 sampleOffset = normalize( vec3( normal.x, 0.0, normal.z ) );
+		
+		vec3 samplePos = in_worldPosition.xyz + sampleOffset * u_glowDistance;
+		vec2 sampleUV = samplePos.xz + vec2(0.5);
+		vec4 sampleHeightData = texture(s_heightData, sampleUV);
+		samplePos.y = sampleHeightData.x + sampleHeightData.y + sampleHeightData.z;
+		samplePos.y *= 2.0;
+
+		float sampleHeat = textureLod( s_miscData, sampleUV, u_glowMipLevel ).x;
+		vec3 sampleDir = samplePos - in_worldPosition.xyz;
+		float sampleDis = length(sampleDir);
+		sampleDir = normalize(sampleDir);
+
+		vec3 heatColor = pow( texture(s_moltenGradient, vec2(sampleHeat * 0.5, 0.5)).rgb, vec3(2.2) );
+		vec3 sampleHeatLight = pointLightContribution( normal, sampleDir, eye, vec3(0.0), vec3(u_reflectivity), 0.25, heatColor, u_glowScalar);
+		sampleHeatLight /= (1.0 + sampleDis*sampleDis);
+
+		heatLight += sampleHeatLight;
+	}
+	outColor += heatLight;
 
 	////////////////////////////////////////////////////////////////
 	// Debug

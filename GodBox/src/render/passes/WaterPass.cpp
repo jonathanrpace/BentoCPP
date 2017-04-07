@@ -90,10 +90,13 @@ namespace godBox
 		SetTexture("s_output", RenderParams::GetRenderTarget().ColorTexture());
 		SetTexture("s_positionBuffer", RenderParams::GetRenderTarget().PositionTexture());
 		SetTexture("s_normalBuffer", RenderParams::GetRenderTarget().NormalTexture());
+		SetTexture("s_heightData", _geometry.HeightData().GetRead());
+		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_foamMap", _waterMaterial.foamTexture);
 		SetTexture("s_envMap", _terrainMaterial.envMap);
 		SetTexture("s_irrMap", _terrainMaterial.irrMap);
-
+		SetTexture("s_moltenGradient", _terrainMaterial.moltenGradient);
+		
 		// Matrices
 		SetUniform("u_mvpMatrix", bento::RenderParams::ModelViewProjectionMatrix(), true);
 		SetUniform("u_viewMatrix", bento::RenderParams::ViewMatrix());
@@ -143,6 +146,9 @@ namespace godBox
 		SetUniform("u_lightDistance", _terrainMaterial.lightDistance);
 		SetUniform("u_lightIntensity", _terrainMaterial.directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _terrainMaterial.ambientLightIntensity);
+
+		// Glow
+		SetUniform("u_glowScalar", _terrainMaterial.glowScalar);
 	}
 
 	////////////////////////////////////////////

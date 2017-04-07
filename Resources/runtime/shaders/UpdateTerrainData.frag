@@ -126,7 +126,7 @@ vec2 GetMousePos()
 float CalcMoltenViscosity( float _heat, float _height )
 {
 	float heightScalar = pow( min(_height / 0.01, 1.0), 0.2 );
-	float viscosity = pow( clamp(_heat, 0.0f, 1.0), 0.5 );
+	float viscosity = pow( clamp(_heat, 0.0f, 1.0), 2.0 );
 	return min( viscosity * u_moltenViscosity * 1, 1.0 );
 }
 

@@ -60,11 +60,9 @@ out Varying
 	vec4 out_viewPosition;
 	vec2 out_uv;
 	float out_dirtAlpha;
-	vec3 out_moltenColor;
-	float out_moltenAlpha;
+	float out_heat;
 	vec3 out_rockNormal;
 	float out_occlusion;
-	float out_heat;
 	float out_shadowing;
 	vec2 out_scaledUV;
 };
@@ -114,13 +112,9 @@ void main(void)
 	// Dirt
 	float dirtAlpha = min((dirtHeight / u_dirtHeightToOpaque), 1.0);
 	
-	// Molten
-	float moltenAlpha = min( heat * u_moltenAlphaScalar, 1.0 );
-	moltenAlpha = pow( moltenAlpha, u_moltenAlphaPower );
-	vec3 moltenColor = pow( mix( u_moltenColor, u_moltenColor * u_moltenColorScalar, moltenAlpha ), vec3(2.2) );
-	
 	// Shadowing
 	float shadowing = 0.0;
+	/*
 	{
 		const int maxSteps = 64;
 		const float minStepLength = (1.0 / 256.0);
@@ -156,6 +150,7 @@ void main(void)
 			stepLength *= stepLengthScalar;
 		}
 	}
+	*/
 	
 	// Output
 	{
@@ -163,12 +158,10 @@ void main(void)
 		out_viewPosition = viewPosition;
 		out_uv = in_uv;
 		out_scaledUV = in_uv * u_uvRepeat;
-		out_moltenColor = moltenColor;
-		out_moltenAlpha = moltenAlpha;
+		out_heat = heat;
 		out_dirtAlpha = dirtAlpha;
 		out_rockNormal = rockNormal;
 		out_occlusion = occlusion;
-		out_heat = heat;
 		out_shadowing = shadowing;
 		gl_Position = u_mvpMatrix * position;
 	}

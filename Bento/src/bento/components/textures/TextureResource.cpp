@@ -12,9 +12,11 @@ namespace bento
 	(
 		char* const _filename, /* = nullptr */
 		GLenum _magFilter, /* = GL_LINEAR */
-		GLenum _minFilter /* = GL_LINEAR_MIPMAP_LINEAR */ 
+		GLenum _minFilter, /* = GL_LINEAR_MIPMAP_LINEAR */ 
+		GLenum _wrapModeR, /* = GL_REPEAT */
+		GLenum _wrapModeS  /* = GL_REPEAT */
 	)
-		: TextureBase(_magFilter, _minFilter)
+		: TextureBase(-1, GL_RGBA8, _magFilter, _minFilter, _wrapModeR, _wrapModeS)
 	{
 		if ( _filename != nullptr )
 		{

@@ -16,16 +16,16 @@ namespace bento
 		GLenum _format /* = GL_RGBA8 */, 
 		GLenum _magFilter /* = GL_LINEAR */, 
 		GLenum _minFilter /* = GL_LINEAR */, 
-		GLenum _wrapModeS /* = GL_REPEAT */, 
-		GLenum _wrapModeT /* = GL_REPEAT */ 
+		GLenum _wrapModeR /* = GL_REPEAT */, 
+		GLenum _wrapModeS /* = GL_REPEAT */ 
 	)
 		: m_target(_target)
 		, m_format(_format)
 		, m_texture(-1)
 		, m_magFilter(_magFilter)
 		, m_minFilter(_minFilter)
-		, m_wrapModeR(_wrapModeS)
-		, m_wrapModeS(_wrapModeT)
+		, m_wrapModeR(_wrapModeR)
+		, m_wrapModeS(_wrapModeS)
 	{
 
 	}

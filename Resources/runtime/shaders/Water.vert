@@ -236,6 +236,7 @@ void main(void)
 	// Specular occlusion
 	////////////////////////////////////////////////////////////////
 	out_specularOcclusion = 1.0;
+	/*
 	{
 		vec3 reflectVec = -reflect(eyeVec, normal);
 
@@ -275,7 +276,7 @@ void main(void)
 				stepLength *= stepLengthScalar;
 			}
 		}
-		
 		out_specularOcclusion = 1.0-shadowing;
 	}
+	*/
 } 

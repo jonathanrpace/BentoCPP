@@ -46,6 +46,8 @@ namespace godBox
 		TextureResource lavaLatNrm;
 		TextureResource lavaLatMat;
 
+		TextureResource moltenGradient;
+
 		// Global
 		float heightOffset;
 		float uvRepeat;

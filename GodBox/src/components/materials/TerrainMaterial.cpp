@@ -17,8 +17,9 @@ namespace godBox
 		, lavaLatAlb("textures/LavaLat_Albedo.dds")
 		, lavaLatNrm("textures/LavaLat_Normal.dds")
 		, lavaLatMat("textures/LavaLat_Material.dds")
-		, envMap("textures/EnvMap2.dds")
-		, irrMap("textures/IrrMap2.dds")
+		, envMap("textures/EnvMap.dds")
+		, irrMap("textures/IrrMap.dds")
+		, moltenGradient("textures/MoltenGradient.dds", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		// Global
 		SerializableMember("heightScalar", 0.0f, &heightOffset);
@@ -39,13 +40,7 @@ namespace godBox
 		SerializableMember("creaseGridRepeat", 1.0f, &creaseGridRepeat);
 		SerializableMember("moltenFlowSpeed", 0.02f, &moltenFlowSpeed);
 		SerializableMember("moltenFlowOffset", 0.01f, &moltenFlowOffset);
-
-		// Molten
-		SerializableMember("moltenColor", vec3(1.0f, 0.5f, 0.01f), &moltenColor);
-		SerializableMember("moltemColorScalar", 1.5f, &moltenColorScalar);
-		SerializableMember("moltenAlphaScalar", 1.0f, &moltenAlphaScalar);
-		SerializableMember("moltenAlphaPower", 1.0f, &moltenAlphaPower);
-
+		
 		// Glow
 		SerializableMember("glowScalar", 1.0f, &glowScalar);
 
@@ -102,11 +97,6 @@ namespace godBox
 		ImGui::Text("Molten");
 		ImGui::SliderFloat("Flow Speed##molten", &moltenFlowSpeed, 0.0f, 0.5f);
 		ImGui::SliderFloat("Flow Offset##molten", &moltenFlowOffset, 0.0f, 0.50f);
-		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
-		ImGui::ColorEdit3("Color##molten", glm::value_ptr(moltenColor));
-		ImGui::SliderFloat("Color Scale##molten", &moltenColorScalar, 1.0f, 20.0f);
-		ImGui::SliderFloat("Alpha Scale##molten", &moltenAlphaScalar, 0.0f, 10.0f);
-		ImGui::SliderFloat("Alpha Power##molten", &moltenAlphaPower, 0.0f, 4.0f);
 
 		ImGui::Spacing();
 		ImGui::Text("Glow");

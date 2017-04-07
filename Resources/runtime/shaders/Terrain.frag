@@ -11,11 +11,9 @@ in Varying
 	vec4 in_viewPosition;
 	vec2 in_uv;
 	float in_dirtAlpha;
-	vec3 in_moltenColor;
-	float in_moltenAlpha;
+	float in_heat;
 	vec3 in_rockNormal;
 	float in_occlusion;
-	float in_heat;
 	float in_shadowing;
 	vec2 in_scaledUV;
 };
@@ -78,7 +76,9 @@ uniform sampler2D s_lavaLatMaterial;
 uniform samplerCube s_envMap;
 uniform samplerCube s_irrMap;
 
-uniform float u_textureBias = -0.5;
+uniform sampler2D s_moltenGradient;
+
+uniform float u_textureBias = -0.0;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -267,7 +267,7 @@ void main(void)
 	UpdateMousePosition();
 
 	// Common values
-	vec3 viewDir = normalize(u_cameraPos);
+	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 	vec4 uvOffsetSample = texture( s_uvOffsetData, in_uv );
 
@@ -339,21 +339,15 @@ void main(void)
 	float roughness = sampledMaterial.r;
 	float textureAO = sampledMaterial.g;
 
-	// Make shit dark when hot
-	sampledAlbedo *= max(0.0, (1.0-in_moltenAlpha*1.0));
 	vec3 specularColor = vec3(pow(u_rockReflectivity, 2.2));
-	specularColor *= max(0.0, (1.0-in_moltenAlpha*1.0));
 
 	// Direct light
-	vec3 lightColor = vec3(1.0,1.0,1.0);
-	vec3 directLight = pointLightContribution( rockNormal, lightDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_lightIntensity ) * (1.0-in_shadowing);
+	//vec3 lightColor = vec3(1.0,1.0,1.0);
+	vec3 directLight = vec3(0.0);//pointLightContribution( rockNormal, lightDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_lightIntensity ) * (1.0-in_shadowing);
 
 	// Ambient light
-	//vec3 ambientDir = normalize( vec3(0.0,3.0,0.0) - in_worldPosition );
-	//vec3 ambientLight = pointLightContribution( rockNormal, ambientDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_ambientLightIntensity ) * in_occlusion * textureAO;
 	vec3 ambientLight = IBLContribution( rockNormal, viewDir, sampledAlbedo, specularColor, roughness, s_envMap, s_irrMap, u_ambientLightIntensity, in_occlusion * textureAO);
-	//vec3 ambientLight = vec3(0.0,0.0,0.0);
-
+	
 	// Local glow from heat
 	vec3 heatLight = vec3(0.0);
 	{
@@ -370,8 +364,8 @@ void main(void)
 		float sampleDis = length(sampleDir);
 		sampleDir = normalize(sampleDir);
 
-		vec3 heatColor = vec3(1.0,0.1,0.0);
-		vec3 sampleHeatLight = pointLightContribution( rockNormal, sampleDir, viewDir, sampledAlbedo, specularColor, roughness, heatColor, u_glowScalar * sampleHeat * 10.0);
+		vec3 heatColor = pow( texture(s_moltenGradient, vec2(sampleHeat * 0.5, 0.5)).rgb, vec3(2.2) );
+		vec3 sampleHeatLight = pointLightContribution( rockNormal, sampleDir, viewDir, sampledAlbedo, specularColor, roughness, heatColor, u_glowScalar);
 		sampleHeatLight /= (1.0 + sampleDis*sampleDis);
 
 		heatLight += sampleHeatLight;
@@ -381,16 +375,16 @@ void main(void)
 	vec3 outColor = directLight + ambientLight + heatLight * textureAO;
 
 	// Add emissve elements
-	float moltenAlphaA = pow( sampledMaterial.b, mix( 2.0, 1.0, in_moltenAlpha ) );
-	moltenAlphaA *= in_moltenAlpha;
+	float moltenMap = sampledMaterial.b;
+	float heat = pow(clamp(in_heat, 0.0, 1.0), 0.5);
+	float moltenAlphaA = pow( moltenMap, mix( 2.0, 0.4, heat ) ) * heat;
+	float moltenAlphaB = pow( moltenMap, 4.0 ) * (1.0 - heat) * heat * 4;
+	float moltenAlpha = clamp( moltenAlphaA + moltenAlphaB, 0.0, 1.0 );
+	
 
-	float moltenAlphaB = pow( sampledMaterial.b, 1.0 ) * (1.0 - in_moltenAlpha);
-	moltenAlphaB *= in_moltenAlpha;
-	moltenAlphaB *= 4;
-
-	float moltenAlpha = moltenAlphaA + moltenAlphaB;
-
-	outColor = mix( outColor, in_moltenColor, moltenAlpha );
+	vec3 moltenColor = pow( texture(s_moltenGradient, vec2(moltenAlpha, 0.5)).rgb, vec3(2.2) );
+	moltenColor *= 1.0 + max(in_heat-1.0, 0.0);
+	outColor += moltenColor;
 
 	out_worldNormal = vec4(rockNormal, 0.0);
 	
