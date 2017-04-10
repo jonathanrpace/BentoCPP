@@ -206,9 +206,9 @@ void main(void)
 	float localViewDepth = clamp( mix( viewDepth, localDepthValue, min( in_localDepthRatio, 1.0 )), 0.0, 1.0 ); 
 
 	float filterAlpha = clamp(localViewDepth / u_depthToFilter, 0.0, 1.0);
-	filterAlpha = pow(filterAlpha, u_depthPower);
+	filterAlpha = pow(filterAlpha, u_depthPower) * in_reflectAlpha;
 	float scatterAlpha = clamp(localViewDepth / u_depthToDiffuse, 0.0, 1.0);
-	scatterAlpha = pow(scatterAlpha, u_depthPower);
+	scatterAlpha = pow(scatterAlpha, u_depthPower) * in_reflectAlpha;
 
 	// Mix to rock normal as water depth gets thin
 	vec3 terrainNormal = texelFetch(s_normalBuffer, ivec2(gl_FragCoord.xy)).xyz;

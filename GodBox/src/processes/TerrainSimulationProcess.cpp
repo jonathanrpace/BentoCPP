@@ -279,6 +279,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_mouseMoltenHeatStrength",		heatChangeAmount);
 		fragShader.SetUniform("u_mouseWaterVolumeStrength",		waterVolumeAmount);
 		fragShader.SetUniform("u_mouseDirtVolumeStrength",		dirtVolumeAmount);
+		fragShader.SetUniform("u_grungeUVRepeat",				_material.uvRepeat);
 		
 		// Environment
 		fragShader.SetUniform("u_ambientTemp",					m_ambientTemperature);

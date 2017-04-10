@@ -16,6 +16,7 @@ in Varying
 	float in_occlusion;
 	float in_shadowing;
 	vec2 in_scaledUV;
+	vec4 in_heightData;
 };
 
 // Uniforms
@@ -341,6 +342,10 @@ void main(void)
 
 	vec3 specularColor = vec3(pow(u_rockReflectivity, 2.2));
 
+	float moltenRatio = 1.0 - ( min( in_heat * 10.0, 1.0 ) );
+	specularColor *= moltenRatio;
+	sampledAlbedo *= moltenRatio;
+
 	// Direct light
 	//vec3 lightColor = vec3(1.0,1.0,1.0);
 	vec3 directLight = vec3(0.0);//pointLightContribution( rockNormal, lightDir, viewDir, sampledAlbedo, specularColor, roughness, lightColor, u_lightIntensity ) * (1.0-in_shadowing);
@@ -389,5 +394,10 @@ void main(void)
 	out_worldNormal = vec4(rockNormal, 0.0);
 	
 	out_viewPosition = in_viewPosition;
+
+	//.x = in_heightData.x * 10.0;
+	//outColor.y = in_heightData.y * 10.0;
+	//outColor.z = 0.0;
+
 	out_forward = vec4( outColor, 1.0 );
 }

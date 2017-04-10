@@ -32,6 +32,7 @@ uniform float u_mouseMoltenVolumeStrength;
 uniform float u_mouseWaterVolumeStrength;
 uniform float u_mouseMoltenHeatStrength;
 uniform float u_mouseDirtVolumeStrength;
+uniform float u_grungeUVRepeat;
 
 // Environment
 uniform float u_ambientTemp;
@@ -125,18 +126,16 @@ vec2 GetMousePos()
 //
 float CalcMoltenViscosity( float _heat, float _height )
 {
-	float heightScalar = pow( min(_height / 0.01, 1.0), 0.2 );
-	float viscosity = pow( clamp(_heat, 0.0f, 1.0), 2.0 );
-	return min( viscosity * u_moltenViscosity * 1, 1.0 );
+	float viscosity = pow( clamp(_heat, 0.0f, 1.0), 1.5 );
+	return min( viscosity * u_moltenViscosity, 1.0 );
 }
 
 ////////////////////////////////////////////////////////////////
 //
 vec4 CalcMoltenViscosity( vec4 _heat, vec4 _height )
 {
-	vec4 heightScalar = pow( min(_height / vec4(0.01), vec4(1.0)), vec4(0.2) );
-	vec4 viscosity = pow( clamp(_heat, vec4(0.0), vec4(1.0)), vec4(0.5) );
-	return min( viscosity * u_moltenViscosity * 1, vec4(1.0) );
+	vec4 viscosity = pow( clamp(_heat, vec4(0.0), vec4(1.0)), vec4(1.5) );
+	return min( viscosity * u_moltenViscosity, vec4(1.0) );
 }
 
 ////////////////////////////////////////////////////////////////
@@ -243,7 +242,8 @@ void main(void)
 	// Update molten
 	////////////////////////////////////////////////////////////////
 	{
-		float heatC =  miscDataC.x;
+		float prevHeat = miscDataC.x;
+		float heatC = miscDataC.x;
 		float heightC =  heightDataC.y;
 		
 		// Transmit some of this cell's volume to neighbours
@@ -295,8 +295,8 @@ void main(void)
 		heatGained += exchangeHeat( fromBL, heightDataBL, miscDataBL, 0.05 );
 		heatGained += exchangeHeat( fromBR, heightDataBR, miscDataBR, 0.05 );
 
-		heatC -= heatLossed;// * 0.25;
-		heatC += heatGained;// * 0.25;
+		heatC -= heatLossed;
+		heatC += heatGained;
 
 		float totalHeatBefore = (miscDataL.x + miscDataR.x + miscDataU.x + miscDataD.x) * 0.19 + (miscDataTL.x + miscDataTR.x + miscDataBL.x + miscDataBR.x) * 0.05 + miscDataC.x;
 		heatC = clamp( min(heatC, totalHeatBefore), 0.0, 2.0 );
@@ -336,13 +336,13 @@ void main(void)
 		out_smudgeData.z *= 0.99;
 
 		// Add some lava near the mouse
-		vec4 diffuseSampleC = texture(s_grungeMap, in_uv+mousePos*0.1);
-		float heatTextureScalar = 1.0-diffuseSampleC.x;
-		float volumeTextureScalar = diffuseSampleC.x;
+		vec4 grungeSample = texture(s_grungeMap, in_uv * u_grungeUVRepeat);
+		float heatTextureScalar = mix( 0.3, 0.7, grungeSample.a );
+		float volumeTextureScalar = 1.0 - heatTextureScalar;
 		float mouseScalar = pow(mouseRatio, 2.0);
 		float volumeStrength = mix( 0.5, volumeTextureScalar, min( u_mouseMoltenHeatStrength * 20.0, 1.0 ) );
-		heatC   += mouseScalar * heatTextureScalar * u_mouseMoltenHeatStrength * 0.02;
-		heightC += mouseScalar * volumeStrength * u_mouseMoltenVolumeStrength;
+		heatC   += mouseScalar * u_mouseMoltenHeatStrength * heatTextureScalar * 0.1;
+		heightC += mouseScalar * volumeStrength * u_mouseMoltenVolumeStrength * 0.5;
 		heatC = max(0.0, heatC);
 
 		out_heightData.y = heightC;
@@ -620,29 +620,29 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
-	if ( false )
+	if ( true )
 	{
-		float maxTemp = u_rockMeltingPoint * 5.0;
+		float maxTemp = u_rockMeltingPoint * 2.0;
 		float heat = out_miscData.x;
 		float moltenHeight = out_heightData.y;
 		float dirtHeight = out_heightData.z;
 
-		float solidToMolten = smoothstep(u_rockMeltingPoint, maxTemp, heat) * u_meltSpeed;
-		solidToMolten = min(solidToMolten, heightDataC.x);
+		//float solidToMolten = smoothstep(u_rockMeltingPoint, maxTemp, heat) * u_meltSpeed;
+		//solidToMolten = min(solidToMolten, heightDataC.x);
 
-		float moltenToSolid = (1.0-smoothstep(0.0, 0.1, miscDataC.x)) * u_condenseSpeed;
+		float moltenToSolid = (1.0-smoothstep(0.0, 0.5, miscDataC.x)) * u_condenseSpeed;
 		moltenToSolid = min(moltenToSolid, moltenHeight);
 
-		float dirtToMolten = min( dirtHeight, max(heat-u_rockMeltingPoint, 0.0) * u_meltSpeed * 100.0 );
+		//float dirtToMolten = min( dirtHeight, max(heat-u_rockMeltingPoint, 0.0) * u_meltSpeed * 100.0 );
 		
-		out_heightData.x -= solidToMolten;
+		//out_heightData.x -= solidToMolten;
 		out_heightData.x += moltenToSolid;
 		
 		out_heightData.y -= moltenToSolid;
-		out_heightData.y += solidToMolten;
+		//out_heightData.y += solidToMolten;
 		
-		out_heightData.x += dirtToMolten;
-		out_heightData.z -= dirtToMolten;
+		//out_heightData.x += dirtToMolten;
+		//out_heightData.z -= dirtToMolten;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////

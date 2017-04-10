@@ -7,7 +7,7 @@ namespace godBox
 	TerrainMaterial::TerrainMaterial(std::string _name)
 		: Component(_name, typeid(TerrainMaterial))
 		, SerializableBase("TerrainMaterial")
-		, grungeTexture("textures/GrungeMap.dds", GL_LINEAR, GL_LINEAR)
+		, grungeTexture("textures/Lava_Material.dds", GL_LINEAR, GL_LINEAR)
 		, lavaAlb("textures/Lava_Albedo.dds")
 		, lavaNrm("textures/Lava_Normal.dds")
 		, lavaMat("textures/Lava_Material.dds")

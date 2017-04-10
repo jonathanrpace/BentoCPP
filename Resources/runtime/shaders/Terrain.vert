@@ -12,6 +12,7 @@ layout(location = 1) in vec2 in_uv;
 uniform mat4 u_viewMatrix;
 
 uniform float u_uvRepeat;
+uniform float u_displacement;
 
 uniform vec3 u_fogColorAway;
 uniform vec3 u_fogColorTowards;
@@ -41,6 +42,7 @@ uniform sampler2D s_heightData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
+uniform sampler2D s_lavaMaterial;
 uniform samplerCube s_envMap;
 
 ////////////////////////////////////////////////////////////////
@@ -65,6 +67,7 @@ out Varying
 	float out_occlusion;
 	float out_shadowing;
 	vec2 out_scaledUV;
+	vec4 out_heightData;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -102,10 +105,17 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
 
+	out_scaledUV = in_uv * u_uvRepeat;
+	vec4 materialSample = texture(s_lavaMaterial, out_scaledUV);
+	float materialHeight = materialSample.a;
+
+
 	vec4 position = vec4(in_position, 1.0f);
 	position.y += rockHeight;
 	position.y += moltenHeight;
 	position.y += dirtHeight;
+
+	position.xyz += rockNormal * (materialHeight) * u_displacement;
 
 	vec4 viewPosition = u_modelViewMatrix * position;
 
@@ -157,12 +167,12 @@ void main(void)
 		out_worldPosition = position.xyz;
 		out_viewPosition = viewPosition;
 		out_uv = in_uv;
-		out_scaledUV = in_uv * u_uvRepeat;
 		out_heat = heat;
 		out_dirtAlpha = dirtAlpha;
 		out_rockNormal = rockNormal;
 		out_occlusion = occlusion;
 		out_shadowing = shadowing;
 		gl_Position = u_mvpMatrix * position;
+		out_heightData = heightDataC;
 	}
 } 

@@ -7,7 +7,7 @@ namespace bento
 	CubeMapSkyMaterial::CubeMapSkyMaterial(std::string _name)
 		: Component(_name, typeid(CubeMapSkyMaterial))
 		, SerializableBase("CubeMapSkyMaterial")
-		, envMap("textures/EnvMap.dds")
+		, envMap("textures/IrrMap.dds")
 	{
 		// Global
 		SerializableMember("intensity", 1.0f, &intensity);

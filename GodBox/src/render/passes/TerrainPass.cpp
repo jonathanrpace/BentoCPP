@@ -31,12 +31,16 @@ namespace godBox
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 
+		SetTexture("s_lavaMaterial", _material.lavaMat);
+
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix() );
 
 		// Uniforms
+		SetUniform("u_displacement", _material.heightOffset);
+
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
 		SetUniform("u_fogDensity", _material.fogDensity);
