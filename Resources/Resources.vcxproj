@@ -11,6 +11,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="runtime\shaders\CubeMapSkybox.frag" />
+    <None Include="runtime\shaders\FoamParticle.frag" />
+    <None Include="runtime\shaders\FoamParticle.vert" />
+    <None Include="runtime\shaders\FoamParticleUpdate.vert" />
+    <None Include="runtime\shaders\G.frag" />
+    <None Include="runtime\shaders\G.vert" />
+    <None Include="runtime\shaders\Null.frag" />
+    <None Include="runtime\shaders\RectTexture.frag" />
+    <None Include="runtime\shaders\ScreenQuad.vert" />
+    <None Include="runtime\shaders\Skybox.vert" />
+    <None Include="runtime\shaders\StandardLib.glsl" />
+    <None Include="runtime\shaders\SteamParticle.frag" />
+    <None Include="runtime\shaders\SteamParticle.vert" />
+    <None Include="runtime\shaders\SteamParticleUpdate.vert" />
+    <None Include="runtime\shaders\Terrain.frag" />
+    <None Include="runtime\shaders\Terrain.vert" />
+    <None Include="runtime\shaders\UpdateTerrainData.frag" />
+    <None Include="runtime\shaders\UpdateTerrainFlux.frag" />
+    <None Include="runtime\shaders\Water.frag" />
+    <None Include="runtime\shaders\Water.vert" />
     <None Include="shaders\unused\AmbientLight.frag" />
     <None Include="shaders\unused\DirectionalLight.frag" />
     <None Include="shaders\unused\LightBufferConvolution.frag" />

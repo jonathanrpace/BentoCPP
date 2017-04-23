@@ -30,7 +30,6 @@ namespace godBox
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
-
 		SetTexture("s_lavaMaterial", _material.lavaMat);
 
 		// Matrices
@@ -52,6 +51,10 @@ namespace godBox
 		SetUniform("u_moltenColorScalar", _material.moltenColorScalar);
 		SetUniform("u_moltenAlphaScalar", _material.moltenAlphaScalar);
 		SetUniform("u_moltenAlphaPower", _material.moltenAlphaPower);
+
+		SetUniform("u_smudgeUVStrength", _material.smudgeUVStrength);
+		SetUniform("u_smudgeSampleOffset", _material.smudgeSampleOffset);
+		SetUniform("u_smudgeSampleMip", _material.smudgeSampleMip);
 
 		SetUniform("u_dirtHeightToOpaque", _material.dirtHeightToOpaque);
 		
@@ -104,16 +107,7 @@ namespace godBox
 		SetUniform("u_lightDistance", _material.lightDistance);
 		SetUniform("u_lightIntensity", _material.directLightIntensity);
 		SetUniform("u_ambientLightIntensity", _material.ambientLightIntensity);
-
-		// Creases
-		SetUniform("u_bearingCreaseScalar", _material.bearingCreaseScalar);
-		SetUniform("u_lateralCreaseScalar", _material.lateralCreaseScalar);
-		SetUniform("u_creaseRatio", _material.creaseRatio);
-		SetUniform("u_creaseMipLevel", _material.creaseMipLevel);
-		SetUniform("u_creaseForwardScalar", _material.creaseForwardScalar);
-		SetUniform("u_creaseMapRepeat", _material.creaseMapRepeat);
-		SetUniform("u_creaseGridRepeat", _material.creaseGridRepeat);
-
+		
 		// Textures
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
@@ -124,14 +118,6 @@ namespace godBox
 		SetTexture("s_lavaAlbedo", _material.lavaAlb);
 		SetTexture("s_lavaNormal", _material.lavaNrm);
 		SetTexture("s_lavaMaterial", _material.lavaMat);
-
-		SetTexture("s_lavaLongAlbedo", _material.lavaAlb);
-		SetTexture("s_lavaLongNormal", _material.lavaNrm);
-		SetTexture("s_lavaLongMaterial", _material.lavaMat);
-
-		SetTexture("s_lavaLatAlbedo", _material.lavaAlb);
-		SetTexture("s_lavaLatNormal", _material.lavaNrm);
-		SetTexture("s_lavaLatMaterial", _material.lavaMat);
 
 		SetTexture("s_envMap", _material.envMap);
 		SetTexture("s_irrMap", _material.irrMap);

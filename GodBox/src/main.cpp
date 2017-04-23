@@ -46,7 +46,7 @@ void mainLoop(GLFWwindow* window)
 {
 	auto inputManager = new InputManagerImpl(window);
 	auto bentoWindow = new WindowImpl(window);
-
+	
 	// Terrain
 	bento::Scene scene(inputManager, bentoWindow);
 	{
@@ -100,8 +100,8 @@ void mainLoop(GLFWwindow* window)
 	}
 	scene.AddProcess(renderer);
 	
-	/* Loop until the user closes the window */
-	
+
+	// Loop until the user closes the window 
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Poll for and process events */
@@ -132,12 +132,14 @@ int main(int argc, char **argv)
 	/* Create a windowed mode window and its OpenGL context */
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef B_DEBUG
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
+
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "Hello World", NULL, NULL);
+	
 	if (!window)
 	{
 		__debugbreak();
@@ -149,17 +151,18 @@ int main(int argc, char **argv)
 	// Setup ImGui binding
 	ImGui_ImplGlfwGL3_Init(window, true);
 
-	glewExperimental = GL_TRUE;
-	if ( glewInit() != GLEW_OK )
+	// Load OpenGL extensions via GLEW
 	{
-		__debugbreak();
-		glfwTerminate();
-		return -1;
+		glewExperimental = GL_TRUE;
+		if ( glewInit() != GLEW_OK )
+		{
+			__debugbreak();
+			glfwTerminate();
+			return -1;
+		}
+		REQUIRE_CAPABILITY(GLEW_VERSION_4_3);
+		REQUIRE_CAPABILITY(GLEW_ARB_separate_shader_objects);
 	}
-
-
-	REQUIRE_CAPABILITY(GLEW_VERSION_4_3);
-	REQUIRE_CAPABILITY(GLEW_ARB_separate_shader_objects);
 
 	// Clear the GL error state. This is really horrible, but it seems 
 	// glfw is generating some gl errors and not checking for them

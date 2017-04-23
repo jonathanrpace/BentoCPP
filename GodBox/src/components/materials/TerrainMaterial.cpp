@@ -11,12 +11,12 @@ namespace godBox
 		, lavaAlb("textures/Lava_Albedo.dds")
 		, lavaNrm("textures/Lava_Normal.dds")
 		, lavaMat("textures/Lava_Material.dds")
-		, lavaLongAlb("textures/LavaLong_Albedo.dds")
-		, lavaLongNrm("textures/LavaLong_Normal.dds")
-		, lavaLongMat("textures/LavaLong_Material.dds")
-		, lavaLatAlb("textures/LavaLat_Albedo.dds")
-		, lavaLatNrm("textures/LavaLat_Normal.dds")
-		, lavaLatMat("textures/LavaLat_Material.dds")
+		//, lavaLongAlb("textures/LavaLong_Albedo.dds")
+		//, lavaLongNrm("textures/LavaLong_Normal.dds")
+		//, lavaLongMat("textures/LavaLong_Material.dds")
+		//, lavaLatAlb("textures/LavaLat_Albedo.dds")
+		//, lavaLatNrm("textures/LavaLat_Normal.dds")
+		//, lavaLatMat("textures/LavaLat_Material.dds")
 		, envMap("textures/EnvMap.dds")
 		, irrMap("textures/IrrMap.dds")
 		, moltenGradient("textures/MoltenGradient.dds", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
@@ -31,15 +31,11 @@ namespace godBox
 		SerializableMember("rockDetailBumpSlopePower", 1.0f, &rockDetailBumpSlopePower);
 
 		// Creases
-		SerializableMember("bearingCreaseScalar", 1.0f, &bearingCreaseScalar);
-		SerializableMember("lateralCreaseScalar", 1.0f, &lateralCreaseScalar);
-		SerializableMember("creaseRatio", 0.1f, &creaseRatio);
-		SerializableMember("creaseMipLevel", 0.0f, &creaseMipLevel);
-		SerializableMember("creaseForwardScalar", 1.0f, &creaseForwardScalar);
-		SerializableMember("creaseMapRepeat", 1.0f, &creaseMapRepeat);
-		SerializableMember("creaseGridRepeat", 1.0f, &creaseGridRepeat);
 		SerializableMember("moltenFlowSpeed", 0.02f, &moltenFlowSpeed);
 		SerializableMember("moltenFlowOffset", 0.01f, &moltenFlowOffset);
+		SerializableMember("smudgeUVStrength", 0.01f, &smudgeUVStrength);
+		SerializableMember("smudgeSampleOffset", 0.01f, &smudgeSampleOffset);
+		SerializableMember("smudgeSampleMip", 0.0f, &smudgeSampleMip);
 		
 		// Glow
 		SerializableMember("glowScalar", 1.0f, &glowScalar);
@@ -69,7 +65,7 @@ namespace godBox
 	{
 		ImGui::Spacing();
 		ImGui::Text("Global");
-		ImGui::SliderFloat("Height Offset", &heightOffset, 0.0f, 0.1f);
+		ImGui::SliderFloat("Height Offset", &heightOffset, 0.0f, 0.05f);
 		ImGui::SliderFloat("UV Repeat", &uvRepeat, 0.0f, 4.0f);
 		ImGui::Spacing();
 
@@ -79,20 +75,11 @@ namespace godBox
 		ImGui::SliderFloat("Reflectivity A##rock", &rockReflectivity, 0.0f, 1.0f);
 		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 2.0f);
 		ImGui::SliderFloat("Detail Bump Slope Power B##rock", &rockDetailBumpSlopePower, 0.0f, 20.0f);
+		ImGui::SliderFloat("Smudge UV Strength##rock", &smudgeUVStrength, 0.0f, 0.1f);
+		ImGui::SliderFloat("Smudge Sample Offset", &smudgeSampleOffset, 0.0f, 10.0f);
+		ImGui::SliderFloat("Smudge Sample Mip", &smudgeSampleMip, 0.0f, 8.0f);
 		ImGui::Spacing();
-
-		ImGui::Spacing();
-		ImGui::Text("Creases");
-		ImGui::SliderFloat("Bearing Scalar#crease", &bearingCreaseScalar, 0.0f, 10.0f);
-		ImGui::SliderFloat("Lateral Scalar#crease", &lateralCreaseScalar, 0.0f, 10.0f);
-		ImGui::SliderFloat("Ratio##crease", &creaseRatio, -1.5f, 1.5f);
-		ImGui::SliderFloat("MipLevel##crease", &creaseMipLevel, 0.0f, 8.0f);
-		ImGui::SliderFloat("Forward Scalar##crease", &creaseForwardScalar, 0.0f, 0.1f);
-		ImGui::SliderFloat("Map Repeat##crease", &creaseMapRepeat, 0.0f, 10.0f);
-		ImGui::SliderFloat("Grid Repeat##crease", &creaseGridRepeat, 0.0f, 50.0f);
 		
-		ImGui::Spacing();
-
 		ImGui::Spacing();
 		ImGui::Text("Molten");
 		ImGui::SliderFloat("Flow Speed##molten", &moltenFlowSpeed, 0.0f, 0.5f);

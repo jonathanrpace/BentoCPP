@@ -20,7 +20,7 @@ namespace godBox
 		, m_velocityData	(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_miscData		(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_normalData		(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_smudgeData		(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_smudgeData		(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP, GL_CLAMP)
 		, m_waterFluxData	(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
 		, m_uvOffsetData	(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 	{

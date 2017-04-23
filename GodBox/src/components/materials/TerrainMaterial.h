@@ -28,7 +28,7 @@ namespace godBox
 
 		virtual void AddUIElements() override;
 
-		// Textures
+		// Textures|
 		TextureResource grungeTexture;
 		TextureResource smokeTexture;
 		TextureResource envMap;
@@ -38,13 +38,13 @@ namespace godBox
 		TextureResource lavaNrm;
 		TextureResource lavaMat;
 
-		TextureResource lavaLongAlb;
-		TextureResource lavaLongNrm;
-		TextureResource lavaLongMat;
+		//TextureResource lavaLongAlb;
+		//TextureResource lavaLongNrm;
+		//TextureResource lavaLongMat;
 
-		TextureResource lavaLatAlb;
-		TextureResource lavaLatNrm;
-		TextureResource lavaLatMat;
+		//TextureResource lavaLatAlb;
+		//TextureResource lavaLatNrm;
+		//TextureResource lavaLatMat;
 
 		TextureResource moltenGradient;
 
@@ -58,15 +58,11 @@ namespace godBox
 		float rockDetailBumpSlopePower;
 
 		// Creases
-		float bearingCreaseScalar;
-		float lateralCreaseScalar;
-		float creaseForwardScalar;
-		float creaseRatio;
-		float creaseMipLevel;
-		float creaseMapRepeat;
-		float creaseGridRepeat;
 		float moltenFlowSpeed;
 		float moltenFlowOffset;
+		float smudgeUVStrength;
+		float smudgeSampleOffset;
+		float smudgeSampleMip;
 
 		// Molten
 		vec3 moltenColor;

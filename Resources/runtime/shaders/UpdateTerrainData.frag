@@ -375,12 +375,21 @@ void main(void)
 		{
 			vec2 velocity = velocityDataC.xy;
 			out_velocityData.xy = moltenVelocity * u_moltenVelocityScalar;
-
 			vec2 smudgeDir = smudgeDataC.xy;
 
+			float dp = dot( normalize(velocity), normalize(smudgeDir) );
+			if ( isnan(dp) )
+				dp = -1.0;
+
+			float ratio = (dp + 1.0) * 0.5;
+
+
+
 			smudgeDir += velocity * u_smudgeChangeRate;
-			float smudgeLength = sqrt( dot(smudgeDir, smudgeDir) + 0.00001 );
-			smudgeDir *= min( 1.0, (1.0/smudgeLength) );
+
+
+			//float smudgeLength = sqrt( dot(smudgeDir, smudgeDir) + 0.00001 );
+			//smudgeDir *= min( 1.0, (1.0/smudgeLength) );
 
 			out_smudgeData.xy = smudgeDir;
 		}

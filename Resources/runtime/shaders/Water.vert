@@ -214,8 +214,8 @@ void main(void)
 		float waveStrength = min( 1.0, mix( 0.0, 1.0, fluxAmount * 3.0 ) );
 		float waveAmplitude = u_waveAmplitude * waveStrength;
 
-		float waveHeightA = waveNoise(vec3(uvA.x, 0, uvA.y), u_waveLevels, waveAmplitude, u_waveChoppy);
-		float waveHeightB = waveNoise(vec3(uvB.x, 0, uvB.y), u_waveLevels, waveAmplitude, u_waveChoppy);
+		float waveHeightA = waveNoise(vec3(uvA.x, 0, uvA.y), 2, waveAmplitude, u_waveChoppy);
+		float waveHeightB = waveNoise(vec3(uvB.x, 0, uvB.y), 2, waveAmplitude, u_waveChoppy);
 		float waveHeight = mix( waveHeightA, waveHeightB, u_phaseAlpha );
 
 		waterHeight -= waveHeight;
