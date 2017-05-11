@@ -9,3 +9,5 @@ nvdxt -file LavaLat_Normal.tga -outdir   ../../runtime/textures/ -quality_highes
 nvdxt -file LavaLong_Albedo.tga -outdir   ../../runtime/textures/ -quality_highest -dxt5   -timestamp -sharpenMethod SharpenMedium
 nvdxt -file LavaLong_Material.tga -outdir ../../runtime/textures/ -quality_highest -dxt5   -timestamp -sharpenMethod SharpenMedium
 nvdxt -file LavaLong_Normal.tga -outdir   ../../runtime/textures/ -quality_highest -dxt5nm -timestamp
+
+nvdxt -file SmokeParticle.tga -outdir   ../../runtime/textures/ -quality_highest -dxt5 -timestamp

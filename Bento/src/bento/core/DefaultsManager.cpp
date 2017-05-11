@@ -94,7 +94,7 @@ namespace bento
 		}
 	}
 
-	void DefaultsManager::_GetValue(const char* _key,vec3 _default,vec3* const o_value)
+	void DefaultsManager::_GetValue(const char* _key, vec3 _default, vec3* const o_value)
 	{
 		bool isNull = m_namespace[_key].is_null();
 		if (isNull)
@@ -113,6 +113,24 @@ namespace bento
 		(*o_value) = out;
 	}
 
+	void DefaultsManager::_GetValue(const char* _key, vec2 _default, vec2* const o_value)
+	{
+		bool isNull = m_namespace[_key].is_null();
+		if (isNull)
+		{
+			auto defaultObj = json::object();
+			defaultObj["x"] = _default.x;
+			defaultObj["y"] = _default.y;
+			m_namespace[_key] = defaultObj;
+			(*o_value) = _default;
+			return;
+		}
+
+		auto value = m_namespace[_key];
+		vec2 out = vec2(value["x"],value["y"]);
+		(*o_value) = out;
+	}
+
 	void DefaultsManager::_SetValue(const char* _key,vec3 _value)
 	{
 		auto obj = json::object();
@@ -122,4 +140,11 @@ namespace bento
 		m_namespace[_key] = obj;
 	}
 
+	void DefaultsManager::_SetValue(const char* _key, vec2 _value)
+	{
+		auto obj = json::object();
+		obj["x"] = _value.x;
+		obj["y"] = _value.y;
+		m_namespace[_key] = obj;
+	}
 }

@@ -3,6 +3,9 @@
 #include <vector>
 #include <bento.h>
 
+#define SERIALIZABLE(NAME, VALUE)\
+SerializableMember(#NAME, VALUE, &NAME);\
+
 namespace bento
 {
 	enum SerializableType
@@ -10,6 +13,7 @@ namespace bento
 		eSerializableType_float,
 		eSerializableType_int,
 		eSerializableType_vec3,
+		eSerializableType_vec2,
 	};
 
 	class SerializableBase
@@ -21,6 +25,7 @@ namespace bento
 		void SerializableMember(char const * _name, float _default, float* _ptr);
 		void SerializableMember(char const * _name, int _default, int* _ptr);
 		void SerializableMember(char const * _name, vec3 _default, vec3* _ptr);
+		void SerializableMember(char const * _name, vec2 _default, vec2* _ptr);
 		void ResetToDefaults();
 		void FlushChanges();
 
@@ -38,5 +43,8 @@ namespace bento
 
 		std::vector<vec3> m_vec3Defaults;
 		std::vector<vec3*> m_vec3Pointers;
+
+		std::vector<vec2> m_vec2Defaults;
+		std::vector<vec2*> m_vec2Pointers;
 	};
 }

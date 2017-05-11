@@ -332,8 +332,8 @@ void main(void)
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
 
 		// Add a bit of smoke for general heat
-		out_smudgeData.z += pow(max( heatC-u_rockMeltingPoint, 0.0), 2.0) * 0.03;
-		out_smudgeData.z *= 0.99;
+		//out_smudgeData.z += pow(max( heatC-u_rockMeltingPoint, 0.0), 2.0) * 0.03;
+		//out_smudgeData.z *= 0.99;
 
 		// Add some lava near the mouse
 		vec4 grungeSample = texture(s_grungeMap, in_uv * u_grungeUVRepeat);

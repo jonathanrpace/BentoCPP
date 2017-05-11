@@ -226,7 +226,7 @@ void main(void)
 		sampledMaterial = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgba;
 		
 		sampledAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgb;
-		sampledAlbedo = pow(sampledAlbedo, vec3(2.2));
+		//sampledAlbedo = pow(sampledAlbedo, vec3(2.2));
 		
 		sampledNormal = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
 		sampledNormal = normalize(sampledNormal);

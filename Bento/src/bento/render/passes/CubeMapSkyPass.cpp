@@ -20,7 +20,7 @@ namespace bento
 		int _renderPhase	// = 0
 	)
 		: NodeGroupProcess(_name, typeid(CubeMapSkyPass))
-		, RenderPass(_renderPhase)
+		, RenderPass("CubeMapSkyPass", _renderPhase)
 	{
 
 	}

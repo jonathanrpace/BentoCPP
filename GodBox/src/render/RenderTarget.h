@@ -12,6 +12,7 @@ namespace godBox
 		static const GLuint FRAME_BUFFER_ATTACHMENT_COLOR;
 		static const GLuint FRAME_BUFFER_ATTACHMENT_NORMAL;
 		static const GLuint FRAME_BUFFER_ATTACHMENT_COLOR_POST_TRANSPARENCY;
+		static const GLuint FRAME_BUFFER_ATTACHMENT_FILTERED_COLOR;
 		
 		RenderTarget(int _width = 800, int _height = 600);
 		~RenderTarget();
@@ -24,11 +25,13 @@ namespace godBox
 		bento::RectangleTexture& ColorTexture();
 		bento::RectangleTexture& NormalTexture();
 		bento::RectangleTexture& ColorPostTransparencyTexture();
+		bento::TextureSquare& FilteredColorTexture();
 		
 	private:
 		bento::RectangleTexture m_positionTexture;
 		bento::RectangleTexture m_colorTexture;
 		bento::RectangleTexture m_normalTexture;
 		bento::RectangleTexture m_colorPostTransparencyTexture;
+		bento::TextureSquare m_filteredColorTexture;
 	};
 }

@@ -21,6 +21,10 @@ namespace bento
 		RendererBase(std::string _name, const std::type_info& _typeInfo);
 		virtual ~RendererBase();
 
+		// Types
+		typedef std::vector<RenderPassPtr>				RenderPassList;
+		typedef std::map<int, RenderPassList*>			RenderPassByPhaseMap;
+
 		// From Process
 		virtual void BindToScene(bento::Scene& _scene) override;
 		virtual void UnbindFromScene(bento::Scene& _scene) override;
@@ -28,6 +32,7 @@ namespace bento
 
 		void AddRenderPass(RenderPassPtr);
 		void RemoveRenderPass(RenderPassPtr);
+		RenderPassList RenderPasses() { return m_renderPasses; }
 
 		EntityPtr GetCamera() { return m_camera; }
 
@@ -40,11 +45,9 @@ namespace bento
 		void RenderPassesInPhase(int _renderPhase, double dt);
 
 	private:
-		// Types
-		typedef std::vector<RenderPassPtr>				RenderPassList;
-		typedef std::map<int, RenderPassList*>			RenderPassByPhaseMap;
-
+		
 		// Member variables
 		RenderPassByPhaseMap m_renderPassesByPhase;
+		RenderPassList m_renderPasses;
 	};
 }

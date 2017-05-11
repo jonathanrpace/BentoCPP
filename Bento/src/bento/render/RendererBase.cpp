@@ -36,6 +36,7 @@ namespace bento
 			delete list;
 		}
 		m_renderPassesByPhase.clear();
+		m_renderPasses.clear();
 		m_scene = NULL;
 	}
 
@@ -90,6 +91,8 @@ namespace bento
 		assert(passes);
 		passes->push_back(_renderPass);
 
+		m_renderPasses.push_back(_renderPass);
+
 		if (m_scene)
 			_renderPass->BindToScene(*m_scene);
 	}
@@ -98,6 +101,8 @@ namespace bento
 	{
 		auto passes = m_renderPassesByPhase[_renderPass->GetRenderPhase()];
 		passes->erase(std::find(passes->begin(), passes->end(), _renderPass));
+
+		m_renderPasses.erase(std::find(m_renderPasses.begin(), m_renderPasses.end(), _renderPass));
 
 		if (m_scene)
 			_renderPass->UnbindFromScene(*m_scene);

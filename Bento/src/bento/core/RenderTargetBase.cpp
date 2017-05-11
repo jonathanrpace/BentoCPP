@@ -1,4 +1,5 @@
 #include "RenderTargetBase.h"
+#include <bento/util/TextureUtil.h>
 
 namespace bento
 {
@@ -73,7 +74,8 @@ namespace bento
 			}
 			else
 			{
-				((TextureSquare*) texture)->Size(m_width << level);
+				int squareSize = textureUtil::GetBestPowerOfTwo(glm::max(m_width, m_height));
+				((TextureSquare*) texture)->Size(squareSize << level);
 			}
 
 			GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, texture->Target(), texture->TextureName(), level));

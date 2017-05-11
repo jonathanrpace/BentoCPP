@@ -38,6 +38,7 @@
 #include <components/geom/SteamParticleGeom.h>
 #include <components/materials/TerrainMaterial.h>
 #include <components/materials/WaterMaterial.h>
+#include <components/materials/SmokeParticleMaterial.h>
 
 using namespace bento;
 using namespace godBox;
@@ -61,6 +62,9 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(terrainMaterial, entity);
 		auto waterMaterial = WaterMaterial::Create();
 		scene.AddComponentToEntity(waterMaterial, entity);
+		auto steamMaterial = SmokeParticleMaterial::Create();
+		scene.AddComponentToEntity(steamMaterial, entity);
+
 		//auto foamParticleGeom = FoamParticleGeom::Create();
 		//scene.AddComponentToEntity(foamParticleGeom, entity);
 		auto steamParticleGeom = SteamParticleGeom::Create();
@@ -93,9 +97,11 @@ void mainLoop(GLFWwindow* window)
 	{
 		renderer->AddRenderPass(CubeMapSkyPass::Create()); // TODO - How do I specify renderPhase through shared object construction?
 		renderer->AddRenderPass(TerrainPass::Create());
+		
 		renderer->AddRenderPass(WaterPass::Create());
+		renderer->AddRenderPass(SteamPass::Create());
 		//renderer->AddRenderPass(TerrainFoamPass::Create());
-		//renderer->AddRenderPass(TerrainSteamPass::Create());
+		
 		renderer->AddRenderPass(IMGUIRenderPass::Create());
 	}
 	scene.AddProcess(renderer);
@@ -107,7 +113,7 @@ void mainLoop(GLFWwindow* window)
 		/* Poll for and process events */
 		glfwPollEvents();
 		ImGui_ImplGlfwGL3_NewFrame();
-		scene.Advance(1.0);
+		scene.Advance(1.0f / 60.0f);
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
 	}

@@ -17,6 +17,8 @@ namespace bento
 		, m_intPointers(MAX_MEMBERS)
 		, m_vec3Defaults(MAX_MEMBERS)
 		, m_vec3Pointers(MAX_MEMBERS)
+		, m_vec2Defaults(MAX_MEMBERS)
+		, m_vec2Pointers(MAX_MEMBERS)
 	{
 	}
 
@@ -47,6 +49,15 @@ namespace bento
 		m_numMembers++;
 	}
 
+	void SerializableBase::SerializableMember(char const * _name, vec2 _default, vec2* _ptr)
+	{
+		m_names[m_numMembers] = _name;
+		m_types[m_numMembers] = eSerializableType_vec2;
+		m_vec2Defaults[m_numMembers] = _default;
+		m_vec2Pointers[m_numMembers] = _ptr;
+		m_numMembers++;
+	}
+
 	void SerializableBase::ResetToDefaults()
 	{
 		DefaultsManager::SetNamespace(m_namespace);
@@ -66,6 +77,9 @@ namespace bento
 					break;
 				case eSerializableType_vec3:
 					DefaultsManager::GetValue(name, m_vec3Defaults[i], m_vec3Pointers[i]);
+					break;
+				case eSerializableType_vec2:
+					DefaultsManager::GetValue(name, m_vec2Defaults[i], m_vec2Pointers[i]);
 					break;
 			}
 		}
@@ -93,6 +107,10 @@ namespace bento
 			case eSerializableType_vec3:
 				m_vec3Defaults[i] = *m_vec3Pointers[i];
 				DefaultsManager::SetValue(name, *m_vec3Pointers[i]);
+				break;
+			case eSerializableType_vec2:
+				m_vec2Defaults[i] = *m_vec2Pointers[i];
+				DefaultsManager::SetValue(name, *m_vec2Pointers[i]);
 				break;
 			}
 		}

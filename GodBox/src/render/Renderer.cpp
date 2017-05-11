@@ -19,7 +19,7 @@ namespace godBox
 	// PUBLIC
 	//////////////////////////////////////////////////////////////////////////
 	Renderer::Renderer(std::string _name)
-		: RendererBase(_name, typeid(Renderer))
+		: RendererBase(_name, typeid(RendererBase))
 	{
 		AddRenderPhase(eRenderPhase_Forward);
 		AddRenderPhase(eRenderPhase_Transparent);

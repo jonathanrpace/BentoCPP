@@ -12,7 +12,7 @@ namespace bento
 {
 	IMGUIRenderPass::IMGUIRenderPass(std::string _name)
 		: Process(_name, typeid(IMGUIRenderPass))
-		, RenderPass(godBox::eRenderPhase_UI)
+		, RenderPass("UI Pass", godBox::eRenderPhase_UI)
 	{
 	}
 

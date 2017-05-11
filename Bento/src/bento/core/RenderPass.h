@@ -10,7 +10,7 @@ namespace bento
 		: public virtual Process
 	{
 	public:
-		RenderPass(int _renderPhase);
+		RenderPass(std::string _name, int _renderPhase);
 
 		int GetRenderPhase() { return m_renderPhase;  }
 

@@ -17,8 +17,8 @@ namespace godBox
 		//, lavaLatAlb("textures/LavaLat_Albedo.dds")
 		//, lavaLatNrm("textures/LavaLat_Normal.dds")
 		//, lavaLatMat("textures/LavaLat_Material.dds")
-		, envMap("textures/EnvMap.dds")
-		, irrMap("textures/IrrMap.dds")
+		, envMap("textures/EnvMap2.dds")
+		, irrMap("textures/IrrMap2.dds")
 		, moltenGradient("textures/MoltenGradient.dds", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		// Global
@@ -103,7 +103,7 @@ namespace godBox
 		ImGui::SliderAngle("Altitude", &lightAltitude, -180.0f, 0.0f);
 		ImGui::SliderFloat("Distance", &lightDistance, 0.0f, 10.0f);
 		ImGui::SliderFloat("DirectIntensity", &directLightIntensity, 0.0f, 4.0f);
-		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 1.0f);
+		ImGui::SliderFloat("AmbientIntensity", &ambientLightIntensity, 0.0f, 4.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();

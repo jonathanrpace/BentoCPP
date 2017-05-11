@@ -3,6 +3,7 @@
 #include <bento.h>
 #include <bento/core/ILens.h>
 #include <bento/components/Transform.h>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace bento
 {
@@ -34,9 +35,13 @@ namespace bento
 
 		static std::shared_ptr<Transform> CameraTransform() { return s_cameraTransform; }
 		static vec3 CameraPosition() { return s_cameraPos; }
+		static vec3 CameraForward() { return s_cameraForward; }
+		static vec3 CameraUp() { return s_cameraUp; }
+		static vec3 CameraRight() { return s_cameraRight; }
 
-		int BackBufferWidth() const { return s_backBufferWidth; }
-		int BackBufferHeight() const { return s_backBufferHeight; }
+		static ivec2 BackBufferSize() { return ivec2( s_backBufferWidth, s_backBufferHeight ); }
+		static int BackBufferWidth() { return s_backBufferWidth; }
+		static int BackBufferHeight() { return s_backBufferHeight; }
 
 		static void SetViewMatrices(mat4 _viewMatrix, ILens& _lens)
 		{
@@ -54,6 +59,10 @@ namespace bento
 			s_invProjectionMatrix = inverse(s_projectionMatrix);
 
 			s_cameraPos = vec3(s_invViewMatrix[3]);
+
+			s_cameraForward = vec3(0.0,0.0,-1.0) * s_normalViewMatrix;
+			s_cameraRight = vec3(1.0,0.0,0.0) * s_normalViewMatrix;
+			s_cameraUp = vec3(0.0,1.0,0.0) * s_normalViewMatrix;
 		}
 
 		static void SetModelMatrix(mat4 _modelMatrix)
@@ -108,5 +117,8 @@ namespace bento
 
 		static std::shared_ptr<Transform> s_cameraTransform;
 		static vec3 s_cameraPos;
+		static vec3 s_cameraForward;
+		static vec3 s_cameraRight;
+		static vec3 s_cameraUp;
 	};
 }

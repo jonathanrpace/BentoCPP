@@ -6,6 +6,7 @@
 
 #include <bento/core/Scene.h>
 #include <bento/core/IInspectable.h>
+#include <bento/render/RendererBase.h>
 
 namespace bento
 {
@@ -18,7 +19,7 @@ namespace bento
 	{
 		ivec2 backBufferSize = m_scene->GetWindow().GetWindowSize();
 		bool opened = true;
-		ImGui::SetNextWindowSize(ImVec2(400.0f, (float)backBufferSize.y));
+		ImGui::SetNextWindowSize(ImVec2(500.0f, (float)backBufferSize.y));
 		ImGui::SetNextWindowPos(ImVec2());
 		
 		ImGui::Begin("Inspector", &opened, 
@@ -58,6 +59,22 @@ namespace bento
 				if (ImGui::TreeNode((void*)process->ID(), process->Name().c_str()))
 				{
 					AddControlsIfInspectable(process);
+
+					ImGui::TreePop();
+				}
+			}
+			ImGui::TreePop();
+		}
+
+		if ( ImGui::TreeNode("Render Passes") )
+		{
+			auto renderProcess = m_scene->GetProcess<RendererBase>();
+			auto renderPasses = renderProcess->RenderPasses();
+			for (RenderPassPtr renderPass : renderPasses)
+			{
+				if (ImGui::TreeNode((void*)renderPass->ID(), renderPass->Name().c_str()))
+				{
+					AddControlsIfInspectable(renderPass);
 
 					ImGui::TreePop();
 				}

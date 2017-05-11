@@ -136,7 +136,7 @@ namespace godBox
 
 	TerrainPass::TerrainPass(std::string _name)
 		: NodeGroupProcess(_name, typeid(TerrainPass))
-		, RenderPass(eRenderPhase_Forward)
+		, RenderPass("TerrainPass", eRenderPhase_Forward)
 	{
 	}
 

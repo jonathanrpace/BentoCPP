@@ -56,7 +56,7 @@ namespace godBox
 
 	FoamPass::FoamPass(std::string _name)
 		: NodeGroupProcess(_name, typeid(FoamPass))
-		, RenderPass(eRenderPhase_Forward)
+		, RenderPass("FoamPass", eRenderPhase_Forward)
 	{
 	}
 

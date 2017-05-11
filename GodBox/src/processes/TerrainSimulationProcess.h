@@ -52,7 +52,7 @@ namespace godBox
 		, IInspectable
 		, SerializableBase
 	{
-		TerrainSimulationProcess(std::string _name = "TerrainSimulationPass");
+		TerrainSimulationProcess(std::string _name = "TerrainSimulationProcess");
 		~TerrainSimulationProcess();
 
 		// From Process

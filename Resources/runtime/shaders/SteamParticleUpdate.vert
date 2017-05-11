@@ -1,58 +1,137 @@
 #version 330 core
 
+////////////////////////////////
 // Inputs
-layout(location = 0) in vec4 in_position;
-layout(location = 1) in vec4 in_velocity;
-layout(location = 2) in vec4 in_properties;
+////////////////////////////////
 
-// Uniforms
-uniform sampler2D s_heightData;
-uniform sampler2D s_smudgeData;
+	// Attributes
+	layout(location = 0) in vec4 in_data0;
+	layout(location = 1) in vec4 in_data1;
+	layout(location = 2) in vec4 in_data2;
+	layout(location = 3) in vec4 in_properties;
 
+	// Textures
+	uniform sampler2D s_heightData;
+	uniform sampler2D s_miscData;
+
+	// Uniforms
+	uniform float u_dt;
+
+	uniform vec2 u_spawnThreshold;
+	uniform vec2 u_spawnDelay;
+	uniform vec2 u_life;
+	uniform vec3 u_spawnVelocityMin;
+	uniform vec3 u_spawnVelocityMax;
+	uniform float u_spawnSize;
+
+	uniform vec3 u_positionAccelerationMin;
+	uniform vec3 u_positionAccelerationMax;
+	uniform vec2 u_positionDamping;
+
+	uniform vec2 u_sizeAcceleration;
+	uniform vec2 u_sizeDamping;
+
+////////////////////////////////
 // Outputs
-out Varying
-{
-	vec4 out_position;
-	vec4 out_velocity;
-};
+////////////////////////////////
 
+	out Varying
+	{
+		vec4 out_data0;
+		vec4 out_data1;
+		vec4 out_data2;
+	};
+
+////////////////////////////////
+// Functions
+////////////////////////////////
+void srand(float _seed);
+float rand();
+
+vec3 rangedParam( vec3 _min, vec3 _max )
+{
+	return mix( _min, _max, rand() );
+}
+
+float rangedParam( vec2 _minMax )
+{
+	return mix( _minMax.x, _minMax.y, rand() );
+}
+
+float rangedParam( float _min, float _max )
+{
+	return mix( _min, _max, rand() );
+}
+
+////////////////////////////////
+// Main
+////////////////////////////////
 void main(void)
 {
-	float life = in_velocity.w;
-	vec4 position = in_position;
-	vec3 velocity = in_velocity.xyz;
+	srand(in_properties.x);
 
-	// Alive - Kill it a  little
-	if ( life > 0.0 && life <= 1.0 )
+	// Spawn/Life params
+	float maxLife = rangedParam(u_life);
+	float spawnThreshold = rangedParam(u_spawnThreshold);
+	float spawnDelay = rangedParam(u_spawnDelay);
+	vec3 spawnVelocity = rangedParam(u_spawnVelocityMin, u_spawnVelocityMax);
+
+	// Motion params
+	vec3 positionAcceleration = rangedParam(u_positionAccelerationMin, u_positionAccelerationMax);
+	float positionDamping = rangedParam(u_positionDamping);
+	float sizeAcceleration = rangedParam(u_sizeAcceleration);
+	float sizeDamping = rangedParam(u_sizeDamping);
+
+	float currLife = in_data2.x;
+	vec3 position = in_data0.xyz;
+	float size = in_data0.w;
+	vec3 velocity = in_data1.xyz;
+	float sizeVelocity = in_data1.w;
+	float lifeNrm = -1.0;
+
+	// Alive
+	if ( currLife > 0.0 && currLife <= maxLife )
 	{
-		float lifeFrames = mix( 500, 600, in_properties.z );
-		life -= (1.0/lifeFrames);
-		life = max(0,life);
+		// Reduce life
+		currLife -= u_dt;
+		lifeNrm = clamp( 1.0 - (currLife / maxLife), 0.0, 1.0 );
 
-		// Just died. Put it in the delay queue
-		if ( life == 0.0 )
+		// Just died. Set its life to something above its max life.
+		// It will be spawned when it reaches maxLife
+		if ( currLife <= 0.0f )
 		{
-			life = 1.0 + in_properties.z * 2.0;
-			position.x = in_properties.x;
-			position.z = in_properties.y;
+			currLife = maxLife + spawnDelay;
 		}
-		position.y += 0.00007;
+
+		// Update motion
+		velocity += positionAcceleration;
+		position += velocity;
+		velocity -= velocity * positionDamping;
+
+		// Update size motion
+		sizeVelocity += sizeAcceleration;
+		size += sizeVelocity;
+		sizeVelocity -= sizeVelocity * sizeDamping;
 	}
+	// Waiting to spawn
 	else
 	{
 		vec2 uv = vec2(in_properties.x, in_properties.y);
 
-		float spawnThreshold = 0.01;//mix( 0.01, 1.0, in_properties.w );
-		vec4 smudgeData = texture( s_smudgeData, uv );
-		float spawnStrength = min( smudgeData.z, 1.0 );
+		float heat = texture( s_miscData, uv ).x;
+		float spawnChance = heat;
 		
-		if ( spawnStrength >= spawnThreshold )
+		// Potentially spawnable
+		if ( spawnChance >= spawnThreshold )
 		{
-			life = max( life - 0.01, 1.0 );
+			// Reduce life
+			currLife -= u_dt;
 
-			// Spawn it!
-			if ( life <= 1.0 )
+			// SPAWN (If delay finised)
+			if ( currLife <= maxLife )
 			{
+				currLife = maxLife;
+
 				vec4 heightData = texture( s_heightData, uv );
 				float solidHeight = heightData.x;
 				float moltenHeight = heightData.y;
@@ -60,12 +139,24 @@ void main(void)
 				float waterHeight = heightData.w;
 				float surfaceHeight = solidHeight + moltenHeight + dirtHeight + waterHeight;
 
-				position.y = surfaceHeight + 0.01;
-				position.w = max(spawnStrength, 0.6);
+				// Reset position
+				position.x = in_properties.x;
+				position.z = in_properties.y;
+				position.y = surfaceHeight;
+
+				velocity = spawnVelocity;
+
+				size = u_spawnSize;
+				sizeVelocity = 0.0;
 			}
 		}
+		else
+		{
+			currLife = maxLife + spawnDelay;
+		}
 	}
-
-	out_position = position;
-	out_velocity = vec4(velocity, life);
+	
+	out_data0 = vec4(position, size);
+	out_data1 = vec4(velocity, sizeVelocity);
+	out_data2 = vec4(currLife, lifeNrm, 0.0, 0.0);
 } 

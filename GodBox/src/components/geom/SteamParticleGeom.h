@@ -41,10 +41,12 @@ namespace godBox
 		int m_numParticles;
 		GLuint m_vertexArrayA;
 		GLuint m_vertexArrayB;
-		GLuint m_positionBufferA;
-		GLuint m_positionBufferB;
-		GLuint m_velocityBufferA;
-		GLuint m_velocityBufferB;
+		GLuint m_buffer0A;
+		GLuint m_buffer0B;
+		GLuint m_buffer1A;
+		GLuint m_buffer1B;
+		GLuint m_buffer2A;
+		GLuint m_buffer2B;
 		GLuint m_propertiesBufferA;
 		GLuint m_propertiesBufferB;
 		GLuint m_transformFeedbackObjA;

@@ -3,9 +3,74 @@
         "intensity": 0.5,
         "mipLevel": 4.25699996948242
     },
+    "SmokeParticleMaterial": {
+        "baseColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "density": 2.65200018882751,
+        "filterColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "filterPower": 1.0,
+        "filterStrength": 10.0
+    },
+    "SteamPass": {
+        "fadeInTime": 0.248000010848045,
+        "fadeOutTime": 1.0,
+        "life": {
+            "x": 3.10400009155273,
+            "y": 3.64200019836426
+        },
+        "particleSize": 0.00400000018998981,
+        "positionAccelerationMax": {
+            "x": 0.0,
+            "y": 7.99999997980194e-06,
+            "z": 0.0
+        },
+        "positionAccelerationMin": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "positionDamping": {
+            "x": 0.0300000011920929,
+            "y": 0.0300000011920929
+        },
+        "sizeAcceleration": {
+            "x": 6.39999998384155e-05,
+            "y": 9.00000013643876e-05
+        },
+        "sizeDamping": {
+            "x": 0.47800001502037,
+            "y": 0.537000000476837
+        },
+        "spawnDelay": {
+            "x": 0.0,
+            "y": 0.597000002861023
+        },
+        "spawnSize": 0.0450000017881393,
+        "spawnThreshold": {
+            "x": 0.00800000037997961,
+            "y": 1.0
+        },
+        "spawnVelocityMax": {
+            "x": 0.0,
+            "y": 0.000180000002728775,
+            "z": 0.0
+        },
+        "spawnVelocityMin": {
+            "x": 0.0,
+            "y": 0.000130000000353903,
+            "z": 0.0
+        }
+    },
     "TerrainMaterial": {
         "MapHeightOffset": 0.00499999988824129,
-        "ambientLightIntensity": 1.0,
+        "ambientLightIntensity": 2.93900012969971,
         "bearingCreaseScalar": 1.89000010490417,
         "choppyLimit": 1.0,
         "choppyPower": 4.0,
@@ -103,11 +168,11 @@
             "z": 0.125490203499794
         },
         "rockDetailBumpSlopePower": 14.7560005187988,
-        "rockDetailBumpStrength": 1.50000011920929,
+        "rockDetailBumpStrength": 1.26500010490417,
         "rockDetailDiffuseStrength": 0.0,
         "rockFresnelA": 1.0,
         "rockFresnelB": 0.108000002801418,
-        "rockReflectivity": 0.108000002801418,
+        "rockReflectivity": 0.0,
         "rockRoughnessA": 0.953000068664551,
         "rockRoughnessB": 0.939000070095062,
         "shadowPenumbra": 0.0,
@@ -221,9 +286,9 @@
         "moltenViscosity": 1.0,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 0.479999989271164,
-        "mouseRadius": 0.247000008821487,
-        "mouseVolumeStrength": 0.00170999998226762,
+        "mouseHeatStrength": 0.349999994039536,
+        "mouseRadius": 0.0780000016093254,
+        "mouseVolumeStrength": 0.0050299996510148,
         "rainRate": 2.69999986812763e-07,
         "rockDiffuseStrength": 0.00499999988824129,
         "rockMeltingPoint": 0.0,

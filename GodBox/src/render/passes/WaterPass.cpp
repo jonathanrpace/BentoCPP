@@ -157,7 +157,7 @@ namespace godBox
 
 	WaterPass::WaterPass(std::string _name)
 		: NodeGroupProcess(_name, typeid(WaterPass))
-		, RenderPass(godBox::eRenderPhase_Transparent)
+		, RenderPass("WaterPass", godBox::eRenderPhase_Transparent)
 	{
 	}
 

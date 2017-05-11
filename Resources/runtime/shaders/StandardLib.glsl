@@ -4,6 +4,17 @@
 #define M_INV_PI 0.31830988618379067153776752674503
 #define M_INV_LOG2 1.4426950408889634073599246810019
 
+float g_srandSeed = 0.0;
+void srand(float seed)
+{
+	g_srandSeed = seed;
+}
+float rand()
+{
+	g_srandSeed = fract(sin(g_srandSeed) * 43758.5453123);
+	return g_srandSeed;
+}
+
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar )
 {
 	float strength = 1.0;

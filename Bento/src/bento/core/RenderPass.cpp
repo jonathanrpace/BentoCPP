@@ -2,8 +2,9 @@
 
 namespace bento
 {
-	RenderPass::RenderPass(int _renderPhase)
-		: m_renderPhase(_renderPhase)
+	RenderPass::RenderPass(std::string _name, int _renderPhase)
+		: Process(_name)
+		, m_renderPhase(_renderPhase)
 	{
 
 	}

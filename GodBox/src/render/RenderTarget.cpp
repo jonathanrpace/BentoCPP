@@ -1,6 +1,7 @@
 #include "RenderTarget.h"
 
 #include <bento.h>
+#include <bento/util/TextureUtil.h>
 
 namespace godBox
 {
@@ -8,6 +9,7 @@ namespace godBox
 	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_COLOR = GL_COLOR_ATTACHMENT1;
 	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_NORMAL = GL_COLOR_ATTACHMENT2;
 	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_COLOR_POST_TRANSPARENCY = GL_COLOR_ATTACHMENT3;
+	const GLuint RenderTarget::FRAME_BUFFER_ATTACHMENT_FILTERED_COLOR = GL_COLOR_ATTACHMENT4;
 	
 	RenderTarget::RenderTarget
 	(
@@ -19,11 +21,13 @@ namespace godBox
 		, m_colorTexture(_width, _height, GL_RGBA16F)
 		, m_normalTexture(_width, _height, GL_RGBA16F)
 		, m_colorPostTransparencyTexture(_width, _height, GL_RGBA16F)
+		, m_filteredColorTexture(bento::textureUtil::GetBestPowerOfTwo(_width), bento::textureUtil::GetBestPowerOfTwo(_height), GL_RGBA16F)
 	{
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_POSITION, m_positionTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_COLOR, m_colorTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_NORMAL, m_normalTexture);
 		AttachTexture(FRAME_BUFFER_ATTACHMENT_COLOR_POST_TRANSPARENCY, m_colorPostTransparencyTexture);
+		//AttachTexture(FRAME_BUFFER_ATTACHMENT_FILTERED_COLOR, m_filteredColorTexture);
 	}
 
 	RenderTarget::~RenderTarget()
@@ -92,5 +96,10 @@ namespace godBox
 	bento::RectangleTexture& RenderTarget::ColorPostTransparencyTexture()
 	{
 		return m_colorPostTransparencyTexture;
+	}
+
+	bento::TextureSquare& RenderTarget::FilteredColorTexture()
+	{
+		return m_filteredColorTexture;
 	}
 }

@@ -8,9 +8,12 @@
 #include <bento/core/ShaderStageBase.h>
 #include <bento/components/Transform.h>
 #include <bento/render/shaders/NullFrag.h>
+#include <bento/core/IInspectable.h>
+#include <bento/core/SerializableBase.h>
 
 // app
 #include <components/materials/TerrainMaterial.h>
+#include <components/materials/SmokeParticleMaterial.h>
 #include <components/geom/TerrainGeometry.h>
 #include <components/geom/SteamParticleGeom.h>
 
@@ -43,12 +46,13 @@ namespace godBox
 
 	struct SteamShader : ShaderBase<SteamVert, SteamFrag>	{};
 
-	DEFINE_NODE_4
+	DEFINE_NODE_5
 	(
 		TerrainSteamPassNode,
 		TerrainGeometry, terrainGeom,
 		Transform, transform,
-		TerrainMaterial, material,
+		TerrainMaterial, terrainMaterial,
+		SmokeParticleMaterial, smokeMaterial,
 		SteamParticleGeom, particleGeom
 	)
 
@@ -56,6 +60,8 @@ namespace godBox
 		: public NodeGroupProcess<TerrainSteamPassNode>
 		, public RenderPass
 		, public SharedObject<SteamPass>
+		, public SerializableBase
+		, public IInspectable
 	{
 	public:
 		SteamPass(std::string _name = "SteamPass");
@@ -63,8 +69,31 @@ namespace godBox
 		// From Process
 		virtual void Advance(double _dt) override;
 
+		// From IInspectable
+		virtual void AddUIElements() override;
+
 	private:
 		SteamShader m_drawShader;
 		SteamParticleUpdateShader m_updateShader;
+
+		vec2 spawnDelay;
+		vec2 spawnThreshold;
+
+		vec3 spawnVelocityMin;
+		vec3 spawnVelocityMax;
+
+		float spawnSize;
+
+		vec2 life;
+
+		vec3 positionAccelerationMin;
+		vec3 positionAccelerationMax;
+		vec2 positionDamping;
+
+		vec2 sizeAcceleration;
+		vec2 sizeDamping;
+
+		float fadeInTime;
+		float fadeOutTime;
 	};
 }
