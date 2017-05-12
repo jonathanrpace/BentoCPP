@@ -159,7 +159,7 @@ namespace bento
 
 
 
-	void RenderTargetBase::SetDrawBuffers(GLenum * const _drawBuffers, GLsizei _size)
+	void RenderTargetBase::SetDrawBuffers(const GLenum * const _drawBuffers, GLsizei _size)
 	{
 		ValidateNow();
 		GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_frameBuffer));

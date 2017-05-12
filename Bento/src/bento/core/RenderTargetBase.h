@@ -32,7 +32,10 @@ namespace bento
 		void AttachTexture(GLenum _attachment, RectangleTexture& _texture, int _level = 0);
 		void AttachTexture(GLenum _attachment, TextureSquare& _texture, int _level = 0);
 
-		void SetDrawBuffers(GLenum* const _drawBuffers, GLsizei _size);
+		void SetDrawBuffers(const GLenum* const _drawBuffers, GLsizei _size);
+
+		int Width() { return m_width; }
+		int Height() { return m_height; }
 
 	protected:
 		const int MAX_ATTACHMENTS = 8;

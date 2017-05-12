@@ -180,6 +180,8 @@
     <ClInclude Include="src\bento\processes\OrbitCamera.h" />
     <ClInclude Include="src\bento\render\RenderParams.h" />
     <ClInclude Include="src\bento\render\shaders\NullFrag.h" />
+    <ClInclude Include="src\bento\render\shaders\RectBlurTap5Frag.h" />
+    <ClInclude Include="src\bento\render\shaders\RectBlurTap5Shader.h" />
     <ClInclude Include="src\bento\render\shaders\RectTextureFrag.h" />
     <ClInclude Include="src\bento\render\shaders\ScreenQuadVert.h" />
     <ClInclude Include="src\bento\render\shaders\SimpleVert.h" />
@@ -219,6 +221,7 @@
     <ClCompile Include="src\bento\render\passes\CubeMapSkyPass.cpp" />
     <ClCompile Include="src\bento\render\RendererBase.cpp" />
     <ClCompile Include="src\bento\render\RenderParams.cpp" />
+    <ClCompile Include="src\bento\render\shaders\RectBlurTap5Shader.cpp" />
     <ClCompile Include="src\bento\util\FileUtil.cpp" />
     <ClCompile Include="src\bento\util\Rand.cpp" />
     <ClCompile Include="src\bento\util\TextureUtil.cpp" />

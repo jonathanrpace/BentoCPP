@@ -10,6 +10,7 @@
 #include <bento/core/Scene.h>
 #include <bento/core/SharedObject.h>
 #include <bento/render/shaders/RectTextureToScreenShader.h>
+#include <bento/render/shaders/RectBlurTap5Shader.h>
 
 // app
 #include <render/RenderTarget.h>
@@ -33,5 +34,15 @@ namespace godBox
 	private:
 		RenderTarget m_renderTarget;
 		RectTextureToScreenShader m_rectTextureToScreenShader;
+		RectBlurTap5Shader m_blurShader;
+
+		RectangleTexture m_blurredBuffer;
+		RenderTargetBase m_blurredRenderTarget;
+
+		RectangleTexture m_blurredBuffer2;
+		RenderTargetBase m_blurredRenderTarget2;
+
+		RectangleTexture m_blurredBuffer3;
+		RenderTargetBase m_blurredRenderTarget3;
 	};
 }
