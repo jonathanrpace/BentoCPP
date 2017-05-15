@@ -5,25 +5,25 @@
     },
     "SmokeParticleMaterial": {
         "baseColor": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
         },
-        "density": 2.65200018882751,
+        "density": 2.66100001335144,
         "filterColor": {
             "x": 1.0,
             "y": 1.0,
             "z": 1.0
         },
         "filterPower": 1.0,
-        "filterStrength": 10.0
+        "filterStrength": 3.42700004577637
     },
     "SteamPass": {
         "fadeInTime": 0.248000010848045,
         "fadeOutTime": 1.0,
         "life": {
-            "x": 3.10400009155273,
-            "y": 3.64200019836426
+            "x": 2.20900011062622,
+            "y": 5.19400024414063
         },
         "particleSize": 0.00400000018998981,
         "positionAccelerationMax": {
@@ -50,16 +50,16 @@
         },
         "spawnDelay": {
             "x": 0.0,
-            "y": 0.597000002861023
+            "y": 1.0
         },
-        "spawnSize": 0.0450000017881393,
+        "spawnSize": 0.0480000004172325,
         "spawnThreshold": {
-            "x": 0.00800000037997961,
+            "x": 0.78600001335144,
             "y": 1.0
         },
         "spawnVelocityMax": {
             "x": 0.0,
-            "y": 0.000180000002728775,
+            "y": 0.000999999931082129,
             "z": 0.0
         },
         "spawnVelocityMin": {
@@ -110,7 +110,7 @@
         "glowDetailPwoerr": 0.405000030994415,
         "glowDetailScalar": 0.115000002086163,
         "glowPower": 2.56800007820129,
-        "glowScalar": 41.8920021057129,
+        "glowScalar": 2.62100005149841,
         "heightScalar": 0.0,
         "hotRockColor": {
             "x": 0.0588235296308994,
@@ -177,7 +177,7 @@
         "rockRoughnessB": 0.939000070095062,
         "shadowPenumbra": 0.0,
         "smudgeSampleMip": 0.0,
-        "smudgeSampleOffset": 0.100000001490116,
+        "smudgeSampleOffset": 0.726000010967255,
         "smudgeUVStrength": 0.100000001490116,
         "uvRepeat": 2.0,
         "vegBump": 0.00100000004749745,
@@ -270,7 +270,7 @@
         "evapourationRate": 0.0,
         "foamDecayRate": 0.995000064373016,
         "foamSpawnStrength": 0.0470000021159649,
-        "heatAdvectSpeed": 10.4840002059937,
+        "heatAdvectSpeed": 19.8150005340576,
         "heatDiffuseStrength": 0.0,
         "m_vegGrowthRate": 0.0,
         "m_vegMaxDirt": 0.00242000003345311,
@@ -286,14 +286,14 @@
         "moltenViscosity": 1.0,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 0.349999994039536,
-        "mouseRadius": 0.0780000016093254,
-        "mouseVolumeStrength": 0.0050299996510148,
-        "rainRate": 2.69999986812763e-07,
+        "mouseHeatStrength": 1.0,
+        "mouseRadius": 0.0410000011324883,
+        "mouseVolumeStrength": 0.00158999999985099,
+        "rainRate": 8.49999992169614e-07,
         "rockDiffuseStrength": 0.00499999988824129,
         "rockMeltingPoint": 0.0,
         "smudgeChangeRate": 0.0731199979782104,
-        "tempChangeSpeed": 0.000269999989541247,
+        "tempChangeSpeed": 0.0,
         "textureCycleSpeed": 0.0,
         "textureScrollSpeed": 0.13400000333786,
         "waterBoilingPoint": 0.100000001490116,
@@ -303,7 +303,7 @@
         "waterVelocityDamping": 0.97900003194809,
         "waterVelocityLimit": 0.00100000004749745,
         "waterVelocityScalar": 51.1800003051758,
-        "waterViscosity": 0.157000005245209
+        "waterViscosity": 0.340000003576279
     },
     "WaterMaterial": {
         "depthPower": 0.719000041484833,

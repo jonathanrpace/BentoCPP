@@ -223,6 +223,7 @@ namespace godBox
 				fs.SetTexture( "s_outputBuffer", RenderParams::GetRenderTarget().ColorTexture());
 				fs.SetTexture( "s_texture", smokeMaterial.texture);
 				fs.SetTexture( "s_envMap", terrainMaterial.irrMap);
+				fs.SetTexture( "s_blurredColorBuffer", RenderParams::GetRenderTarget().BlurredColorTextureB());
 
 				fs.SetUniform( "u_cameraPos", bento::RenderParams::CameraPosition() );
 				fs.SetUniform( "u_cameraForward", bento::RenderParams::CameraForward() );

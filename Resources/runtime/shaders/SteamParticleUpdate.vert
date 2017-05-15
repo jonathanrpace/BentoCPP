@@ -89,6 +89,8 @@ void main(void)
 	float sizeVelocity = in_data1.w;
 	float lifeNrm = -1.0;
 
+	bool alive = false;
+
 	// Alive
 	if ( currLife > 0.0 && currLife <= maxLife )
 	{
@@ -96,11 +98,14 @@ void main(void)
 		currLife -= u_dt;
 		lifeNrm = clamp( 1.0 - (currLife / maxLife), 0.0, 1.0 );
 
+		alive = true;
+
 		// Just died. Set its life to something above its max life.
 		// It will be spawned when it reaches maxLife
 		if ( currLife <= 0.0f )
 		{
 			currLife = maxLife + spawnDelay;
+			alive = false;
 		}
 
 		// Update motion
@@ -112,6 +117,8 @@ void main(void)
 		sizeVelocity += sizeAcceleration;
 		size += sizeVelocity;
 		sizeVelocity -= sizeVelocity * sizeDamping;
+
+		
 	}
 	// Waiting to spawn
 	else
@@ -148,6 +155,8 @@ void main(void)
 
 				size = u_spawnSize;
 				sizeVelocity = 0.0;
+
+				alive = true;
 			}
 		}
 		else
@@ -158,5 +167,5 @@ void main(void)
 	
 	out_data0 = vec4(position, size);
 	out_data1 = vec4(velocity, sizeVelocity);
-	out_data2 = vec4(currLife, lifeNrm, 0.0, 0.0);
+	out_data2 = vec4(currLife, lifeNrm, alive ? 1.0 : 0.0, 0.0);
 } 

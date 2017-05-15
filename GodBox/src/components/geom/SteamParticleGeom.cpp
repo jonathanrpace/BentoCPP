@@ -9,7 +9,7 @@ namespace godBox
 		: Component(_name, typeid(SteamParticleGeom)),
 		m_vertexArrayA(-1),
 		m_vertexArrayB(-1),
-		m_numParticles(24000)
+		m_numParticles(12000)
 	{
 
 	}

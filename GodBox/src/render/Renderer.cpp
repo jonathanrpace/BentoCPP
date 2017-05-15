@@ -31,8 +31,8 @@ namespace godBox
 		AddRenderPhase(eRenderPhase_Transparent);
 		AddRenderPhase(eRenderPhase_UI);
 
-		m_blurredRenderTargetA.AttachTexture(GL_COLOR_ATTACHMENT0, m_blurredBufferA);
-		m_blurredRenderTargetB.AttachTexture(GL_COLOR_ATTACHMENT0, m_blurredBufferB);
+		m_blurredRenderTargetA.AttachTexture(GL_COLOR_ATTACHMENT0, m_renderTarget.BlurredColorTextureA());
+		m_blurredRenderTargetB.AttachTexture(GL_COLOR_ATTACHMENT0, m_renderTarget.BlurredColorTextureB());
 	}
 
 	Renderer::~Renderer()
@@ -96,14 +96,14 @@ namespace godBox
 		nvtxRangePushA("Kawase blur");
 		bool switcher = false;
 		float offset = 0.5f;
-		for ( int i = 0; i < 8; i++ )
+		for ( int i = 0; i < 5; i++ )
 		{
 			if ( switcher )
 				m_blurredRenderTargetA.SetDrawBuffers(blurDrawBuffers, 1);
 			else
 				m_blurredRenderTargetB.SetDrawBuffers(blurDrawBuffers, 1);
 
-			m_blurShader.Render( switcher ? m_blurredBufferB : m_blurredBufferA, offset );
+			m_blurShader.Render( switcher ? m_renderTarget.BlurredColorTextureB() : m_renderTarget.BlurredColorTextureA(), offset );
 
 			switcher = !switcher;
 			offset += 1.0f;
@@ -137,8 +137,8 @@ namespace godBox
 		glDisable(GL_DEPTH_TEST);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
 		glEnable( GL_FRAMEBUFFER_SRGB );
-		//m_rectTextureToScreenShader.Render(m_renderTarget.ColorPostTransparencyTexture());
-		m_rectTextureToScreenShader.Render(switcher ? m_blurredBufferA : m_blurredBufferB);
+		m_rectTextureToScreenShader.Render(m_renderTarget.ColorPostTransparencyTexture());
+		//m_rectTextureToScreenShader.Render(switcher ? m_renderTarget.BlurredColorTextureA() : m_renderTarget.BlurredColorTextureB());
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		nvtxRangePop();
 

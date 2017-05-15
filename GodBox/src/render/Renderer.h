@@ -36,10 +36,7 @@ namespace godBox
 		RectTextureToScreenShader m_rectTextureToScreenShader;
 		RectBlurTap5Shader m_blurShader;
 
-		RectangleTexture m_blurredBufferA;
 		RenderTargetBase m_blurredRenderTargetA;
-
-		RectangleTexture m_blurredBufferB;
 		RenderTargetBase m_blurredRenderTargetB;
 	};
 }

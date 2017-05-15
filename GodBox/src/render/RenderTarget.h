@@ -23,6 +23,8 @@ namespace godBox
 		
 		bento::RectangleTexture& PositionTexture();
 		bento::RectangleTexture& ColorTexture();
+		bento::RectangleTexture& BlurredColorTextureA();
+		bento::RectangleTexture& BlurredColorTextureB();
 		bento::RectangleTexture& NormalTexture();
 		bento::RectangleTexture& ColorPostTransparencyTexture();
 		bento::TextureSquare& FilteredColorTexture();
@@ -30,6 +32,8 @@ namespace godBox
 	private:
 		bento::RectangleTexture m_positionTexture;
 		bento::RectangleTexture m_colorTexture;
+		bento::RectangleTexture m_blurredColorTextureA;
+		bento::RectangleTexture m_blurredColorTextureB;
 		bento::RectangleTexture m_normalTexture;
 		bento::RectangleTexture m_colorPostTransparencyTexture;
 		bento::TextureSquare m_filteredColorTexture;

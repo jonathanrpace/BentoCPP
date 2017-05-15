@@ -24,6 +24,7 @@ out float out_lifeNrm;
 out float out_alpha;
 out vec3 out_viewPos;
 out vec3 out_worldPos;
+out float out_alive;
 
 void main(void)
 {
@@ -45,12 +46,16 @@ void main(void)
 	// Life
 	out_lifeNrm = lifeNrm;
 
+	float alive = in_data2.z;
+
 	// Point size
 	vec4 viewPos = u_modelViewMatrix * vec4(position, 1.0);
 	vec4 projCorner = u_projMatrix * vec4(size, size, viewPos.z, viewPos.w);
 	float pointSize = u_frameBufferSize.y * projCorner.x / projCorner.w;
-	gl_PointSize = lifeNrm < 0.0 ? 0.0f : pointSize;
+	gl_PointSize = alive > 0.5 ? pointSize : 0.0f;
 	gl_Position = u_projMatrix * viewPos;
 	out_viewPos = viewPos.xyz;
 	out_worldPos = position.xyz;
+
+	out_alive = alive;
 }

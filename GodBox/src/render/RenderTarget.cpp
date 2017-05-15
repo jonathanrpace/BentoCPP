@@ -102,4 +102,14 @@ namespace godBox
 	{
 		return m_filteredColorTexture;
 	}
+
+	bento::RectangleTexture& RenderTarget::BlurredColorTextureA()
+	{
+		return m_blurredColorTextureA;
+	}
+
+	bento::RectangleTexture& RenderTarget::BlurredColorTextureB()
+	{
+		return m_blurredColorTextureB;
+	}
 }

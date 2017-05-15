@@ -7,11 +7,13 @@ in float in_lifeNrm;
 in float in_alpha;
 in vec3 in_viewPos;
 in vec3 in_worldPos;
+in float in_alive;
 
 uniform sampler2DRect s_positionBuffer;
 uniform sampler2DRect s_outputBuffer;
 uniform sampler2D s_texture;
 uniform samplerCube s_envMap;
+uniform sampler2DRect s_blurredColorBuffer;
 
 uniform vec3 u_albedo;
 uniform vec3 u_filterColor;
@@ -22,7 +24,6 @@ uniform vec3 u_cameraPos;
 uniform vec3 u_cameraForward;
 uniform vec3 u_cameraRight;
 uniform vec3 u_cameraUp;
-uniform float u_sampleRadius = 0.05;
 
 ////////////////////////////////
 // Functions
@@ -56,9 +57,10 @@ vec3 rotateZ( vec3 _dir, float _angle )
 
 void main(void)
 {
+	if ( in_alive < 0.5 )
+		discard;
+
 	srand(gl_FragCoord.x * gl_FragCoord.y * in_worldPos.y);
-
-
 
 	vec2 uv = gl_PointCoord;
 	vec4 textureSample = texture( s_texture, uv );
@@ -70,35 +72,14 @@ void main(void)
 	textureSample.rg -= 1.0;
 	normal = rotateX( normal, textureSample.g ); 
 	normal = rotateZ( normal, -textureSample.r ); 
-	//normal += u_cameraRight * textureSample.r;
-	//normal -= u_cameraUp * textureSample.g;
 	normal = normalize(normal);
-
-	//vec3 reflectVec = reflect(-eyeVec, normal);
 
 	vec4 targetViewPosition = texelFetch(s_positionBuffer, ivec2(gl_FragCoord.xy));
 	float viewDepth = abs( in_viewPos.z - targetViewPosition.z );
 	float blendValue = min( 1.0, viewDepth / 0.01f );
 
-	vec3 filteredSample = vec3(0.0);
-	float filterSampleDisRatio = min(viewDepth / 0.1, 1.0);
-	for ( int i = 0; i < 16; i++ )
-	{
-		vec2 randDir = vec2( rand() - 0.5, rand() - 0.5 );
-		randDir *= filterSampleDisRatio * u_sampleRadius * textureSize(s_outputBuffer).xy;
-
-		vec4 outputSample = texelFetch(s_outputBuffer, ivec2(gl_FragCoord.xy + randDir));
-
-		filteredSample += outputSample.rgb;
-	}
-	filteredSample /= 16.0;
-
-	vec3 devX = dFdx(filteredSample);
-	vec3 devY = dFdy(filteredSample);
-
-	filteredSample = mix( filteredSample + devY, filteredSample + devX , 0.5);
-	
-	vec4 envMapSample = texture( s_envMap, normal ) * u_ambientLightIntensity * 0.5;
+	vec3 filteredSample = texelFetch(s_blurredColorBuffer, ivec2(gl_FragCoord.xy * 0.5)).rgb;
+	vec4 envMapSample = texture( s_envMap, normal ) * u_ambientLightIntensity;
 	vec3 diffuse = u_albedo * envMapSample.rgb * textureSample.b;
 
 	float filterDensity = 1.0 - min( pow(textureSample.a, 1.0/u_density), 1.0 );
