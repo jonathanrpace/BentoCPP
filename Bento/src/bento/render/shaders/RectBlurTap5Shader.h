@@ -12,7 +12,7 @@ namespace bento
 		: public ShaderBase<ScreenQuadVert, RectBlurTap5Frag>
 	{
 		public:
-			void Render(RectangleTexture& _texture);
+			void Render(RectangleTexture& _texture, float _offset);
 
 		private:
 			ScreenQuadGeometry m_screenQuadGeom;

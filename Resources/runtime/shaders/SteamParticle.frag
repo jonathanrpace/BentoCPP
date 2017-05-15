@@ -98,7 +98,7 @@ void main(void)
 
 	filteredSample = mix( filteredSample + devY, filteredSample + devX , 0.5);
 	
-	vec4 envMapSample = texture( s_envMap, normal ) * u_ambientLightIntensity;
+	vec4 envMapSample = texture( s_envMap, normal ) * u_ambientLightIntensity * 0.5;
 	vec3 diffuse = u_albedo * envMapSample.rgb * textureSample.b;
 
 	float filterDensity = 1.0 - min( pow(textureSample.a, 1.0/u_density), 1.0 );
