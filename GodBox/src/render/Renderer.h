@@ -12,6 +12,9 @@
 #include <bento/render/shaders/RectTextureToScreenShader.h>
 #include <bento/render/shaders/RectBlurTap5Shader.h>
 
+// godbox
+#include <render/shaders/ResolveShader.h>
+
 // app
 #include <render/RenderTarget.h>
 #include <render/RenderParams.h>
@@ -27,7 +30,7 @@ namespace godBox
 	public:
 		Renderer(std::string _name = "Renderer");
 		~Renderer();
-
+		
 		// From Process
 		virtual void Advance(double dt) override;
 
@@ -35,6 +38,7 @@ namespace godBox
 		RenderTarget m_renderTarget;
 		RectTextureToScreenShader m_rectTextureToScreenShader;
 		RectBlurTap5Shader m_blurShader;
+		ResolveShader m_resolveShader;
 
 		RenderTargetBase m_blurredRenderTargetA;
 		RenderTargetBase m_blurredRenderTargetB;

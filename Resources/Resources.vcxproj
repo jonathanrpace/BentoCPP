@@ -20,6 +20,7 @@
     <None Include="runtime\shaders\Null.frag" />
     <None Include="runtime\shaders\RectBlurTap5.frag" />
     <None Include="runtime\shaders\RectTexture.frag" />
+    <None Include="runtime\shaders\Resolve.frag" />
     <None Include="runtime\shaders\ScreenQuad.vert" />
     <None Include="runtime\shaders\Skybox.vert" />
     <None Include="runtime\shaders\StandardLib.glsl" />
