@@ -3,6 +3,7 @@
 #include <gl/glew.h>
 #include <assert.h>
 #include <utility>
+#include <imgui.h>
 
 // bento
 #include <bento/components/PerspectiveLens.h>
@@ -24,6 +25,7 @@ namespace godBox
 	//////////////////////////////////////////////////////////////////////////
 	Renderer::Renderer(std::string _name)
 		: RendererBase(_name, typeid(RendererBase))
+		, SerializableBase("Renderer")
 		, m_blurredRenderTargetA(256, 256, true, false)
 		, m_blurredRenderTargetB(256, 256, true, false)
 	{
@@ -33,6 +35,11 @@ namespace godBox
 
 		m_blurredRenderTargetA.AttachTexture(GL_COLOR_ATTACHMENT0, m_renderTarget.BlurredColorTextureA());
 		m_blurredRenderTargetB.AttachTexture(GL_COLOR_ATTACHMENT0, m_renderTarget.BlurredColorTextureB());
+
+		SERIALIZABLE(m_bloomPower, 1.0f);
+		SERIALIZABLE(m_bloomStrength, 1.0f);
+
+		ResetToDefaults();
 	}
 
 	Renderer::~Renderer()
@@ -140,7 +147,9 @@ namespace godBox
 
 		m_resolveShader.Render(
 			m_renderTarget.ColorPostTransparencyTexture(),
-			switcher ? m_renderTarget.BlurredColorTextureA() : m_renderTarget.BlurredColorTextureB()
+			switcher ? m_renderTarget.BlurredColorTextureA() : m_renderTarget.BlurredColorTextureB(),
+			m_bloomPower,
+			m_bloomStrength
 		);
 
 		//m_rectTextureToScreenShader.Render(m_renderTarget.ColorPostTransparencyTexture());
@@ -154,5 +163,20 @@ namespace godBox
 		//nvtxRangePop();
 
 		//nvtxRangePop();
+	}
+
+	void Renderer::AddUIElements()
+	{
+		ImGui::SliderFloat("Bloom Power", &m_bloomPower, 1.0f, 4.0f);
+		ImGui::SliderFloat("Bloom Strength", &m_bloomStrength, 0.0f, 100.0f);
+
+		if (ImGui::Button("Reset"))
+		{
+			ResetToDefaults();
+		}
+		if (ImGui::Button("Save"))
+		{
+			FlushChanges();
+		}
 	}
 }

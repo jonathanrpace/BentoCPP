@@ -8,7 +8,9 @@
 #include <bento/render/RendererBase.h>
 #include <bento/core/Process.h>
 #include <bento/core/Scene.h>
+#include <bento/core/IInspectable.h>
 #include <bento/core/SharedObject.h>
+#include <bento/core/SerializableBase.h>
 #include <bento/render/shaders/RectTextureToScreenShader.h>
 #include <bento/render/shaders/RectBlurTap5Shader.h>
 
@@ -26,6 +28,8 @@ namespace godBox
 	class Renderer 
 		: public RendererBase
 		, public SharedObject<Renderer>
+		, public IInspectable
+		, public SerializableBase
 	{
 	public:
 		Renderer(std::string _name = "Renderer");
@@ -33,6 +37,9 @@ namespace godBox
 		
 		// From Process
 		virtual void Advance(double dt) override;
+
+		// From IInspectable
+		virtual void AddUIElements() override;
 
 	private:
 		RenderTarget m_renderTarget;
@@ -42,5 +49,8 @@ namespace godBox
 
 		RenderTargetBase m_blurredRenderTargetA;
 		RenderTargetBase m_blurredRenderTargetB;
+
+		float m_bloomPower;
+		float m_bloomStrength;
 	};
 }

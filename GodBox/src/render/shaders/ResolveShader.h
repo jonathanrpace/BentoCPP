@@ -18,7 +18,7 @@ namespace bento
 		: public ShaderBase<ScreenQuadVert, ResolveShaderFrag>
 	{
 		public:
-			void Render(RectangleTexture& _colorBuffer, RectangleTexture& _blurredColorBuffer);
+			void Render(RectangleTexture&, RectangleTexture&, float, float);
 
 		private:
 			ScreenQuadGeometry m_screenQuadGeom;
