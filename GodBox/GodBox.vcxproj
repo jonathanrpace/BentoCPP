@@ -24,6 +24,7 @@
     <ClCompile Include="src\components\geom\MoltenPlateGeometry.cpp" />
     <ClCompile Include="src\components\geom\SteamParticleGeom.cpp" />
     <ClCompile Include="src\components\geom\TerrainGeometry.cpp" />
+    <ClCompile Include="src\components\geom\TerrainSidesGeometry.cpp" />
     <ClCompile Include="src\components\materials\SmokeParticleMaterial.cpp" />
     <ClCompile Include="src\components\materials\TerrainMaterial.cpp" />
     <ClCompile Include="src\components\materials\WaterMaterial.cpp" />
@@ -33,6 +34,7 @@
     <ClCompile Include="src\render\passes\FoamPass.cpp" />
     <ClCompile Include="src\render\passes\TerrainPass.cpp" />
     <ClCompile Include="src\render\passes\SteamPass.cpp" />
+    <ClCompile Include="src\render\passes\TerrainSidesPass.cpp" />
     <ClCompile Include="src\render\passes\WaterPass.cpp" />
     <ClCompile Include="src\render\Renderer.cpp" />
     <ClCompile Include="src\render\RenderTarget.cpp" />
@@ -49,6 +51,7 @@
     <ClInclude Include="src\components\geom\MoltenPlateGeometry.h" />
     <ClInclude Include="src\components\geom\SteamParticleGeom.h" />
     <ClInclude Include="src\components\geom\TerrainGeometry.h" />
+    <ClInclude Include="src\components\geom\TerrainSidesGeometry.h" />
     <ClInclude Include="src\components\materials\SmokeParticleMaterial.h" />
     <ClInclude Include="src\components\materials\TerrainMaterial.h" />
     <ClInclude Include="src\components\materials\WaterMaterial.h" />
@@ -58,6 +61,7 @@
     <ClInclude Include="src\render\passes\FoamPass.h" />
     <ClInclude Include="src\render\passes\TerrainPass.h" />
     <ClInclude Include="src\render\passes\SteamPass.h" />
+    <ClInclude Include="src\render\passes\TerrainSidesPass.h" />
     <ClInclude Include="src\render\passes\WaterPass.h" />
     <ClInclude Include="src\render\Renderer.h" />
     <ClInclude Include="src\render\RenderTarget.h" />

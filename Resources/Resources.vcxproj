@@ -29,6 +29,8 @@
     <None Include="runtime\shaders\SteamParticleUpdate.vert" />
     <None Include="runtime\shaders\Terrain.frag" />
     <None Include="runtime\shaders\Terrain.vert" />
+    <None Include="runtime\shaders\TerrainSides.frag" />
+    <None Include="runtime\shaders\TerrainSides.vert" />
     <None Include="runtime\shaders\UpdateTerrainData.frag" />
     <None Include="runtime\shaders\UpdateTerrainFlux.frag" />
     <None Include="runtime\shaders\Water.frag" />

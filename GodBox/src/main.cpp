@@ -26,14 +26,18 @@
 
 // app 
 #include <render/Renderer.h>
+
 #include <render/passes/TerrainPass.h>
+#include <render/passes/TerrainSidesPass.h>
 #include <render/passes/WaterPass.h>
 #include <render/passes/FoamPass.h>
 #include <render/passes/SteamPass.h>
 #include <render/passes/IMGUIRenderPass.h>
+
 #include <processes/TerrainSimulationProcess.h>
 #include <processes/InspectorUIProcess.h>
 #include <components/geom/TerrainGeometry.h>
+#include <components/geom/TerrainSidesGeometry.h>
 #include <components/geom/FoamParticleGeom.h>
 #include <components/geom/SteamParticleGeom.h>
 #include <components/materials/TerrainMaterial.h>
@@ -54,8 +58,13 @@ void mainLoop(GLFWwindow* window)
 		auto entity = bento::Entity::Create();
 		entity->Name("Terrain");
 		scene.AddEntity(entity);
+
 		auto geom = TerrainGeometry::Create();
 		scene.AddComponentToEntity(geom, entity);
+
+		auto sidesGeom = TerrainSidesGeometry::Create();
+		scene.AddComponentToEntity(sidesGeom, entity);
+
 		auto transform = Transform::Create();
 		scene.AddComponentToEntity(transform, entity);
 		auto terrainMaterial = TerrainMaterial::Create();
@@ -97,6 +106,7 @@ void mainLoop(GLFWwindow* window)
 	{
 		renderer->AddRenderPass(CubeMapSkyPass::Create()); // TODO - How do I specify renderPhase through shared object construction?
 		renderer->AddRenderPass(TerrainPass::Create());
+		renderer->AddRenderPass(TerrainSidesPass::Create());
 		
 		renderer->AddRenderPass(WaterPass::Create());
 		renderer->AddRenderPass(SteamPass::Create());
