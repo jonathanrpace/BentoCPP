@@ -36,7 +36,7 @@ namespace godBox
 		GL_CHECK(glBindVertexArray(m_vertexArrayName));
 
 		SetVertexFormatf(0, 3);	// Position;
-		SetVertexFormatf(1, 2);	// UV;
+		SetVertexFormatf(1, 3);	// UV;
 
 		GL_CHECK(glBindVertexArray(0));
 
@@ -45,7 +45,7 @@ namespace godBox
 		m_numIndices = numTriangles * 3;
 
 		std::vector<float> positions(m_numVertices * 3);
-		std::vector<float> uvs(m_numVertices * 2);
+		std::vector<float> uvs(m_numVertices * 3);
 		std::vector<int> indices(m_numIndices);
 
 		std::srand(0);
@@ -64,30 +64,31 @@ namespace godBox
 		{
 			float ratio = (float)i / (m_numVerticesPerDimension-1);
 
-			positions[positionIndex + 0] = -halfSize;
-			positions[positionIndex + 1] = 0.0f;
-			positions[positionIndex + 2] = ( ratio * m_size ) - halfSize;
-			positionIndex += 3;
+			positions[positionIndex++] = -halfSize;
+			positions[positionIndex++] = 0.0f;
+			positions[positionIndex++] = ( ratio * m_size ) - halfSize;
 
-			positions[positionIndex + 0] = -halfSize;
-			positions[positionIndex + 1] = m_height;
-			positions[positionIndex + 2] = ( ratio * m_size ) - halfSize;
+			uvs[uvIndex++] = 0.0f;
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 1.0f;
 
-			positionIndex += 3;
+			positions[positionIndex++] = -halfSize;
+			positions[positionIndex++] = -m_height;
+			positions[positionIndex++] = ( ratio * m_size ) - halfSize;
 			
-			uvs[uvIndex] = 0.0f;
-			uvs[uvIndex] = ratio;
-			uvIndex += 2;
+			uvs[uvIndex++] = 0.0f;
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 0.0f;
 
 			if ( i > 0 )
 			{
 				indices[indicesIndex++] = vertexIndex;
-				indices[indicesIndex++] = vertexIndex-1;
 				indices[indicesIndex++] = vertexIndex-2;
+				indices[indicesIndex++] = vertexIndex-1;
 
 				indices[indicesIndex++] = vertexIndex;
-				indices[indicesIndex++] = vertexIndex+1;
 				indices[indicesIndex++] = vertexIndex-1;
+				indices[indicesIndex++] = vertexIndex+1;
 			}
 			
 			vertexIndex += 2;
@@ -98,29 +99,31 @@ namespace godBox
 		{
 			float ratio = (float)i / (m_numVerticesPerDimension-1);
 
-			positions[positionIndex + 0] = halfSize;
-			positions[positionIndex + 1] = 0.0f;
-			positions[positionIndex + 2] = ( ratio * m_size ) - halfSize;
-			positionIndex += 3;
+			positions[positionIndex++] = halfSize;
+			positions[positionIndex++] = 0.0f;
+			positions[positionIndex++] = ( ratio * m_size ) - halfSize;
 
-			positions[positionIndex + 0] = halfSize;
-			positions[positionIndex + 1] = m_height;
-			positions[positionIndex + 2] = ( ratio * m_size ) - halfSize;
-			positionIndex += 3;
+			uvs[uvIndex++] = 1.0f;
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 1.0f;
+
+			positions[positionIndex++] = halfSize;
+			positions[positionIndex++] = -m_height;
+			positions[positionIndex++] = ( ratio * m_size ) - halfSize;
 			
-			uvs[uvIndex] = 0.0f;
-			uvs[uvIndex] = 1.0f-ratio;
-			uvIndex += 2;
+			uvs[uvIndex++] = 1.0f;
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 0.0f;
 
 			if ( i > 0 )
 			{
 				indices[indicesIndex++] = vertexIndex;
+				indices[indicesIndex++] = vertexIndex-1;
 				indices[indicesIndex++] = vertexIndex-2;
-				indices[indicesIndex++] = vertexIndex-1;
-				
+
 				indices[indicesIndex++] = vertexIndex;
-				indices[indicesIndex++] = vertexIndex-1;
 				indices[indicesIndex++] = vertexIndex+1;
+				indices[indicesIndex++] = vertexIndex-1;
 			}
 			
 			vertexIndex += 2;
@@ -131,29 +134,31 @@ namespace godBox
 		{
 			float ratio = (float)i / (m_numVerticesPerDimension-1);
 
-			positions[positionIndex + 0] = (ratio * m_size) - halfSize;
-			positions[positionIndex + 1] = 0.0f;
-			positions[positionIndex + 2] = halfSize;
-			positionIndex += 3;
+			positions[positionIndex++] = (ratio * m_size) - halfSize;
+			positions[positionIndex++] = 0.0f;
+			positions[positionIndex++] = halfSize;
 
-			positions[positionIndex + 0] = (ratio * m_size) - halfSize;
-			positions[positionIndex + 1] = m_height;
-			positions[positionIndex + 2] = halfSize;
-			positionIndex += 3;
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 1.0f;
+			uvs[uvIndex++] = 1.0f;
+
+			positions[positionIndex++] = (ratio * m_size) - halfSize;
+			positions[positionIndex++] = -m_height;
+			positions[positionIndex++] = halfSize;
+
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 1.0f;
+			uvs[uvIndex++] = 0.0f;
 			
-			uvs[uvIndex] = 0.0f;
-			uvs[uvIndex] = 1.0f-ratio;
-			uvIndex += 2;
-
 			if ( i > 0 )
 			{
 				indices[indicesIndex++] = vertexIndex;
-				indices[indicesIndex++] = vertexIndex-1;
 				indices[indicesIndex++] = vertexIndex-2;
+				indices[indicesIndex++] = vertexIndex-1;
 
 				indices[indicesIndex++] = vertexIndex;
-				indices[indicesIndex++] = vertexIndex+1;
 				indices[indicesIndex++] = vertexIndex-1;
+				indices[indicesIndex++] = vertexIndex+1;
 			}
 			
 			vertexIndex += 2;
@@ -164,29 +169,31 @@ namespace godBox
 		{
 			float ratio = (float)i / (m_numVerticesPerDimension-1);
 
-			positions[positionIndex + 0] = (ratio * m_size) - halfSize;
-			positions[positionIndex + 1] = 0.0f;
-			positions[positionIndex + 2] = -halfSize;
-			positionIndex += 3;
+			positions[positionIndex++] = (ratio * m_size) - halfSize;
+			positions[positionIndex++] = 0.0f;
+			positions[positionIndex++] = -halfSize;
 
-			positions[positionIndex + 0] = (ratio * m_size) - halfSize;
-			positions[positionIndex + 1] = m_height;
-			positions[positionIndex + 2] = -halfSize;
-			positionIndex += 3;
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 0.0f;
+			uvs[uvIndex++] = 1.0f;
+
+			positions[positionIndex++] = (ratio * m_size) - halfSize;
+			positions[positionIndex++] = -m_height;
+			positions[positionIndex++] = -halfSize;
 			
-			uvs[uvIndex] = 0.0f;
-			uvs[uvIndex] = 1.0f-ratio;
-			uvIndex += 2;
+			uvs[uvIndex++] = ratio;
+			uvs[uvIndex++] = 0.0f;
+			uvs[uvIndex++] = 0.0f;
 
 			if ( i > 0 )
 			{
 				indices[indicesIndex++] = vertexIndex;
-				indices[indicesIndex++] = vertexIndex-2;
 				indices[indicesIndex++] = vertexIndex-1;
+				indices[indicesIndex++] = vertexIndex-2;
 
 				indices[indicesIndex++] = vertexIndex;
-				indices[indicesIndex++] = vertexIndex-1;
 				indices[indicesIndex++] = vertexIndex+1;
+				indices[indicesIndex++] = vertexIndex-1;
 			}
 			
 			vertexIndex += 2;

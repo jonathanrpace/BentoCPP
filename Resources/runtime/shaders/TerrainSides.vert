@@ -6,7 +6,10 @@
 
 // Attributes
 layout(location = 0) in vec3 in_position;
-layout(location = 1) in vec2 in_uv;
+layout(location = 1) in vec3 in_uv;
+
+// Samplers
+uniform sampler2D s_heightData;
 
 // Uniforms
 uniform mat4 u_viewMatrix;
@@ -24,7 +27,7 @@ out Varying
 {
 	vec3 out_worldPosition;
 	vec4 out_viewPosition;
-	vec2 out_uv;
+	vec3 out_uv;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -34,6 +37,14 @@ void main(void)
 {
 	vec4 position = vec4(in_position, 1.0f);
 	vec4 viewPosition = u_modelViewMatrix * position;
+
+	vec4 heightDataC = texture( s_heightData, in_uv.xy );
+	float rockHeight = heightDataC.x;
+	float moltenHeight = heightDataC.y;
+	float dirtHeight = heightDataC.z;
+	float waterHeight = heightDataC.w;
+
+	position.y += (rockHeight + moltenHeight + dirtHeight + waterHeight) * in_uv.z;
 
 	// Output
 	{

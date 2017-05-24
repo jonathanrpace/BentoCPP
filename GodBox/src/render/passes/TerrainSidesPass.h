@@ -11,6 +11,7 @@
 // app
 #include <components/materials/TerrainMaterial.h>
 #include <components/geom/TerrainSidesGeometry.h>
+#include <components/geom/TerrainGeometry.h>
 
 using namespace bento;
 
@@ -20,14 +21,14 @@ namespace godBox
 		: ShaderStageBase
 	{
 		TerrainSidesVert();
-		void BindPerModel(TerrainSidesGeometry& _geometry, TerrainMaterial& _material);
+		void BindPerModel(TerrainGeometry&, TerrainSidesGeometry&, TerrainMaterial&);
 	};
 
 	struct TerrainSidesFrag
 		: ShaderStageBase
 	{
 		TerrainSidesFrag();
-		void BindPerModel(TerrainSidesGeometry& _geometry, TerrainMaterial& _material);
+		void BindPerModel(TerrainGeometry&, TerrainSidesGeometry&, TerrainMaterial&);
 	};
 
 	struct TerrainSidesShader
@@ -35,10 +36,11 @@ namespace godBox
 	{
 	};
 
-	DEFINE_NODE_3
+	DEFINE_NODE_4
 	(
 		TerrainSidesPassNode,
-		TerrainSidesGeometry, geom,
+		TerrainGeometry, geom,
+		TerrainSidesGeometry, sidesGeom,
 		Transform, transform,
 		TerrainMaterial, material
 	)

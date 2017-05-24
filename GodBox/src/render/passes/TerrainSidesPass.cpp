@@ -21,12 +21,15 @@ namespace godBox
 	{
 	}
 
-	void TerrainSidesVert::BindPerModel(TerrainSidesGeometry& _geometry, TerrainMaterial& _material)
+	void TerrainSidesVert::BindPerModel(TerrainGeometry& _geom, TerrainSidesGeometry& _sidesGeom, TerrainMaterial& _material)
 	{
 		// Matrices
 		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
 		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
 		SetUniform("u_viewMatrix", RenderParams::ViewMatrix() );
+
+		// Textures
+		SetTexture("s_heightData", _geom.HeightData().GetRead());
 
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
@@ -42,7 +45,7 @@ namespace godBox
 
 	}
 
-	void TerrainSidesFrag::BindPerModel(TerrainSidesGeometry& _geometry, TerrainMaterial& _material)
+	void TerrainSidesFrag::BindPerModel(TerrainGeometry& _geom, TerrainSidesGeometry& _sidesGeom, TerrainMaterial& _material)
 	{
 
 	}
@@ -64,11 +67,11 @@ namespace godBox
 		{
 			RenderParams::SetModelMatrix(node->transform->matrix);
 			
-			node->geom->Bind();
-			m_shader.VertexShader().BindPerModel(*node->geom, *node->material);
-			m_shader.FragmentShader().BindPerModel(*node->geom, *node->material);
+			node->sidesGeom->Bind();
+			m_shader.VertexShader().BindPerModel(*node->geom, *node->sidesGeom, *node->material);
+			m_shader.FragmentShader().BindPerModel(*node->geom, *node->sidesGeom, *node->material);
 			
-			node->geom->Draw();
+			node->sidesGeom->Draw();
 		}
 	}
 }

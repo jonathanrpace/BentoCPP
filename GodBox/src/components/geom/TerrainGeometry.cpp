@@ -16,13 +16,13 @@ namespace godBox
 		, m_numVerticesPerDimension(512)
 		, m_terrainMousePos()
 
-		, m_heightData		(m_numVerticesPerDimension*0.5,	GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_velocityData	(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscData		(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_normalData		(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_smudgeData		(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxData	(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_uvOffsetData	(m_numVerticesPerDimension*0.5, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_heightData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_velocityData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_miscData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_normalData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_smudgeData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP, GL_CLAMP)
+		, m_waterFluxData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_uvOffsetData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
@@ -79,7 +79,7 @@ namespace godBox
 
 		std::srand(0);
 
-		bool hexGrid = true;
+		bool hexGrid = false;
 
 		float cellSize = m_size / (float)m_numVerticesPerDimension;
 		float uvPerCell = 1.0f / (float)m_numVerticesPerDimension;

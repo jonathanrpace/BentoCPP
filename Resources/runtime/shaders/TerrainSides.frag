@@ -9,7 +9,7 @@ in Varying
 {
 	vec3 in_worldPosition;
 	vec4 in_viewPosition;
-	vec2 in_uv;
+	vec3 in_uv;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -27,5 +27,5 @@ void main(void)
 {
 	out_worldNormal = vec4(0.0);
 	out_viewPosition = in_viewPosition;
-	out_forward = vec4( 1.0, 0.0, 0.0, 1.0 );
+	out_forward = vec4( pow( in_uv, vec3(2.2) ), 1.0 );
 }
