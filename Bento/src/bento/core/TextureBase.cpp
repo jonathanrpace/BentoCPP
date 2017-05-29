@@ -16,16 +16,16 @@ namespace bento
 		GLenum _format /* = GL_RGBA8 */, 
 		GLenum _magFilter /* = GL_LINEAR */, 
 		GLenum _minFilter /* = GL_LINEAR */, 
-		GLenum _wrapModeR /* = GL_REPEAT */, 
-		GLenum _wrapModeS /* = GL_REPEAT */ 
+		GLenum _wrapModeS /* = GL_REPEAT */, 
+		GLenum _wrapModeT /* = GL_REPEAT */ 
 	)
 		: m_target(_target)
 		, m_format(_format)
 		, m_texture(-1)
 		, m_magFilter(_magFilter)
 		, m_minFilter(_minFilter)
-		, m_wrapModeR(_wrapModeR)
 		, m_wrapModeS(_wrapModeS)
+		, m_wrapModeT(_wrapModeT)
 	{
 
 	}
@@ -53,8 +53,8 @@ namespace bento
 		GL_CHECK(glBindTexture(m_target, m_texture));
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_magFilter));
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_minFilter));
-		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_R, m_wrapModeR));
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_S, m_wrapModeS));
+		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_T, m_wrapModeT));
 		GL_CHECK(glBindTexture(m_target, GL_NONE));
 	}
 
@@ -95,16 +95,16 @@ namespace bento
 		Invalidate();
 	}
 
-	GLenum TextureBase::WrapModeR()
+	GLenum TextureBase::WrapModeT()
 	{
-		return m_wrapModeR;
+		return m_wrapModeT;
 	}
 
-	void TextureBase::WrapModeR(GLenum _value)
+	void TextureBase::WrapModeT(GLenum _value)
 	{
-		if (m_wrapModeR == _value)
+		if (m_wrapModeT == _value)
 			return;
-		m_wrapModeR = _value;
+		m_wrapModeT = _value;
 		Invalidate();
 	}
 

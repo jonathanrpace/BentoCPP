@@ -28,6 +28,7 @@ namespace godBox
 		, SerializableBase("Renderer")
 		, m_blurredRenderTargetA(256, 256, true, false)
 		, m_blurredRenderTargetB(256, 256, true, false)
+		, m_dirtyLensTexture("textures/DirtyLens.dds")
 	{
 		AddRenderPhase(eRenderPhase_Forward);
 		AddRenderPhase(eRenderPhase_Transparent);
@@ -91,19 +92,19 @@ namespace godBox
 
 		// Do all our blurring at 1/4 size
 		//nvtxRangePushA("Downsample to 1/4 res");
-		m_blurredRenderTargetA.SetSize(m_renderTarget.Width() >> 1, m_renderTarget.Height() >> 1);
-		m_blurredRenderTargetB.SetSize(m_renderTarget.Width() >> 1, m_renderTarget.Height() >> 1);
+		m_blurredRenderTargetA.SetSize(m_renderTarget.Width() >> 2, m_renderTarget.Height() >> 2);
+		m_blurredRenderTargetB.SetSize(m_renderTarget.Width() >> 2, m_renderTarget.Height() >> 2);
 		glViewport(0, 0, m_blurredRenderTargetA.Width(), m_blurredRenderTargetA.Height());
 
 		// Draw our color buffer to blurredBufferA
 		m_blurredRenderTargetA.SetDrawBuffers(blurDrawBuffers, 1);
-		m_rectTextureToScreenShader.Render(m_renderTarget.ColorTexture(), 0.5f);
+		m_rectTextureToScreenShader.Render(m_renderTarget.ColorTexture(), 0.0f);
 		//nvtxRangePop();
-		
+
 		//nvtxRangePushA("Kawase blur");
 		bool switcher = false;
 		float offset = 0.5f;
-		for ( int i = 0; i < 7; i++ )
+		for ( int i = 0; i < 6; i++ )
 		{
 			if ( switcher )
 				m_blurredRenderTargetA.SetDrawBuffers(blurDrawBuffers, 1);
@@ -147,7 +148,8 @@ namespace godBox
 
 		m_resolveShader.Render(
 			m_renderTarget.ColorPostTransparencyTexture(),
-			switcher ? m_renderTarget.BlurredColorTextureA() : m_renderTarget.BlurredColorTextureB(),
+			switcher ? m_renderTarget.BlurredColorTextureA() : m_renderTarget.BlurredColorTextureA(),
+			m_dirtyLensTexture,
 			m_bloomPower,
 			m_bloomStrength
 		);

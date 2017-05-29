@@ -1,0 +1,347 @@
+{
+    "CubeMapSkyMaterial": {
+        "intensity": 0.5,
+        "mipLevel": 4.25699996948242
+    },
+    "Renderer": {
+        "m_bloomPower": 1.10500001907349,
+        "m_bloomStrength": 52.7970008850098
+    },
+    "SmokeParticleMaterial": {
+        "baseColor": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "density": 3.18200016021729,
+        "filterColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "filterPower": 1.0,
+        "filterStrength": 1.09800004959106
+    },
+    "SteamPass": {
+        "fadeInTime": 0.330000013113022,
+        "fadeOutTime": 1.0,
+        "life": {
+            "x": 2.20900011062622,
+            "y": 6.73000049591064
+        },
+        "particleSize": 0.00400000018998981,
+        "positionAccelerationMax": {
+            "x": 0.0,
+            "y": 7.99999997980194e-06,
+            "z": 0.0
+        },
+        "positionAccelerationMin": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+        },
+        "positionDamping": {
+            "x": 0.0300000011920929,
+            "y": 0.0300000011920929
+        },
+        "sizeAcceleration": {
+            "x": 6.00000021222513e-06,
+            "y": 1.99999999495049e-06
+        },
+        "sizeDamping": {
+            "x": 0.47800001502037,
+            "y": 0.537000000476837
+        },
+        "spawnDelay": {
+            "x": 0.0,
+            "y": 1.0
+        },
+        "spawnSize": 0.073000006377697,
+        "spawnThreshold": {
+            "x": 0.78600001335144,
+            "y": 1.0
+        },
+        "spawnVelocityMax": {
+            "x": 0.0,
+            "y": 0.000999999931082129,
+            "z": 0.0
+        },
+        "spawnVelocityMin": {
+            "x": 0.0,
+            "y": 0.000130000000353903,
+            "z": 0.0
+        }
+    },
+    "TerrainMaterial": {
+        "MapHeightOffset": 0.00499999988824129,
+        "ambientLightIntensity": 2.93900012969971,
+        "bearingCreaseScalar": 1.89000010490417,
+        "choppyLimit": 1.0,
+        "choppyPower": 4.0,
+        "creaseFlowOffset": 0.108000002801418,
+        "creaseFlowSpeed": 0.176000013947487,
+        "creaseForwardScalar": 0.0360000021755695,
+        "creaseGridRepeat": 50.0000038146973,
+        "creaseMapRepeat": 1.01400005817413,
+        "creaseMipLevel": 0.0,
+        "creaseRatio": 0.486000031232834,
+        "directLightIntensity": 0.0,
+        "dirtColor": {
+            "x": 0.564705908298492,
+            "y": 0.542091608047485,
+            "z": 0.502699017524719
+        },
+        "dirtHeightToOpaque": 0.0300000011920929,
+        "dirtTextureRepeat": 1.48600006103516,
+        "dissolvedDirtDepthToDiffuse": 0.00609999988228083,
+        "dissolvedDirtDesnsityScalar": 1000.00006103516,
+        "foamAlphaStrength": 0.0,
+        "foamDistortStrength": 0.0,
+        "foamReat": 10.0,
+        "fogColorAway": {
+            "x": 0.699999988079071,
+            "y": 0.699999988079071,
+            "z": 0.699999988079071
+        },
+        "fogColorTowards": {
+            "x": 1.0,
+            "y": 0.899999976158142,
+            "z": 0.699999988079071
+        },
+        "fogDensity": 0.0,
+        "fogFalloff": 385.135009765625,
+        "fogHeight": 0.176000013947487,
+        "glowDetailPwoerr": 0.405000030994415,
+        "glowDetailScalar": 0.115000002086163,
+        "glowPower": 2.56800007820129,
+        "glowScalar": 14.9620008468628,
+        "heightScalar": 0.0,
+        "hotRockColor": {
+            "x": 0.0588235296308994,
+            "y": 0.0588235296308994,
+            "z": 0.0588235296308994
+        },
+        "hotRockColorA": {
+            "x": 0.0666666701436043,
+            "y": 0.0666666701436043,
+            "z": 0.0666666701436043
+        },
+        "hotRockColorB": {
+            "x": 0.0823529437184334,
+            "y": 0.0823529437184334,
+            "z": 0.0823529437184334
+        },
+        "hotRockFresnel": 0.682000041007996,
+        "hotRockFresnelA": 1.0,
+        "hotRockFresnelB": 1.0,
+        "hotRockRoughness": 1.0,
+        "hotRockRoughnessA": 0.62200003862381,
+        "hotRockRoughnessB": 0.615000009536743,
+        "lateralCreaseScalar": 0.0610000044107437,
+        "lightAltitude": -0.383972465991974,
+        "lightAzimuth": -2.79252696037292,
+        "lightDistance": 1.14900004863739,
+        "mapHeightOffset": 0.00499999988824129,
+        "moltemColorScalar": 9.98600006103516,
+        "moltenAlphaPower": 0.62200003862381,
+        "moltenAlphaScalar": 2.23000001907349,
+        "moltenColor": {
+            "x": 1.0,
+            "y": 0.436539769172668,
+            "z": 0.188235282897949
+        },
+        "moltenCreaseAlpha": 0.797000050544739,
+        "moltenCreaseAlphaPower": 1.05400002002716,
+        "moltenFlowOffset": 0.12100000679493,
+        "moltenFlowSpeed": 0.123000003397465,
+        "moltenFresnel": 1.0,
+        "moltenMapAlphaPower": 1.08100008964539,
+        "moltenMapAlphaScalar": 1.02700006961823,
+        "moltenMapOffset": 0.00300000002607703,
+        "moltenPlateAlpha": 1.0,
+        "moltenPlateAlphaPower": 3.32400012016296,
+        "moltenRoughness": 1.0,
+        "rockColorA": {
+            "x": 0.0530565157532692,
+            "y": 0.0766510590910912,
+            "z": 0.0901960805058479
+        },
+        "rockColorB": {
+            "x": 0.103836990892887,
+            "y": 0.113517247140408,
+            "z": 0.125490203499794
+        },
+        "rockDetailBumpSlopePower": 14.7560005187988,
+        "rockDetailBumpStrength": 1.4760000705719,
+        "rockDetailDiffuseStrength": 0.0,
+        "rockFresnelA": 1.0,
+        "rockFresnelB": 0.108000002801418,
+        "rockReflectivity": 0.0,
+        "rockRoughnessA": 0.953000068664551,
+        "rockRoughnessB": 0.939000070095062,
+        "shadowPenumbra": 0.0,
+        "smudgeSampleMip": 0.0,
+        "smudgeSampleOffset": 0.202000007033348,
+        "smudgeUVStrength": 0.100000001490116,
+        "uvRepeat": 2.0,
+        "vegBump": 0.00100000004749745,
+        "vegColor": {
+            "x": 0.136806041002274,
+            "y": 0.141176477074623,
+            "z": 0.107404850423336
+        },
+        "waterColor": {
+            "x": 0.22991156578064,
+            "y": 0.901960790157318,
+            "z": 0.720112085342407
+        },
+        "waterDepthToDiffuse": 0.00300000002607703,
+        "waterDepthToFilter": 0.00027999997837469,
+        "waterDepthToOpaque": 0.0007999999797903,
+        "waterDepthToReflection": 0.00027999997837469,
+        "waterFlowOffset": 0.0110000008717179,
+        "waterFlowRepeat": 4.28400039672852,
+        "waterFlowSpeed": 0.135000005364418,
+        "waterFoamRepeat": 5.97600030899048,
+        "waterIndexOfRefraction": 0.92600005865097,
+        "waterSpecularPower": 1.0,
+        "waterTranslucentColor": {
+            "x": 0.218999996781349,
+            "y": 0.41100001335144,
+            "z": 0.391999989748001
+        },
+        "waterWaveAmplitude": 0.00188999995589256,
+        "waterWaveFrequencyBase": 11.7030010223389,
+        "waterWaveFrequencyScalar": 1.02700006961823,
+        "waterWaveLevels": 5,
+        "waterWaveRoughness": 0.568000018596649,
+        "waterWaveSpeed": 0.0769999995827675,
+        "waterWavesFrequencyBase": 5.16200017929077,
+        "waterWavesFrequencyScalar": 1.0,
+        "waveAmplitude": 0.00100000004749745,
+        "waveAmplitudeLacunarity": 0.351000010967255,
+        "waveAngle0": 0.0,
+        "waveAngle1": 4.0,
+        "waveAngle2": 1.0,
+        "waveAngle3": 2.0,
+        "waveChoppy": 5.95100021362305,
+        "waveChoppyEase": 0.262000024318695,
+        "waveDepthMap": 0.0200000014156103,
+        "waveEffectLimit": 0.00100000004749745,
+        "waveEffectStrength": 0.0130000002682209,
+        "waveFrequency": 16.0,
+        "waveFrequencyLacunarity": 1.94600009918213,
+        "waveOctavesNum": 4,
+        "waveScale0": 1.0,
+        "waveScale1": 2.0,
+        "waveScale2": 4.0,
+        "waveScale3": 8.0,
+        "waveSpeed": 0.0020000000949949,
+        "waveSpeed0": 8,
+        "waveSpeed1": 8,
+        "waveSpeed2": 8,
+        "waveSpeed3": 8,
+        "waveStrength0": 1.0,
+        "waveStrength1": 1.89999997615814,
+        "waveStrength2": 0.219999998807907,
+        "waveStrength3": 1.0
+    },
+    "TerrainSimulationProcess": {
+        "ambientTemperature": 0.0,
+        "boilSpeed": 9.99999974737875e-05,
+        "condenseSpeed": 0.000329999980749562,
+        "dirtDepositSpeed": 0.0470588020980358,
+        "dirtDiffuseStrength": 0.00588000006973743,
+        "dirtErodeSpeedMax": 0.229000017046928,
+        "dirtErodeSpeedMin": 0.00500000035390258,
+        "dirtMaxAngle": 0.00119999994058162,
+        "dirtMinSlop": 0.0,
+        "dirtMinSlope": 0.00176999997347593,
+        "dirtPickupMinWaterSpeed": 0.0327957011759281,
+        "dirtPickupRate": 9.99999974737875e-06,
+        "dirtPickupSpeed": 5.00000023748726e-05,
+        "dirtPickuptAndDepositSpeed": 1.51000003825175e-05,
+        "dirtTransportSpeed": 0.00179999996908009,
+        "dirtViscosity": 0.511000037193298,
+        "drainMaxDepth": 0.0500000007450581,
+        "drainRate": 1.99999994947575e-05,
+        "erosionDirtDepthMax": 0.00119999994058162,
+        "erosionMaxDepth": 0.00300000002607703,
+        "erosionStrength": 7.04000001405802e-07,
+        "erosionWaterDepthMax": 0.000999999931082129,
+        "erosionWaterDepthMin": 9.99999974737875e-06,
+        "erosionWaterSpeedMax": 0.0470000021159649,
+        "evapourationRate": 3.14999988404452e-06,
+        "foamDecayRate": 0.995000064373016,
+        "foamSpawnStrength": 0.0470000021159649,
+        "heatAdvectSpeed": 10.5560007095337,
+        "heatDiffuseStrength": 0.0,
+        "m_vegGrowthRate": 0.0,
+        "m_vegMaxDirt": 0.00242000003345311,
+        "m_vegMaxSlope": 0.870589971542358,
+        "m_vegMinDirt": 0.0,
+        "m_vegMinSlope": 0.399999976158142,
+        "maxDissolvedDirt": 0.0100000007078052,
+        "maxErosionWaterVelocity": 0.0270000007003546,
+        "meltSpeed": 0.0499999970197678,
+        "moltenFluxDamping": 1.0,
+        "moltenVelocityDamping": 0.800000011920929,
+        "moltenVelocityScalar": 2.36600017547607,
+        "moltenViscosity": 1.0,
+        "moltenViscosityMax": 0.5,
+        "moltenViscosityMin": 0.352000027894974,
+        "mouseHeatStrength": 1.0,
+        "mouseRadius": 0.0770000070333481,
+        "mouseVolumeStrength": 0.00450999988242984,
+        "rainRate": 8.49999992169614e-07,
+        "rockDiffuseStrength": 0.00499999988824129,
+        "rockMeltingPoint": 0.0,
+        "smudgeChangeRate": 0.0731199979782104,
+        "tempChangeSpeed": 0.0,
+        "textureCycleSpeed": 0.0,
+        "textureScrollSpeed": 0.13400000333786,
+        "waterBoilingPoint": 0.100000001490116,
+        "waterDiffuseStrength": 0.247309997677803,
+        "waterFluxDamping": 0.982000052928925,
+        "waterFreezingPoint": 0.0,
+        "waterVelocityDamping": 0.97900003194809,
+        "waterVelocityLimit": 0.00100000004749745,
+        "waterVelocityScalar": 51.1800003051758,
+        "waterViscosity": 0.340000003576279
+    },
+    "WaterMaterial": {
+        "depthPower": 0.719000041484833,
+        "depthToDiffuse": 0.195950001478195,
+        "depthToFilter": 0.0151999993249774,
+        "depthToReflection": 0.00453000003471971,
+        "dirtScalar": 0.0,
+        "filterColor": {
+            "x": 0.0,
+            "y": 1.0,
+            "z": 0.917646884918213
+        },
+        "flowOffset": 0.0020000000949949,
+        "flowSpeed": 0.669000029563904,
+        "foamRepeat": 1.0,
+        "foamStrength": 1.0,
+        "indexOfRefraction": 0.757000029087067,
+        "localDepthMip": 6.43200016021729,
+        "localDepthScalar": 106.707008361816,
+        "localDepthValue": 0.0731999948620796,
+        "reflectivity": 0.0,
+        "scatterColor": {
+            "x": 0.00645905407145619,
+            "y": 0.164705887436867,
+            "z": 0.140503421425819
+        },
+        "waveAmplitude": 0.00101000000722706,
+        "waveChoppy": 3.37800025939941,
+        "waveChoppyEach": 0.0,
+        "waveFrquencyBase": 100.000007629395,
+        "waveFrquencyScalar": 1.09500002861023,
+        "waveLevels": 3,
+        "waveRoughness": 0.723000049591064,
+        "waveSpeed": 0.00410000002011657
+    },
+    "global": {}
+}

@@ -13,9 +13,9 @@ namespace bento
 		virtual void MinFilter(GLenum) = 0;
 		virtual GLenum MagFilter() = 0;
 		virtual void MagFilter(GLenum) = 0;
-		virtual GLenum WrapModeR() = 0;
-		virtual void WrapModeR(GLenum) = 0;
 		virtual GLenum WrapModeS() = 0;
 		virtual void WrapModeS(GLenum) = 0;
+		virtual GLenum WrapModeT() = 0;
+		virtual void WrapModeT(GLenum) = 0;
 	};
 }

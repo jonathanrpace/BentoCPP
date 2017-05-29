@@ -16,13 +16,13 @@ namespace godBox
 		, m_numVerticesPerDimension(512)
 		, m_terrainMousePos()
 
-		, m_heightData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_velocityData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_miscData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_normalData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_smudgeData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP, GL_CLAMP)
-		, m_waterFluxData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP, GL_CLAMP)
-		, m_uvOffsetData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, m_heightData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_velocityData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_miscData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_normalData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_smudgeData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_waterFluxData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_uvOffsetData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
@@ -60,7 +60,6 @@ namespace godBox
 
 		SetVertexFormatf(0, 3);	// Position;
 		SetVertexFormatf(1, 2);	// UV;
-		SetVertexFormatf(2, 4);	// Rand;
 
 		GL_CHECK(glBindVertexArray(0));
 
@@ -74,12 +73,7 @@ namespace godBox
 		std::vector<float> randData(m_numVertices * 4);
 		std::vector<int> indices(m_numIndices);
 
-		//std::vector<float> fluxData(m_numVertices * 4);
-		//std::vector<float> mappingData(m_numVertices * 4);
-
 		std::srand(0);
-
-		bool hexGrid = false;
 
 		float cellSize = m_size / (float)m_numVerticesPerDimension;
 		float uvPerCell = 1.0f / (float)m_numVerticesPerDimension;
@@ -96,83 +90,29 @@ namespace godBox
 				int float3Index = (i * m_numVerticesPerDimension + j) * 3;
 				int float4Index = (i * m_numVerticesPerDimension + j) * 4;
 
-				float xPos = (xRatio * m_size) - m_size * 0.5f;
+				uvs[float2Index + 0] = xRatio;
+				uvs[float2Index + 1] = zRatio;
 
-				if (hexGrid)
-				{
-					uvs[float2Index + 1] = zRatio;
-
-					if (i % 2 != 0)
-					{
-						xPos -= cellSize * 0.5f;
-						uvs[float2Index + 0] = xRatio - uvPerCell * 0.5f;
-					}
-					else
-					{
-						uvs[float2Index + 0] = xRatio;
-					}
-				}
-				else
-				{
-					uvs[float2Index + 0] = xRatio;
-					uvs[float2Index + 1] = zRatio;
-				}
-
-				positions[float3Index + 0] = xPos;
+				positions[float3Index + 0] = (xRatio * m_size) - m_size * 0.5f;
 				positions[float3Index + 1] = 0.0f;
 				positions[float3Index + 2] = (zRatio * m_size) - m_size * 0.5f;
 
-				heightData[float4Index + 0] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
-				heightData[float4Index + 1] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
-				heightData[float4Index + 2] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.1f;
-				heightData[float4Index + 3] = 0.0f;//(static_cast <float> (std::rand()) / static_cast <float> (RAND_MAX)) * 0.001f;
-
-				randData[float4Index + 0] = Rand();
-				randData[float4Index + 1] = Rand();
-				randData[float4Index + 2] =	Rand();
-				randData[float4Index + 3] =	Rand();
+				heightData[float4Index + 0] = 0.0f;
+				heightData[float4Index + 1] = 0.0f;
+				heightData[float4Index + 2] = 0.0f;
+				heightData[float4Index + 3] = 0.0f;
 
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
-					if (hexGrid)
-					{
-						if (i % 2 != 0)
-						{
-							indices[indicesIndex] = vertexIndex;
-							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-							indices[indicesIndex + 2] = vertexIndex + 1;
-							indicesIndex += 3;
+					indices[indicesIndex] = vertexIndex;
+					indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+					indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
+					indicesIndex += 3;
 
-							indices[indicesIndex] = vertexIndex + 1;
-							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-							indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
-							indicesIndex += 3;
-						}
-						else
-						{
-							indices[indicesIndex] = vertexIndex;
-							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-							indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
-							indicesIndex += 3;
-
-							indices[indicesIndex] = vertexIndex;
-							indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
-							indices[indicesIndex + 2] = vertexIndex + 1;
-							indicesIndex += 3;
-						}
-					}
-					else
-					{
-						indices[indicesIndex] = vertexIndex;
-						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-						indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
-						indicesIndex += 3;
-
-						indices[indicesIndex] = vertexIndex;
-						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
-						indices[indicesIndex + 2] = vertexIndex + 1;
-						indicesIndex += 3;
-					}
+					indices[indicesIndex] = vertexIndex;
+					indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
+					indices[indicesIndex + 2] = vertexIndex + 1;
+					indicesIndex += 3;
 				}
 
 				vertexIndex++;
@@ -189,7 +129,6 @@ namespace godBox
 
 		BufferVertexData(0, &positions[0], (int)positions.size());
 		BufferVertexData(1, &uvs[0], (int)uvs.size());
-		BufferVertexData(2, &randData[0], (int)randData.size());
 		BufferIndexData(0, &indices[0], (int)indices.size());
 	}
 

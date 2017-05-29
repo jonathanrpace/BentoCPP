@@ -4,8 +4,8 @@
         "mipLevel": 4.25699996948242
     },
     "Renderer": {
-        "m_bloomPower": 1.0,
-        "m_bloomStrength": 1.0
+        "m_bloomPower": 1.10500001907349,
+        "m_bloomStrength": 52.7970008850098
     },
     "SmokeParticleMaterial": {
         "baseColor": {
@@ -13,21 +13,21 @@
             "y": 0.0,
             "z": 0.0
         },
-        "density": 2.66100001335144,
+        "density": 3.18200016021729,
         "filterColor": {
             "x": 1.0,
             "y": 1.0,
             "z": 1.0
         },
         "filterPower": 1.0,
-        "filterStrength": 3.42700004577637
+        "filterStrength": 1.09800004959106
     },
     "SteamPass": {
-        "fadeInTime": 0.248000010848045,
+        "fadeInTime": 0.330000013113022,
         "fadeOutTime": 1.0,
         "life": {
             "x": 2.20900011062622,
-            "y": 5.19400024414063
+            "y": 6.73000049591064
         },
         "particleSize": 0.00400000018998981,
         "positionAccelerationMax": {
@@ -45,8 +45,8 @@
             "y": 0.0300000011920929
         },
         "sizeAcceleration": {
-            "x": 6.39999998384155e-05,
-            "y": 9.00000013643876e-05
+            "x": 6.00000021222513e-06,
+            "y": 1.99999999495049e-06
         },
         "sizeDamping": {
             "x": 0.47800001502037,
@@ -56,7 +56,7 @@
             "x": 0.0,
             "y": 1.0
         },
-        "spawnSize": 0.0480000004172325,
+        "spawnSize": 0.073000006377697,
         "spawnThreshold": {
             "x": 0.78600001335144,
             "y": 1.0
@@ -152,7 +152,7 @@
         },
         "moltenCreaseAlpha": 0.797000050544739,
         "moltenCreaseAlphaPower": 1.05400002002716,
-        "moltenFlowOffset": 0.5,
+        "moltenFlowOffset": 0.179000005125999,
         "moltenFlowSpeed": 0.0640000030398369,
         "moltenFresnel": 1.0,
         "moltenMapAlphaPower": 1.08100008964539,
@@ -172,7 +172,7 @@
             "z": 0.125490203499794
         },
         "rockDetailBumpSlopePower": 14.7560005187988,
-        "rockDetailBumpStrength": 1.26500010490417,
+        "rockDetailBumpStrength": 1.4760000705719,
         "rockDetailDiffuseStrength": 0.0,
         "rockFresnelA": 1.0,
         "rockFresnelB": 0.108000002801418,
@@ -181,7 +181,7 @@
         "rockRoughnessB": 0.939000070095062,
         "shadowPenumbra": 0.0,
         "smudgeSampleMip": 0.0,
-        "smudgeSampleOffset": 0.726000010967255,
+        "smudgeSampleOffset": 0.202000007033348,
         "smudgeUVStrength": 0.100000001490116,
         "uvRepeat": 2.0,
         "vegBump": 0.00100000004749745,
@@ -249,7 +249,7 @@
     "TerrainSimulationProcess": {
         "ambientTemperature": 0.0,
         "boilSpeed": 9.99999974737875e-05,
-        "condenseSpeed": 0.000999999931082129,
+        "condenseSpeed": 0.000329999980749562,
         "dirtDepositSpeed": 0.0470588020980358,
         "dirtDiffuseStrength": 0.00588000006973743,
         "dirtErodeSpeedMax": 0.229000017046928,
@@ -271,10 +271,10 @@
         "erosionWaterDepthMax": 0.000999999931082129,
         "erosionWaterDepthMin": 9.99999974737875e-06,
         "erosionWaterSpeedMax": 0.0470000021159649,
-        "evapourationRate": 0.0,
+        "evapourationRate": 3.14999988404452e-06,
         "foamDecayRate": 0.995000064373016,
         "foamSpawnStrength": 0.0470000021159649,
-        "heatAdvectSpeed": 19.8150005340576,
+        "heatAdvectSpeed": 7.3430004119873,
         "heatDiffuseStrength": 0.0,
         "m_vegGrowthRate": 0.0,
         "m_vegMaxDirt": 0.00242000003345311,
@@ -283,16 +283,16 @@
         "m_vegMinSlope": 0.399999976158142,
         "maxDissolvedDirt": 0.0100000007078052,
         "maxErosionWaterVelocity": 0.0270000007003546,
-        "meltSpeed": 5.2999999752501e-05,
+        "meltSpeed": 0.0499999970197678,
         "moltenFluxDamping": 1.0,
         "moltenVelocityDamping": 0.800000011920929,
         "moltenVelocityScalar": 2.36600017547607,
         "moltenViscosity": 1.0,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 1.0,
-        "mouseRadius": 0.0410000011324883,
-        "mouseVolumeStrength": 0.00158999999985099,
+        "mouseHeatStrength": 0.409999996423721,
+        "mouseRadius": 0.0770000070333481,
+        "mouseVolumeStrength": 0.00450999988242984,
         "rainRate": 8.49999992169614e-07,
         "rockDiffuseStrength": 0.00499999988824129,
         "rockMeltingPoint": 0.0,

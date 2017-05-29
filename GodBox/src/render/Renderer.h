@@ -13,6 +13,7 @@
 #include <bento/core/SerializableBase.h>
 #include <bento/render/shaders/RectTextureToScreenShader.h>
 #include <bento/render/shaders/RectBlurTap5Shader.h>
+#include <bento/components/textures/TextureResource.h>
 
 // godbox
 #include <render/shaders/ResolveShader.h>
@@ -46,6 +47,7 @@ namespace godBox
 		RectTextureToScreenShader m_rectTextureToScreenShader;
 		RectBlurTap5Shader m_blurShader;
 		ResolveShader m_resolveShader;
+		TextureResource m_dirtyLensTexture;
 
 		RenderTargetBase m_blurredRenderTargetA;
 		RenderTargetBase m_blurredRenderTargetB;

@@ -97,9 +97,9 @@ void mainLoop(GLFWwindow* window)
 	scene.AddProcess(OrbitCamera::Create());
 	scene.AddProcess(TerrainSimulationProcess::Create());
 	
-	#ifndef B_RELEASE
+	//#ifndef B_RELEASE
 		scene.AddProcess(bento::InspectorUIProcess::Create());
-	#endif
+	//#endif
 		
 	auto renderer = godBox::Renderer::Create();
 	// Render passes
@@ -184,8 +184,8 @@ int main(int argc, char **argv)
 	// glfw is generating some gl errors and not checking for them
 	while (glGetError() != GL_NONE) {}
 
-	Config::Init("../../../../Resources/runtime/", "../../../../Defaults/");
-	DefaultsManager::Init("../../../../Defaults/defaults.json");
+	Config::Init("../../../", "../../../");
+	DefaultsManager::Init("../../../defaults.json");
 
 	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);     
 

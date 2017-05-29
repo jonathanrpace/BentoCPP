@@ -128,7 +128,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 50.0f);
 	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.0001f, "%.6f");
+	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.05f, "%.4f");
 	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 0.1f, "%.5f");
 	ImGui::Spacing();

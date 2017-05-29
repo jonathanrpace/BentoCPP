@@ -1,7 +1,0 @@
-float phase = fmodf( (float)glfwGetTime() * 0.125f, 1.0f );
-
-float phaseA = fmodf( phase + 0.0f, 1.0f ) * 2.0f - 1.0f;
-float phaseB = fmodf( phase + 0.5f, 1.0f ) * 2.0f - 1.0f;
-
-float alphaB = fabs( 0.5f - phase ) * 2.0f;
-float alphaA = 1.0f - alphaB;

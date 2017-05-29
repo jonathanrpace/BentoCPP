@@ -13,10 +13,10 @@ namespace bento
 		GLenum _format /* = GL_RGBA8  */, 
 		GLenum _magFilter /* = GL_LINEAR  */, 
 		GLenum _minFilter /* = GL_LINEAR  */, 
-		GLenum _wrapModeR /* = GL_REPEAT  */, 
-		GLenum _wrapModeS /* = GL_REPEAT */ 
+		GLenum _wrapModeS /* = GL_REPEAT  */, 
+		GLenum _wrapModeT /* = GL_REPEAT */ 
 	)
-		: TextureBase(GL_TEXTURE_2D, _format, _magFilter, _minFilter, _wrapModeS, _wrapModeR)
+		: TextureBase(GL_TEXTURE_2D, _format, _magFilter, _minFilter, _wrapModeS, _wrapModeT)
 		, m_size(_size)
 	{
 	}

@@ -11,54 +11,38 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <None Include="runtime\shaders\CubeMapSkybox.frag" />
-    <None Include="runtime\shaders\FoamParticle.frag" />
-    <None Include="runtime\shaders\FoamParticle.vert" />
-    <None Include="runtime\shaders\FoamParticleUpdate.vert" />
-    <None Include="runtime\shaders\G.frag" />
-    <None Include="runtime\shaders\G.vert" />
-    <None Include="runtime\shaders\Null.frag" />
-    <None Include="runtime\shaders\RectBlurTap5.frag" />
-    <None Include="runtime\shaders\RectTexture.frag" />
-    <None Include="runtime\shaders\Resolve.frag" />
-    <None Include="runtime\shaders\ScreenQuad.vert" />
-    <None Include="runtime\shaders\Skybox.vert" />
-    <None Include="runtime\shaders\StandardLib.glsl" />
-    <None Include="runtime\shaders\SteamParticle.frag" />
-    <None Include="runtime\shaders\SteamParticle.vert" />
-    <None Include="runtime\shaders\SteamParticleUpdate.vert" />
-    <None Include="runtime\shaders\Terrain.frag" />
-    <None Include="runtime\shaders\Terrain.vert" />
-    <None Include="runtime\shaders\TerrainSides.frag" />
-    <None Include="runtime\shaders\TerrainSides.vert" />
-    <None Include="runtime\shaders\UpdateTerrainData.frag" />
-    <None Include="runtime\shaders\UpdateTerrainFlux.frag" />
-    <None Include="runtime\shaders\Water.frag" />
-    <None Include="runtime\shaders\Water.vert" />
-    <None Include="shaders\unused\AmbientLight.frag" />
-    <None Include="shaders\unused\DirectionalLight.frag" />
-    <None Include="shaders\unused\LightBufferConvolution.frag" />
-    <None Include="shaders\unused\LightingLib.frag" />
-    <None Include="shaders\unused\LightTransportShader.frag" />
-    <None Include="shaders\unused\PointLight.frag" />
-    <None Include="shaders\unused\PointLight.vert" />
-    <None Include="shaders\unused\RectangleTextureShader.frag" />
-    <None Include="shaders\unused\ResolveShader.frag" />
-    <None Include="shaders\unused\ScreenSpaceReflectionShader.frag" />
+    <None Include="..\Run\shaders\CubeMapSkybox.frag" />
+    <None Include="..\Run\shaders\RectBlurTap5.frag" />
+    <None Include="..\Run\shaders\RectTexture.frag" />
+    <None Include="..\Run\shaders\Resolve.frag" />
+    <None Include="..\Run\shaders\ScreenQuad.vert" />
+    <None Include="..\Run\shaders\Skybox.vert" />
+    <None Include="..\Run\shaders\StandardLib.glsl" />
+    <None Include="..\Run\shaders\SteamParticle.frag" />
+    <None Include="..\Run\shaders\SteamParticle.vert" />
+    <None Include="..\Run\shaders\SteamParticleUpdate.vert" />
+    <None Include="..\Run\shaders\Terrain.frag" />
+    <None Include="..\Run\shaders\Terrain.vert" />
+    <None Include="..\Run\shaders\TerrainSides.frag" />
+    <None Include="..\Run\shaders\TerrainSides.vert" />
+    <None Include="..\Run\shaders\UpdateTerrainData.frag" />
+    <None Include="..\Run\shaders\UpdateTerrainFlux.frag" />
+    <None Include="..\Run\shaders\Water.frag" />
+    <None Include="..\Run\shaders\Water.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C7F5A34E-8939-4DB1-BFCD-670C7F068A70}</ProjectGuid>
     <Keyword>MakeFileProj</Keyword>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>Utility</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>Utility</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
@@ -71,14 +55,28 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)\</OutDir>
+    <IntDir>$(ProjectDir)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\bin\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)\</OutDir>
+    <IntDir>$(ProjectDir)\</IntDir>
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
-  <ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <BuildLog>
+      <Path />
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <BuildLog>
+      <Path />
+    </BuildLog>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

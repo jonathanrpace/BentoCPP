@@ -66,14 +66,6 @@ namespace bento
 			ImGui::TreePop();
 		}
 
-		if ( ImGui::TreeNode("Renderer") )
-		{
-			auto renderer = m_scene->GetProcess<RendererBase>();
-			AddControlsIfInspectable(renderer);
-
-			ImGui::TreePop();
-		}
-
 		if ( ImGui::TreeNode("Render Passes") )
 		{
 			auto renderProcess = m_scene->GetProcess<RendererBase>();

@@ -18,8 +18,8 @@ namespace bento
 			GLenum _format = GL_RGBA8,
 			GLenum _magFilter = GL_LINEAR,
 			GLenum _minFilter = GL_LINEAR_MIPMAP_LINEAR,
-			GLenum _wrapModeR = GL_REPEAT,
-			GLenum _wrapModeS = GL_REPEAT
+			GLenum _wrapModeS = GL_REPEAT,
+			GLenum _wrapModeT = GL_REPEAT
 		);
 		~TextureBase();
 
@@ -36,8 +36,8 @@ namespace bento
 		virtual void MagFilter(GLenum _value) override;
 		virtual GLenum WrapModeS() override;
 		virtual void WrapModeS(GLenum _value) override;
-		virtual GLenum WrapModeR() override;
-		virtual void WrapModeR(GLenum _value) override;
+		virtual GLenum WrapModeT() override;
+		virtual void WrapModeT(GLenum _value) override;
 		virtual GLenum Format() override;
 
 	protected:
@@ -47,6 +47,6 @@ namespace bento
 		GLenum m_minFilter;
 		GLenum m_magFilter;
 		GLenum m_wrapModeS;
-		GLenum m_wrapModeR;
+		GLenum m_wrapModeT;
 	};
 }
