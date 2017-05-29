@@ -38,14 +38,6 @@ namespace godBox
 		TextureResource lavaNrm;
 		TextureResource lavaMat;
 
-		//TextureResource lavaLongAlb;
-		//TextureResource lavaLongNrm;
-		//TextureResource lavaLongMat;
-
-		//TextureResource lavaLatAlb;
-		//TextureResource lavaLatNrm;
-		//TextureResource lavaLatMat;
-
 		TextureResource moltenGradient;
 
 		// Global

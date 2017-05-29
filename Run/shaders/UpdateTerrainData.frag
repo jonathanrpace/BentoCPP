@@ -47,8 +47,7 @@ uniform float u_heatAdvectSpeed;
 uniform float u_moltenViscosity;
 uniform float u_rockMeltingPoint;
 uniform float u_tempChangeSpeed;
-uniform float u_condenseSpeed;
-uniform float u_meltSpeed;
+uniform float u_meltCondenseSpeed;
 uniform float u_moltenVelocityScalar;
 uniform float u_smudgeChangeRate;
 
@@ -65,6 +64,7 @@ uniform float u_drainMaxDepth;
 // Dirt
 uniform float u_dirtViscosity;
 uniform float u_dirtMaxSlope;
+uniform float u_dirtDensity;
 
 // Foam
 uniform float u_foamSpawnStrength;
@@ -76,7 +76,6 @@ uniform float u_erosionMaxDepth;
 uniform float u_erosionWaterDepthMin;
 uniform float u_erosionWaterDepthMax;
 uniform float u_erosionWaterSpeedMax;
-uniform float u_rockToDirtRatio = 4.0;
 
 // Dirt transport
 uniform float u_dirtTransportSpeed;
@@ -541,7 +540,7 @@ void main(void)
 		float rockToDirt = min( erosionWaterSpeedScalar * u_erosionStrength * erosionWaterDepthScalar, solidHeight );
 
 		solidHeight -= rockToDirt;
-		dirtHeight += rockToDirt * u_rockToDirtRatio;
+		dirtHeight += (rockToDirt / u_dirtDensity);
 		
 		out_heightData.x = solidHeight;
 		out_heightData.z = dirtHeight;
@@ -649,7 +648,7 @@ void main(void)
 		float targetRatio = clamp( heat, 0.0, 1.0 );
 		float targetMoltenHeight = targetRatio * combinedHeight;
 
-		float newMolten = moltenHeight + (targetMoltenHeight - moltenHeight) * u_meltSpeed;
+		float newMolten = moltenHeight + (targetMoltenHeight - moltenHeight) * u_meltCondenseSpeed;
 		float newRock = combinedHeight - newMolten;
 
 		out_heightData.x = newRock;
@@ -657,13 +656,13 @@ void main(void)
 
 
 		float dirtHeight = out_heightData.z;
-		float dirtToMolten = min( dirtHeight, heat * u_meltSpeed * 10.0 );
-		out_heightData.x += dirtToMolten * 0.4;
+		float dirtToMolten = min( dirtHeight, heat * u_meltCondenseSpeed * 0.1 );
+		out_heightData.x += dirtToMolten * u_dirtDensity;
 		out_heightData.z -= dirtToMolten;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
-	// Rock normal
+	// Solid normal
 	//////////////////////////////////////////////////////////////////////////////////
 	{
 		vec2 texelSize = vec2(1.0) / vec2(textureSize(s_heightData, 0));

@@ -85,8 +85,7 @@ namespace godBox
 		float m_moltenViscosity;
 		float m_rockMeltingPoint;
 		float m_heatAdvectSpeed;
-		float m_meltSpeed;
-		float m_condenseSpeed;
+		float m_meltCondenseSpeed;
 		float m_tempChangeSpeed;
 		float m_moltenVelocityScalar;
 		float m_smudgeChangeRate;
@@ -94,6 +93,7 @@ namespace godBox
 		// Dirt
 		float m_dirtViscosity;
 		float m_dirtMaxSlope;
+		float m_dirtDensity;
 
 		// Water
 		float m_waterFluxDamping;

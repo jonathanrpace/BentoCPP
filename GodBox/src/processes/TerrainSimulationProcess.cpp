@@ -37,8 +37,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("moltenViscosity",		0.5f,		&m_moltenViscosity);
 	SerializableMember("rockMeltingPoint",		0.3f,		&m_rockMeltingPoint);
 	SerializableMember("heatAdvectSpeed",		0.5f,		&m_heatAdvectSpeed);
-	SerializableMember("meltSpeed",				0.00001f,	&m_meltSpeed);
-	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
+	SerializableMember("meltSpeedCondenseSpeed",0.01f,		&m_meltCondenseSpeed);
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
 	SerializableMember("moltenVelocityScalar",	1.0f,		&m_moltenVelocityScalar);
 	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
@@ -59,6 +58,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	// Dirt
 	SerializableMember("dirtViscosity",			0.2f,		&m_dirtViscosity);
 	SerializableMember("dirtMaxAngle",			0.2f,		&m_dirtMaxSlope);
+	SerializableMember("dirtDensity",			0.5f,		&m_dirtDensity);
 
 	// Foam
 	SerializableMember("foamSpawnStrength",		1.0f,		&m_foamSpawnStrength);
@@ -128,8 +128,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 50.0f);
 	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
-	ImGui::SliderFloat("MeltSpeed", &m_meltSpeed, 0.0f, 0.05f, "%.4f");
-	ImGui::SliderFloat("CondenseSpeed", &m_condenseSpeed, 0.0f, 0.001f, "%.5f");
+	ImGui::SliderFloat("Melt/Condense Speed", &m_meltCondenseSpeed, 0.0f, 0.05f, "%.4f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 0.1f, "%.5f");
 	ImGui::Spacing();
 
@@ -149,7 +148,8 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 	ImGui::Text("Dirt");
 	ImGui::SliderFloat("Viscosity##dirt", &m_dirtViscosity, 0.01f, 1.0f);
-	ImGui::SliderFloat("MaxSlope##dirt", &m_dirtMaxSlope, 0.0f, 0.05f, "%.4f");
+	ImGui::SliderFloat("MaxSlope##dirt", &m_dirtMaxSlope, 0.0f, 0.01f, "%.5f");
+	ImGui::SliderFloat("Density##dirt", &m_dirtDensity, 0.0f, 1.0f, "%.4f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -291,8 +291,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_moltenViscosity",				m_moltenViscosity);
 		fragShader.SetUniform("u_rockMeltingPoint",				m_rockMeltingPoint);
 		fragShader.SetUniform("u_tempChangeSpeed",				m_tempChangeSpeed);
-		fragShader.SetUniform("u_condenseSpeed",				m_condenseSpeed);
-		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
+		fragShader.SetUniform("u_meltCondenseSpeed",			m_meltCondenseSpeed);
 		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
 		fragShader.SetUniform("u_mapHeightOffset",				_material.heightOffset);
 		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);
@@ -310,6 +309,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		// Dirt
 		fragShader.SetUniform("u_dirtViscosity",				m_dirtViscosity);
 		fragShader.SetUniform("u_dirtMaxSlope",					m_dirtMaxSlope);
+		fragShader.SetUniform("u_dirtDensity",					m_dirtDensity);
 
 		// Foam
 		fragShader.SetUniform("u_foamSpawnStrength",			m_foamSpawnStrength);
