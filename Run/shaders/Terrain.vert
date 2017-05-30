@@ -67,6 +67,7 @@ out Varying
 	float out_shadowing;
 	vec2 out_scaledUV;
 	vec4 out_heightData;
+	vec4 out_smudgeData;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -105,50 +106,13 @@ void main(void)
 	float steamStrength = smudgeDataC.z;
 
 	{
-		vec2 outScaledUV = vec2(0.0);;
+		vec2 outScaledUV = vec2(0.0);
+		out_smudgeData = texture(s_smudgeData, in_uv);
 		vec2 smudgeVec = textureLod( s_smudgeData, in_uv, u_smudgeSampleMip ).xy;
 		vec2 smudgeDir = normalize(smudgeVec);
 
 		vec2 uvOffset = smudgeVec * u_smudgeSampleOffset;
-		//vec2 smudgeSampleVec = textureLod( s_smudgeData, in_uv + uvOffset, u_smudgeSampleMip ).xy;
-		//vec2 smudgeSampleDir = normalize( smudgeSampleVec );
-		//float dp = dot( smudgeSampleDir, smudgeDir );
-
 		outScaledUV -= uvOffset;
-
-		//outScaledUV -= in_uv + uvOffset;
-		//outScaledUV *= 1.0 + u_smudgeUVStrength * dp;
-		//outScaledUV += in_uv + uvOffset;
-
-		/*
-		float mipLevel = u_smudgeSampleMip + 1.0;
-		float offset = u_smudgeSampleOffset;
-		float strength = u_smudgeUVStrength;
-		for ( int i = 0; i < 4; i++ )
-		{
-			vec2 offsetH = vec2(offset, 0.0);
-			vec2 offsetV = vec2(0.0, offset);
-
-			vec2 sumdgeSampleVecL = textureLod( s_smudgeData, in_uv - offsetH, mipLevel ).xy;
-			vec2 sumdgeSampleVecR = textureLod( s_smudgeData, in_uv + offsetH, mipLevel ).xy;
-			vec2 sumdgeSampleVecU = textureLod( s_smudgeData, in_uv - offsetV, mipLevel ).xy;
-			vec2 sumdgeSampleVecD = textureLod( s_smudgeData, in_uv + offsetV, mipLevel ).xy;
-
-			float dpL = 1.0 - abs( dot( normalize(sumdgeSampleVecL), smudgeDir ) );
-			float dpR = 1.0 - abs( dot( normalize(sumdgeSampleVecR), smudgeDir ) );
-			float dpU = 1.0 - abs( dot( normalize(sumdgeSampleVecU), smudgeDir ) );
-			float dpD = 1.0 - abs( dot( normalize(sumdgeSampleVecD), smudgeDir ) );
-
-			outScaledUV.x += strength * dpL;
-			outScaledUV.x -= strength * dpR;
-			outScaledUV.y += strength * dpU;
-			outScaledUV.y -= strength * dpD;
-
-			mipLevel += 1.0;
-			offset *= 2.0;
-			strength *= 4.0;
-		}
-		*/
 
 		outScaledUV += in_uv;
 		out_scaledUV = outScaledUV * u_uvRepeat;

@@ -17,6 +17,7 @@ in Varying
 	float in_shadowing;
 	vec2 in_scaledUV;
 	vec4 in_heightData;
+	vec4 in_smudgeData;
 };
 
 // Uniforms
@@ -307,4 +308,38 @@ void main(void)
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, max( max(moltenColor.r, moltenColor.g), moltenColor.b) * 100.0);
+
+	{
+		vec2 smudgeRay = normalize( vec2(in_smudgeData.y, -in_smudgeData.x) * 10.0 );
+
+		vec2 E = in_uv;
+		vec2 L = in_uv + smudgeRay * 40;
+		vec2 C = vec2(0.5);
+		float r = 20;
+
+		vec2 d = L-E;
+		vec2 f = E-C;
+
+		float a = dot(d,d);
+		float b = 2.0 * dot(f, d);
+		float c = dot(f, f) - r*r;
+		float discriminant = b*b-4*a*c;
+
+		discriminant = sqrt(discriminant);
+
+		float t1 = (-b - discriminant) / (2.0*a);
+		float t2 = (-b + discriminant) / (2.0*a);
+
+		vec2 isect = E + t2 * d;
+
+		vec2 delta = isect - E;
+		float deltaLength = length(delta);
+
+		float value = (sin(deltaLength*200.0) + 1.0) * 0.5;
+
+		out_forward.rgb *= value;
+
+		//out_forward = vec4( (in_smudgeData.xy * 10.0 + 1.0) * 0.5, 0.0, 1.0 );
+		//out_forward = pow( vec4( (in_smudgeData.xy * 10.0 + 1.0) * 0.5, value, 1.0 ), vec4(2.2) );
+	}
 }

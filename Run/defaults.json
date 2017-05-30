@@ -5,7 +5,7 @@
     },
     "Renderer": {
         "m_bloomPower": 1.10500001907349,
-        "m_bloomStrength": 52.7970008850098
+        "m_bloomStrength": 0.0
     },
     "SmokeParticleMaterial": {
         "baseColor": {
@@ -292,13 +292,13 @@
         "moltenViscosity": 1.0,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 0.0,
-        "mouseRadius": 0.0970000028610229,
+        "mouseHeatStrength": 0.829999983310699,
+        "mouseRadius": 0.308000028133392,
         "mouseVolumeStrength": 0.0042200000025332,
         "rainRate": 9.99999974737875e-06,
         "rockDiffuseStrength": 0.00499999988824129,
         "rockMeltingPoint": 0.0,
-        "smudgeChangeRate": 0.0731199979782104,
+        "smudgeChangeRate": 0.0999999940395355,
         "tempChangeSpeed": 6.99999945936725e-05,
         "textureCycleSpeed": 0.0,
         "textureScrollSpeed": 0.13400000333786,
