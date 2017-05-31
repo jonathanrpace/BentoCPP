@@ -50,6 +50,9 @@ uniform float u_phaseB;
 uniform float u_phaseAlpha;
 uniform float u_flowOffset;
 
+// Creases
+uniform float u_creaseFrequency = 1000.0;
+
 // Textures
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_miscData;
@@ -212,6 +215,50 @@ vec3 samplePhasedMapNormalDXT( sampler2D _sampler, sampler2D _heightSampler, vec
 	return normalize( heightMix( sampleA, sampleB, u_phaseAlpha, heightSampleA, heightSampleB ) );
 }
 
+float getCreaseValue( vec2 _uv )
+{
+	vec4 smudgeData = texture(s_smudgeData, _uv);
+
+	vec2 ray = vec2(smudgeData.y, -smudgeData.x);
+	float rayLength = length(ray);
+	ray /= rayLength;
+
+	vec2 E = _uv;
+	vec2 L = _uv + ray * 40;
+	vec2 C = vec2(0.5);
+	float r = 20;
+	vec2 d = L-E;
+	vec2 f = E-C;
+
+	float a = dot(d,d);
+	float b = 2.0 * dot(f, d);
+	float c = dot(f, f) - r*r;
+	float discriminant = sqrt( b*b-4*a*c );
+	float t = (-b + discriminant) / (2.0*a);
+	float delta = length( t * d );
+
+	float value = (sin(delta*u_creaseFrequency) + 1.0) * 0.5;
+
+	return value * rayLength;
+}
+
+vec3 getCreaseTangent( vec2 _uv, float _width )
+{
+	float creaseValueL = getCreaseValue( _uv - vec2( _width, 0.0 ) );
+	float creaseValueR = getCreaseValue( _uv + vec2( _width, 0.0 ) );
+	float creaseValueT = getCreaseValue( _uv - vec2( 0.0, _width ) );
+	float creaseValueB = getCreaseValue( _uv + vec2( 0.0, _width ) );
+
+	vec3 normal = vec3(0.0,0.0,1.0);
+
+	normal.x = creaseValueR - creaseValueL;
+	normal.y = creaseValueB - creaseValueT;
+
+	normal = normalize(normal);
+
+	return normal;
+}
+
 void main(void)
 {
 	UpdateMousePosition();
@@ -221,11 +268,15 @@ void main(void)
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 	vec4 uvOffsetSample = texture( s_uvOffsetData, in_uv );
 
+	// Smudge
+	//float creaseValue = getCreaseValue(in_uv);
+	vec3 creaseTangent = getCreaseTangent(in_uv, 0.01);
+
 	// Rock material
 	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgb;
 	
 	vec3 rockNormal = in_rockNormal;
-	vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
+	vec3 rockNormalTangent = creaseTangent;//samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
 	rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockDetailBumpStrength ); 
 	rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockDetailBumpStrength ); 
 	rockNormal = normalize(rockNormal);
@@ -246,7 +297,7 @@ void main(void)
 	dirtBlendAlpha -= pow( abs(rockNormal.z), 2.0 );
 	dirtBlendAlpha = max(0.0, dirtBlendAlpha);
 
-	vec3 albedo = mix( rockAlbedo, dirtAlbedo, dirtBlendAlpha );
+	vec3 albedo = vec3(0.5,0.5,0.5);//mix( rockAlbedo, dirtAlbedo, dirtBlendAlpha );
 	vec3 normal = normalize( mix( rockNormal, dirtNormal, dirtBlendAlpha ) );				// TOOD: Investigate better way to blend normals
 	vec3 specularColor = mix( rockSpecularColor, dirtSpecularColor, dirtBlendAlpha );
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
@@ -309,37 +360,5 @@ void main(void)
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, max( max(moltenColor.r, moltenColor.g), moltenColor.b) * 100.0);
 
-	{
-		vec2 smudgeRay = normalize( vec2(in_smudgeData.y, -in_smudgeData.x) * 10.0 );
-
-		vec2 E = in_uv;
-		vec2 L = in_uv + smudgeRay * 40;
-		vec2 C = vec2(0.5);
-		float r = 20;
-
-		vec2 d = L-E;
-		vec2 f = E-C;
-
-		float a = dot(d,d);
-		float b = 2.0 * dot(f, d);
-		float c = dot(f, f) - r*r;
-		float discriminant = b*b-4*a*c;
-
-		discriminant = sqrt(discriminant);
-
-		float t1 = (-b - discriminant) / (2.0*a);
-		float t2 = (-b + discriminant) / (2.0*a);
-
-		vec2 isect = E + t2 * d;
-
-		vec2 delta = isect - E;
-		float deltaLength = length(delta);
-
-		float value = (sin(deltaLength*200.0) + 1.0) * 0.5;
-
-		out_forward.rgb *= value;
-
-		//out_forward = vec4( (in_smudgeData.xy * 10.0 + 1.0) * 0.5, 0.0, 1.0 );
-		//out_forward = pow( vec4( (in_smudgeData.xy * 10.0 + 1.0) * 0.5, value, 1.0 ), vec4(2.2) );
-	}
+	
 }
