@@ -53,8 +53,8 @@ namespace godBox
 		SetUniform("u_moltenAlphaPower", _material.moltenAlphaPower);
 
 		SetUniform("u_smudgeUVStrength", _material.smudgeUVStrength);
-		SetUniform("u_smudgeSampleOffset", _material.smudgeSampleOffset);
-		SetUniform("u_smudgeSampleMip", _material.smudgeSampleMip);
+		SetUniform("u_smudgeSampleOffset", _material.creaseSampleOffset);
+		SetUniform("u_smudgeSampleMip", _material.creaseSampleMip);
 
 		SetUniform("u_dirtHeightToOpaque", _material.dirtHeightToOpaque);
 		
@@ -94,8 +94,12 @@ namespace godBox
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
 
 		SetUniform("u_rockReflectivity", _material.rockReflectivity);
-		SetUniform("u_rockDetailBumpStrength", _material.rockDetailBumpStrength);
+		SetUniform("u_rockNormalStrength", _material.rockNormalStrength);
 		SetUniform("u_rockDetailBumpSlopePower", _material.rockDetailBumpSlopePower);
+
+		SetUniform("u_creaseFrequency", _material.creaseFrequency);
+		SetUniform("u_creaseNormalStrength", _material.creaseNormalStrength);
+		SetUniform("u_creaseDistortStrength", _material.creaseDistortStrength);
 
 		SetUniform("u_glowScalar", _material.glowScalar);
 		SetUniform("u_moltenColor", _material.moltenColor);

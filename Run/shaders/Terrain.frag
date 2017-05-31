@@ -23,35 +23,41 @@ in Varying
 // Uniforms
 uniform vec2 u_mouseScreenPos;
 uniform ivec2 u_windowSize;
-
-uniform float u_rockReflectivity;
-
-uniform float u_hotRockRoughness;
-uniform vec3 u_moltenColor;
-uniform float u_moltenColorScalar;
-
-uniform vec3 u_dirtColor;
-
-uniform float u_glowScalar;
-uniform float u_glowMipLevel = 4;
-uniform float u_glowDistance = 0.1;
-
 uniform vec3 u_cameraPos;
-uniform float u_rockDetailBumpStrength;
-uniform float u_rockDetailBumpSlopePower;
 
+// Lighting
 uniform vec3 u_lightDir;
 uniform float u_lightDistance;
 uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
+// Motion / Flow
 uniform float u_phaseA;
 uniform float u_phaseB;
 uniform float u_phaseAlpha;
 uniform float u_flowOffset;
 
+// Rock
+uniform float u_rockReflectivity;
+uniform float u_rockNormalStrength;
+uniform float u_rockDetailBumpSlopePower;
+
+// Molten
+uniform vec3 u_moltenColor;
+uniform float u_moltenColorScalar;
+
 // Creases
-uniform float u_creaseFrequency = 1000.0;
+uniform float u_creaseFrequency;
+uniform float u_creaseNormalStrength;
+uniform float u_creaseDistortStrength;
+
+// Dirt
+uniform vec3 u_dirtColor;
+
+// Glow
+uniform float u_glowScalar;
+uniform float u_glowMipLevel = 4;
+uniform float u_glowDistance = 0.1;
 
 // Textures
 uniform sampler2D s_smudgeData;
@@ -219,7 +225,8 @@ float getCreaseValue( vec2 _uv )
 {
 	vec4 smudgeData = texture(s_smudgeData, _uv);
 
-	vec2 ray = vec2(smudgeData.y, -smudgeData.x);
+	//vec2 ray = vec2(smudgeData.y, -smudgeData.x);
+	vec2 ray = vec2(smudgeData.x, smudgeData.y);
 	float rayLength = length(ray);
 	ray /= rayLength;
 
@@ -238,6 +245,8 @@ float getCreaseValue( vec2 _uv )
 	float delta = length( t * d );
 
 	float value = (sin(delta*u_creaseFrequency) + 1.0) * 0.5;
+	value = pow( abs(value), 0.4 );
+	//float value = fract(delta*u_creaseFrequency);
 
 	return value * rayLength;
 }
@@ -252,7 +261,7 @@ vec3 getCreaseTangent( vec2 _uv, float _width )
 	vec3 normal = vec3(0.0,0.0,1.0);
 
 	normal.x = creaseValueR - creaseValueL;
-	normal.y = creaseValueB - creaseValueT;
+	normal.y = creaseValueT - creaseValueB;
 
 	normal = normalize(normal);
 
@@ -268,18 +277,26 @@ void main(void)
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 	vec4 uvOffsetSample = texture( s_uvOffsetData, in_uv );
 
-	// Smudge
-	//float creaseValue = getCreaseValue(in_uv);
-	vec3 creaseTangent = getCreaseTangent(in_uv, 0.01);
+	
 
 	// Rock material
 	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgb;
 	
 	vec3 rockNormal = in_rockNormal;
-	vec3 rockNormalTangent = creaseTangent;//samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
-	rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockDetailBumpStrength ); 
-	rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockDetailBumpStrength ); 
+	vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
+	rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockNormalStrength ); 
+	rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockNormalStrength ); 
+
+	// Smudge
+	float creaseValue = getCreaseValue(in_uv + rockNormalTangent.xy * u_creaseDistortStrength);
+	vec3 creaseTangent = getCreaseTangent(in_uv + rockNormalTangent.xy * u_creaseDistortStrength, 0.005);
+
+	rockNormal = rotateX( rockNormal, creaseTangent.y * u_creaseNormalStrength ); 
+	rockNormal = rotateZ( rockNormal, -creaseTangent.x * u_creaseNormalStrength ); 
+
 	rockNormal = normalize(rockNormal);
+
+
 
 	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgba;
 	vec3 rockSpecularColor = vec3(pow(u_rockReflectivity, 2.2));
@@ -297,18 +314,18 @@ void main(void)
 	dirtBlendAlpha -= pow( abs(rockNormal.z), 2.0 );
 	dirtBlendAlpha = max(0.0, dirtBlendAlpha);
 
-	vec3 albedo = vec3(0.5,0.5,0.5);//mix( rockAlbedo, dirtAlbedo, dirtBlendAlpha );
+	vec3 albedo = mix( rockAlbedo, dirtAlbedo, dirtBlendAlpha );
 	vec3 normal = normalize( mix( rockNormal, dirtNormal, dirtBlendAlpha ) );				// TOOD: Investigate better way to blend normals
 	vec3 specularColor = mix( rockSpecularColor, dirtSpecularColor, dirtBlendAlpha );
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	float roughness = materialParams.r;
-	float textureAO = materialParams.g;
+	float textureAO = materialParams.g * mix( 1.0, creaseValue, 0.05 );
 
 	// Make albedo/specular darker when hot
 	float moltenRatio = 1.0 - ( min( in_heat * 10.0, 1.0 ) );
-	specularColor *= moltenRatio;
-	albedo *= moltenRatio;
+	//specularColor *= moltenRatio;
+	//albedo *= moltenRatio;
 
 	// Direct light
 	//vec3 lightColor = vec3(1.0,1.0,1.0);
@@ -343,7 +360,7 @@ void main(void)
 	heatLight = (isnan(heatLight.x) || isnan(heatLight.y) || isnan(heatLight.z)) ? vec3(0.0) : heatLight;
 
 	// Bring it all together
-	vec3 outColor = directLight + ambientLight + heatLight;// * textureAO;
+	vec3 outColor = directLight + ambientLight + heatLight * textureAO;
 
 	// Add emissve elements
 	float moltenMap = rockMaterialParams.b;

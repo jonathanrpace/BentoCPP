@@ -125,7 +125,11 @@ vec2 GetMousePos()
 //
 float CalcMoltenViscosity( float _heat, float _height )
 {
-	float viscosity = pow( clamp(_heat, 0.0f, 1.0), 0.5 );
+	return smoothstep( 0.2, 0.4, _heat );
+
+	return min( _heat / 0.5, 1.0 );
+
+	float viscosity = pow( clamp((_heat-0.2)*1.25, 0.0f, 1.0), 0.1 );
 	return min( viscosity * u_moltenViscosity, 1.0 );
 }
 
@@ -133,7 +137,11 @@ float CalcMoltenViscosity( float _heat, float _height )
 //
 vec4 CalcMoltenViscosity( vec4 _heat, vec4 _height )
 {
-	vec4 viscosity = pow( clamp(_heat, vec4(0.0), vec4(1.0)), vec4(0.5) );
+	return smoothstep( vec4(0.2), vec4(0.4), _heat );
+
+	return min( _heat / vec4(0.5), vec4(1.0) );
+
+	vec4 viscosity = pow( clamp((_heat-0.2)*1.25, vec4(0.0), vec4(1.0)), vec4(0.1) );
 	return min( viscosity * u_moltenViscosity, vec4(1.0) );
 }
 
@@ -648,7 +656,9 @@ void main(void)
 		float targetRatio = clamp( heat, 0.0, 1.0 );
 		float targetMoltenHeight = targetRatio * combinedHeight;
 
-		float newMolten = moltenHeight + (targetMoltenHeight - moltenHeight) * u_meltCondenseSpeed;
+		float meltCondenseSpeed = (1.0-clamp(heat, 0.0, 1.0)) * u_meltCondenseSpeed;
+
+		float newMolten = moltenHeight + (targetMoltenHeight - moltenHeight) * meltCondenseSpeed;
 		float newRock = combinedHeight - newMolten;
 
 		out_heightData.x = newRock;

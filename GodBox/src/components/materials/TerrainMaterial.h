@@ -46,17 +46,22 @@ namespace godBox
 
 		// Rock
 		float rockReflectivity;
-		float rockDetailBumpStrength;
+		float rockNormalStrength;
 		float rockDetailBumpSlopePower;
 
-		// Creases
-		float moltenFlowSpeed;
-		float moltenFlowOffset;
+		// Smudge
 		float smudgeUVStrength;
-		float smudgeSampleOffset;
-		float smudgeSampleMip;
+
+		// Creases
+		float creaseSampleOffset;
+		float creaseSampleMip;
+		float creaseFrequency;
+		float creaseNormalStrength;
+		float creaseDistortStrength;
 
 		// Molten
+		float moltenFlowSpeed;
+		float moltenFlowOffset;
 		vec3 moltenColor;
 		float moltenAlphaScalar;
 		float moltenAlphaPower;

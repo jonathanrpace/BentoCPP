@@ -111,7 +111,7 @@ void main(void)
 		vec2 smudgeVec = textureLod( s_smudgeData, in_uv, u_smudgeSampleMip ).xy;
 		vec2 smudgeDir = normalize(smudgeVec);
 
-		vec2 uvOffset = smudgeVec * u_smudgeSampleOffset;
+		vec2 uvOffset = smudgeVec * u_smudgeUVStrength;
 		outScaledUV -= uvOffset;
 
 		outScaledUV += in_uv;

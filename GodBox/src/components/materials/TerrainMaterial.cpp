@@ -27,15 +27,18 @@ namespace godBox
 
 		// Rock
 		SerializableMember("rockReflectivity", 0.1f, &rockReflectivity);
-		SerializableMember("rockDetailBumpStrength", 1.0f, &rockDetailBumpStrength);
+		SerializableMember("rockDetailBumpStrength", 1.0f, &rockNormalStrength);
 		SerializableMember("rockDetailBumpSlopePower", 1.0f, &rockDetailBumpSlopePower);
 
 		// Creases
 		SerializableMember("moltenFlowSpeed", 0.02f, &moltenFlowSpeed);
 		SerializableMember("moltenFlowOffset", 0.01f, &moltenFlowOffset);
 		SerializableMember("smudgeUVStrength", 0.01f, &smudgeUVStrength);
-		SerializableMember("smudgeSampleOffset", 0.01f, &smudgeSampleOffset);
-		SerializableMember("smudgeSampleMip", 0.0f, &smudgeSampleMip);
+		SerializableMember("creaseSampleOffset", 0.01f, &creaseSampleOffset);
+		SerializableMember("creaseSampleMip", 0.0f, &creaseSampleMip);
+		SerializableMember("creaseFrequency", 200.0f, &creaseFrequency);
+		SerializableMember("creaseNormalStrength", 1.0f, &creaseNormalStrength);
+		SerializableMember("creaseDistortStrength", 0.05f, &creaseDistortStrength);
 		
 		// Glow
 		SerializableMember("glowScalar", 1.0f, &glowScalar);
@@ -73,11 +76,17 @@ namespace godBox
 		ImGui::Text("Rock");
 		ImGui::ColorEditMode(ImGuiColorEditMode_HSV);
 		ImGui::SliderFloat("Reflectivity A##rock", &rockReflectivity, 0.0f, 1.0f);
-		ImGui::SliderFloat("Detail Bump Strength B##rock", &rockDetailBumpStrength, 0.0f, 2.0f);
-		ImGui::SliderFloat("Detail Bump Slope Power B##rock", &rockDetailBumpSlopePower, 0.0f, 20.0f);
-		ImGui::SliderFloat("Smudge UV Strength##rock", &smudgeUVStrength, 0.0f, 0.1f);
-		ImGui::SliderFloat("Smudge Sample Offset", &smudgeSampleOffset, 0.0f, 10.0f);
-		ImGui::SliderFloat("Smudge Sample Mip", &smudgeSampleMip, 0.0f, 8.0f);
+		ImGui::SliderFloat("Normal Strength B##rock", &rockNormalStrength, 0.0f, 2.0f);
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::Text("Creases");
+		ImGui::SliderFloat("Smudge UV Strength", &smudgeUVStrength, 0.0f, 0.1f);
+		ImGui::SliderFloat("Sample Offset##creases", &creaseSampleOffset, 0.0f, 10.0f);
+		ImGui::SliderFloat("Sample Mip##creases", &creaseSampleMip, 0.0f, 8.0f);
+		ImGui::SliderFloat("Crease Frequency", &creaseFrequency, 0.0f, 1500.0f);
+		ImGui::SliderFloat("Normal Strength##creases", &creaseNormalStrength, 0.0f, 2.0f);
+		ImGui::SliderFloat("Distort Strength##creases", &creaseDistortStrength, 0.0f, 0.1f);
 		ImGui::Spacing();
 		
 		ImGui::Spacing();
