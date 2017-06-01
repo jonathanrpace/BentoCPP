@@ -39,7 +39,7 @@ void main(void)
 	vec4 bloom = blurredColorSample;
 
 	bloom = pow(bloom, vec4(u_bloomPow));
-	bloom *= u_bloomStrength * colorSample.a;
+	bloom *= u_bloomStrength;// * colorSample.a;
 
 	float vignetteDelta = length(in_uv - 0.5);
 	vignetteDelta = pow( vignetteDelta, 5.0 );

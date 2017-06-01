@@ -179,7 +179,7 @@ void main(void)
 		out_worldPosition = position.xyz;
 		out_viewPosition = viewPosition;
 		out_uv = in_uv;
-		out_heat = heat;
+		out_heat = min(1.0, moltenHeight/0.0001);//heat;
 		out_dirtAlpha = dirtAlpha;
 		out_rockNormal = rockNormal;
 		out_occlusion = occlusion;

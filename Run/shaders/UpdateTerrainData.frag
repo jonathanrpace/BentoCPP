@@ -125,6 +125,7 @@ vec2 GetMousePos()
 //
 float CalcMoltenViscosity( float _heat, float _height )
 {
+	return u_moltenViscosity;
 	return smoothstep( 0.2, 0.4, _heat );
 
 	return min( _heat / 0.5, 1.0 );
@@ -137,6 +138,7 @@ float CalcMoltenViscosity( float _heat, float _height )
 //
 vec4 CalcMoltenViscosity( vec4 _heat, vec4 _height )
 {
+	return vec4(u_moltenViscosity);
 	return smoothstep( vec4(0.2), vec4(0.4), _heat );
 
 	return min( _heat / vec4(0.5), vec4(1.0) );
@@ -195,7 +197,7 @@ vec4 texelFetchBR( sampler2D _sampler ) {
 
 float exchange( vec4 _heightDataC, vec4 _heightDataN, vec4 _miscDataC, vec4 _miscDataN, float _scalar )
 {
-	float viscosity = mix( CalcMoltenViscosity(_miscDataC.x, _heightDataC.y), CalcMoltenViscosity(_miscDataN.x, _heightDataN.y), 0.5 );
+	float viscosity = CalcMoltenViscosity(_miscDataC.x, _heightDataC.y);//mix( CalcMoltenViscosity(_miscDataC.x, _heightDataC.y), CalcMoltenViscosity(_miscDataN.x, _heightDataN.y), 0.5 );
 	float diff = max( (_heightDataC.x + _heightDataC.y) - (_heightDataN.x + _heightDataN.y), 0.0 );
 	diff = min( _heightDataC.y, diff * _scalar * viscosity );
 	return diff;
@@ -268,29 +270,30 @@ void main(void)
 		float toR = exchange( heightDataC, heightDataR, miscDataC, miscDataR, 0.19 );
 		float toU = exchange( heightDataC, heightDataU, miscDataC, miscDataU, 0.19 );
 		float toD = exchange( heightDataC, heightDataD, miscDataC, miscDataD, 0.19 );
-		float toTL = exchange( heightDataC, heightDataTL, miscDataC, miscDataTL, 0.05 );
-		float toTR = exchange( heightDataC, heightDataTR, miscDataC, miscDataTR, 0.05 );
-		float toBL = exchange( heightDataC, heightDataBL, miscDataC, miscDataBL, 0.05 );
-		float toBR = exchange( heightDataC, heightDataBR, miscDataC, miscDataBR, 0.05 );
+		//float toTL = exchange( heightDataC, heightDataTL, miscDataC, miscDataTL, 0.05 );
+		//float toTR = exchange( heightDataC, heightDataTR, miscDataC, miscDataTR, 0.05 );
+		//float toBL = exchange( heightDataC, heightDataBL, miscDataC, miscDataBL, 0.05 );
+		//float toBR = exchange( heightDataC, heightDataBR, miscDataC, miscDataBR, 0.05 );
 
-		float totalOut = toL + toR + toU + toD + toTL + toTR + toBL + toBR;
+		float totalOut = toL + toR + toU + toD;// + toTL + toTR + toBL + toBR;
 
 		// Bring some volume from neighbours
 		float fromL = exchange( heightDataL, heightDataC, miscDataL, miscDataC, 0.19 );
 		float fromR = exchange( heightDataR, heightDataC, miscDataR, miscDataC, 0.19 );
 		float fromU = exchange( heightDataU, heightDataC, miscDataU, miscDataC, 0.19 );
 		float fromD = exchange( heightDataD, heightDataC, miscDataD, miscDataC, 0.19 );
-		float fromTL = exchange( heightDataTL, heightDataC, miscDataTL, miscDataC, 0.05 );
-		float fromTR = exchange( heightDataTR, heightDataC, miscDataTR, miscDataC, 0.05 );
-		float fromBL = exchange( heightDataBL, heightDataC, miscDataBL, miscDataC, 0.05 );
-		float fromBR = exchange( heightDataBR, heightDataC, miscDataBR, miscDataC, 0.05 );
+		//float fromTL = exchange( heightDataTL, heightDataC, miscDataTL, miscDataC, 0.05 );
+		//float fromTR = exchange( heightDataTR, heightDataC, miscDataTR, miscDataC, 0.05 );
+		//float fromBL = exchange( heightDataBL, heightDataC, miscDataBL, miscDataC, 0.05 );
+		//float fromBR = exchange( heightDataBR, heightDataC, miscDataBR, miscDataC, 0.05 );
 
-		float totalIn = fromL + fromR + fromU + fromD + fromTL + fromTR + fromBL + fromBR;
+		float totalIn = fromL + fromR + fromU + fromD;// + fromTL + fromTR + fromBL + fromBR;
 
 		heightC -= totalOut;
 		heightC += totalIn;
 
 		// Heat transfer
+		/*
 		float heatLossed = 0.0;
 		heatLossed += exchangeHeat( toL, heightDataC, miscDataC, 0.19 );
 		heatLossed += exchangeHeat( toR, heightDataC, miscDataC, 0.19 );
@@ -317,9 +320,10 @@ void main(void)
 
 		float totalHeatBefore = (miscDataL.x + miscDataR.x + miscDataU.x + miscDataD.x) * 0.19 + (miscDataTL.x + miscDataTR.x + miscDataBL.x + miscDataBR.x) * 0.05 + miscDataC.x;
 		heatC = clamp( min(heatC, totalHeatBefore), 0.0, 2.0 );
-
+		*/
 
 		vec2 moltenVelocity = vec2(0.0);
+		/*
 		float diagScalar = normalize( vec2(1.0, 1.0) ).x;
 		
 		moltenVelocity.x += (toR - toL);
@@ -344,6 +348,7 @@ void main(void)
 		moltenVelocity.y += toBL * diagScalar;
 		moltenVelocity.y += fromTL * diagScalar;
 		moltenVelocity.y -= fromBL * diagScalar;
+		*/
 
 		// Cooling
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
@@ -413,8 +418,20 @@ void main(void)
 	}
 
 	////////////////////////////////////////////////////////////////
+	// Add some solid rock at mouse position
+	////////////////////////////////////////////////////////////////
+	{
+		float rockHeight = out_heightData.x;
+
+		rockHeight += pow(mouseRatio, 0.7) * u_mouseDirtVolumeStrength;
+
+		out_heightData.x = rockHeight;
+	}
+
+	////////////////////////////////////////////////////////////////
 	// Add some dirt at mouse position
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float dirtHeight = out_heightData.z;
 
@@ -422,6 +439,7 @@ void main(void)
 
 		out_heightData.z = dirtHeight;
 	}
+	*/
 
 	////////////////////////////////////////////////////////////////
 	// Update dirt
@@ -646,6 +664,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
+	if ( false )
 	{
 		float heat = out_miscData.x;
 

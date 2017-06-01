@@ -248,6 +248,9 @@ float getCreaseValue( vec2 _uv )
 	value = pow( abs(value), 0.4 );
 	//float value = fract(delta*u_creaseFrequency);
 
+	if ( isnan(value) )
+		return 0.0;
+
 	return value * rayLength;
 }
 
@@ -369,13 +372,13 @@ void main(void)
 	float moltenAlphaB = pow( moltenMap, 4.0 ) * (1.0 - heat) * heat * 4;
 	float moltenAlpha = clamp( moltenAlphaA + moltenAlphaB, 0.0, 1.0 );
 	
-	vec3 moltenColor = pow( texture(s_moltenGradient, vec2(moltenAlpha, 0.5)).rgb, vec3(2.2) );
-	moltenColor *= 1.0 + max(in_heat-1.0, 0.0);
+	vec3 moltenColor = vec3(1.0,0.0,0.0) * in_heat;//pow( texture(s_moltenGradient, vec2(moltenAlpha, 0.5)).rgb, vec3(2.2) );
+	//moltenColor *= 1.0 + max(in_heat-1.0, 0.0);
 	outColor += moltenColor;
 
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
-	out_forward = vec4( outColor, max( max(moltenColor.r, moltenColor.g), moltenColor.b) * 100.0);
+	out_forward = vec4( outColor, 1.0 );
 
 	
 }
