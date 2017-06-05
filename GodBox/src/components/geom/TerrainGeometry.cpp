@@ -13,7 +13,7 @@ namespace godBox
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.0f)
-		, m_numVerticesPerDimension(512)
+		, m_numVerticesPerDimension(256)
 		, m_terrainMousePos()
 
 		, m_heightData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
@@ -104,15 +104,31 @@ namespace godBox
 
 				if (i < m_numVerticesPerDimension - 1 && j < m_numVerticesPerDimension - 1)
 				{
-					indices[indicesIndex] = vertexIndex;
-					indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
-					indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
-					indicesIndex += 3;
+					// ALternate triangulation
+					if ( j % 2 == 0 )
+					{
+						indices[indicesIndex] = vertexIndex;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+						indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
+						indicesIndex += 3;
 
-					indices[indicesIndex] = vertexIndex;
-					indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
-					indices[indicesIndex + 2] = vertexIndex + 1;
-					indicesIndex += 3;
+						indices[indicesIndex] = vertexIndex;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
+						indices[indicesIndex + 2] = vertexIndex + 1;
+						indicesIndex += 3;
+					}
+					else
+					{
+						indices[indicesIndex] = vertexIndex;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension + 1;
+						indices[indicesIndex + 2] = vertexIndex + 1;
+						indicesIndex += 3;
+
+						indices[indicesIndex] = vertexIndex;
+						indices[indicesIndex + 1] = vertexIndex + m_numVerticesPerDimension;
+						indices[indicesIndex + 2] = vertexIndex + m_numVerticesPerDimension + 1;
+						indicesIndex += 3;
+					}
 				}
 
 				vertexIndex++;

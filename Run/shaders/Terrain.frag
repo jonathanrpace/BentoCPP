@@ -45,6 +45,7 @@ uniform float u_rockDetailBumpSlopePower;
 // Molten
 uniform vec3 u_moltenColor;
 uniform float u_moltenColorScalar;
+uniform float u_heightBlendWidth = 0.2;
 
 // Creases
 uniform float u_creaseFrequency;
@@ -175,16 +176,12 @@ vec2 rotateAroundBy( vec2 _pt, float _angle, vec2 _offset )
 
 vec4 heightMix( vec4 _valueA, vec4 _valueB, float _alpha, float _heightA, float _heightB )
 {
-	return (1.0-_heightA) - _alpha < 0.0 ? _valueB : _valueA;
-	return (1.0-_heightA) * (1.0-_alpha) > (1.0-_heightB) * _alpha ? _valueA : _valueB;
-	return mix( _valueA, _valueB, _alpha );
+	return mix( _valueB, _valueA, smoothstep( -u_heightBlendWidth, u_heightBlendWidth, (1.0-_heightA) - _alpha ) );
 }
 
 vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float _heightB )
 {
-	return (1.0-_heightA) - _alpha < 0.0 ? _valueB : _valueA;
-	return (1.0-_heightA) * (1.0-_alpha) > (1.0-_heightB) * _alpha ? _valueA : _valueB;
-	return mix( _valueA, _valueB, _alpha );
+	return mix( _valueB, _valueA, smoothstep( -u_heightBlendWidth, u_heightBlendWidth, (1.0-_heightA) - _alpha ) );
 }
 
 vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec4 _uvOffset, float _angle )
@@ -291,7 +288,7 @@ void main(void)
 	rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockNormalStrength ); 
 
 	// Smudge
-	float creaseValue = getCreaseValue(in_uv + rockNormalTangent.xy * u_creaseDistortStrength);
+	float creaseValue = min( getCreaseValue(in_uv + rockNormalTangent.xy * u_creaseDistortStrength ), 1.0 );
 	vec3 creaseTangent = getCreaseTangent(in_uv + rockNormalTangent.xy * u_creaseDistortStrength, 0.005);
 
 	rockNormal = rotateX( rockNormal, creaseTangent.y * u_creaseNormalStrength ); 
@@ -323,12 +320,12 @@ void main(void)
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	float roughness = materialParams.r;
-	float textureAO = materialParams.g * mix( 1.0, creaseValue, 0.05 );
+	float textureAO = materialParams.g * mix( 1.0, creaseValue, 0.03 );
 
 	// Make albedo/specular darker when hot
 	float moltenRatio = 1.0 - ( min( in_heat * 10.0, 1.0 ) );
-	//specularColor *= moltenRatio;
-	//albedo *= moltenRatio;
+	specularColor *= moltenRatio;
+	albedo *= moltenRatio;
 
 	// Direct light
 	//vec3 lightColor = vec3(1.0,1.0,1.0);
@@ -368,12 +365,12 @@ void main(void)
 	// Add emissve elements
 	float moltenMap = rockMaterialParams.b;
 	float heat = pow(clamp(in_heat, 0.0, 1.0), 0.5);
-	float moltenAlphaA = pow( moltenMap, mix( 2.0, 0.4, heat ) ) * heat;
-	float moltenAlphaB = pow( moltenMap, 4.0 ) * (1.0 - heat) * heat * 4;
+	float moltenAlphaA = pow( moltenMap, mix( 1.5, 0.4, heat ) ) * heat;
+	float moltenAlphaB = pow( moltenMap, 2.5 ) * (1.0 - heat) * heat * 6;
 	float moltenAlpha = clamp( moltenAlphaA + moltenAlphaB, 0.0, 1.0 );
 	
-	vec3 moltenColor = vec3(1.0,0.0,0.0) * in_heat;//pow( texture(s_moltenGradient, vec2(moltenAlpha, 0.5)).rgb, vec3(2.2) );
-	//moltenColor *= 1.0 + max(in_heat-1.0, 0.0);
+	vec3 moltenColor = pow( texture(s_moltenGradient, vec2(moltenAlpha, 0.5)).rgb, vec3(2.2) );
+	moltenColor *= 1.0 + max(in_heat, 0.0);
 	outColor += moltenColor;
 
 	out_worldNormal = vec4(normal, 0.0);
