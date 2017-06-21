@@ -271,6 +271,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxData().GetRead());
 		fragShader.SetTexture("s_uvOffsetData",					_geom.UVOffsetData().GetRead());
 		fragShader.SetTexture("s_grungeMap",					_material.grungeTexture);
+		fragShader.SetTexture("s_albedoFluidGradient",			_material.albedoFluidGradient);
 
 		// Mouse
 		fragShader.SetUniform("u_mousePos",						normalisedMousePos);
@@ -282,6 +283,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_grungeUVRepeat",				_material.uvRepeat);
 		
 		// Environment
+		fragShader.SetUniform("u_time",							(float)glfwGetTime());
 		fragShader.SetUniform("u_ambientTemp",					m_ambientTemperature);
 		fragShader.SetUniform("u_phaseALatch",					m_phaseALatch);
 		fragShader.SetUniform("u_phaseBLatch",					m_phaseBLatch);

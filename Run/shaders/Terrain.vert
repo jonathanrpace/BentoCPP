@@ -54,6 +54,11 @@ uniform samplerCube s_envMap;
 // Outputs
 ////////////////////////////////////////////////////////////////
 
+out gl_PerVertex
+{
+	vec4 gl_Position;
+};
+
 // Varying
 out Varying
 {
@@ -68,12 +73,16 @@ out Varying
 	vec2 out_scaledUV;
 	vec4 out_heightData;
 	vec4 out_smudgeData;
+	vec3 out_albedoFluidColor;
 };
 
 ////////////////////////////////////////////////////////////////
 // STD Lib Functions
 ////////////////////////////////////////////////////////////////
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar );
+
+float packUnorm4x8f( vec4 );
+vec4 unpackUnorm4x8f( float );
 
 vec3 reconstructNormal( vec2 n )
 {
@@ -90,6 +99,8 @@ void main(void)
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 miscDataC = textureLod(s_miscData, in_uv, 0);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
+	
+	out_albedoFluidColor = unpackUnorm4x8f( smudgeDataC.z ).rgb;
 	
 	vec2 rockNormalPacked = sampleCombinedMip(s_normalData, in_uv, 0, 1, 0.5).zw;
 	rockNormalPacked /= vec2(1.0 + 0.5 + 0.25);

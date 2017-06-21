@@ -1,8 +1,14 @@
-#version 330 core
+#version 400 core
 
 #define M_PI 3.1415926535897932384626433832795
 #define M_INV_PI 0.31830988618379067153776752674503
 #define M_INV_LOG2 1.4426950408889634073599246810019
+#define GAMMA 2.2
+
+float g_gamma = GAMMA;
+vec2 g_gamma2 = vec2(GAMMA);
+vec3 g_gamma3 = vec3(GAMMA);
+vec4 g_gamma4 = vec4(GAMMA);
 
 float g_srandSeed = 0.0;
 void srand(float seed)
@@ -13,6 +19,36 @@ float rand()
 {
 	g_srandSeed = fract(sin(g_srandSeed) * 43758.5453123);
 	return g_srandSeed;
+}
+
+float degamma( float value )
+{
+	return pow(value, g_gamma);
+}
+
+vec2 degamma( vec2 value )
+{
+	return pow(value, g_gamma2);
+}
+
+vec3 degamma( vec3 value )
+{
+	return pow(value, g_gamma3);
+}
+
+vec4 degamma( vec4 value )
+{
+	return pow(value, g_gamma4);
+}
+
+float packUnorm4x8f( vec4 _value )
+{
+	return uintBitsToFloat( packUnorm4x8(_value) );
+}
+
+vec4 unpackUnorm4x8f( float _value )
+{
+	return unpackUnorm4x8( floatBitsToUint( _value ) );
 }
 
 vec4 sampleCombinedMip( sampler2D _sampler, vec2 _uv, int _minMip, int _maxMip, float _downSampleScalar )

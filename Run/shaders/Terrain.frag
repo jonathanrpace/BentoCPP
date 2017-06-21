@@ -18,6 +18,7 @@ in Varying
 	vec2 in_scaledUV;
 	vec4 in_heightData;
 	vec4 in_smudgeData;
+	vec3 in_albedoFluidColor;
 };
 
 // Uniforms
@@ -103,6 +104,10 @@ vec3 pointLightContribution(vec3 N,	vec3 L,	vec3 V,	vec3 diffColor,	vec3 specCol
 vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float roughness, samplerCube envMap, samplerCube irrMap, float lightIntensity, float ambientOcclusion);
 
 vec3 decodeNormalDXT( vec4 _sample );
+
+vec3 degamma( vec3 );
+float packUnorm4x8f( vec4 );
+vec4 unpackUnorm4x8f( float );
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -222,8 +227,8 @@ float getCreaseValue( vec2 _uv )
 {
 	vec4 smudgeData = texture(s_smudgeData, _uv);
 
-	//vec2 ray = vec2(smudgeData.y, -smudgeData.x);
-	vec2 ray = vec2(smudgeData.x, smudgeData.y);
+	vec2 ray = vec2(smudgeData.y, -smudgeData.x);
+	//vec2 ray = vec2(smudgeData.x, smudgeData.y);
 	float rayLength = length(ray);
 	ray /= rayLength;
 
@@ -258,7 +263,7 @@ vec3 getCreaseTangent( vec2 _uv, float _width )
 	float creaseValueT = getCreaseValue( _uv - vec2( 0.0, _width ) );
 	float creaseValueB = getCreaseValue( _uv + vec2( 0.0, _width ) );
 
-	vec3 normal = vec3(0.0,0.0,1.0);
+	vec3 normal = vec3(0.0,0.0,100.0);
 
 	normal.x = creaseValueR - creaseValueL;
 	normal.y = creaseValueT - creaseValueB;
@@ -276,12 +281,11 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 	vec4 uvOffsetSample = texture( s_uvOffsetData, in_uv );
-
+	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	
-
 	// Rock material
 	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgb;
-	
+		
 	vec3 rockNormal = in_rockNormal;
 	vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
 	rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockNormalStrength ); 
@@ -291,20 +295,20 @@ void main(void)
 	float creaseValue = min( getCreaseValue(in_uv + rockNormalTangent.xy * u_creaseDistortStrength ), 1.0 );
 	vec3 creaseTangent = getCreaseTangent(in_uv + rockNormalTangent.xy * u_creaseDistortStrength, 0.005);
 
+	rockAlbedo = mix( rockAlbedo, in_albedoFluidColor, 0.7 );
+	
 	rockNormal = rotateX( rockNormal, creaseTangent.y * u_creaseNormalStrength ); 
 	rockNormal = rotateZ( rockNormal, -creaseTangent.x * u_creaseNormalStrength ); 
-
 	rockNormal = normalize(rockNormal);
 
-
-
 	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgba;
-	vec3 rockSpecularColor = vec3(pow(u_rockReflectivity, 2.2));
+	rockMaterialParams.r = 0.4;
+	vec3 rockSpecularColor = degamma( vec3(u_rockReflectivity) );
 
 	// Dirt material
 	vec3 dirtAlbedo = u_dirtColor;															// TODO: Sample from dirt map
 	vec3 dirtNormal = in_rockNormal;														// TODO: Sampler from dirt tangent map
-	vec4 dirtMaterialParams = vec4( 0.9, 1.0, 0.0, 0.0 );									// TODO: Sample from map
+	vec4 dirtMaterialParams = vec4( 0.6, 1.0, 0.0, 0.0 );									// TODO: Sample from map
 	vec3 dirtSpecularColor = vec3(0.1);														// TODO: Add uniform
 
 	// Blend rock/dirt
@@ -320,7 +324,7 @@ void main(void)
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	float roughness = materialParams.r;
-	float textureAO = materialParams.g * mix( 1.0, creaseValue, 0.03 );
+	float textureAO = mix( 1.0, materialParams.g, 0.5 ) * mix( 1.0, creaseValue, 0.6 );
 
 	// Make albedo/specular darker when hot
 	float moltenRatio = 1.0 - ( min( in_heat * 10.0, 1.0 ) );
@@ -350,7 +354,7 @@ void main(void)
 		float sampleDis = length(sampleDir);
 		sampleDir /= sampleDis;
 		
-		vec3 heatColor = pow( texture(s_moltenGradient, vec2(sampleHeat * 0.5, 0.5)).rgb, vec3(2.2) );
+		vec3 heatColor = degamma( texture(s_moltenGradient, vec2(sampleHeat * 0.5, 0.5)).rgb );
 		vec3 sampleHeatLight = pointLightContribution( normal, sampleDir, viewDir, albedo, specularColor, roughness, heatColor, u_glowScalar);
 		sampleHeatLight /= (1.0 + sampleDis*sampleDis);
 
@@ -369,13 +373,12 @@ void main(void)
 	float moltenAlphaB = pow( moltenMap, 2.5 ) * (1.0 - heat) * heat * 6;
 	float moltenAlpha = clamp( moltenAlphaA + moltenAlphaB, 0.0, 1.0 );
 	
-	vec3 moltenColor = pow( texture(s_moltenGradient, vec2(moltenAlpha, 0.5)).rgb, vec3(2.2) );
+	vec3 moltenColor = degamma( texture(s_moltenGradient, vec2(moltenAlpha, 0.5)).rgb );
 	moltenColor *= 1.0 + max(in_heat, 0.0);
 	outColor += moltenColor;
 
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
-
 	
 }

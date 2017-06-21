@@ -9,7 +9,7 @@ namespace godBox
 		, SerializableBase("TerrainMaterial")
 		, grungeTexture("textures/Lava_Material.dds", GL_LINEAR, GL_LINEAR)
 		, lavaAlb("textures/Lava_Albedo.dds")
-		, lavaNrm("textures/Lava_Normal.dds")
+		, lavaNrm("textures/Lava_Normal.dds", GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR)
 		, lavaMat("textures/Lava_Material.dds")
 		//, lavaLongAlb("textures/LavaLong_Albedo.dds")
 		//, lavaLongNrm("textures/LavaLong_Normal.dds")
@@ -20,6 +20,7 @@ namespace godBox
 		, envMap("textures/EnvMap2.dds")
 		, irrMap("textures/IrrMap2.dds")
 		, moltenGradient("textures/MoltenGradient.dds", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
+		, albedoFluidGradient("textures/AlbedoFluidGradient.dds", GL_LINEAR, GL_LINEAR)
 	{
 		// Global
 		SerializableMember("heightScalar", 0.0f, &heightOffset);

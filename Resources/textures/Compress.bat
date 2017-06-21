@@ -13,3 +13,5 @@ nvdxt -file LavaLong_Normal.tga -outdir   ../../Run/textures/ -quality_highest -
 nvdxt -file SmokeParticle.tga -outdir   ../../Run/textures/ -quality_highest -dxt5 -timestamp
 
 nvdxt -file DirtyLens.tga -outdir   ../../Run/textures/ -quality_highest -u888 -timestamp
+
+nvdxt -file AlbedoFluidGradient.png -outdir   ../../Run/textures/ -quality_highest -dxt3 -timestamp

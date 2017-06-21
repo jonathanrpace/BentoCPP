@@ -39,6 +39,7 @@ namespace godBox
 		TextureResource lavaMat;
 
 		TextureResource moltenGradient;
+		TextureResource albedoFluidGradient;
 
 		// Global
 		float heightOffset;

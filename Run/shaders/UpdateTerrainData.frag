@@ -25,6 +25,8 @@ uniform sampler2D s_waterFluxData;
 uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_grungeMap;
 
+uniform sampler2D s_albedoFluidGradient;
+
 // Mouse
 uniform vec2 u_mousePos;
 uniform float u_mouseRadius;
@@ -36,6 +38,7 @@ uniform float u_grungeUVRepeat;
 
 // Environment
 uniform float u_ambientTemp;
+uniform float u_time;
 
 // Global
 uniform float u_heightOffset;
@@ -113,6 +116,12 @@ layout( location = 5 ) out vec4 out_uvOffsetData;
 // Functions
 ////////////////////////////////////////////////////////////////
 
+void srand(float _seed);
+float rand();
+
+float packUnorm4x8f( vec4 );
+vec4 unpackUnorm4x8f( float );
+
 ////////////////////////////////////////////////////////////////
 //
 vec2 GetMousePos()
@@ -133,40 +142,40 @@ vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 flux
 ////////////////////////////////////////////////////////////////
 //
 vec4 texelFetchC( sampler2D _sampler ) {
-	//return texture( _sampler, in_uv );
+	return texture( _sampler, in_uv );
 	return texelFetch( _sampler, ivec2(gl_FragCoord.xy), 0 );
 
 }
 vec4 texelFetchL( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(-1,0));
+	return textureOffset( _sampler, in_uv, ivec2(-1,0));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(-1,0));
 }
 vec4 texelFetchR( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(1,0));
+	return textureOffset( _sampler, in_uv, ivec2(1,0));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(1,0));
 }
 vec4 texelFetchU( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(0,-1));
+	return textureOffset( _sampler, in_uv, ivec2(0,-1));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(0,-1));
 }
 vec4 texelFetchD( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(0,1));
+	return textureOffset( _sampler, in_uv, ivec2(0,1));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(0,1));
 }
 vec4 texelFetchTL( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(-1,-1));
+	return textureOffset( _sampler, in_uv, ivec2(-1,-1));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(-1,-1));
 }
 vec4 texelFetchTR( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(1,-1));
+	return textureOffset( _sampler, in_uv, ivec2(1,-1));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(1,-1));
 }
 vec4 texelFetchBL( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(-1,1));
+	return textureOffset( _sampler, in_uv, ivec2(-1,1));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(-1,1));
 }
 vec4 texelFetchBR( sampler2D _sampler ) {
-	//return textureOffset( _sampler, in_uv, ivec2(1,1));
+	return textureOffset( _sampler, in_uv, ivec2(1,1));
 	return texelFetchOffset( _sampler, ivec2(gl_FragCoord.xy), 0, ivec2(1,1));
 }
 
@@ -229,6 +238,8 @@ void main(void)
 	vec4 velocityDataC = texelFetchC(s_velocityData);
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
 	
+	vec4 albedoFluidColor = unpackUnorm4x8f( smudgeDataC.z );
+	
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 
@@ -275,8 +286,6 @@ void main(void)
 		heightC += totalIn;
 
 		// Heat transfer
-		
-		
 		vec4 exportedVolumeAsRatio = vec4( toL, toR, toU, toD ) / max( vec4(heightDataC.y), vec4( 0.00000001 ) );
 		float heatExported = dot( vec4(heatC) * exportedVolumeAsRatio, vec4(1.0) );
 		
@@ -291,37 +300,8 @@ void main(void)
 		heatC += heatImported * u_heatAdvectSpeed;
 		
 		float totalHeatBefore = (miscDataL.x + miscDataR.x + miscDataU.x + miscDataD.x) * 0.25 + miscDataC.x;
-		heatC = min(heatC, totalHeatBefore);
+		//heatC = min(heatC, totalHeatBefore);
 		
-		/*
-		float heatLossed = 0.0;
-		heatLossed += exchangeHeat( toL, heightDataC, miscDataC, 0.19 );
-		heatLossed += exchangeHeat( toR, heightDataC, miscDataC, 0.19 );
-		heatLossed += exchangeHeat( toU, heightDataC, miscDataC, 0.19 );
-		heatLossed += exchangeHeat( toD, heightDataC, miscDataC, 0.19 );
-		heatLossed += exchangeHeat( toTL, heightDataC, miscDataC, 0.05 );
-		heatLossed += exchangeHeat( toTR, heightDataC, miscDataC, 0.05 );
-		heatLossed += exchangeHeat( toBL, heightDataC, miscDataC, 0.05 );
-		heatLossed += exchangeHeat( toBR, heightDataC, miscDataC, 0.05 );
-
-
-		float heatGained = 0.0;
-		heatGained += exchangeHeat( fromL, heightDataL, miscDataL, 0.19 );
-		heatGained += exchangeHeat( fromR, heightDataR, miscDataR, 0.19 );
-		heatGained += exchangeHeat( fromU, heightDataU, miscDataU, 0.19 );
-		heatGained += exchangeHeat( fromD, heightDataD, miscDataD, 0.19 );
-		heatGained += exchangeHeat( fromTL, heightDataTL, miscDataTL, 0.05 );
-		heatGained += exchangeHeat( fromTR, heightDataTR, miscDataTR, 0.05 );
-		heatGained += exchangeHeat( fromBL, heightDataBL, miscDataBL, 0.05 );
-		heatGained += exchangeHeat( fromBR, heightDataBR, miscDataBR, 0.05 );
-
-		heatC -= heatLossed;
-		heatC += heatGained;
-
-		float totalHeatBefore = (miscDataL.x + miscDataR.x + miscDataU.x + miscDataD.x) * 0.19 + (miscDataTL.x + miscDataTR.x + miscDataBL.x + miscDataBR.x) * 0.05 + miscDataC.x;
-		heatC = clamp( min(heatC, totalHeatBefore), 0.0, 2.0 );
-		*/
-
 		vec2 moltenVelocity = vec2(0.0);
 		
 		moltenVelocity.x += (importedVolumeAsRatio.x - exportedVolumeAsRatio.y);
@@ -333,35 +313,8 @@ void main(void)
 		float moltenVelocityLengthRatio = moltenVelocityLength / 0.05;
 		float scalar = 1.0 / (1.0 + moltenVelocityLengthRatio);
 		moltenVelocity *= scalar;
-		
-		
-		/*
-		float diagScalar = normalize( vec2(1.0, 1.0) ).x;
-		
-		moltenVelocity.x += (toR - toL);
-		moltenVelocity.x += (fromL - fromR);
-		moltenVelocity.y += (toD - toU);
-		moltenVelocity.y += (fromU - fromD);
-
-		moltenVelocity.x += toTR * diagScalar;
-		moltenVelocity.x += toBR * diagScalar;
-		moltenVelocity.x -= fromTR * diagScalar;
-		moltenVelocity.x -= fromBR * diagScalar;
-		moltenVelocity.x -= toTL * diagScalar;
-		moltenVelocity.x -= toBL * diagScalar;
-		moltenVelocity.x += fromTL * diagScalar;
-		moltenVelocity.x += fromBL * diagScalar;
-
-		moltenVelocity.y -= toTR * diagScalar;
-		moltenVelocity.y += toBR * diagScalar;
-		moltenVelocity.y += fromTR * diagScalar;
-		moltenVelocity.y -= fromBR * diagScalar;
-		moltenVelocity.y -= toTL * diagScalar;
-		moltenVelocity.y += toBL * diagScalar;
-		moltenVelocity.y += fromTL * diagScalar;
-		moltenVelocity.y -= fromBL * diagScalar;
-		*/
-
+		moltenVelocity *= u_moltenVelocityScalar;
+		                                                                                                                 
 		// Cooling
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
 
@@ -377,7 +330,41 @@ void main(void)
 
 		out_heightData.y = heightC;
 		out_miscData.x = heatC;
-
+		
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		// Advect albedo fluid
+		//////////////////////////////////////////////////////////////////////////////////
+		{
+			ivec2 size = textureSize(s_smudgeData, 0);
+			vec2 samplePos = in_uv - moltenVelocity.xy * 20.0;
+			vec4 albedoFluidSampleGather = textureGather( s_smudgeData, samplePos, 2 );
+			
+			vec4 newAlbedoFluidColor0 = unpackUnorm4x8f(albedoFluidSampleGather.x);
+			vec4 newAlbedoFluidColor1 = unpackUnorm4x8f(albedoFluidSampleGather.y);
+			vec4 newAlbedoFluidColor2 = unpackUnorm4x8f(albedoFluidSampleGather.w);
+			vec4 newAlbedoFluidColor3 = unpackUnorm4x8f(albedoFluidSampleGather.z);
+			
+			// bi-linear mixing:
+			vec2 filterWeight = fract( (in_uv*size) - vec2(0.5) );
+			vec4 temp0 = mix( newAlbedoFluidColor0, newAlbedoFluidColor1, filterWeight.x );
+			vec4 temp1 = mix( newAlbedoFluidColor2, newAlbedoFluidColor3, filterWeight.x );
+			
+			vec4 newAlbedoFluidColor = mix( temp1, temp0, filterWeight.y );
+			albedoFluidColor = mix( albedoFluidColor, newAlbedoFluidColor, 0.05 );
+		}
+		
+		//////////////////////////////////////////////////////////////////////////////////
+		// Add variance to albedo color when adding material
+		//////////////////////////////////////////////////////////////////////////////////
+		{
+			vec4 newAlbedoFluidColor = texture( s_albedoFluidGradient, vec2( u_time * 0.2 + grungeSample.y * 0.3, 0.5 ) );
+			float switcher = mouseScalar * u_mouseMoltenVolumeStrength;
+			albedoFluidColor = mix(albedoFluidColor, newAlbedoFluidColor, min( switcher * 50.0, 1.0));
+		}
+		
+		out_smudgeData.z = packUnorm4x8f(albedoFluidColor);
+		
 		//////////////////////////////////////////////////////////////////////////////////
 		// UV OFFSETS
 		//////////////////////////////////////////////////////////////////////////////////
@@ -394,8 +381,8 @@ void main(void)
 				uvOffsetB *= 0.0;
 			}
 
-			uvOffsetA += moltenVelocity * u_moltenVelocityScalar;
-			uvOffsetB += moltenVelocity * u_moltenVelocityScalar;
+			uvOffsetA += moltenVelocity;
+			uvOffsetB += moltenVelocity ;
 
 			out_uvOffsetData = vec4( uvOffsetA, uvOffsetB );
 		}
@@ -405,7 +392,7 @@ void main(void)
 		//////////////////////////////////////////////////////////////////////////////////
 		{
 			vec2 velocity = velocityDataC.xy;
-			out_velocityData.xy = moltenVelocity * u_moltenVelocityScalar;
+			out_velocityData.xy = moltenVelocity;
 			vec2 smudgeDir = smudgeDataC.xy;
 
 			float dp = dot( normalize(velocity), normalize(smudgeDir) );
@@ -426,7 +413,6 @@ void main(void)
 		float dirtHeight = out_heightData.z;
 
 		dirtHeight += pow(mouseRatio, 0.7) * u_mouseDirtVolumeStrength;
-
 		out_heightData.z = dirtHeight;
 	}
 
