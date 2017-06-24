@@ -101,8 +101,8 @@ namespace godBox
 		GL_CHECK( glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_numIndices * sizeof(int), indices, GL_STATIC_DRAW) );
 		GL_CHECK( glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE) );
 		
-		delete positions;
-		delete indices;
+		delete[] positions;
+		delete[] indices;
 	}
 
 	void MoltenPlateGeometry::OnInvalidate()
