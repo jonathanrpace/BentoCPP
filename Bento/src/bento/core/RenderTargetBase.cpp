@@ -9,7 +9,6 @@ namespace bento
 		int _height,
 		bool _isRectangular,
 		bool _hasDepthStencil,
-		GLenum _internalFormat,
 		GLenum _depthStencilFormat
 	)
 		: m_width(_width)
@@ -18,7 +17,6 @@ namespace bento
 		, m_depthBuffer(-1)
 		, m_isRectangular(_isRectangular)
 		, m_hasDepthStencil(_hasDepthStencil)
-		, m_internalFormat(_internalFormat)
 		, m_depthStencilFormat(_depthStencilFormat)
 	{
 

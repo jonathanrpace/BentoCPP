@@ -21,7 +21,6 @@ namespace bento
 			int _height,
 			bool _isRectangular,
 			bool _hasDepthStencil = true,
-			GLenum _internalFormat = GL_RGBA32F,
 			GLenum _depthStencilFormat = GL_DEPTH24_STENCIL8
 		);
 		~RenderTargetBase();
@@ -42,7 +41,6 @@ namespace bento
 
 		bool m_isRectangular;
 		bool m_hasDepthStencil;
-		GLenum m_internalFormat;
 		GLenum m_depthStencilFormat;
 		GLuint m_frameBuffer;
 		GLuint m_depthBuffer;

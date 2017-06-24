@@ -367,7 +367,7 @@ void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)
 	(
 		_node.geom->NumVerticesPerDimension(),
 		_node.geom->NumVerticesPerDimension(),
-		false, true, GL_RGBA16F
+		false
 	);
 		
 	m_renderTargetByNodeMap.insert(std::make_pair(&_node, renderTarget));
