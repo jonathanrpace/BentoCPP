@@ -1,0 +1,32 @@
+=======================
+Height
+=======================
+x	solid
+y	molten
+z	dirt
+w	water
+
+=======================
+Misc
+=======================
+x	heat
+y
+z	dissolvedDirt
+w	occlusion
+
+
+=======================
+Smudge
+=======================
+x	smudgeDirX
+y	smudgeDirY
+z	albedoFluidColor	(~)
+w	foamAmount		(~)
+
+=======================
+Normal
+=======================
+x	waterNormalX
+y	waterNormalY
+z	rockNormalX
+w	rockNormalY

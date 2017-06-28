@@ -50,5 +50,5 @@ void main(void)
 
 	colorSample *= mix( 1.0, 0.5, vignetteDelta );
 
-	out_fragColor = colorSample + bloom;
+	out_fragColor = colorSample;// + bloom;
 }

@@ -24,11 +24,11 @@ uniform sampler2D s_smudgeData;
 uniform sampler2D s_waterFluxData;
 uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_grungeMap;
+uniform sampler2D s_fluidVelocityData;
 
 uniform sampler2D s_albedoFluidGradient;
 
 // Mouse
-uniform vec2 u_mousePos;
 uniform float u_mouseRadius;
 uniform float u_mouseMoltenVolumeStrength;
 uniform float u_mouseWaterVolumeStrength;
@@ -237,12 +237,16 @@ void main(void)
 	vec4 normalDataC = texelFetchC(s_normalData);
 	vec4 velocityDataC = texelFetchC(s_velocityData);
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
+	vec4 fluidVelocityC = texelFetchC(s_fluidVelocityData);
 	
 	vec4 albedoFluidColor = unpackUnorm4x8f( smudgeDataC.z );
 	
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 
+	
+	heightDataC.w = 0.0;
+	
 	// Assign something sensible to ouputs. We'll be updating these ahead.
 	out_heightData = heightDataC;
 	out_velocityData = velocityDataC;
@@ -250,6 +254,7 @@ void main(void)
 	out_normalData = normalDataC;
 	out_smudgeData = smudgeDataC;
 
+	
 	////////////////////////////////////////////////////////////////
 	// Update molten
 	////////////////////////////////////////////////////////////////
@@ -258,29 +263,22 @@ void main(void)
 		float heatC = miscDataC.x;
 		float heightC =  heightDataC.y;
 		
+		/*
 		// Transmit some of this cell's volume to neighbours
 		float toL = exchange( heightDataC, heightDataL, miscDataC.x, miscDataL.x );
 		float toR = exchange( heightDataC, heightDataR, miscDataC.x, miscDataR.x );
 		float toU = exchange( heightDataC, heightDataU, miscDataC.x, miscDataU.x );
 		float toD = exchange( heightDataC, heightDataD, miscDataC.x, miscDataD.x );
-		//float toTL = exchange( heightDataC, heightDataTL, miscDataC, miscDataTL, 0.05 );
-		//float toTR = exchange( heightDataC, heightDataTR, miscDataC, miscDataTR, 0.05 );
-		//float toBL = exchange( heightDataC, heightDataBL, miscDataC, miscDataBL, 0.05 );
-		//float toBR = exchange( heightDataC, heightDataBR, miscDataC, miscDataBR, 0.05 );
-
-		float totalOut = toL + toR + toU + toD;// + toTL + toTR + toBL + toBR;
+		
+		float totalOut = toL + toR + toU + toD;
 
 		// Bring some volume from neighbours
 		float fromL = exchange( heightDataL, heightDataC, miscDataL.x, miscDataC.x );
 		float fromR = exchange( heightDataR, heightDataC, miscDataR.x, miscDataC.x );
 		float fromU = exchange( heightDataU, heightDataC, miscDataU.x, miscDataC.x );
 		float fromD = exchange( heightDataD, heightDataC, miscDataD.x, miscDataC.x );
-		//float fromTL = exchange( heightDataTL, heightDataC, miscDataTL, miscDataC, 0.05 );
-		//float fromTR = exchange( heightDataTR, heightDataC, miscDataTR, miscDataC, 0.05 );
-		//float fromBL = exchange( heightDataBL, heightDataC, miscDataBL, miscDataC, 0.05 );
-		//float fromBR = exchange( heightDataBR, heightDataC, miscDataBR, miscDataC, 0.05 );
-
-		float totalIn = fromL + fromR + fromU + fromD;// + fromTL + fromTR + fromBL + fromBR;
+		
+		float totalIn = fromL + fromR + fromU + fromD;
 
 		heightC -= totalOut;
 		heightC += totalIn;
@@ -314,11 +312,13 @@ void main(void)
 		float scalar = 1.0 / (1.0 + moltenVelocityLengthRatio);
 		moltenVelocity *= scalar;
 		moltenVelocity *= u_moltenVelocityScalar;
-		                                                                                                                 
+		*/
+		
 		// Cooling
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
 
 		// Add some lava near the mouse
+		/*
 		vec4 grungeSample = texture(s_grungeMap, in_uv * u_grungeUVRepeat);
 		float heatTextureScalar = mix( 0.3, 0.7, grungeSample.a );
 		float volumeTextureScalar = 1.0 - heatTextureScalar;
@@ -327,14 +327,16 @@ void main(void)
 		heatC   += mouseScalar * u_mouseMoltenHeatStrength * heatTextureScalar * 0.1;
 		heightC += mouseScalar * volumeStrength * u_mouseMoltenVolumeStrength * 0.5;
 		heatC = max(0.0, heatC);
-
-		out_heightData.y = heightC;
+		*/
+		
+		//out_heightData.y = heightC;
 		out_miscData.x = heatC;
 		
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		// Advect albedo fluid
 		//////////////////////////////////////////////////////////////////////////////////
+		/*
 		{
 			ivec2 size = textureSize(s_smudgeData, 0);
 			vec2 samplePos = in_uv - moltenVelocity.xy * 20.0;
@@ -353,10 +355,12 @@ void main(void)
 			vec4 newAlbedoFluidColor = mix( temp1, temp0, filterWeight.y );
 			albedoFluidColor = mix( albedoFluidColor, newAlbedoFluidColor, 0.05 );
 		}
+		*/
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		// Add variance to albedo color when adding material
 		//////////////////////////////////////////////////////////////////////////////////
+		/*
 		{
 			vec4 newAlbedoFluidColor = texture( s_albedoFluidGradient, vec2( u_time * 0.2 + grungeSample.y * 0.3, 0.5 ) );
 			float switcher = mouseScalar * u_mouseMoltenVolumeStrength;
@@ -364,6 +368,7 @@ void main(void)
 		}
 		
 		out_smudgeData.z = packUnorm4x8f(albedoFluidColor);
+		*/
 		
 		//////////////////////////////////////////////////////////////////////////////////
 		// UV OFFSETS
@@ -380,9 +385,10 @@ void main(void)
 			{
 				uvOffsetB *= 0.0;
 			}
-
+			
+			vec2 moltenVelocity = fluidVelocityC.xy;
 			uvOffsetA += moltenVelocity;
-			uvOffsetB += moltenVelocity ;
+			uvOffsetB += moltenVelocity;
 
 			out_uvOffsetData = vec4( uvOffsetA, uvOffsetB );
 		}
@@ -391,16 +397,15 @@ void main(void)
 		// SMUDGE MAP
 		//////////////////////////////////////////////////////////////////////////////////
 		{
-			vec2 velocity = velocityDataC.xy;
-			out_velocityData.xy = moltenVelocity;
+			vec2 moltenVelocity = fluidVelocityC.xy;
 			vec2 smudgeDir = smudgeDataC.xy;
 
-			float dp = dot( normalize(velocity), normalize(smudgeDir) );
+			float dp = dot( normalize(moltenVelocity), normalize(smudgeDir) );
 			if ( isnan(dp) )
 				dp = -1.0;
 
 			float ratio = (dp + 1.0) * 0.5;
-			smudgeDir += velocity * u_smudgeChangeRate;
+			smudgeDir += moltenVelocity * u_smudgeChangeRate;
 
 			out_smudgeData.xy = smudgeDir;
 		}
@@ -455,6 +460,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Update water height and velocity
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float waterHeight = out_heightData.w;
 		
@@ -480,7 +486,9 @@ void main(void)
 
 		out_velocityData.zw = waterVelocity;
 	}
-
+	*/
+	
+	/*
 	////////////////////////////////////////////////////////////////
 	// Add some water near the mouse
 	////////////////////////////////////////////////////////////////
@@ -493,10 +501,12 @@ void main(void)
 
 		out_heightData.w = waterHeight;
 	}
-
+	*/
+	
 	////////////////////////////////////////////////////////////////
 	// Water environment
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float waterHeight = out_heightData.w;
 		float moltenHeight = out_heightData.y;
@@ -518,10 +528,12 @@ void main(void)
 		out_heightData.w = waterHeight;
 		out_miscData.x = heat;
 	}	
-		
+	*/
+	
 	////////////////////////////////////////////////////////////////
 	// Erosion
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float solidHeight = out_heightData.x;
 		float dirtHeight = out_heightData.z;
@@ -546,7 +558,8 @@ void main(void)
 		out_heightData.x = solidHeight;
 		out_heightData.z = dirtHeight;
 	}
-
+	*/
+	
 	////////////////////////////////////////////////////////////////
 	// Deposit some of the dissolved dirt
 	////////////////////////////////////////////////////////////////
@@ -587,6 +600,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Move dissolved dirt between cells
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float dissolvedDirt = out_miscData.z;
 		vec2 waterVelocity = out_velocityData.zw;
@@ -621,10 +635,12 @@ void main(void)
 
 		out_miscData.z = dissolvedDirt;
 	}
-
+	*/
+	
 	////////////////////////////////////////////////////////////////
 	// Spawn Foam
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		vec2 waterVelocity = out_velocityData.zw;
 
@@ -635,7 +651,8 @@ void main(void)
 
 		out_smudgeData.w = foamAmount;
 	}
-
+	*/
+	
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////

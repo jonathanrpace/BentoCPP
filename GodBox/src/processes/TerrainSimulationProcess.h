@@ -35,8 +35,50 @@ namespace godBox
 		UpdateTerrainDataFrag();
 	};
 
-	struct UpdateTerrainFluxShader			: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
-	struct UpdateTerrainDataShader			: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
+	struct AdvectFrag : ShaderStageBase
+	{
+		AdvectFrag();
+	};
+
+	struct AdvectFrag2 : ShaderStageBase
+	{
+		AdvectFrag2();
+	};
+
+	struct JacobiFrag : ShaderStageBase
+	{
+		JacobiFrag();
+	};
+
+	struct ComputeDivergenceFrag : ShaderStageBase
+	{
+		ComputeDivergenceFrag();
+	};
+
+	struct SubtractGradientFrag : ShaderStageBase
+	{
+		SubtractGradientFrag();
+	};
+
+	struct ApplyInputFrag : ShaderStageBase
+	{
+		ApplyInputFrag();
+	};
+
+	struct ApplyInputFrag2 : ShaderStageBase
+	{
+		ApplyInputFrag2();
+	};
+
+	struct UpdateTerrainFluxShader		: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
+	struct UpdateTerrainDataShader		: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
+	struct AdvectShader					: ShaderBase<ScreenQuadVert, AdvectFrag> {};
+	struct AdvectShader2				: ShaderBase<ScreenQuadVert, AdvectFrag2> {};
+	struct JacobiShader					: ShaderBase<ScreenQuadVert, JacobiFrag> {};
+	struct ComputeDivergenceShader		: ShaderBase<ScreenQuadVert, ComputeDivergenceFrag> {};
+	struct SubtractGradientShader		: ShaderBase<ScreenQuadVert, SubtractGradientFrag> {};
+	struct ApplyInputShader				: ShaderBase<ScreenQuadVert, ApplyInputFrag> {};
+	struct ApplyInputShader2			: ShaderBase<ScreenQuadVert, ApplyInputFrag2> {};
 	
 	DEFINE_NODE_3
 	(
@@ -64,17 +106,34 @@ namespace godBox
 	private:
 		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, MoltenParticleGeom & _moltenParticleGeom);
 
+		void ClearSurface(RenderTargetBase & renderTarget,TextureSquare & dest,float v);
+		void Advect(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& source, TextureSquare& dest, float dissipation);
+		void Jacobi(RenderTargetBase& renderTarget, TextureSquare& pressure, TextureSquare& divergence, vec2 cellSize, TextureSquare& dest);
+		void SubtractGradient(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& pressure, TextureSquare& dest);
+		void ComputeDivergence(RenderTargetBase& renderTarget, TextureSquare& velocity, vec2 cellSize, TextureSquare& dest);
+		void ApplyInput(RenderTargetBase& renderTarget, TextureSquare& dest0, TextureSquare& dest1, float strengthA, float strengthB);
+
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
 
+		// Shaders
 		ScreenQuadGeometry m_screenQuadGeom;
 		UpdateTerrainFluxShader m_updateFluxShader;
 		UpdateTerrainDataShader m_updateDataShader;
+		AdvectShader m_advectShader;
+		AdvectShader2 m_advectShader2;
+		JacobiShader m_jacobiShader;
+		ComputeDivergenceShader m_computeDivergenceShader;
+		SubtractGradientShader m_subtractGradientShader;
+		ApplyInputShader m_applyInputShader;
+		ApplyInputShader2 m_applyInputShader2;
 
+		// Internal
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
-
 		float m_prevPhaseA = 0.0f;
 		float m_prevPhaseB = 0.0f;
+
+		// Inspectable/Serializable
 
 		// Input
 		float m_mouseRadius;
@@ -128,5 +187,6 @@ namespace godBox
 
 		// Global
 		float m_ambientTemperature;
+		float m_timeStep;
 	};
 }

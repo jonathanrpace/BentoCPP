@@ -67,6 +67,11 @@ uniform sampler2D s_miscData;
 uniform sampler2D s_heightData;
 uniform sampler2D s_uvOffsetData;
 
+uniform sampler2D s_densityData;
+uniform sampler2D s_fluidVelocityData;
+uniform sampler2D s_divergenceData;
+uniform sampler2D s_pressureData;
+
 uniform sampler2D s_lavaAlbedo;
 uniform sampler2D s_lavaNormal;
 uniform sampler2D s_lavaMaterial;
@@ -380,5 +385,23 @@ void main(void)
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
+	
+	float densitySample = texture( s_densityData, in_uv ).r;
+	
+	vec2 velocitySample = texture( s_fluidVelocityData, in_uv ).xy;
+	
+	velocitySample *= 1.0;
+	velocitySample += 0.5;
+	
+	float divergenceSample = texture( s_divergenceData, in_uv ).r;
+	divergenceSample *= 1.0;
+	divergenceSample += 0.5;
+	
+	float pressureSample = texture( s_pressureData, in_uv ).r;
+	pressureSample *= 1000.0;
+	pressureSample += 0.5;
+	
+	//out_forward = pow( vec4( velocitySample, pressureSample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );
+	//out_forward = pow( vec4( 0.0, 0.0, densitySample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );
 	
 }

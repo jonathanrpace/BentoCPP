@@ -119,6 +119,11 @@ namespace godBox
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_uvOffsetData", _geometry.UVOffsetData().GetRead());
 		
+		SetTexture("s_densityData", _geometry.DensityData().GetRead());
+		SetTexture("s_fluidVelocityData", _geometry.FluidVelocityData().GetRead());
+		SetTexture("s_divergenceData", _geometry.DivergenceData());
+		SetTexture("s_pressureData", _geometry.PressureData().GetRead());
+
 		SetTexture("s_lavaAlbedo", _material.lavaAlb);
 		SetTexture("s_lavaNormal", _material.lavaNrm);
 		SetTexture("s_lavaMaterial", _material.lavaMat);

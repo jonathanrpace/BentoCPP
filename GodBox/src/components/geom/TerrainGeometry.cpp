@@ -16,13 +16,18 @@ namespace godBox
 		, m_numVerticesPerDimension(256)
 		, m_terrainMousePos()
 
-		, m_heightData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_velocityData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_miscData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_normalData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_smudgeData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_waterFluxData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_uvOffsetData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_heightData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_velocityData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_miscData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_normalData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_smudgeData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_waterFluxData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_uvOffsetData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+
+		, m_fluidVelocityData	(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_densityData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_pressureData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_divergenceData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_mousePositionBuffer);
@@ -142,6 +147,14 @@ namespace godBox
 		m_smudgeData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_waterFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_uvOffsetData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+
+		m_densityData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_densityData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_pressureData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_pressureData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_divergenceData.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_fluidVelocityData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_fluidVelocityData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 
 		BufferVertexData(0, &positions[0], (int)positions.size());
 		BufferVertexData(1, &uvs[0], (int)uvs.size());
