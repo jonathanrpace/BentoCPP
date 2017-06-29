@@ -303,10 +303,11 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			m_advectShader2.BindPerPass();
 
 			AdvectFrag2 fragShader = m_advectShader2.FragmentShader();
-			fragShader.SetUniform( "u_dt", m_timeStep );
+			fragShader.SetUniform( "u_dt", m_timeStep * 400.0f );
 			fragShader.SetUniform( "u_dissipation", 1.0f );
 			fragShader.SetTexture( "s_heightData", _geom.HeightData().GetRead() );
 			fragShader.SetTexture( "s_velocityTexture", _geom.FluidVelocityData().GetRead() );
+			fragShader.SetTexture( "s_pressure", _geom.PressureData().GetRead() );
 
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
 			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
@@ -373,7 +374,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		
 		ComputeDivergence(_renderTarget, _geom.FluidVelocityData().GetRead(), cellSize, _geom.DivergenceData());
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
-		for (int i = 0; i < 40; ++i) 
+		for (int i = 0; i < 80; ++i) 
 		{
 			Jacobi(_renderTarget, _geom.PressureData().GetRead(), _geom.DivergenceData(), cellSize, _geom.PressureData().GetWrite());
 			_geom.PressureData().Swap();

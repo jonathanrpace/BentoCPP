@@ -62,12 +62,14 @@ void main()
 	out_heightData = heightDataC;
 	
 	vec4 fluidVelocityC = texelFetch( s_fluidVelocity, T, 0 ); 
-	vec2 addedMoltenVelocity = offset * mouseRatio * rand();// * u_mouseMoltenVolumeStrength;// * rand();
-	vec2 addedWaterVelocity = offset * mouseRatio * rand();// * u_mouseWaterVolumeStrength;// * rand();
+	vec2 addedMoltenVelocity = offset * mouseRatio;// * mix( 0.5, 1.0, rand());
+	vec2 addedWaterVelocity = offset * mouseRatio;// * mix( 0.5, 1.0, rand());
 	
 	fluidVelocityC.xy -= addedMoltenVelocity * 1.0 * u_mouseMoltenHeatStrength;
 	fluidVelocityC.zw -= addedWaterVelocity * 1.0 * u_mouseMoltenHeatStrength;
 
+	// No velocity where there's no molten
+	//fluidVelocityC.xy *= smoothstep( 0.0, 0.001, heightDataC.y );
 	
 	// Subtract height gradient
 	{
@@ -83,7 +85,7 @@ void main()
 
 		vec2 heightGradientMolten = vec2(mhE - mhW, mhS - mhN);
 
-		fluidVelocityC.xy -= heightGradientMolten * 1.0;// * 100000000.0;//u_gradientScale;
+		//fluidVelocityC.xy -= heightGradientMolten * 1.0;// * 100000000.0;//u_gradientScale;
 	}
 	
 	out_fluidVelocity = fluidVelocityC;
