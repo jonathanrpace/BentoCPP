@@ -287,6 +287,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	// Update fluid simulation
 	{
 		// Advect density along velocity
+		/*
 		Advect(
 			_renderTarget, 
 			_geom.FluidVelocityData().GetRead(), 
@@ -295,6 +296,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			0.995f
 		);
 		_geom.DensityData().Swap();
+		*/
 
 		// Advect molten and water along velocities
 		{
@@ -321,7 +323,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			_geom.FluidVelocityData().GetRead(), 
 			_geom.FluidVelocityData().GetRead(), 
 			_geom.FluidVelocityData().GetWrite(),
-			0.999
+			0.999f
 		);
 		_geom.FluidVelocityData().Swap();
 
@@ -377,13 +379,24 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			_geom.PressureData().Swap();
 		}
 
-		SubtractGradient(
-			_renderTarget, 
-			_geom.FluidVelocityData().GetRead(), 
-			_geom.PressureData().GetRead(), 
-			_geom.FluidVelocityData().GetWrite()
-		);
-		_geom.FluidVelocityData().Swap();
+		// Subtract gradient
+		{
+			m_subtractGradientShader.BindPerPass();
+
+			SubtractGradientFrag fragShader = m_subtractGradientShader.FragmentShader();
+
+			fragShader.SetTexture( "s_velocityData", _geom.FluidVelocityData().GetRead() );
+			fragShader.SetTexture( "s_pressureData", _geom.PressureData().GetRead() );
+
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.FluidVelocityData().GetWrite());
+			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+			m_screenQuadGeom.Draw();
+
+			_geom.FluidVelocityData().Swap();
+		}
+		
 		
 	}
 
@@ -549,16 +562,7 @@ void TerrainSimulationProcess::Jacobi(RenderTargetBase& renderTarget, TextureSqu
 
 void TerrainSimulationProcess::SubtractGradient(RenderTargetBase& renderTarget, TextureSquare & velocity,TextureSquare & pressure,TextureSquare & dest)
 {
-	m_subtractGradientShader.BindPerPass();
-
-	m_subtractGradientShader.FragmentShader().SetTexture( "s_velocityData", velocity );
-	m_subtractGradientShader.FragmentShader().SetTexture( "s_pressureData", pressure );
-
-    renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest);
-	static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-	m_screenQuadGeom.Draw();
+	
 }
 
 void TerrainSimulationProcess::ComputeDivergence(RenderTargetBase& renderTarget, TextureSquare & velocity, vec2 cellSize, TextureSquare & dest)

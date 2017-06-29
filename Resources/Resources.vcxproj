@@ -11,7 +11,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Run\shaders\Advect.frag" />
+    <None Include="..\Run\shaders\Advect2.frag" />
+    <None Include="..\Run\shaders\ApplyInput.frag" />
+    <None Include="..\Run\shaders\ApplyInput2.frag" />
+    <None Include="..\Run\shaders\ComputeDivergence.frag" />
     <None Include="..\Run\shaders\CubeMapSkybox.frag" />
+    <None Include="..\Run\shaders\Jacobi.frag" />
     <None Include="..\Run\shaders\RectBlurTap5.frag" />
     <None Include="..\Run\shaders\RectTexture.frag" />
     <None Include="..\Run\shaders\Resolve.frag" />
@@ -21,6 +27,7 @@
     <None Include="..\Run\shaders\SteamParticle.frag" />
     <None Include="..\Run\shaders\SteamParticle.vert" />
     <None Include="..\Run\shaders\SteamParticleUpdate.vert" />
+    <None Include="..\Run\shaders\SubtractGradient.frag" />
     <None Include="..\Run\shaders\Terrain.frag" />
     <None Include="..\Run\shaders\Terrain.vert" />
     <None Include="..\Run\shaders\TerrainSides.frag" />
