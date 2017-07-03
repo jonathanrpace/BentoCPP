@@ -17,6 +17,7 @@ uniform float u_dissipation;
 
 vec2 limit( vec2 v )
 {
+	return v;
 	float vm = length(v);
 	v /= (1.0 + max(0.0, vm-1.0));
 	
@@ -26,13 +27,12 @@ vec2 limit( vec2 v )
 float getNeighbourAdvectWeight( in vec2 offset, vec2 v )
 {
 	v *= u_dt;
-	
-	//if ( length (v) < 0.001 )
-	//	return 0.0;
-		
-	v = limit(v);
-	float dp = max( dot( v, normalize(offset) ), 0.0 );
-	return dp;// * length(v);
+	vec2 p = abs(offset - v);
+	p = vec2(1.0) - p;
+	float weight = max(p.x, p.y);
+	weight = clamp( weight, 0.0, 1.0 );
+
+	return weight;
 }
 
 void main()
@@ -74,18 +74,15 @@ void main()
 	float weightSE = getNeighbourAdvectWeight(vec2( 1,  1), texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  1)).xy);
 	
 	float totalRemoved = weightN + weightS + weightE + weightW + weightNW + weightNE + weightSW + weightSE;
-	//totalRemoved /= 8.0;
+	totalRemoved /= 9.0;
 	totalRemoved *= heightDataOld.y;
-	//totalRemoved *= 10.0;
 	
 	float moltenHeight = heightDataOld.y;
-	moltenHeight -= totalRemoved;
-	moltenHeight = max(0.0, moltenHeight);
+	moltenHeight = heightDataNewA.y;// / 9.0;
+
+	//moltenHeight -= totalRemoved;
+	//moltenHeight = max(0.0, moltenHeight);
 	
-	
-	moltenHeight += heightDataNewA.y;
-	
-	//moltenHeight += pC * 100.0;
 	
     out_heightData = vec4( heightDataOld.x, moltenHeight, heightDataOld.z, heightDataNewB.w );
 }
