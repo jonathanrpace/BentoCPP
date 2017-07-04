@@ -303,7 +303,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			m_advectShader2.BindPerPass();
 
 			AdvectFrag2 fragShader = m_advectShader2.FragmentShader();
-			fragShader.SetUniform( "u_dt", m_timeStep * 400.0f );
+			fragShader.SetUniform( "u_dt", m_timeStep * 200.0f );
 			fragShader.SetUniform( "u_dissipation", 1.0f );
 			fragShader.SetTexture( "s_heightData", _geom.HeightData().GetRead() );
 			fragShader.SetTexture( "s_velocityTexture", _geom.FluidVelocityData().GetRead() );
@@ -324,7 +324,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			_geom.FluidVelocityData().GetRead(), 
 			_geom.FluidVelocityData().GetRead(), 
 			_geom.FluidVelocityData().GetWrite(),
-			0.999f
+			0.9999f
 		);
 		_geom.FluidVelocityData().Swap();
 

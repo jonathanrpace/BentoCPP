@@ -252,7 +252,7 @@
         "waveStrength3": 1.0
     },
     "TerrainSimulationProcess": {
-        "ambientTemperature": 0.0,
+        "ambientTemperature": -1.0,
         "boilSpeed": 9.99999974737875e-05,
         "condenseSpeed": 0.000329999980749562,
         "dirtDensity": 0.730799973011017,

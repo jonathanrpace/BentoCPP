@@ -17,21 +17,16 @@ uniform float u_dissipation;
 
 vec2 limit( vec2 v )
 {
-	return v;
-	float vm = length(v);
-	v /= (1.0 + max(0.0, vm-1.0));
-	
-	return v;
+	return clamp( v, vec2(-1.0), vec2(1.0) );
 }
 
 float getNeighbourAdvectWeight( in vec2 offset, vec2 v )
 {
-	v *= u_dt;
-	vec2 p = abs(offset - v);
-	p = vec2(1.0) - p;
-	float weight = max(p.x, p.y);
-	weight = clamp( weight, 0.0, 1.0 );
-
+	v = limit(v * u_dt);
+	
+	vec2 p = abs(offset + v);
+	float weight = 1.0 - max( min(p.x, p.y), 0.0 );
+	
 	return weight;
 }
 
@@ -39,31 +34,16 @@ void main()
 {
 	ivec2 T = ivec2(gl_FragCoord.xy);
 	
-	float cellSize = 1.0;// / textureSize( s_velocityTexture, 0 ).x;
-	
 	vec4 heightDataOld = texelFetch( s_heightData, T, 0 );
-	
-    float pC  = texelFetch(s_pressure, T, 0).x;
 	
     vec4 vC  = texelFetch(s_velocityTexture, T, 0);
 	vec2 velocityA = limit(vC.xy * u_dt);
 	vec2 velocityB = limit(vC.zw * u_dt);
 	
-	vec4 heightDataNewA = texture(s_heightData, in_uv - velocityA * cellSize) / 8.0;
-	vec4 heightDataNewB = texture(s_heightData, in_uv - velocityB * cellSize);
+	vec4 heightDataNewA = texture(s_heightData, in_uv - velocityA);
+	vec4 heightDataNewB = texture(s_heightData, in_uv - velocityB);
 	
-	/*
-	vec4 vN  = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0, -1));
-	vec4 vS  = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  1));
-	vec4 vE  = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  0));
-	vec4 vW  = texelFetchOffset(s_velocityTexture, T, 0, ivec2(-1,  0));
-	vec4 vNW = texelFetchOffset(s_velocityTexture, T, 0, ivec2(-1, -1));
-	vec4 vNE = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1, -1));
-	vec4 vSW = texelFetchOffset(s_velocityTexture, T, 0, ivec2(-1,  1));
-	vec4 vSE = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  1));
-	*/
-	
-	
+	float weightC  = getNeighbourAdvectWeight(vec2( 0,  0), texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  0)).xy);
 	float weightN  = getNeighbourAdvectWeight(vec2( 0, -1), texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0, -1)).xy);
 	float weightS  = getNeighbourAdvectWeight(vec2( 0,  1), texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  1)).xy);
 	float weightE  = getNeighbourAdvectWeight(vec2( 1,  0), texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  0)).xy);
@@ -73,15 +53,17 @@ void main()
 	float weightSW = getNeighbourAdvectWeight(vec2(-1,  1), texelFetchOffset(s_velocityTexture, T, 0, ivec2(-1,  1)).xy);
 	float weightSE = getNeighbourAdvectWeight(vec2( 1,  1), texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  1)).xy);
 	
-	float totalRemoved = weightN + weightS + weightE + weightW + weightNW + weightNE + weightSW + weightSE;
+	float totalRemoved = weightC + weightN + weightS + weightE + weightW + weightNW + weightNE + weightSW + weightSE;
 	totalRemoved /= 9.0;
-	totalRemoved *= heightDataOld.y;
 	
-	float moltenHeight = heightDataOld.y;
-	moltenHeight = heightDataNewA.y;// / 9.0;
-
-	//moltenHeight -= totalRemoved;
-	//moltenHeight = max(0.0, moltenHeight);
+	totalRemoved = 1.0 - totalRemoved;
+	
+	float moltenHeight = heightDataOld.y * totalRemoved;
+	
+	moltenHeight += heightDataNewA.y / 1.8;
+	
+	
+	moltenHeight = max(0.0, moltenHeight);
 	
 	
     out_heightData = vec4( heightDataOld.x, moltenHeight, heightDataOld.z, heightDataNewB.w );
