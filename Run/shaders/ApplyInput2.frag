@@ -57,6 +57,8 @@ void main()
 	float addedWater = mouseRatio * u_mouseWaterVolumeStrength;
 	
 	vec4 heightDataC = texelFetch( s_heightData, T, 0 );
+	vec4 hC = heightDataC;
+
 	heightDataC.y += addedMolten;
 	heightDataC.w += addedWater;
 	out_heightData = heightDataC;
@@ -78,14 +80,17 @@ void main()
 		vec4 hE = texelFetchOffset(s_heightData, T, 0, ivec2( 1,  0));
 		vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1,  0));
 
+		float mhC = hC.x + hC.y;
 		float mhN = hN.x + hN.y;
 		float mhS = hS.x + hS.y;
 		float mhE = hE.x + hE.y;
 		float mhW = hW.x + hW.y;
 
-		vec2 heightGradientMolten = vec2(mhE - mhW, mhS - mhN);
+		//vec2 heightGradientMolten = vec2(mhE - mhW, mhS - mhN);
+		vec2 heightGradientMolten = vec2((mhE - mhC) + (mhC-mhW), (mhS-mhC) + (mhC-mhN));
+		//vec2 heightGradientMolten = vec2((mhW - mhC) + (mhE-mhC), (mhN - mhC) + (mhS-mhC));
 
-		//fluidVelocityC.xy -= heightGradientMolten * 1.0;// * 100000000.0;//u_gradientScale;
+		fluidVelocityC.xy -= heightGradientMolten * 0.2;// * 100000000.0;//u_gradientScale;
 	}
 	
 	out_fluidVelocity = fluidVelocityC;

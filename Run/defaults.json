@@ -297,7 +297,7 @@
         "moltenViscosity": 0.220000013709068,
         "moltenViscosityMax": 0.5,
         "moltenViscosityMin": 0.352000027894974,
-        "mouseHeatStrength": 0.0299999993294477,
+        "mouseHeatStrength": 0.0,
         "mouseRadius": 0.0370000004768372,
         "mouseVolumeStrength": 0.00240999995730817,
         "rainRate": 5.11000007463736e-06,
