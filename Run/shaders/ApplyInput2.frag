@@ -11,6 +11,7 @@ float rand();
 
 layout( location = 0 ) out vec4 out_heightData;
 layout( location = 1 ) out vec4 out_fluidVelocity;
+layout( location = 2 ) out vec4 out_miscData;
 
 // Buffers
 layout( std430, binding = 0 ) buffer MousePositionBuffer
@@ -30,6 +31,7 @@ uniform float u_mouseDirtVolumeStrength;
 
 uniform sampler2D s_fluidVelocity;
 uniform sampler2D s_heightData;
+uniform sampler2D s_miscData;
 
 
 ////////////////////////////////////////////////////////////////
@@ -60,19 +62,24 @@ void main()
 	vec4 hC = heightDataC;
 
 	heightDataC.y += addedMolten;
-	heightDataC.w += addedWater;
+	heightDataC.x += addedWater;
 	out_heightData = heightDataC;
 	
+	
+
+	// Add heat
+	vec4 miscDataC = texelFetch( s_miscData, T, 0 );
+	float heat = min( miscDataC.x, 1.0 );
+	heat += mouseRatio * u_mouseMoltenHeatStrength;
+	miscDataC.x = heat;
+	out_miscData = miscDataC;
+
 	vec4 fluidVelocityC = texelFetch( s_fluidVelocity, T, 0 ); 
 	vec2 addedMoltenVelocity = offset * mouseRatio;// * mix( 0.5, 1.0, rand());
 	vec2 addedWaterVelocity = offset * mouseRatio;// * mix( 0.5, 1.0, rand());
-	
-	fluidVelocityC.xy -= addedMoltenVelocity * 1.0 * u_mouseMoltenHeatStrength;
-	fluidVelocityC.zw -= addedWaterVelocity * 1.0 * u_mouseMoltenHeatStrength;
+	//fluidVelocityC.xy -= addedMoltenVelocity * 1.0 * u_mouseMoltenHeatStrength;
+	//fluidVelocityC.zw -= addedWaterVelocity * 1.0 * u_mouseMoltenHeatStrength;
 
-	// No velocity where there's no molten
-	//fluidVelocityC.xy *= smoothstep( 0.0, 0.001, heightDataC.y );
-	
 	// Subtract height gradient
 	{
 		vec4 hN = texelFetchOffset(s_heightData, T, 0, ivec2( 0, -1));
@@ -86,12 +93,19 @@ void main()
 		float mhE = hE.x + hE.y;
 		float mhW = hW.x + hW.y;
 
-		//vec2 heightGradientMolten = vec2(mhE - mhW, mhS - mhN);
-		vec2 heightGradientMolten = vec2((mhE - mhC) + (mhC-mhW), (mhS-mhC) + (mhC-mhN));
-		//vec2 heightGradientMolten = vec2((mhW - mhC) + (mhE-mhC), (mhN - mhC) + (mhS-mhC));
+		vec2 heightGradientMolten = vec2(mhE - mhW, mhS - mhN);
 
-		fluidVelocityC.xy -= heightGradientMolten * 0.2;// * 100000000.0;//u_gradientScale;
+		fluidVelocityC.xy -= heightGradientMolten * 0.2;
 	}
+
+	// No velocity where there's no molten
+	fluidVelocityC.xy *= smoothstep( 0.0, 0.001, heightDataC.y );
+
+	// Slow velocity based on viscosity
+	float moltenViscosity = pow( heat, 0.5 );
+
+	fluidVelocityC.xy = mix( fluidVelocityC.xy, vec2(0.0,0.0), 1.0-moltenViscosity );
+
 	
 	out_fluidVelocity = fluidVelocityC;
 }

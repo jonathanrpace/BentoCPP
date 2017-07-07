@@ -107,10 +107,10 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 
 layout( location = 0 ) out vec4 out_heightData;
 layout( location = 1 ) out vec4 out_velocityData;
-layout( location = 2 ) out vec4 out_miscData;
-layout( location = 3 ) out vec4 out_normalData;
-layout( location = 4 ) out vec4 out_smudgeData;
-layout( location = 5 ) out vec4 out_uvOffsetData;
+//layout( location = 2 ) out vec4 out_miscData;
+layout( location = 2 ) out vec4 out_normalData;
+layout( location = 3 ) out vec4 out_smudgeData;
+layout( location = 4 ) out vec4 out_uvOffsetData;
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -250,7 +250,7 @@ void main(void)
 	// Assign something sensible to ouputs. We'll be updating these ahead.
 	out_heightData = heightDataC;
 	out_velocityData = velocityDataC;
-	out_miscData = miscDataC;
+	//out_miscData = miscDataC;
 	out_normalData = normalDataC;
 	out_smudgeData = smudgeDataC;
 
@@ -315,7 +315,7 @@ void main(void)
 		*/
 		
 		// Cooling
-		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
+		//heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed;
 
 		// Add some lava near the mouse
 		/*
@@ -330,7 +330,7 @@ void main(void)
 		*/
 		
 		//out_heightData.y = heightC;
-		out_miscData.x = heatC;
+		//out_miscData.x = heatC;
 		
 		
 		//////////////////////////////////////////////////////////////////////////////////
@@ -386,7 +386,7 @@ void main(void)
 				uvOffsetB *= 0.0;
 			}
 			
-			vec2 moltenVelocity = fluidVelocityC.xy;
+			vec2 moltenVelocity = fluidVelocityC.xy * u_moltenVelocityScalar;
 			uvOffsetA += moltenVelocity;
 			uvOffsetB += moltenVelocity;
 
@@ -563,8 +563,9 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Deposit some of the dissolved dirt
 	////////////////////////////////////////////////////////////////
+	/*
 	{
-		float dissolvedDirt = out_miscData.z;
+		float dissolvedDirt = miscDataC.z;
 		float dirtHeight = out_heightData.z;
 
 		float amountDeposited = dissolvedDirt * u_dirtDepositSpeed;
@@ -581,7 +582,7 @@ void main(void)
 	// Pickup dirt and dissolve it in water
 	////////////////////////////////////////////////////////////////
 	{
-		float dissolvedDirt = out_miscData.z;
+		float dissolvedDirt = miscDataC.z;
 		float dirtHeight = out_heightData.z;
 
 		vec2 waterVelocity = out_velocityData.zw;
@@ -596,7 +597,8 @@ void main(void)
 		out_miscData.z = dissolvedDirt;
 		out_heightData.z = dirtHeight;
 	}
-		
+	*/
+
 	////////////////////////////////////////////////////////////////
 	// Move dissolved dirt between cells
 	////////////////////////////////////////////////////////////////
@@ -657,7 +659,7 @@ void main(void)
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
 	{
-		float heat = out_miscData.x;
+		float heat = miscDataC.x;
 
 		float rockHeight = out_heightData.x;
 		float moltenHeight = out_heightData.y;
@@ -757,7 +759,7 @@ void main(void)
 		occlusion /= totalStrength;
 		occlusion = min(1.0, occlusion);
 
-		out_miscData.w = occlusion;
+		//out_miscData.w = occlusion;
 
 		out_heightData = max( vec4(0.0), out_heightData );
 	}

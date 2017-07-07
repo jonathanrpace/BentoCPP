@@ -303,7 +303,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			m_advectShader2.BindPerPass();
 
 			AdvectFrag2 fragShader = m_advectShader2.FragmentShader();
-			fragShader.SetUniform( "u_dt", m_timeStep * 200.0f );
+			fragShader.SetUniform( "u_dt", m_timeStep );
 			fragShader.SetTexture( "s_heightData", _geom.HeightData().GetRead() );
 			fragShader.SetTexture( "s_velocityTexture", _geom.FluidVelocityData().GetRead() );
 
@@ -356,20 +356,21 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 			fragShader.SetTexture("s_heightData",		_geom.HeightData().GetRead());
 			fragShader.SetTexture("s_fluidVelocity",	_geom.FluidVelocityData().GetRead());
+			fragShader.SetTexture("s_miscData",			_geom.MiscData().GetRead());
 
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.FluidVelocityData().GetWrite());
-			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscData().GetWrite());
+			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
 			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 			m_screenQuadGeom.Draw();
 
 			_geom.HeightData().Swap();
 			_geom.FluidVelocityData().Swap();
+			_geom.MiscData().Swap();
 		}
 
-
-		
 		ComputeDivergence(_renderTarget, _geom.FluidVelocityData().GetRead(), cellSize, _geom.DivergenceData());
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
 		for (int i = 0; i < 40; ++i) 
@@ -406,10 +407,10 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.VelocityData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.NormalData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.SmudgeData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT5, _geom.UVOffsetData().GetWrite());
+		//_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.NormalData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.SmudgeData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.UVOffsetData().GetWrite());
 
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
@@ -500,13 +501,13 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		_geom.HeightData().GetWrite().GenerateMipMaps();
 		_geom.NormalData().GetWrite().GenerateMipMaps();
-		_geom.MiscData().GetWrite().GenerateMipMaps();
+		_geom.MiscData().GetRead().GenerateMipMaps();
 		_geom.VelocityData().GetWrite().GenerateMipMaps();
 		_geom.SmudgeData().GetWrite().GenerateMipMaps();
 
 		_geom.HeightData().Swap();
 		_geom.VelocityData().Swap();
-		_geom.MiscData().Swap();
+		//_geom.MiscData().Swap();
 		_geom.NormalData().Swap();
 		_geom.SmudgeData().Swap();
 		_geom.UVOffsetData().Swap();
