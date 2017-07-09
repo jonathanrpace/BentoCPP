@@ -11,7 +11,7 @@ out vec4 out_fragColor;
 uniform sampler2D s_velocityData;
 uniform sampler2D s_pressureData;
 
-uniform float u_gradientScale = 50.0;
+uniform float u_gradientScale = 100.0;
 
 void main()
 {
