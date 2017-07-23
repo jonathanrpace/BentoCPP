@@ -13,7 +13,7 @@ layout(location = 2) in vec4 in_rand;
 
 // Samplers
 uniform sampler2D s_heightData;
-uniform sampler2D s_velocityData;
+uniform sampler2D s_fluidVelocity;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
@@ -144,7 +144,7 @@ void main(void)
 {
 	// Pluck some values out of the texture data
 	vec4 heightDataC = texture(s_heightData, in_uv);
-	vec4 velocityDataC = texture(s_velocityData, in_uv);
+	vec4 velocityDataC = texture(s_fluidVelocity, in_uv);
 	vec4 miscDataC = texture(s_miscData, in_uv);
 	vec4 normalDataC = texture(s_normalData, in_uv);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);

@@ -108,7 +108,7 @@ void mainLoop(GLFWwindow* window)
 		renderer->AddRenderPass(TerrainPass::Create());
 		renderer->AddRenderPass(TerrainSidesPass::Create());
 		
-		//renderer->AddRenderPass(WaterPass::Create());
+		renderer->AddRenderPass(WaterPass::Create());
 		//renderer->AddRenderPass(SteamPass::Create());
 		//renderer->AddRenderPass(TerrainFoamPass::Create());
 		

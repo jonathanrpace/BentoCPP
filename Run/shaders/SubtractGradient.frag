@@ -19,8 +19,7 @@ void main()
 
 	vec4 oldVelocity = texelFetch(s_velocityData, T, 0);
 	vec2 newMoltenVelocity = oldVelocity.xy;
-	 vec2 newWaterVelocity = oldVelocity.zw;
-
+	vec2 newWaterVelocity = oldVelocity.zw;
 
     // Subtract pressure gradient
 	{

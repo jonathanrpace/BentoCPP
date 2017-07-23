@@ -396,7 +396,7 @@ void main(void)
 	divergenceSample *= 1.0;
 	divergenceSample += 0.5;
 	
-	float pressureSample = texture( s_pressureData, in_uv ).r;
+	float pressureSample = texture( s_pressureData, in_uv ).g;
 	pressureSample *= 1000.0;
 	pressureSample += 0.5;
 	

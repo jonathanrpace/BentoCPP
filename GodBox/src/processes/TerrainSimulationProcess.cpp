@@ -45,11 +45,6 @@ SubtractGradientFrag::SubtractGradientFrag()
 {}
 
 //////////////////////////////////////////////////////////////////////////
-ApplyInputFrag::ApplyInputFrag()
-	: ShaderStageBase("shaders/ApplyInput.frag")
-{}
-
-//////////////////////////////////////////////////////////////////////////
 ApplyInputFrag2::ApplyInputFrag2()
 	: ShaderStageBase("shaders/ApplyInput2.frag")
 {}
@@ -76,6 +71,9 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
 	SerializableMember("moltenVelocityScalar",	1.0f,		&m_moltenVelocityScalar);
 	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
+	SerializableMember("moltenSlopeStrength",	0.3f,		&m_moltenSlopeStrength);
+	SerializableMember("moltenDiffusionStrength",1.0f,		&m_moltenDiffusionStrength);
+	SerializableMember("moltenVelocityDamping",0.99f,		&m_moltenVelocityDamping);
 
 	// Water
 	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
@@ -167,6 +165,9 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::SliderFloat("Melt/Condense Speed", &m_meltCondenseSpeed, 0.0f, 0.25f, "%.4f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
+	ImGui::SliderFloat("Slope Strength#molten", &m_moltenSlopeStrength, 0.0f, 1.0f, "%.4f");
+	ImGui::SliderFloat("Diffusion Strength#molten", &m_moltenDiffusionStrength, 0.0f, 4.0f, "%.4f");
+	ImGui::SliderFloat("Velocity Damping#molten", &m_moltenVelocityDamping, 0.9f, 1.0f, "%.4f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -261,43 +262,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	glDepthMask(true);
 	glDepthFunc(GL_ALWAYS);
 
-	/*
-	// Update Flux
-	{
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.WaterFluxData().GetWrite());
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-		m_updateFluxShader.BindPerPass();
-		UpdateTerrainFluxFrag& fragShader = m_updateFluxShader.FragmentShader();
-
-		fragShader.SetTexture("s_heightData", _geom.HeightData().GetRead());
-		fragShader.SetTexture("s_miscData", _geom.MiscData().GetRead());
-		fragShader.SetTexture("s_waterFluxData", _geom.WaterFluxData().GetRead());
-
-		fragShader.SetUniform("u_waterFluxDamping", m_waterFluxDamping);
-
-		m_screenQuadGeom.Draw();
-
-		_geom.WaterFluxData().Swap();
-		_geom.WaterFluxData().GetRead().GenerateMipMaps();
-	}
-	*/
-
 	// Update fluid simulation
 	{
-		// Advect density along velocity
-		/*
-		Advect(
-			_renderTarget, 
-			_geom.FluidVelocityData().GetRead(), 
-			_geom.DensityData().GetRead(), 
-			_geom.DensityData().GetWrite(),
-			0.995f
-		);
-		_geom.DensityData().Swap();
-		*/
-
 		// Advect molten and water along velocities
 		{
 			m_advectShader2.BindPerPass();
@@ -307,6 +273,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			fragShader.SetTexture( "s_heightData", _geom.HeightData().GetRead() );
 			fragShader.SetTexture( "s_miscData", _geom.MiscData().GetRead() );
 			fragShader.SetTexture( "s_velocityTexture", _geom.FluidVelocityData().GetRead() );
+
+			fragShader.SetUniform( "u_moltenDiffusionStrength", m_moltenDiffusionStrength );
 
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
@@ -326,25 +294,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			_geom.FluidVelocityData().GetRead(), 
 			_geom.FluidVelocityData().GetRead(), 
 			_geom.FluidVelocityData().GetWrite(),
-			0.995f
+			1.0f
 		);
 		_geom.FluidVelocityData().Swap();
-
-
-		// Apply input
-		/*
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE, GL_ONE);
-			glBlendEquation(GL_FUNC_ADD);
-			m_applyInputShader.BindPerPass();
-			TerrainMousePos mousePos;
-			glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(mousePos), &mousePos);
-			glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, _geom.MousePositionBuffer());
-			ApplyInput(_renderTarget, _geom.DensityData().GetRead(), _geom.FluidVelocityData().GetRead(), moltenVolumeAmount, heatChangeAmount );
-			glDisable(GL_BLEND);
-		}
-		*/
 
 		// Apply input
 		{
@@ -357,6 +309,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			fragShader.SetUniform("u_mouseMoltenHeatStrength",		heatChangeAmount);
 			fragShader.SetUniform("u_mouseWaterVolumeStrength",		waterVolumeAmount);
 			fragShader.SetUniform("u_mouseDirtVolumeStrength",		dirtVolumeAmount);
+
+			fragShader.SetUniform("u_moltenSlopeStrength",		m_moltenSlopeStrength);
+			fragShader.SetUniform("u_moltenVelocityDamping",	m_moltenVelocityDamping);
 
 			fragShader.SetTexture("s_heightData",		_geom.HeightData().GetRead());
 			fragShader.SetTexture("s_fluidVelocity",	_geom.FluidVelocityData().GetRead());
@@ -580,22 +535,6 @@ void TerrainSimulationProcess::ComputeDivergence(RenderTargetBase& renderTarget,
 
     renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest);
 	static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-	m_screenQuadGeom.Draw();
-}
-
-void TerrainSimulationProcess::ApplyInput(RenderTargetBase& renderTarget, TextureSquare & dest0, TextureSquare & dest1, float strengthA, float strengthB)
-{
-	m_applyInputShader.BindPerPass();
-
-	m_applyInputShader.FragmentShader().SetUniform("u_radius", m_mouseRadius);
-	m_applyInputShader.FragmentShader().SetUniform("u_strengthA", strengthA );
-	m_applyInputShader.FragmentShader().SetUniform("u_strengthB", strengthB );
-
-	 renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest0);
-	 renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, dest1);
-	static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
 	m_screenQuadGeom.Draw();

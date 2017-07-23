@@ -16,11 +16,11 @@ namespace godBox
 		, m_numVerticesPerDimension(256)
 		, m_terrainMousePos()
 
-		, m_heightData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_velocityData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_miscData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_normalData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_smudgeData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_heightData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_velocityData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_miscData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_normalData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_smudgeData			(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 		, m_waterFluxData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_NEAREST, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 		, m_uvOffsetData		(m_numVerticesPerDimension>>0, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 
@@ -141,6 +141,7 @@ namespace godBox
 		}
 
 		m_heightData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_heightData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_velocityData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_miscData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
 		m_normalData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);

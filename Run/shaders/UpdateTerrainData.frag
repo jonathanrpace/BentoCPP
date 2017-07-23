@@ -244,8 +244,8 @@ void main(void)
 	vec2 mousePos = GetMousePos();
 	float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 
-	
-	heightDataC.w = 0.0;
+	if ( heightDataC.w > 0.5 )
+		heightDataC.w = 0.0;
 	
 	// Assign something sensible to ouputs. We'll be updating these ahead.
 	out_heightData = heightDataC;
@@ -414,13 +414,14 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Add some dirt at mouse position
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float dirtHeight = out_heightData.z;
 
 		dirtHeight += pow(mouseRatio, 0.7) * u_mouseDirtVolumeStrength;
 		out_heightData.z = dirtHeight;
 	}
-
+	*/
 	////////////////////////////////////////////////////////////////
 	// Update dirt
 	////////////////////////////////////////////////////////////////
@@ -658,6 +659,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
+	/*
 	{
 		float heat = out_miscData.x;
 
@@ -682,7 +684,8 @@ void main(void)
 		//out_heightData.x += dirtToMolten * u_dirtDensity;
 		//out_heightData.z -= dirtToMolten;
 	}
-
+	*/
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Solid normal
 	//////////////////////////////////////////////////////////////////////////////////
