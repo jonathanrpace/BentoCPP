@@ -143,6 +143,7 @@ namespace godBox
 		float m_moltenSlopeStrength;
 		float m_moltenDiffusionStrength;
 		float m_moltenVelocityDamping;
+		float m_moltenPressureStrength;
 
 		// Dirt
 		float m_dirtViscosity;

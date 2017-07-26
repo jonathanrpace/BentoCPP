@@ -16,7 +16,14 @@ uniform float u_dissipation;
 
 void main()
 {
-    vec2 velocity = texture(s_velocityTexture, in_uv).xy;
-    vec2 coord = in_uv - velocity * u_dt;
-    out_fragColor = u_dissipation * texture(s_sourceTexture, coord);
+	float cellScalar = 1.0 / textureSize(s_velocityTexture,0).x;
+	
+	vec4 fluxSample = texelFetch( s_velocityTexture, ivec2(gl_FragCoord.xy), 0 );
+    vec2 velocity = vec2(fluxSample.y - fluxSample.x, fluxSample.w - fluxSample.z);
+	
+    vec2 coord = in_uv - velocity * u_dt * cellScalar;
+	
+	vec4 outFragColor = max( texture(s_sourceTexture, coord), vec4(0.0) );
+
+    out_fragColor = outFragColor;
 }

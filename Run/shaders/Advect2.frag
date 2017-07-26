@@ -34,18 +34,25 @@ void main()
 	vec4 hE = texelFetchOffset(s_heightData, T, 0, ivec2( 1,  0));
 	vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1,  0));
 	
-	vec2 fluidHeightC = vec2( hC.y, hC.w );
-	vec2 fluidHeightN = vec2( hN.y, hN.w );
-	vec2 fluidHeightS = vec2( hS.y, hS.w );
-	vec2 fluidHeightE = vec2( hE.y, hE.w );
-	vec2 fluidHeightW = vec2( hW.y, hW.w );
+	//float moltenHeightC = hC.x + hC.y;
+	//float moltenHeightN = hN.x + hN.y;
+	//float moltenHeightS = hS.x + hS.y;
+	//float moltenHeightE = hE.x + hE.y;
+	//float moltenHeightW = hW.x + hW.y;
 	
-	vec2 fluidDiffusionStrength = vec2(u_moltenDiffusionStrength, u_waterDiffusionStrength);
-	vec2 slopeN = (fluidHeightN - fluidHeightC) * fluidDiffusionStrength;
-	vec2 slopeS = (fluidHeightS - fluidHeightC) * fluidDiffusionStrength;
-	vec2 slopeE = (fluidHeightE - fluidHeightC) * fluidDiffusionStrength;
-	vec2 slopeW = (fluidHeightW - fluidHeightC) * fluidDiffusionStrength;
+	//vec2 fluidDiffusionStrength = vec2(u_moltenDiffusionStrength, u_waterDiffusionStrength);
+	//vec2 slopeN = (fluidHeightN - fluidHeightC) * fluidDiffusionStrength;
+	//vec2 slopeS = (fluidHeightS - fluidHeightC) * fluidDiffusionStrength;
+	//vec2 slopeE = (fluidHeightE - fluidHeightC) * fluidDiffusionStrength;
+	//vec2 slopeW = (fluidHeightW - fluidHeightC) * fluidDiffusionStrength;
 	
+	vec4 fC = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  0));
+	vec4 fN = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0, -1));
+	vec4 fS = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  1));
+	vec4 fE = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  0));
+	vec4 fW = texelFetchOffset(s_velocityTexture, T, 0, ivec2(-1,  0));
+	
+	/*
 	vec4 vC = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  0)) * dt;
 	vec4 vN = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0, -1)) * dt;
 	vec4 vS = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  1)) * dt;
@@ -61,22 +68,21 @@ void main()
 	vec2 vSC = clamp(-vec2(vS.y, vS.w) + slopeS, vec2(0.0), vec2(1.0));
 	vec2 vEC = clamp(-vec2(vE.x, vE.z) + slopeE, vec2(0.0), vec2(1.0));
 	vec2 vWC = clamp( vec2(vW.x, vW.z) + slopeW, vec2(0.0), vec2(1.0));
-
-	// TODO refactor below to transfer molten and water in same step
+	*/
 	
 	// Transfer molten volume
 	float moltenHeight = hC.y;
 	{
-		float toN = min( vCN.x * hC.y, hC.y * 0.25 );
-		float toS = min( vCS.x * hC.y, hC.y * 0.25 );
-		float toE = min( vCE.x * hC.y, hC.y * 0.25 );
-		float toW = min( vCW.x * hC.y, hC.y * 0.25 );
+		float toN = min( fC.z * hC.y, hC.y * 0.15 );
+		float toS = min( fC.w * hC.y, hC.y * 0.15 );
+		float toE = min( fC.y * hC.y, hC.y * 0.15 );
+		float toW = min( fC.x * hC.y, hC.y * 0.15 );
 		float totalTo = (toN + toS + toE + toW);
 
-		float fromN = min( vNC.x * hN.y, hN.y * 0.25 );
-		float fromS = min( vSC.x * hS.y, hS.y * 0.25 );
-		float fromE = min( vEC.x * hE.y, hE.y * 0.25 );
-		float fromW = min( vWC.x * hW.y, hW.y * 0.25 );
+		float fromN = min( fN.w * hN.y, hN.y * 0.15 );
+		float fromS = min( fS.z * hS.y, hS.y * 0.15 );
+		float fromE = min( fE.x * hE.y, hE.y * 0.15 );
+		float fromW = min( fW.y * hW.y, hW.y * 0.15 );
 
 		float totalFrom = fromN + fromS + fromE + fromW;
 
@@ -84,6 +90,7 @@ void main()
 		moltenHeight -= totalTo;
 		
 		// Advect heat
+		/*
 		float heatN = texelFetchOffset(s_miscData, T, 0, ivec2( 0, -1)).x;
 		float heatS = texelFetchOffset(s_miscData, T, 0, ivec2( 0,  1)).x;
 		float heatE = texelFetchOffset(s_miscData, T, 0, ivec2( 1,  0)).x;
@@ -97,29 +104,9 @@ void main()
 		
 		heatC -= toHeat;
 		heatC += fromheat;
+		*/
 	}
-	
-	// Transfer water volume
-	float waterHeight = hC.w;
-	{
-		float toN = min( vCN.y * hC.w, hC.w * 0.25 );
-		float toS = min( vCS.y * hC.w, hC.w * 0.25 );
-		float toE = min( vCE.y * hC.w, hC.w * 0.25 );
-		float toW = min( vCW.y * hC.w, hC.w * 0.25 );
-		float totalTo = (toN + toS + toE + toW);
-
-		float fromN = min( vNC.y * hN.w, hN.w * 0.25 );
-		float fromS = min( vSC.y * hS.w, hS.w * 0.25 );
-		float fromE = min( vEC.y * hE.w, hE.w * 0.25 );
-		float fromW = min( vWC.y * hW.w, hW.w * 0.25 );
-
-		float totalFrom = fromN + fromS + fromE + fromW;
-
-		waterHeight += totalFrom;
-		waterHeight -= totalTo;
-	}
-	
-	
-	out_heightData = vec4( hC.x, moltenHeight, hC.z, waterHeight );
+		
+	out_heightData = vec4( hC.x, moltenHeight, hC.z, hC.w );
 	out_miscData = vec4( heatC, miscDataC.yzw );
 }

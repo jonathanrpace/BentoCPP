@@ -64,13 +64,16 @@ void main()
 	float addedWater = mouseRatio * u_mouseWaterVolumeStrength;
 	float addedSolid = mouseRatio * u_mouseDirtVolumeStrength;
 	
-	vec4 heightDataC = texelFetch( s_heightData, T, 0 );
-	vec4 hC = heightDataC;
-
-	heightDataC.x += addedSolid;
-	heightDataC.y += addedMolten;
-	heightDataC.w += addedWater;
-	out_heightData = heightDataC;
+	vec4 hC = texelFetch( s_heightData, T, 0 );
+	hC.x += addedSolid;
+	hC.y += addedMolten;
+	hC.w += addedWater;
+	out_heightData = hC;
+	
+	vec4 fC = texelFetch( s_fluidVelocity, T, 0 ); 
+	out_fluidVelocity = fC;
+	
+	
 	
 	// Add heat
 	vec4 miscDataC = texelFetch( s_miscData, T, 0 );
@@ -79,42 +82,39 @@ void main()
 	miscDataC.x = heat;
 	out_miscData = miscDataC;
 
-	vec4 fluidVelocityC = texelFetch( s_fluidVelocity, T, 0 ); 
-	//vec2 addedMoltenVelocity = offset * mouseRatio * mix( 0.0, 1.0, rand());
-	//fluidVelocityC.xy -= addedMoltenVelocity * 0.01 * u_mouseMoltenHeatStrength;
-
-	// Subtract height gradient
-	/// Todo - move this to updateData?
+	// Modify flux
+	if ( true )
 	{
+		// Dampen
+		fC *= u_moltenVelocityDamping;
+		
 		vec4 hN = texelFetchOffset(s_heightData, T, 0, ivec2( 0, -1));
 		vec4 hS = texelFetchOffset(s_heightData, T, 0, ivec2( 0,  1));
 		vec4 hE = texelFetchOffset(s_heightData, T, 0, ivec2( 1,  0));
 		vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1,  0));
-
+	
 		float mhC = hC.x + hC.y;
 		float mhN = hN.x + hN.y;
 		float mhS = hS.x + hS.y;
 		float mhE = hE.x + hE.y;
 		float mhW = hW.x + hW.y;
-		vec2 moltenSlope = vec2(mhE - mhW, mhS - mhN);
-		fluidVelocityC.xy -= moltenSlope * u_moltenSlopeStrength;
 		
-		float whC = mhC + hC.z + hC.w;
-		float whN = mhN + hN.z + hN.w;
-		float whS = mhS + hS.z + hS.w;
-		float whE = mhE + hE.z + hE.w;
-		float whW = mhW + hW.z + hW.w;
-		vec2 heightGradientWater = vec2(whE - whW, whS - whN);
-		fluidVelocityC.zw -= heightGradientWater * u_waterGradientStrength;
+		fC.x += (mhC - mhW) * u_moltenSlopeStrength;
+		fC.y += (mhC - mhE) * u_moltenSlopeStrength;
+		fC.z += (mhC - mhN) * u_moltenSlopeStrength;
+		fC.w += (mhC - mhS) * u_moltenSlopeStrength;
+		
+		// Slow velocity based on viscosity
+		//float moltenViscosity = pow( heat, 0.5 );
+		//fluidVelocityC.xy *= min( heat * 3.0, 1.0);
+
+		fC *= smoothstep( 0.0, 0.001, hC.y );
+		
+		// Limit
+		fC = max( fC, vec4(0.0));
 	}
 
-	// Slow velocity based on viscosity
-	float moltenViscosity = pow( heat, 0.5 );
-	//fluidVelocityC.xy *= min( heat * 3.0, 1.0);
-	fluidVelocityC.xy *= u_moltenVelocityDamping;
 
-	// Limit velocity
-	fluidVelocityC = clamp( fluidVelocityC, vec4(-1.0), vec4(1.0));
 	
-	out_fluidVelocity = fluidVelocityC;
+	out_fluidVelocity = fC;
 }

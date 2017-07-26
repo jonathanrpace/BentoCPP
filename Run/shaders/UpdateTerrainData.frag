@@ -235,7 +235,16 @@ void main(void)
 	//vec4 miscDataBR = texelFetchBR(s_miscData);
 
 	vec4 normalDataC = texelFetchC(s_normalData);
-	vec4 velocityDataC = texelFetchC(s_velocityData);
+	
+	vec4 velocityDataC = texelFetchC(s_fluidVelocityData);
+	//vec4 velocityDataL = texelFetchL(s_velocityData);
+	//vec4 velocityDataR = texelFetchR(s_velocityData);
+	//vec4 velocityDataU = texelFetchU(s_velocityData);
+	//vec4 velocityDataD = texelFetchD(s_velocityData);
+	
+	vec2 moltenVelocity = vec2(velocityDataC.y-velocityDataC.x, velocityDataC.w-velocityDataC.z);
+	
+	
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
 	vec4 fluidVelocityC = texelFetchC(s_fluidVelocityData);
 	
@@ -386,9 +395,8 @@ void main(void)
 				uvOffsetB *= 0.0;
 			}
 			
-			vec2 moltenVelocity = fluidVelocityC.xy * u_moltenVelocityScalar;
-			uvOffsetA += moltenVelocity;
-			uvOffsetB += moltenVelocity;
+			uvOffsetA += moltenVelocity * u_moltenVelocityScalar;
+			uvOffsetB += moltenVelocity * u_moltenVelocityScalar;
 
 			out_uvOffsetData = vec4( uvOffsetA, uvOffsetB );
 		}
@@ -397,7 +405,6 @@ void main(void)
 		// SMUDGE MAP
 		//////////////////////////////////////////////////////////////////////////////////
 		{
-			vec2 moltenVelocity = fluidVelocityC.xy;
 			vec2 smudgeDir = smudgeDataC.xy;
 
 			float dp = dot( normalize(moltenVelocity), normalize(smudgeDir) );

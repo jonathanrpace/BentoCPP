@@ -74,6 +74,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("moltenSlopeStrength",	0.3f,		&m_moltenSlopeStrength);
 	SerializableMember("moltenDiffusionStrength",1.0f,		&m_moltenDiffusionStrength);
 	SerializableMember("moltenVelocityDamping",0.99f,		&m_moltenVelocityDamping);
+	SerializableMember("moltenPressureStrength",1.0,		&m_moltenPressureStrength);
 
 	// Water
 	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
@@ -113,7 +114,7 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	
 	// Global
 	SerializableMember("ambientTemperature",	0.05f,		&m_ambientTemperature);
-	SerializableMember("timeStep",				0.125f,		&m_timeStep);
+	SerializableMember("timeStep",				1.0f,		&m_timeStep);
 
 	ResetToDefaults();
 }
@@ -154,7 +155,7 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 	ImGui::Text("Environment");
 	ImGui::SliderFloat("AmbientTemp", &m_ambientTemperature, -1.0f, 1.0f);
-	ImGui::SliderFloat("Time Step", &m_timeStep, 0.0f, 0.2f);
+	ImGui::SliderFloat("Time Step", &m_timeStep, 0.0f, 10.0f);
 	ImGui::Spacing();
 
 	ImGui::Text("Molten");
@@ -165,9 +166,10 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::SliderFloat("Melt/Condense Speed", &m_meltCondenseSpeed, 0.0f, 0.25f, "%.4f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
-	ImGui::SliderFloat("Slope Strength#molten", &m_moltenSlopeStrength, 0.0f, 1.0f, "%.4f");
+	ImGui::SliderFloat("Slope Strength#molten", &m_moltenSlopeStrength, 0.0f, 10.0f, "%.4f");
 	ImGui::SliderFloat("Diffusion Strength#molten", &m_moltenDiffusionStrength, 0.0f, 4.0f, "%.4f");
 	ImGui::SliderFloat("Velocity Damping#molten", &m_moltenVelocityDamping, 0.9f, 1.0f, "%.4f");
+	ImGui::SliderFloat("Pressure Strength#molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.4f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -348,6 +350,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 			fragShader.SetTexture( "s_velocityData", _geom.FluidVelocityData().GetRead() );
 			fragShader.SetTexture( "s_pressureData", _geom.PressureData().GetRead() );
+
+			fragShader.SetUniform( "u_gradientScale", m_moltenPressureStrength );
 
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.FluidVelocityData().GetWrite());
 			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };

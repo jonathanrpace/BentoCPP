@@ -336,6 +336,9 @@ void main(void)
 	specularColor *= moltenRatio;
 	albedo *= moltenRatio;
 
+	albedo *= 1.0 + in_heightData.y * 1000;
+	
+	
 	// Direct light
 	//vec3 lightColor = vec3(1.0,1.0,1.0);
 	vec3 directLight = vec3(0.0);//pointLightContribution( normal, lightDir, viewDir, albedo, specularColor, roughness, lightColor, u_lightIntensity ) * (1.0-in_shadowing);
