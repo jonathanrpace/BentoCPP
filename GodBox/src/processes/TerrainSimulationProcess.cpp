@@ -290,15 +290,28 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		}
 		glFinish();
 
-		// Advect velocity along itself
-		Advect(
-			_renderTarget, 
-			_geom.FluidVelocityData().GetRead(), 
-			_geom.FluidVelocityData().GetRead(), 
-			_geom.FluidVelocityData().GetWrite(),
-			1.0f
-		);
-		_geom.FluidVelocityData().Swap();
+		// Advect flux and molten scalar along flux
+
+		TODO - Combine all these steps to get around this wierd non swapping problem
+
+		{
+			m_advectShader.BindPerPass();
+
+			m_advectShader.FragmentShader().SetUniform( "u_dt", m_timeStep );
+			m_advectShader.FragmentShader().SetTexture( "s_fluidFluxData", _geom.FluidVelocityData().GetRead() );
+			m_advectShader.FragmentShader().SetTexture( "s_miscData", _geom.MiscData().GetRead() );
+
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.FluidVelocityData().GetWrite());
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
+			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+			m_screenQuadGeom.Draw();
+
+			_geom.FluidVelocityData().Swap();
+			_geom.MiscData().Swap();
+		}
+		glFinish();
 
 		// Apply input
 		{
@@ -334,7 +347,22 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			glFinish();
 		}
 
-		ComputeDivergence(_renderTarget, _geom.FluidVelocityData().GetRead(), cellSize, _geom.DivergenceData());
+		// Divergence
+		{
+			m_computeDivergenceShader.BindPerPass();
+
+			m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
+			m_computeDivergenceShader.FragmentShader().SetTexture( "s_velocityData", _geom.FluidVelocityData().GetRead() );
+			m_computeDivergenceShader.FragmentShader().SetTexture( "s_heightData", _geom.HeightData().GetRead() );
+
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.DivergenceData());
+			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+			m_screenQuadGeom.Draw();
+
+		}
+
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
 		for (int i = 0; i < 40; ++i) 
 		{
@@ -528,20 +556,6 @@ void TerrainSimulationProcess::Jacobi(RenderTargetBase& renderTarget, TextureSqu
 void TerrainSimulationProcess::SubtractGradient(RenderTargetBase& renderTarget, TextureSquare & velocity,TextureSquare & pressure,TextureSquare & dest)
 {
 	
-}
-
-void TerrainSimulationProcess::ComputeDivergence(RenderTargetBase& renderTarget, TextureSquare & velocity, vec2 cellSize, TextureSquare & dest)
-{
-	m_computeDivergenceShader.BindPerPass();
-
-	m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
-	m_computeDivergenceShader.FragmentShader().SetTexture( "s_velocityData", velocity );
-
-    renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest);
-	static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-	m_screenQuadGeom.Draw();
 }
 
 void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

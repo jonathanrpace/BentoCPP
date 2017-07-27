@@ -8,6 +8,7 @@ in Varying
 
 out vec4 out_fragColor;
 
+uniform sampler2D s_heightData;
 uniform sampler2D s_velocityData;
 uniform float u_halfInverseCellSize; // 0.5f / CellSize
 
@@ -25,8 +26,13 @@ void main()
 	vec2 vS = vec2(fS.y - fS.x, fS.w - fS.z);
 	vec2 vE = vec2(fE.y - fE.x, fE.w - fE.z);
 	vec2 vW = vec2(fW.y - fW.x, fW.w - fW.z);
+
+	// Falloff divergence to zero as volume becomes very small
+	// Stops seemining invisible pressure pushing non-local volume away.
+	vec4 hC = texelFetch(s_heightData, T, 0);
+	float volumeScalar = smoothstep( 0.0, 0.001, hC.y );
 	
-	float divergenceA = u_halfInverseCellSize * (vE.x-vW.x + vS.y-vN.y);
+	float divergenceA = u_halfInverseCellSize * (vE.x-vW.x + vS.y-vN.y) * volumeScalar;
 	
     out_fragColor = vec4(divergenceA, 0.0, 0.0, 0.0);
 }

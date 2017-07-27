@@ -19,6 +19,7 @@ in Varying
 	vec4 in_heightData;
 	vec4 in_smudgeData;
 	vec3 in_albedoFluidColor;
+	vec4 in_miscData;
 };
 
 // Uniforms
@@ -338,6 +339,7 @@ void main(void)
 
 	albedo *= 1.0 + in_heightData.y * 1000;
 	
+	//albedo *= in_miscData.y;
 	
 	// Direct light
 	//vec3 lightColor = vec3(1.0,1.0,1.0);

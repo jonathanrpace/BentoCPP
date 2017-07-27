@@ -398,6 +398,9 @@ void main(void)
 			uvOffsetA += moltenVelocity * u_moltenVelocityScalar;
 			uvOffsetB += moltenVelocity * u_moltenVelocityScalar;
 
+			uvOffsetA *= smoothstep( 0.0, 0.01, heightDataC.y );
+			uvOffsetB *= smoothstep( 0.0, 0.01, heightDataC.y );
+
 			out_uvOffsetData = vec4( uvOffsetA, uvOffsetB );
 		}
 

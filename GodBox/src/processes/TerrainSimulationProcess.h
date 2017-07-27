@@ -104,7 +104,6 @@ namespace godBox
 		void Advect(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& source, TextureSquare& dest, float dissipation);
 		void Jacobi(RenderTargetBase& renderTarget, TextureSquare& pressure, TextureSquare& divergence, vec2 cellSize, TextureSquare& dest);
 		void SubtractGradient(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& pressure, TextureSquare& dest);
-		void ComputeDivergence(RenderTargetBase& renderTarget, TextureSquare& velocity, vec2 cellSize, TextureSquare& dest);
 		
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);

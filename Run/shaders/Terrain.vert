@@ -74,6 +74,7 @@ out Varying
 	vec4 out_heightData;
 	vec4 out_smudgeData;
 	vec3 out_albedoFluidColor;
+	vec4 out_miscData;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -197,5 +198,6 @@ void main(void)
 		out_shadowing = shadowing;
 		gl_Position = u_mvpMatrix * position;
 		out_heightData = heightDataC;
+		out_miscData = miscDataC;
 	}
 } 

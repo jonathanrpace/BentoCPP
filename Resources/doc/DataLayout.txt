@@ -10,7 +10,7 @@ w	water
 Misc
 =======================
 x	heat
-y
+y	moltenScalar
 z	dissolvedDirt
 w	occlusion
 

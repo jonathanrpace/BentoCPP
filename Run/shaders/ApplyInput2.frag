@@ -73,17 +73,19 @@ void main()
 	vec4 fC = texelFetch( s_fluidVelocity, T, 0 ); 
 	out_fluidVelocity = fC;
 	
-	
-	
 	// Add heat
 	vec4 miscDataC = texelFetch( s_miscData, T, 0 );
 	float heat = min( miscDataC.x, 1.0 );
 	heat += mouseRatio * u_mouseMoltenHeatStrength;
 	miscDataC.x = heat;
+	
+
+	// Add molten scalar random value
+	miscDataC.y = mix( miscDataC.y, rand(), (mouseRatio * u_mouseMoltenVolumeStrength) > 0.0 ? 1.0 : 0.0 );
+
 	out_miscData = miscDataC;
 
-	// Modify flux
-	if ( true )
+	// Add slope gradient to flux
 	{
 		// Dampen
 		fC *= u_moltenVelocityDamping;
