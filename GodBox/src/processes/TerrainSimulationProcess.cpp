@@ -265,31 +265,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	glDepthFunc(GL_ALWAYS);
 
 	// Update fluid simulation
+	if ( true )
 	{
-		// Advect molten and water along velocities
-		{
-			m_advectShader2.BindPerPass();
-
-			AdvectFrag2 fragShader = m_advectShader2.FragmentShader();
-			fragShader.SetUniform( "u_dt", m_timeStep );
-			fragShader.SetTexture( "s_heightData", _geom.HeightData().GetRead() );
-			fragShader.SetTexture( "s_miscData", _geom.MiscData().GetRead() );
-			fragShader.SetTexture( "s_velocityTexture", _geom.FluidVelocityData().GetRead() );
-
-			fragShader.SetUniform( "u_moltenDiffusionStrength", m_moltenDiffusionStrength );
-
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
-			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-			m_screenQuadGeom.Draw();
-
-			_geom.HeightData().Swap();
-			_geom.MiscData().Swap();
-		}
-		glFinish();
-
 		// Advect velocity along itself
 		Advect(
 			_renderTarget, 
@@ -300,40 +277,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		);
 		_geom.FluidVelocityData().Swap();
 
-		// Apply input
-		{
-			m_applyInputShader2.BindPerPass();
-
-			ApplyInputFrag2 fragShader = m_applyInputShader2.FragmentShader();
-
-			fragShader.SetUniform("u_mouseRadius",					m_mouseRadius);
-			fragShader.SetUniform("u_mouseMoltenVolumeStrength",	moltenVolumeAmount);
-			fragShader.SetUniform("u_mouseMoltenHeatStrength",		heatChangeAmount);
-			fragShader.SetUniform("u_mouseWaterVolumeStrength",		waterVolumeAmount);
-			fragShader.SetUniform("u_mouseDirtVolumeStrength",		dirtVolumeAmount);
-
-			fragShader.SetUniform("u_moltenSlopeStrength",		m_moltenSlopeStrength);
-			fragShader.SetUniform("u_moltenVelocityDamping",	m_moltenVelocityDamping);
-
-			fragShader.SetTexture("s_heightData",		_geom.HeightData().GetRead());
-			fragShader.SetTexture("s_fluidVelocity",	_geom.FluidVelocityData().GetRead());
-			fragShader.SetTexture("s_miscData",			_geom.MiscData().GetRead());
-
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.FluidVelocityData().GetWrite());
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscData().GetWrite());
-			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-			m_screenQuadGeom.Draw();
-
-			_geom.HeightData().Swap();
-			_geom.FluidVelocityData().Swap();
-			_geom.MiscData().Swap();
-
-			glFinish();
-		}
-
 		ComputeDivergence(_renderTarget, _geom.FluidVelocityData().GetRead(), cellSize, _geom.DivergenceData());
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
 		for (int i = 0; i < 40; ++i) 
@@ -342,7 +285,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			_geom.PressureData().Swap();
 		}
 
-		// Subtract gradient
+		// Subtract pressure gradient
+		if ( true )
 		{
 			m_subtractGradientShader.BindPerPass();
 
@@ -350,7 +294,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 			fragShader.SetTexture( "s_velocityData", _geom.FluidVelocityData().GetRead() );
 			fragShader.SetTexture( "s_pressureData", _geom.PressureData().GetRead() );
-
 			fragShader.SetUniform( "u_gradientScale", m_moltenPressureStrength );
 
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.FluidVelocityData().GetWrite());
@@ -361,12 +304,10 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 			_geom.FluidVelocityData().Swap();
 		}
-		
-		
 	}
 
 	// Update Data
-	if ( true ) {
+	{
 		m_updateDataShader.BindPerPass();
 		UpdateTerrainDataFrag& fragShader = m_updateDataShader.FragmentShader();
 
@@ -376,8 +317,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.NormalData().GetWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.SmudgeData().GetWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT5, _geom.UVOffsetData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT6, _geom.FluidVelocityData().GetWrite());
 
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 			
 		// Samplers
@@ -415,6 +357,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
 		fragShader.SetUniform("u_mapHeightOffset",				_material.heightOffset);
 		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);
+		fragShader.SetUniform("u_moltenSlopeStrength",			m_moltenSlopeStrength);
+		fragShader.SetUniform("u_moltenVelocityDamping",		m_moltenVelocityDamping);
 
 		// Water
 		fragShader.SetUniform("u_waterViscosity",				m_waterViscosity);
@@ -476,7 +420,10 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.NormalData().Swap();
 		_geom.SmudgeData().Swap();
 		_geom.UVOffsetData().Swap();
+		_geom.FluidVelocityData().Swap();
 	}
+
+
 }
 void TerrainSimulationProcess::ClearSurface(RenderTargetBase& renderTarget, TextureSquare& dest, float v)
 {

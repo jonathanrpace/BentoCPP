@@ -34,41 +34,12 @@ void main()
 	vec4 hE = texelFetchOffset(s_heightData, T, 0, ivec2( 1,  0));
 	vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1,  0));
 	
-	//float moltenHeightC = hC.x + hC.y;
-	//float moltenHeightN = hN.x + hN.y;
-	//float moltenHeightS = hS.x + hS.y;
-	//float moltenHeightE = hE.x + hE.y;
-	//float moltenHeightW = hW.x + hW.y;
-	
-	//vec2 fluidDiffusionStrength = vec2(u_moltenDiffusionStrength, u_waterDiffusionStrength);
-	//vec2 slopeN = (fluidHeightN - fluidHeightC) * fluidDiffusionStrength;
-	//vec2 slopeS = (fluidHeightS - fluidHeightC) * fluidDiffusionStrength;
-	//vec2 slopeE = (fluidHeightE - fluidHeightC) * fluidDiffusionStrength;
-	//vec2 slopeW = (fluidHeightW - fluidHeightC) * fluidDiffusionStrength;
-	
 	vec4 fC = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  0));
 	vec4 fN = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0, -1));
 	vec4 fS = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  1));
 	vec4 fE = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  0));
 	vec4 fW = texelFetchOffset(s_velocityTexture, T, 0, ivec2(-1,  0));
 	
-	/*
-	vec4 vC = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  0)) * dt;
-	vec4 vN = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0, -1)) * dt;
-	vec4 vS = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 0,  1)) * dt;
-	vec4 vE = texelFetchOffset(s_velocityTexture, T, 0, ivec2( 1,  0)) * dt;
-	vec4 vW = texelFetchOffset(s_velocityTexture, T, 0, ivec2(-1,  0)) * dt;
-	
-	vec2 vCN = clamp(-vec2(vC.y, vC.w) - slopeN, vec2(0.0), vec2(1.0));
-	vec2 vCS = clamp( vec2(vC.y, vC.w) - slopeS, vec2(0.0), vec2(1.0));
-	vec2 vCE = clamp( vec2(vC.x, vC.z) - slopeE, vec2(0.0), vec2(1.0));
-	vec2 vCW = clamp(-vec2(vC.x, vC.z) - slopeW, vec2(0.0), vec2(1.0));
-	
-	vec2 vNC = clamp( vec2(vN.y, vN.w) + slopeN, vec2(0.0), vec2(1.0));
-	vec2 vSC = clamp(-vec2(vS.y, vS.w) + slopeS, vec2(0.0), vec2(1.0));
-	vec2 vEC = clamp(-vec2(vE.x, vE.z) + slopeE, vec2(0.0), vec2(1.0));
-	vec2 vWC = clamp( vec2(vW.x, vW.z) + slopeW, vec2(0.0), vec2(1.0));
-	*/
 	
 	// Transfer molten volume
 	float moltenHeight = hC.y;
