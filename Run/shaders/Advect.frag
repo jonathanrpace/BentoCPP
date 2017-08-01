@@ -6,24 +6,22 @@ in Varying
 	vec2 in_uv;
 };
 
-out vec4 out_fragColor;
 
-uniform sampler2D s_velocityTexture;
-uniform sampler2D s_sourceTexture;
+layout( location = 0 ) out vec4 out_fluidFlux;
+
+uniform sampler2D s_fluidFluxData;
 
 uniform float u_dt;
-uniform float u_dissipation;
 
 void main()
 {
-	float cellScalar = 1.0 / textureSize(s_velocityTexture,0).x;
-	
-	vec4 fluxSample = texelFetch( s_velocityTexture, ivec2(gl_FragCoord.xy), 0 );
-    vec2 velocity = vec2(fluxSample.y - fluxSample.x, fluxSample.w - fluxSample.z);
-	
-    vec2 coord = in_uv - velocity * u_dt * cellScalar;
-	
-	vec4 outFragColor = max( texture(s_sourceTexture, coord), vec4(0.0) );
+	ivec2 T = ivec2(gl_FragCoord.xy);
 
-    out_fragColor = outFragColor;
+	float cellScalar = 1.0 / textureSize(s_fluidFluxData,0).x;
+	
+	vec4 fluxSample = texelFetch( s_fluidFluxData, T, 0 );
+    vec2 velocity = vec2(fluxSample.y - fluxSample.x, fluxSample.w - fluxSample.z);
+    vec2 coord = in_uv - velocity * u_dt * cellScalar;
+
+	out_fluidFlux = max( texture(s_fluidFluxData, coord), vec4(0.0) );
 }

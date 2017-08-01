@@ -258,14 +258,19 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	if ( true )
 	{
 		// Advect velocity along itself
-		Advect(
-			_renderTarget, 
-			_geom.FluidVelocityData().GetRead(), 
-			_geom.FluidVelocityData().GetRead(), 
-			_geom.FluidVelocityData().GetWrite(),
-			1.0f
-		);
-		_geom.FluidVelocityData().Swap();
+		{
+			m_advectShader.BindPerPass();
+
+			m_advectShader.FragmentShader().SetUniform( "u_dt", m_timeStep );
+			m_advectShader.FragmentShader().SetTexture( "s_fluidFluxData", _geom.FluidVelocityData().GetRead() );
+
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.FluidVelocityData().GetWrite());
+			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+			m_screenQuadGeom.Draw();
+			_geom.FluidVelocityData().Swap();
+		}
 
 		// Divergence
 		{
@@ -282,6 +287,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			m_screenQuadGeom.Draw();
 
 		}
+
 
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
 		for (int i = 0; i < 40; ++i) 
@@ -438,28 +444,6 @@ void TerrainSimulationProcess::ClearSurface(RenderTargetBase& renderTarget, Text
 
     GL_CHECK( glClearColor(v, v, v, v) );
     GL_CHECK( glClear(GL_COLOR_BUFFER_BIT) );
-}
-
-void TerrainSimulationProcess::Advect(
-	RenderTargetBase& renderTarget, 
-	TextureSquare & velocity,
-	TextureSquare & source,
-	TextureSquare & dest,
-	float dissipation
-)
-{
-	m_advectShader.BindPerPass();
-
-	m_advectShader.FragmentShader().SetUniform( "u_dt", m_timeStep );
-	m_advectShader.FragmentShader().SetUniform( "u_dissipation", dissipation );
-	m_advectShader.FragmentShader().SetTexture( "s_sourceTexture", source );
-	m_advectShader.FragmentShader().SetTexture( "s_velocityTexture", velocity );
-
-	renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest);
-	static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-	m_screenQuadGeom.Draw();
 }
 
 void TerrainSimulationProcess::Jacobi(RenderTargetBase& renderTarget, TextureSquare & pressure,TextureSquare & divergence, vec2 cellSize, TextureSquare & dest)

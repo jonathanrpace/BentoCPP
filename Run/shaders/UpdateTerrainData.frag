@@ -285,21 +285,19 @@ void main(void)
 		hC.y -= totalTo;
 		
 		// Advect heat
-		/*
 		float heatN = texelFetchOffset(s_miscData, T, 0, ivec2( 0, -1)).x;
 		float heatS = texelFetchOffset(s_miscData, T, 0, ivec2( 0,  1)).x;
 		float heatE = texelFetchOffset(s_miscData, T, 0, ivec2( 1,  0)).x;
 		float heatW = texelFetchOffset(s_miscData, T, 0, ivec2(-1,  0)).x;
 		
-		float toProp = totalTo / max( hC.y, EPSILON );
-		float toHeat = toProp * heatC;
+		float toProp = totalTo / max( hC.y, EPSILON.x );
+		float toHeat = toProp * mC.x;
 		
-		vec4 fromProp = vec4(fromN, fromS, fromE, fromW) / max( vec4( hN.y, hS.y, hE.y, hW.y ), vec4( EPSILON ) );
+		vec4 fromProp = vec4(fromN, fromS, fromE, fromW) / max( vec4( hN.y, hS.y, hE.y, hW.y ), EPSILON );
 		float fromheat = dot( vec4( heatN, heatS, heatE, heatW ) * fromProp, vec4(1.0) );
 		
-		heatC -= toHeat;
-		heatC += fromheat;
-		*/
+		mC.x -= toHeat;
+		mC.x += fromheat;
 	}
 	
 	// Add slope to molten flux

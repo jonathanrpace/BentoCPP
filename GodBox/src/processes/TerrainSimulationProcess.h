@@ -89,7 +89,6 @@ namespace godBox
 		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, MoltenParticleGeom & _moltenParticleGeom);
 
 		void ClearSurface(RenderTargetBase & renderTarget,TextureSquare & dest,float v);
-		void Advect(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& source, TextureSquare& dest, float dissipation);
 		void Jacobi(RenderTargetBase& renderTarget, TextureSquare& pressure, TextureSquare& divergence, vec2 cellSize, TextureSquare& dest);
 		void SubtractGradient(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& pressure, TextureSquare& dest);
 		
