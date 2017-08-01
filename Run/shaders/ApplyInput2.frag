@@ -55,19 +55,60 @@ void main()
 	vec4 fC = texelFetch( s_fluidVelocity, T, 0 ); 
 	out_fluidVelocity = fC;
 	
-	
-	
 	// Add heat
 	/*
 	vec4 miscDataC = texelFetch( s_miscData, T, 0 );
 	float heat = min( miscDataC.x, 1.0 );
 	heat += mouseRatio * u_mouseMoltenHeatStrength;
 	miscDataC.x = heat;
+	
+<<<<<<< HEAD
+
+	// Add molten scalar random value
+	miscDataC.y = mix( miscDataC.y, rand(), (mouseRatio * u_mouseMoltenVolumeStrength) > 0.0 ? 1.0 : 0.0 );
+
 	out_miscData = miscDataC;
+<<<<<<< HEAD
 	*/
 	
 	// Modify flux
 	if ( true )
+=======
+=======
+
+	// Add molten scalar random value
+	miscDataC.y = mix( miscDataC.y, rand(), (mouseRatio * u_mouseMoltenVolumeStrength) > 0.0 ? 1.0 : 0.0 );
+
+	out_miscData = miscDataC;
+
+	// Add slope gradient to flux
+	{
+		// Dampen
+		fC *= u_moltenVelocityDamping;
+		
+		vec4 hN = texelFetchOffset(s_heightData, T, 0, ivec2( 0, -1));
+		vec4 hS = texelFetchOffset(s_heightData, T, 0, ivec2( 0,  1));
+		vec4 hE = texelFetchOffset(s_heightData, T, 0, ivec2( 1,  0));
+		vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1,  0));
+	
+		float mhC = hC.x + hC.y;
+		float mhN = hN.x + hN.y;
+		float mhS = hS.x + hS.y;
+		float mhE = hE.x + hE.y;
+		float mhW = hW.x + hW.y;
+		
+		fC.x += (mhC - mhW) * u_moltenSlopeStrength;
+		fC.y += (mhC - mhE) * u_moltenSlopeStrength;
+		fC.z += (mhC - mhN) * u_moltenSlopeStrength;
+		fC.w += (mhC - mhS) * u_moltenSlopeStrength;
+		
+		// Slow velocity based on viscosity
+		//float moltenViscosity = pow( heat, 0.5 );
+		//fluidVelocityC.xy *= min( heat * 3.0, 1.0);
+>>>>>>> 6990942d30429b7816ece32f62c4e5cbecfa32f2
+
+	// Add slope gradient to flux
+>>>>>>> 6990942d30429b7816ece32f62c4e5cbecfa32f2
 	{
 		
 	}
