@@ -218,17 +218,6 @@ void main(void)
 { 
 	ivec2 T = ivec2(gl_FragCoord.xy);
 	
-	// Shared data samples
-	//vec4 heightDataC = texelFetchC(s_heightData);
-	//vec4 heightDataL = texelFetchL(s_heightData);
-	//vec4 heightDataR = texelFetchR(s_heightData);
-	//vec4 heightDataU = texelFetchU(s_heightData);
-	//vec4 heightDataD = texelFetchD(s_heightData);
-	//vec4 heightDataTL = texelFetchTL(s_heightData);
-	//vec4 heightDataTR = texelFetchTR(s_heightData);
-	//vec4 heightDataBL = texelFetchBL(s_heightData);
-	//vec4 heightDataBR = texelFetchBR(s_heightData);
-	
 	vec4 hC = texelFetchC(s_heightData);
 	vec4 hN = texelFetchU(s_heightData);
 	vec4 hS = texelFetchD(s_heightData);
@@ -355,7 +344,7 @@ void main(void)
 			
 			uvOffsetA += velocity * u_moltenVelocityScalar;
 			uvOffsetB += velocity * u_moltenVelocityScalar;
-
+			
 			uvOffsetDataC = vec4( uvOffsetA, uvOffsetB );
 		}
 
