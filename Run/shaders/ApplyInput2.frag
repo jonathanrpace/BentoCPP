@@ -63,6 +63,7 @@ void main()
 	miscDataC.x = heat;
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	// Add molten scalar random value
 	miscDataC.y = mix( miscDataC.y, rand(), (mouseRatio * u_mouseMoltenVolumeStrength) > 0.0 ? 1.0 : 0.0 );
@@ -81,6 +82,14 @@ void main()
 
 	out_miscData = miscDataC;
 
+=======
+
+	// Add molten scalar random value
+	miscDataC.y = mix( miscDataC.y, rand(), (mouseRatio * u_mouseMoltenVolumeStrength) > 0.0 ? 1.0 : 0.0 );
+
+	out_miscData = miscDataC;
+
+>>>>>>> 6990942d30429b7816ece32f62c4e5cbecfa32f2
 	// Add slope gradient to flux
 	{
 		// Dampen
