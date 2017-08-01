@@ -12,8 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Run\shaders\Advect.frag" />
-    <None Include="..\Run\shaders\Advect2.frag" />
-    <None Include="..\Run\shaders\ApplyInput2.frag" />
     <None Include="..\Run\shaders\ComputeDivergence.frag" />
     <None Include="..\Run\shaders\CubeMapSkybox.frag" />
     <None Include="..\Run\shaders\Jacobi.frag" />
