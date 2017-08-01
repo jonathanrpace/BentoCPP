@@ -25,11 +25,6 @@ AdvectFrag::AdvectFrag()
 {}
 
 //////////////////////////////////////////////////////////////////////////
-AdvectFrag2::AdvectFrag2()
-	: ShaderStageBase("shaders/Advect2.frag")
-{}
-
-//////////////////////////////////////////////////////////////////////////
 JacobiFrag::JacobiFrag()
 	: ShaderStageBase("shaders/Jacobi.frag")
 {}
@@ -42,11 +37,6 @@ ComputeDivergenceFrag::ComputeDivergenceFrag()
 //////////////////////////////////////////////////////////////////////////
 SubtractGradientFrag::SubtractGradientFrag()
 	: ShaderStageBase("shaders/SubtractGradient.frag")
-{}
-
-//////////////////////////////////////////////////////////////////////////
-ApplyInputFrag2::ApplyInputFrag2()
-	: ShaderStageBase("shaders/ApplyInput2.frag")
 {}
 
 //////////////////////////////////////////////////////////////////////////
@@ -277,7 +267,22 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		);
 		_geom.FluidVelocityData().Swap();
 
-		ComputeDivergence(_renderTarget, _geom.FluidVelocityData().GetRead(), cellSize, _geom.DivergenceData());
+		// Divergence
+		{
+			m_computeDivergenceShader.BindPerPass();
+
+			m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
+			m_computeDivergenceShader.FragmentShader().SetTexture( "s_velocityData", _geom.FluidVelocityData().GetRead() );
+			m_computeDivergenceShader.FragmentShader().SetTexture( "s_heightData", _geom.HeightData().GetRead() );
+
+			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.DivergenceData());
+			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+
+			m_screenQuadGeom.Draw();
+
+		}
+
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
 		for (int i = 0; i < 40; ++i) 
 		{
@@ -475,20 +480,6 @@ void TerrainSimulationProcess::Jacobi(RenderTargetBase& renderTarget, TextureSqu
 void TerrainSimulationProcess::SubtractGradient(RenderTargetBase& renderTarget, TextureSquare & velocity,TextureSquare & pressure,TextureSquare & dest)
 {
 	
-}
-
-void TerrainSimulationProcess::ComputeDivergence(RenderTargetBase& renderTarget, TextureSquare & velocity, vec2 cellSize, TextureSquare & dest)
-{
-	m_computeDivergenceShader.BindPerPass();
-
-	m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
-	m_computeDivergenceShader.FragmentShader().SetTexture( "s_velocityData", velocity );
-
-    renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest);
-	static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-	renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-	m_screenQuadGeom.Draw();
 }
 
 void TerrainSimulationProcess::OnNodeAdded(const TerrainSimPassNode & _node)

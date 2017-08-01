@@ -40,11 +40,6 @@ namespace godBox
 		AdvectFrag();
 	};
 
-	struct AdvectFrag2 : ShaderStageBase
-	{
-		AdvectFrag2();
-	};
-
 	struct JacobiFrag : ShaderStageBase
 	{
 		JacobiFrag();
@@ -60,19 +55,12 @@ namespace godBox
 		SubtractGradientFrag();
 	};
 
-	struct ApplyInputFrag2 : ShaderStageBase
-	{
-		ApplyInputFrag2();
-	};
-
 	struct UpdateTerrainFluxShader		: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader		: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct AdvectShader					: ShaderBase<ScreenQuadVert, AdvectFrag> {};
-	struct AdvectShader2				: ShaderBase<ScreenQuadVert, AdvectFrag2> {};
 	struct JacobiShader					: ShaderBase<ScreenQuadVert, JacobiFrag> {};
 	struct ComputeDivergenceShader		: ShaderBase<ScreenQuadVert, ComputeDivergenceFrag> {};
 	struct SubtractGradientShader		: ShaderBase<ScreenQuadVert, SubtractGradientFrag> {};
-	struct ApplyInputShader2			: ShaderBase<ScreenQuadVert, ApplyInputFrag2> {};
 	
 	DEFINE_NODE_3
 	(
@@ -104,7 +92,6 @@ namespace godBox
 		void Advect(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& source, TextureSquare& dest, float dissipation);
 		void Jacobi(RenderTargetBase& renderTarget, TextureSquare& pressure, TextureSquare& divergence, vec2 cellSize, TextureSquare& dest);
 		void SubtractGradient(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& pressure, TextureSquare& dest);
-		void ComputeDivergence(RenderTargetBase& renderTarget, TextureSquare& velocity, vec2 cellSize, TextureSquare& dest);
 		
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
@@ -114,11 +101,9 @@ namespace godBox
 		UpdateTerrainFluxShader m_updateFluxShader;
 		UpdateTerrainDataShader m_updateDataShader;
 		AdvectShader m_advectShader;
-		AdvectShader2 m_advectShader2;
 		JacobiShader m_jacobiShader;
 		ComputeDivergenceShader m_computeDivergenceShader;
 		SubtractGradientShader m_subtractGradientShader;
-		ApplyInputShader2 m_applyInputShader2;
 
 		// Internal
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;
