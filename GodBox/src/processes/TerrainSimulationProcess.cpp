@@ -323,19 +323,17 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		UpdateTerrainDataFrag& fragShader = m_updateDataShader.FragmentShader();
 
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.VelocityData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.MiscData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.NormalData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.SmudgeData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT5, _geom.UVOffsetData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT6, _geom.FluidVelocityData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.NormalData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.SmudgeData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.UVOffsetData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT5, _geom.FluidVelocityData().GetWrite());
 
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5, GL_COLOR_ATTACHMENT6 };
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 			
 		// Samplers
 		fragShader.SetTexture("s_heightData",					_geom.HeightData().GetRead());
-		fragShader.SetTexture("s_velocityData",					_geom.VelocityData().GetRead());
 		fragShader.SetTexture("s_miscData",						_geom.MiscData().GetRead());
 		fragShader.SetTexture("s_normalData",					_geom.NormalData().GetRead());
 		fragShader.SetTexture("s_smudgeData",					_geom.SmudgeData().GetRead());
@@ -422,11 +420,9 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.HeightData().GetWrite().GenerateMipMaps();
 		_geom.NormalData().GetWrite().GenerateMipMaps();
 		_geom.MiscData().GetWrite().GenerateMipMaps();
-		_geom.VelocityData().GetWrite().GenerateMipMaps();
 		_geom.SmudgeData().GetWrite().GenerateMipMaps();
 
 		_geom.HeightData().Swap();
-		_geom.VelocityData().Swap();
 		_geom.MiscData().Swap();
 		_geom.NormalData().Swap();
 		_geom.SmudgeData().Swap();

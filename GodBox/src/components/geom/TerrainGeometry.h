@@ -27,7 +27,6 @@ namespace godBox
 		~TerrainGeometry();
 
 		PingPongTextureSquare& HeightData() { return m_heightData; }
-		PingPongTextureSquare& VelocityData() { return m_velocityData; }
 		PingPongTextureSquare& MiscData() { return m_miscData; }
 		PingPongTextureSquare& NormalData() { return m_normalData; }
 		PingPongTextureSquare& SmudgeData() { return m_smudgeData; }

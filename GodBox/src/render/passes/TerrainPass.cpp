@@ -114,7 +114,6 @@ namespace godBox
 		
 		// Textures
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
-		SetTexture("s_velocityData", _geometry.VelocityData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_uvOffsetData", _geometry.UVOffsetData().GetRead());

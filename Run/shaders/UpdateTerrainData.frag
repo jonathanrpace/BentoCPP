@@ -17,7 +17,6 @@ in Varying
 
 // Samplers
 uniform sampler2D s_heightData;
-uniform sampler2D s_velocityData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
@@ -108,12 +107,11 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 ////////////////////////////////////////////////////////////////
 
 layout( location = 0 ) out vec4 out_heightData;
-layout( location = 1 ) out vec4 out_velocityData;
-layout( location = 2 ) out vec4 out_miscData;
-layout( location = 3 ) out vec4 out_normalData;
-layout( location = 4 ) out vec4 out_smudgeData;
-layout( location = 5 ) out vec4 out_uvOffsetData;
-layout( location = 6 ) out vec4 out_fluidVelocityData;
+layout( location = 1 ) out vec4 out_miscData;
+layout( location = 2 ) out vec4 out_normalData;
+layout( location = 3 ) out vec4 out_smudgeData;
+layout( location = 4 ) out vec4 out_uvOffsetData;
+layout( location = 5 ) out vec4 out_fluidVelocityData;
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -238,7 +236,6 @@ void main(void)
 
 	vec4 normalDataC = texelFetchC(s_normalData);
 	vec4 uvOffsetDataC = texelFetchC(s_uvOffsetData);
-	vec4 velocityDataC = texelFetchC(s_velocityData);
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
 	
 	
@@ -704,7 +701,6 @@ void main(void)
 		hC.w = 0.0;
 	
 	out_heightData = max( vec4(0.0), hC );
-	out_velocityData = velocityDataC;
 	out_miscData = mC;
 	out_normalData = normalDataC;
 	out_smudgeData = smudgeDataC;

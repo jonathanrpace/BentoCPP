@@ -91,7 +91,7 @@ namespace godBox
 				auto& vertexShader = m_foamParticleUpdateShader.VertexShader();
 
 				vertexShader.SetTexture("s_heightData", terrainGeom.HeightData().GetRead());
-				vertexShader.SetTexture("s_velocityData", terrainGeom.VelocityData().GetRead());
+				//vertexShader.SetTexture("s_velocityData", terrainGeom.VelocityData().GetRead());
 
 				GL_CHECK(glDrawArrays(GL_POINTS, 0, particleGeom.NumParticles()));
 
