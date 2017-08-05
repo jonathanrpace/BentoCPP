@@ -12,7 +12,7 @@ Misc
 x	heat
 y	moltenScalar
 z	dissolvedDirt
-w	occlusion
+w	
 
 
 =======================
@@ -20,8 +20,11 @@ Smudge
 =======================
 x	smudgeDirX
 y	smudgeDirY
-z	albedoFluidColor	(~)
-w	foamAmount		(~)
+z	
+w	
+
+
+== DERIVED ===================
 
 =======================
 Normal
@@ -30,3 +33,12 @@ x	waterNormalX
 y	waterNormalY
 z	rockNormalX
 w	rockNormalY
+
+=======================
+Derived
+=======================
+x	occlusion
+y	
+z	
+w	
+

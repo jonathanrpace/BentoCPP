@@ -11,7 +11,6 @@ in Varying
 	vec4 in_viewPosition;
 	vec2 in_uv;
 	float in_dirtAlpha;
-	float in_heat;
 	vec3 in_rockNormal;
 	float in_occlusion;
 	float in_shadowing;
@@ -20,6 +19,7 @@ in Varying
 	vec4 in_smudgeData;
 	vec3 in_albedoFluidColor;
 	vec4 in_miscData;
+	vec4 in_derivedData;
 };
 
 // Uniforms
@@ -68,7 +68,6 @@ uniform sampler2D s_miscData;
 uniform sampler2D s_heightData;
 uniform sampler2D s_uvOffsetData;
 
-uniform sampler2D s_densityData;
 uniform sampler2D s_fluidVelocityData;
 uniform sampler2D s_divergenceData;
 uniform sampler2D s_pressureData;
@@ -333,7 +332,7 @@ void main(void)
 	float textureAO = mix( 1.0, materialParams.g, 0.5 ) * mix( 1.0, creaseValue, 0.6 );
 
 	// Make albedo/specular darker when hot
-	float moltenRatio = 1.0 - ( min( in_heat * 2.0, 1.0 ) );
+	float moltenRatio = 1.0 - ( min( in_miscData.x * 2.0, 1.0 ) );
 	specularColor *= moltenRatio;
 	albedo *= moltenRatio;
 
@@ -378,19 +377,17 @@ void main(void)
 
 	// Add emissve elements
 	float moltenMap = rockMaterialParams.b;
-	float heat = pow(clamp(in_heat, 0.0, 1.0), 0.5);
+	float heat = pow(clamp(in_miscData.x, 0.0, 1.0), 0.5);
 	float moltenAlphaA = pow( moltenMap, mix( 1.5, 0.4, heat ) ) * heat;
 	float moltenAlphaB = pow( moltenMap, 2.5 ) * (1.0 - heat) * heat * 6;
 	float moltenAlpha = clamp( moltenAlphaA + moltenAlphaB, 0.0, 1.0 );
 	
 	vec3 moltenColor = degamma( texture(s_moltenGradient, vec2(moltenAlpha * 0.96, 0.5)).rgb );
-	moltenColor *= 1.0 + max(in_heat, 0.0);
+	moltenColor *= 1.0 + max(in_miscData.x, 0.0);
 	outColor += moltenColor;
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
-	
-	float densitySample = texture( s_densityData, in_uv ).r;
 	
 	vec2 velocitySample = texture( s_fluidVelocityData, in_uv ).xy;
 	
@@ -406,6 +403,5 @@ void main(void)
 	pressureSample += 0.5;
 	
 	//out_forward = pow( vec4( velocitySample, pressureSample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );
-	//out_forward = pow( vec4( 0.0, 0.0, densitySample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );
 	
 }

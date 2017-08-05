@@ -28,15 +28,14 @@ namespace godBox
 
 		PingPongTextureSquare& HeightData() { return m_heightData; }
 		PingPongTextureSquare& MiscData() { return m_miscData; }
-		PingPongTextureSquare& NormalData() { return m_normalData; }
 		PingPongTextureSquare& SmudgeData() { return m_smudgeData; }
+		PingPongTextureSquare& MoltenFluxData() { return m_moltenFluxData; }
 		PingPongTextureSquare& WaterFluxData() { return m_waterFluxData; }
 		PingPongTextureSquare& UVOffsetData() { return m_uvOffsetData; }
-
-
-		PingPongTextureSquare& FluidVelocityData() { return m_fluidVelocityData; }
-		PingPongTextureSquare& DensityData() { return m_densityData; }
 		PingPongTextureSquare& PressureData() { return m_pressureData; }
+
+		TextureSquare& DerivedData() { return m_derivedData; }
+		TextureSquare& NormalData() { return m_normalData; }
 		TextureSquare& DivergenceData() { return m_divergenceData; }
 		
 		void ResetTerrainMousePos();
@@ -80,14 +79,15 @@ namespace godBox
 		PingPongTextureSquare m_heightData;
 		PingPongTextureSquare m_velocityData;
 		PingPongTextureSquare m_miscData;
-		PingPongTextureSquare m_normalData;
 		PingPongTextureSquare m_smudgeData;
-		PingPongTextureSquare m_waterFluxData;
 		PingPongTextureSquare m_uvOffsetData;
-
-		PingPongTextureSquare m_fluidVelocityData;
-		PingPongTextureSquare m_densityData;
+		PingPongTextureSquare m_moltenFluxData;
+		PingPongTextureSquare m_waterFluxData;
 		PingPongTextureSquare m_pressureData;
+
+		// Derived
+		TextureSquare m_normalData;
+		TextureSquare m_derivedData;
 		TextureSquare m_divergenceData;
 	};
 }

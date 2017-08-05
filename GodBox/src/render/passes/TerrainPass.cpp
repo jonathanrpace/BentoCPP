@@ -28,8 +28,11 @@ namespace godBox
 		// Textures
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
-		SetTexture("s_normalData", _geometry.NormalData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
+
+		SetTexture("s_normalData", _geometry.NormalData());
+		SetTexture("s_derivedData", _geometry.DerivedData());
+
 		SetTexture("s_lavaMaterial", _material.lavaMat);
 
 		// Matrices
@@ -118,8 +121,7 @@ namespace godBox
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_uvOffsetData", _geometry.UVOffsetData().GetRead());
 		
-		SetTexture("s_densityData", _geometry.DensityData().GetRead());
-		SetTexture("s_fluidVelocityData", _geometry.FluidVelocityData().GetRead());
+		SetTexture("s_fluidVelocityData", _geometry.MoltenFluxData().GetRead());
 		SetTexture("s_divergenceData", _geometry.DivergenceData());
 		SetTexture("s_pressureData", _geometry.PressureData().GetRead());
 

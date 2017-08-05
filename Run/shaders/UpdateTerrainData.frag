@@ -18,14 +18,11 @@ in Varying
 // Samplers
 uniform sampler2D s_heightData;
 uniform sampler2D s_miscData;
-uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_waterFluxData;
 uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_grungeMap;
 uniform sampler2D s_fluidVelocityData;
-
-uniform sampler2D s_albedoFluidGradient;
 
 // Mouse
 uniform float u_mouseRadius;
@@ -88,9 +85,6 @@ uniform float u_dirtPickupRate;
 uniform float u_dirtDepositSpeed;
 uniform float u_dissolvedDirtSmoothing;
 
-// Misc
-uniform vec2 u_cellSize;
-uniform int u_numHeightMips;
 
 
 // Buffers
@@ -108,10 +102,9 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 
 layout( location = 0 ) out vec4 out_heightData;
 layout( location = 1 ) out vec4 out_miscData;
-layout( location = 2 ) out vec4 out_normalData;
-layout( location = 3 ) out vec4 out_smudgeData;
-layout( location = 4 ) out vec4 out_uvOffsetData;
-layout( location = 5 ) out vec4 out_fluidVelocityData;
+layout( location = 2 ) out vec4 out_smudgeData;
+layout( location = 3 ) out vec4 out_uvOffsetData;
+layout( location = 4 ) out vec4 out_fluidVelocityData;
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -129,15 +122,6 @@ vec2 GetMousePos()
 {
 	vec2 mousePos = vec2( mouseBufferU, mouseBufferV ) / 255;
 	return mousePos;
-}
-
-
-////////////////////////////////////////////////////////////////
-//
-vec2 VelocityFromFlux( vec4 fluxC, vec4 fluxL, vec4 fluxR, vec4 fluxU, vec4 fluxD, float viscosity )
-{
-	return vec2((fluxL.y + fluxC.y) - (fluxR.x + fluxC.x), 
-				(fluxU.w + fluxC.w) - (fluxD.z + fluxC.z) ) * viscosity;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -189,18 +173,6 @@ float CalcMoltenViscosity( float _heat, float _height )
 
 ////////////////////////////////////////////////////////////////
 //
-float exchange( vec4 _heightDataC, vec4 _heightDataN, float _heatC, float _heatN )
-{
-	float avgHeat = max(_heatC, _heatN);//(_heatC + _heatN) * 0.5;
-	float avgHeight = (_heightDataC.y + _heightDataN.y) * 0.5;
-	float viscosity = CalcMoltenViscosity( avgHeat, avgHeight );
-	
-	float diff = max( (_heightDataC.x + _heightDataC.y) - (_heightDataN.x + _heightDataN.y), 0.0 );
-	
-	float available = _heightDataC.y * 0.125;
-	return min( available, diff * viscosity );
-}
-
 float exchangeDirt( vec4 _heightDataC, vec4 _heightDataN, float _scalar )
 {
 	float diff = max( (_heightDataC.x + _heightDataC.y + _heightDataC.z) - (_heightDataN.x + _heightDataN.y + _heightDataN.z), 0.0 );
@@ -234,7 +206,6 @@ void main(void)
 	vec4 mU = texelFetchU(s_miscData);
 	vec4 mD = texelFetchD(s_miscData);
 
-	vec4 normalDataC = texelFetchC(s_normalData);
 	vec4 uvOffsetDataC = texelFetchC(s_uvOffsetData);
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
 	
@@ -577,22 +548,6 @@ void main(void)
 	*/
 	
 	////////////////////////////////////////////////////////////////
-	// Spawn Foam
-	////////////////////////////////////////////////////////////////
-	/*
-	{
-		vec2 waterVelocity = out_velocityData.zw;
-
-		float foamAmount = smudgeDataC.w;
-		foamAmount *= u_foamDecayRate;
-		foamAmount += length( waterVelocity ) * u_foamSpawnStrength;
-		foamAmount = min(1.0, foamAmount);
-
-		out_smudgeData.w = foamAmount;
-	}
-	*/
-	
-	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
 	/*
@@ -622,87 +577,11 @@ void main(void)
 	}
 	*/
 	
-	//////////////////////////////////////////////////////////////////////////////////
-	// Solid normal
-	//////////////////////////////////////////////////////////////////////////////////
-	{
-		vec2 texelSize = vec2(1.0) / vec2(textureSize(s_heightData, 0));
-
-		vec2 uvC = in_uv;
-		vec2 uvL = in_uv - vec2(texelSize.x, 0.0);
-		vec2 uvR = in_uv + vec2(0.0, texelSize.y);
-		vec2 uvU = in_uv - vec2(0.0, texelSize.y);
-		vec2 uvD = in_uv + vec2(0.0, texelSize.y);
-
-		float heightC = hC.x + hC.y + hC.z;
-		float heightR = hE.x + hE.y + hE.z;
-		float heightL = hW.x + hW.y + hW.z;
-		float heightU = hN.x + hN.y + hN.z;
-		float heightD = hS.x + hS.y + hS.z;
-		
-		vec3 va = normalize(vec3(u_cellSize.x*2.0, heightR-heightL, 0.0f));
-		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y*2.0));
-		vec3 rockNormal = -cross(va,vb);
-
-		normalDataC.zw = rockNormal.xz;
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////
-	// Water normal
-	//////////////////////////////////////////////////////////////////////////////////
-	/*
-	{
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w;
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w;
-
-		vec3 va = normalize(vec3(u_cellSize.x*2.0, heightR-heightL, 0.0f));
-		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y*2.0));
-
-		vec3 waterNormal = -cross(va,vb);
-		normalDataC.xy = waterNormal.xz;
-	}
-	*/
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	// Occlusion
-	//////////////////////////////////////////////////////////////////////////////////
-	{
-		float occlusion = 0.0f;
-		float heightC = hC.x + hC.y + hC.z;
-
-		float strength = 1.0;
-		float totalStrength = 0.0;
-		for ( int i = 1; i < u_numHeightMips; i++ )
-		{
-			vec4 mippedHeightDataC = textureLod(s_heightData, in_uv, float(i));
-			vec4 mippedMiscDataC = textureLod(s_miscData, in_uv, float(i));
-			vec4 mippedSmudgeDataC = textureLod(s_smudgeData, in_uv, float(i));
-
-			float mippedHeight = mippedHeightDataC.x + mippedHeightDataC.y + mippedHeightDataC.z + mippedMiscDataC.y * u_heightOffset;
-			float diff = max(0.0f, mippedHeight - heightC);
-			float ratio = diff / u_cellSize.x;
-			float angle = atan(ratio);
-			float occlusionFoThisMip = angle / HALF_PI;
-
-			occlusion += occlusionFoThisMip * strength;
-			totalStrength += strength;
-			strength *= 1.25;
-		}
-		occlusion /= totalStrength;
-		occlusion = min(1.0, occlusion);
-
-		mC.w = occlusion;
-	}
-	
 	if ( hC.w > 0.5 )
 		hC.w = 0.0;
 	
 	out_heightData = max( vec4(0.0), hC );
 	out_miscData = mC;
-	out_normalData = normalDataC;
 	out_smudgeData = smudgeDataC;
 	out_fluidVelocityData = fC;
 	out_uvOffsetData = uvOffsetDataC;

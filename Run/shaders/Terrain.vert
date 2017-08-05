@@ -45,8 +45,9 @@ uniform float u_lightDistance;
 // Textures
 uniform sampler2D s_heightData;
 uniform sampler2D s_miscData;
-uniform sampler2D s_normalData;
 uniform sampler2D s_smudgeData;
+uniform sampler2D s_normalData;
+uniform sampler2D s_derivedData;
 uniform sampler2D s_lavaMaterial;
 uniform samplerCube s_envMap;
 
@@ -66,7 +67,6 @@ out Varying
 	vec4 out_viewPosition;
 	vec2 out_uv;
 	float out_dirtAlpha;
-	float out_heat;
 	vec3 out_rockNormal;
 	float out_occlusion;
 	float out_shadowing;
@@ -75,6 +75,7 @@ out Varying
 	vec4 out_smudgeData;
 	vec3 out_albedoFluidColor;
 	vec4 out_miscData;
+	vec4 out_derivedData;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -99,6 +100,7 @@ void main(void)
 	// Pluck some values out of the texture data
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 miscDataC = textureLod(s_miscData, in_uv, 0);
+	vec4 derivedDataC = textureLod(s_derivedData, in_uv, 0);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	
 	out_albedoFluidColor = unpackUnorm4x8f( smudgeDataC.z ).rgb;
@@ -112,8 +114,7 @@ void main(void)
 	float moltenHeight = heightDataC.y;
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
-	float heat = miscDataC.x;
-	float occlusion = max(1.0f - miscDataC.w * 1.4f, 0.0);
+	float occlusion = max(1.0f - derivedDataC.x * 1.4f, 0.0);
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
 
@@ -191,7 +192,6 @@ void main(void)
 		out_worldPosition = position.xyz;
 		out_viewPosition = viewPosition;
 		out_uv = in_uv;
-		out_heat = heat;
 		out_dirtAlpha = dirtAlpha;
 		out_rockNormal = rockNormal;
 		out_occlusion = occlusion;
@@ -199,5 +199,6 @@ void main(void)
 		gl_Position = u_mvpMatrix * position;
 		out_heightData = heightDataC;
 		out_miscData = miscDataC;
+		out_derivedData = derivedDataC;
 	}
 } 
