@@ -1,5 +1,7 @@
 #version 430 core
 
+const float PI = 3.14159265359;
+
 ////////////////////////////////////////////////////////////////
 // Inputs
 ////////////////////////////////////////////////////////////////
@@ -336,7 +338,7 @@ void main(void)
 	specularColor *= moltenRatio;
 	albedo *= moltenRatio;
 
-	albedo *= 1.0 + in_heightData.y * 1000;
+	albedo *= vec3( sin( in_miscData.y * PI * 2.0 ) * 0.5 + 1.0 );
 	
 	//albedo *= in_miscData.y;
 	

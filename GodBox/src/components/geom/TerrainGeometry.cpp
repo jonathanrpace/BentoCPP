@@ -13,7 +13,7 @@ namespace godBox
 	TerrainGeometry::TerrainGeometry(std::string _name)
 		: Geometry(_name, typeid(TerrainGeometry))
 		, m_size(1.0f)
-		, m_numVerticesPerDimension(256)
+		, m_numVerticesPerDimension(512)
 		, m_terrainMousePos()
 
 		// PingPong data
