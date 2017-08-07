@@ -45,16 +45,10 @@ namespace godBox
 		ComputeDivergenceFrag();
 	};
 
-	struct SubtractGradientFrag : ShaderStageBase
-	{
-		SubtractGradientFrag();
-	};
-
 	struct UpdateTerrainDataShader		: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct DeriveTerrainDataShader		: ShaderBase<ScreenQuadVert, DeriveTerrainDataFrag> {};
 	struct JacobiShader					: ShaderBase<ScreenQuadVert, JacobiFrag> {};
 	struct ComputeDivergenceShader		: ShaderBase<ScreenQuadVert, ComputeDivergenceFrag> {};
-	struct SubtractGradientShader		: ShaderBase<ScreenQuadVert, SubtractGradientFrag> {};
 	
 	DEFINE_NODE_3
 	(
@@ -95,7 +89,6 @@ namespace godBox
 		DeriveTerrainDataShader m_deriveDataShader;
 		JacobiShader m_jacobiShader;
 		ComputeDivergenceShader m_computeDivergenceShader;
-		SubtractGradientShader m_subtractGradientShader;
 
 		// Internal
 		std::map<const TerrainSimPassNode*, RenderTargetBase*> m_renderTargetByNodeMap;

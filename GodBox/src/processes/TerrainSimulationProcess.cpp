@@ -30,11 +30,6 @@ ComputeDivergenceFrag::ComputeDivergenceFrag()
 {}
 
 //////////////////////////////////////////////////////////////////////////
-SubtractGradientFrag::SubtractGradientFrag()
-	: ShaderStageBase("shaders/SubtractGradient.frag")
-{}
-
-//////////////////////////////////////////////////////////////////////////
 // TerrainSimulationPass
 //////////////////////////////////////////////////////////////////////////
 	
@@ -250,7 +245,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	glDepthFunc(GL_ALWAYS);
 
 	// Update fluid simulation
-	if ( true )
 	{
 		// Divergence
 		{
@@ -268,32 +262,11 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		}
 
-
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
 		for (int i = 0; i < 40; ++i) 
 		{
 			Jacobi(_renderTarget, _geom.PressureData().GetRead(), _geom.DivergenceData(), cellSize, _geom.PressureData().GetWrite());
 			_geom.PressureData().Swap();
-		}
-
-		// Subtract pressure gradient
-		if ( true )
-		{
-			m_subtractGradientShader.BindPerPass();
-
-			SubtractGradientFrag fragShader = m_subtractGradientShader.FragmentShader();
-
-			fragShader.SetTexture( "s_velocityData", _geom.MoltenFluxData().GetRead() );
-			fragShader.SetTexture( "s_pressureData", _geom.PressureData().GetRead() );
-			fragShader.SetUniform( "u_gradientScale", m_moltenPressureStrength );
-
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenFluxData().GetWrite());
-			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-			m_screenQuadGeom.Draw();
-
-			_geom.MoltenFluxData().Swap();
 		}
 	}
 
@@ -340,7 +313,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_fluidVelocityData",			_geom.MoltenFluxData().GetRead());
 		fragShader.SetTexture("s_albedoFluidGradient",			_material.albedoFluidGradient);
 		fragShader.SetTexture("s_grungeMap",					_material.grungeTexture);
-
+		fragShader.SetTexture( "s_pressureData",				_geom.PressureData().GetRead() );
+		
 		// Mouse
 		fragShader.SetUniform("u_mouseRadius",					m_mouseRadius);
 		fragShader.SetUniform("u_mouseMoltenVolumeStrength",	moltenVolumeAmount);
@@ -355,6 +329,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_phaseBLatch",					m_phaseBLatch);
 		fragShader.SetUniform("u_cellSize",						cellSize.x);
 		fragShader.SetUniform("u_dt",							m_timeStep);
+
+		fragShader.SetUniform( "u_moltenPressureScale",			m_moltenPressureStrength );
 
 		// Molten
 		fragShader.SetUniform("u_heatAdvectSpeed",				m_heatAdvectSpeed);

@@ -23,6 +23,7 @@ uniform sampler2D s_waterFluxData;
 uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_grungeMap;
 uniform sampler2D s_fluidVelocityData;
+uniform sampler2D s_pressureData;
 
 // Mouse
 uniform float u_mouseRadius;
@@ -41,6 +42,9 @@ uniform float u_dt;
 uniform float u_heightOffset;
 uniform bool u_phaseALatch;
 uniform bool u_phaseBLatch;
+
+// Pressure
+uniform float u_moltenPressureScale;
 
 // Molten
 uniform float u_heatAdvectSpeed;
@@ -209,17 +213,7 @@ void main(void)
 
 	vec4 uvOffsetDataC = texelFetchC(s_uvOffsetData);
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
-	
-	
-	////////////////////////////////////////////////////////////////
-	// Advect flux along itself
-	////////////////////////////////////////////////////////////////
-	{
-		vec2 velocity = vec2(fC.y - fC.x, fC.w - fC.z);
-		vec2 coord = in_uv - velocity * u_dt * u_cellSize;
-		fC = texture(s_fluidVelocityData, coord);
-		fC = max( fC, vec4(0.0) );
-	}
+
 	
 	////////////////////////////////////////////////////////////////
 	// Apply input
@@ -248,6 +242,7 @@ void main(void)
 	mC.x += (u_ambientTemp - mC.x) * u_tempChangeSpeed;
 	////////////////////////////////////////////////////////////////
 	// Advect molten volume and heat
+	// Important to do this before modify fC locally
 	////////////////////////////////////////////////////////////////
 	{
 		float toN = min( fC.z * hC.y, hC.y * 0.15 );
@@ -281,12 +276,40 @@ void main(void)
 		mC.x -= toHeat;
 		mC.x += fromheat;
 	}
-	
-	// Add slope to molten flux
-	{
-		// Dampen
-		fC *= u_moltenVelocityDamping;
 		
+	
+	////////////////////////////////////////////////////////////////
+	// Advect flux along itself
+	////////////////////////////////////////////////////////////////
+	{
+		vec2 velocity = vec2(fC.y - fC.x, fC.w - fC.z);
+		vec2 coord = in_uv - velocity * u_dt * u_cellSize;
+		fC = texture(s_fluidVelocityData, coord);
+		fC = max( fC, vec4(0.0) );
+	}
+	
+	////////////////////////////////////////////////////////////////
+	// Subtract pressure gradient
+	////////////////////////////////////////////////////////////////
+	{
+		float pC = texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  0)).x;
+		float pN = texelFetchOffset(s_pressureData, T, 0, ivec2( 0, -1)).x;
+		float pS = texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  1)).x;
+		float pE = texelFetchOffset(s_pressureData, T, 0, ivec2( 1,  0)).x;
+		float pW = texelFetchOffset(s_pressureData, T, 0, ivec2(-1,  0)).x;
+	
+		fC.x += (pC - pW) * u_moltenPressureScale * 100.0;
+		fC.y += (pC - pE) * u_moltenPressureScale * 100.0;
+		fC.z += (pC - pN) * u_moltenPressureScale * 100.0;
+		fC.w += (pC - pS) * u_moltenPressureScale * 100.0;
+
+		fC = clamp( fC, vec4(0.0), vec4(1.0));
+	}
+	
+	////////////////////////////////////////////////////////////////
+	// Add slope to molten flux
+	////////////////////////////////////////////////////////////////
+	{
 		float mhC = hC.x + hC.y;
 		float mhN = hN.x + hN.y;
 		float mhS = hS.x + hS.y;
@@ -297,50 +320,8 @@ void main(void)
 		fC.y += (mhC - mhE) * u_moltenSlopeStrength;
 		fC.z += (mhC - mhN) * u_moltenSlopeStrength;
 		fC.w += (mhC - mhS) * u_moltenSlopeStrength;
-		
-		fC *= smoothstep( 0.0, 0.001, hC.y );
-		
-		// Limit
-		fC = max( fC, vec4(0.0));
 	}
 	
-	{
-		vec2 velocity = vec2(fC.y-fC.x, fC.w-fC.z);
-		
-		//////////////////////////////////////////////////////////////////////////////////
-		// UV OFFSETS
-		//////////////////////////////////////////////////////////////////////////////////
-		{
-			vec2 uvOffsetA = uvOffsetDataC.xy;
-			vec2 uvOffsetB = uvOffsetDataC.zw;
-			if ( u_phaseALatch )
-			{
-				uvOffsetA *= 0.0;
-			}
-			if ( u_phaseBLatch )
-			{
-				uvOffsetB *= 0.0;
-			}
-			
-			uvOffsetA += velocity * u_moltenVelocityScalar;
-			uvOffsetB += velocity * u_moltenVelocityScalar;
-			
-			uvOffsetDataC = vec4( uvOffsetA, uvOffsetB );
-		}
-
-		//////////////////////////////////////////////////////////////////////////////////
-		// SMUDGE MAP
-		//////////////////////////////////////////////////////////////////////////////////
-		{
-			float dp = dot( normalize(velocity), normalize(smudgeDataC.xy) );
-			if ( isnan(dp) )
-				dp = -1.0;
-
-			float ratio = (dp + 1.0) * 0.5;
-			smudgeDataC.xy += velocity * u_smudgeChangeRate;
-		}
-	}
-
 	////////////////////////////////////////////////////////////////
 	// Update dirt
 	////////////////////////////////////////////////////////////////
@@ -591,6 +572,59 @@ void main(void)
 	}
 	*/
 	
+	
+	////////////////////////////////////////////////////////////////
+	// Dampen and limit flux
+	////////////////////////////////////////////////////////////////
+	{
+		fC *= u_moltenVelocityDamping;
+		fC *= smoothstep( 0.0, 0.001, hC.y );
+		fC = max( fC, vec4(0.0));
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// UV OFFSETS
+	//////////////////////////////////////////////////////////////////////////////////
+	{
+		vec2 velocity = vec2(fC.y-fC.x, fC.w-fC.z);
+		
+		vec2 uvOffsetA = uvOffsetDataC.xy;
+		vec2 uvOffsetB = uvOffsetDataC.zw;
+		if ( u_phaseALatch )
+		{
+			uvOffsetA *= 0.0;
+		}
+		if ( u_phaseBLatch )
+		{
+			uvOffsetB *= 0.0;
+		}
+		
+		//float scalarA = 1.0 / (1.0 + length(uvOffsetA));
+		//float scalarB = 1.0 / (1.0 + length(uvOffsetB));
+		
+		uvOffsetA += velocity * u_moltenVelocityScalar;// * scalarA;
+		uvOffsetB += velocity * u_moltenVelocityScalar;// * scalarB;
+		
+		uvOffsetA *= smoothstep( 0.0, 0.001, hC.y );
+		uvOffsetB *= smoothstep( 0.0, 0.001, hC.y );
+		
+		uvOffsetDataC = vec4( uvOffsetA, uvOffsetB );
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////
+	// SMUDGE MAP
+	//////////////////////////////////////////////////////////////////////////////////
+	{
+		vec2 velocity = vec2(fC.y-fC.x, fC.w-fC.z);
+		
+		float dp = dot( normalize(velocity), normalize(smudgeDataC.xy) );
+		if ( isnan(dp) )
+			dp = -1.0;
+
+		float ratio = (dp + 1.0) * 0.5;
+		smudgeDataC.xy += velocity * u_smudgeChangeRate;
+	}
+		
 	
 	if ( hC.w > 0.5 )
 		hC.w = 0.0;
