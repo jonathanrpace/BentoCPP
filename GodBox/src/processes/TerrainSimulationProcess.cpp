@@ -20,11 +20,6 @@ DeriveTerrainDataFrag::DeriveTerrainDataFrag()
 {}
 
 //////////////////////////////////////////////////////////////////////////
-AdvectFrag::AdvectFrag()
-	: ShaderStageBase("shaders/Advect.frag")
-{}
-
-//////////////////////////////////////////////////////////////////////////
 JacobiFrag::JacobiFrag()
 	: ShaderStageBase("shaders/Jacobi.frag")
 {}
@@ -257,21 +252,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	// Update fluid simulation
 	if ( true )
 	{
-		// Advect velocity along itself
-		{
-			m_advectShader.BindPerPass();
-
-			m_advectShader.FragmentShader().SetUniform( "u_dt", m_timeStep );
-			m_advectShader.FragmentShader().SetTexture( "s_fluidFluxData", _geom.MoltenFluxData().GetRead() );
-
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenFluxData().GetWrite());
-			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-			m_screenQuadGeom.Draw();
-			_geom.MoltenFluxData().Swap();
-		}
-
 		// Divergence
 		{
 			m_computeDivergenceShader.BindPerPass();
@@ -367,13 +347,14 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_mouseMoltenHeatStrength",		heatChangeAmount);
 		fragShader.SetUniform("u_mouseWaterVolumeStrength",		waterVolumeAmount);
 		fragShader.SetUniform("u_mouseDirtVolumeStrength",		dirtVolumeAmount);
-		fragShader.SetUniform("u_grungeUVRepeat",				_material.uvRepeat);
 		
 		// Environment
 		fragShader.SetUniform("u_time",							(float)glfwGetTime());
 		fragShader.SetUniform("u_ambientTemp",					m_ambientTemperature);
 		fragShader.SetUniform("u_phaseALatch",					m_phaseALatch);
 		fragShader.SetUniform("u_phaseBLatch",					m_phaseBLatch);
+		fragShader.SetUniform("u_cellSize",						cellSize.x);
+		fragShader.SetUniform("u_dt",							m_timeStep);
 
 		// Molten
 		fragShader.SetUniform("u_heatAdvectSpeed",				m_heatAdvectSpeed);
@@ -431,7 +412,6 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		glFinish();
 
 		_geom.HeightData().GetWrite().GenerateMipMaps();
-		_geom.NormalData().GenerateMipMaps();
 		_geom.MiscData().GetWrite().GenerateMipMaps();
 		_geom.SmudgeData().GetWrite().GenerateMipMaps();
 

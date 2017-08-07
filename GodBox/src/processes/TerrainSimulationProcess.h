@@ -35,11 +35,6 @@ namespace godBox
 		DeriveTerrainDataFrag();
 	};
 
-	struct AdvectFrag : ShaderStageBase
-	{
-		AdvectFrag();
-	};
-
 	struct JacobiFrag : ShaderStageBase
 	{
 		JacobiFrag();
@@ -57,7 +52,6 @@ namespace godBox
 
 	struct UpdateTerrainDataShader		: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct DeriveTerrainDataShader		: ShaderBase<ScreenQuadVert, DeriveTerrainDataFrag> {};
-	struct AdvectShader					: ShaderBase<ScreenQuadVert, AdvectFrag> {};
 	struct JacobiShader					: ShaderBase<ScreenQuadVert, JacobiFrag> {};
 	struct ComputeDivergenceShader		: ShaderBase<ScreenQuadVert, ComputeDivergenceFrag> {};
 	struct SubtractGradientShader		: ShaderBase<ScreenQuadVert, SubtractGradientFrag> {};
@@ -99,7 +93,6 @@ namespace godBox
 		ScreenQuadGeometry m_screenQuadGeom;
 		UpdateTerrainDataShader m_updateDataShader;
 		DeriveTerrainDataShader m_deriveDataShader;
-		AdvectShader m_advectShader;
 		JacobiShader m_jacobiShader;
 		ComputeDivergenceShader m_computeDivergenceShader;
 		SubtractGradientShader m_subtractGradientShader;

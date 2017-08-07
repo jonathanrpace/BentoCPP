@@ -30,11 +30,12 @@ uniform float u_mouseMoltenVolumeStrength;
 uniform float u_mouseWaterVolumeStrength;
 uniform float u_mouseMoltenHeatStrength;
 uniform float u_mouseDirtVolumeStrength;
-uniform float u_grungeUVRepeat;
 
 // Environment
 uniform float u_ambientTemp;
 uniform float u_time;
+uniform float u_cellSize;
+uniform float u_dt;
 
 // Global
 uniform float u_heightOffset;
@@ -210,7 +211,19 @@ void main(void)
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
 	
 	
+	////////////////////////////////////////////////////////////////
+	// Advect flux along itself
+	////////////////////////////////////////////////////////////////
+	{
+		vec2 velocity = vec2(fC.y - fC.x, fC.w - fC.z);
+		vec2 coord = in_uv - velocity * u_dt * u_cellSize;
+		fC = texture(s_fluidVelocityData, coord);
+		fC = max( fC, vec4(0.0) );
+	}
+	
+	////////////////////////////////////////////////////////////////
 	// Apply input
+	////////////////////////////////////////////////////////////////
 	{
 		vec2 mousePos = GetMousePos();
 		float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
@@ -233,8 +246,9 @@ void main(void)
 	
 	// Cooling
 	mC.x += (u_ambientTemp - mC.x) * u_tempChangeSpeed;
-	
+	////////////////////////////////////////////////////////////////
 	// Advect molten volume and heat
+	////////////////////////////////////////////////////////////////
 	{
 		float toN = min( fC.z * hC.y, hC.y * 0.15 );
 		float toS = min( fC.w * hC.y, hC.y * 0.15 );
@@ -576,6 +590,7 @@ void main(void)
 		//out_heightData.z -= dirtToMolten;
 	}
 	*/
+	
 	
 	if ( hC.w > 0.5 )
 		hC.w = 0.0;
