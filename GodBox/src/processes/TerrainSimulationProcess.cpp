@@ -10,11 +10,6 @@
 namespace godBox
 {
 //////////////////////////////////////////////////////////////////////////
-UpdateTerrainFluxFrag::UpdateTerrainFluxFrag()
-	: ShaderStageBase("shaders/UpdateTerrainFlux.frag")
-{}
-
-//////////////////////////////////////////////////////////////////////////
 UpdateTerrainDataFrag::UpdateTerrainDataFrag()
 	: ShaderStageBase("shaders/UpdateTerrainData.frag")
 {}

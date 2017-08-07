@@ -25,11 +25,6 @@ using namespace bento;
 
 namespace godBox
 {
-	struct UpdateTerrainFluxFrag : ShaderStageBase
-	{
-		UpdateTerrainFluxFrag();
-	};
-
 	struct UpdateTerrainDataFrag : ShaderStageBase
 	{
 		UpdateTerrainDataFrag();
@@ -60,7 +55,6 @@ namespace godBox
 		SubtractGradientFrag();
 	};
 
-	struct UpdateTerrainFluxShader		: ShaderBase<ScreenQuadVert, UpdateTerrainFluxFrag> {};
 	struct UpdateTerrainDataShader		: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct DeriveTerrainDataShader		: ShaderBase<ScreenQuadVert, DeriveTerrainDataFrag> {};
 	struct AdvectShader					: ShaderBase<ScreenQuadVert, AdvectFrag> {};
@@ -103,7 +97,6 @@ namespace godBox
 
 		// Shaders
 		ScreenQuadGeometry m_screenQuadGeom;
-		UpdateTerrainFluxShader m_updateFluxShader;
 		UpdateTerrainDataShader m_updateDataShader;
 		DeriveTerrainDataShader m_deriveDataShader;
 		AdvectShader m_advectShader;
