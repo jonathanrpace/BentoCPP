@@ -77,7 +77,6 @@ namespace godBox
 		TerrainMousePos m_terrainMousePos;
 
 		PingPongTextureSquare m_heightData;
-		PingPongTextureSquare m_velocityData;
 		PingPongTextureSquare m_miscData;
 		PingPongTextureSquare m_smudgeData;
 		PingPongTextureSquare m_uvOffsetData;
