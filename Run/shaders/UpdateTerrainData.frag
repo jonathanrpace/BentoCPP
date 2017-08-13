@@ -47,9 +47,9 @@ uniform bool u_phaseBLatch;
 uniform float u_moltenPressureScale;
 
 // Molten
-uniform float u_heatAdvectSpeed;
-uniform float u_moltenViscosity;
+uniform vec2 u_moltenViscosity;
 uniform float u_rockMeltingPoint;
+uniform float u_heatViscosityScalar;
 uniform float u_tempChangeSpeed;
 uniform float u_meltCondenseSpeed;
 uniform float u_moltenVelocityScalar;
@@ -171,13 +171,6 @@ vec4 texelFetchBR( sampler2D _sampler ) {
 
 ////////////////////////////////////////////////////////////////
 //
-float CalcMoltenViscosity( float _heat, float _height )
-{
-	return smoothstep( 0.05, 0.5, _heat ) * u_moltenViscosity;
-}
-
-////////////////////////////////////////////////////////////////
-//
 float exchangeDirt( vec4 _heightDataC, vec4 _heightDataN, float _scalar )
 {
 	float diff = max( (_heightDataC.x + _heightDataC.y + _heightDataC.z) - (_heightDataN.x + _heightDataN.y + _heightDataN.z), 0.0 );
@@ -196,6 +189,7 @@ void main(void)
 	srand((T.x + T.x * T.y));
 	
 	vec4 hC = texelFetchC(s_heightData);
+	vec4 hCOld = hC;
 	vec4 hN = texelFetchU(s_heightData);
 	vec4 hS = texelFetchD(s_heightData);
 	vec4 hE = texelFetchR(s_heightData);
@@ -242,8 +236,8 @@ void main(void)
 
 		float totalFrom = fromN + fromS + fromE + fromW;
 
-		hC.y += totalFrom;
-		hC.y -= totalTo;
+		hC.y += totalFrom * 0.25;
+		hC.y -= totalTo * 0.25;
 		
 		// Advect heat
 		float heatN = texelFetchOffset(s_miscData, T, 0, ivec2( 0, -1)).x;
@@ -265,24 +259,17 @@ void main(void)
 	// Advect
 	////////////////////////////////////////////////////////////////
 	{
+		// Flux
 		vec2 velocity = vec2(fC.y - fC.x, fC.w - fC.z);
 		vec2 coord = in_uv - velocity * u_dt * u_cellSize;
 		fC = texture(s_fluidVelocityData, coord);
 		fC = max( fC, vec4(0.0) );
 		
-		
+		// Molten param scalar
 		float fetchedScalar = texture(s_miscData, coord).y;
-		
-		
 		mC.y = fetchedScalar;
 		mC.y += mix(0.1, 0.8, rand()) * length(velocity);
-		
-		//mC.y = mC.y > 1.0 ? mC.y - 1.0 : mC.y;
-		
 		mC.y = mod( mC.y, 10.0 );
-		
-		//mC.y = clamp( mC.y, 0.0, 1.0 );
-		//mC.y = min( mC.y, 1.0 );
 	}
 	
 	////////////////////////////////////////////////////////////////
@@ -307,7 +294,7 @@ void main(void)
 	// Add slope to molten flux
 	////////////////////////////////////////////////////////////////
 	{
-		float mhC = hC.x + hC.y;
+		float mhC = hCOld.x + hCOld.y;
 		float mhN = hN.x + hN.y;
 		float mhS = hS.x + hS.y;
 		float mhE = hE.x + hE.y;
@@ -573,14 +560,11 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	{
 		float moltenScalar = sin(mC.y * 2.0 * PI) * 0.5 + 1.0;
-		float moltenViscosity = mix( 1.0, 1.0, moltenScalar ) * min( mix( 0.0, 1.0, mC.x * 20.0 ), 1.0 );
+		float heatRatio = clamp( (mC.x - u_rockMeltingPoint) * u_heatViscosityScalar, 0.0, 1.0 );
+		
+		float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, moltenScalar ) * heatRatio;
 	
 		fC *= moltenViscosity;
-		fC *= u_moltenVelocityDamping;
-		//fC *= smoothstep( 0.0, 0.001, hC.y );
-		fC = max( fC, vec4(0.0));
-		
-		//mC.x *= mix( 0.5, 1.0, smoothstep( 0.0, 0.001, hC.y ) );
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////
@@ -600,14 +584,8 @@ void main(void)
 			uvOffsetB *= 0.0;
 		}
 		
-		//float scalarA = 1.0 / (1.0 + length(uvOffsetA));
-		//float scalarB = 1.0 / (1.0 + length(uvOffsetB));
-		
-		uvOffsetA += velocity * u_moltenVelocityScalar;// * scalarA;
-		uvOffsetB += velocity * u_moltenVelocityScalar;// * scalarB;
-		
-		//uvOffsetA *= smoothstep( 0.0, 0.01, hC.y );
-		//uvOffsetB *= smoothstep( 0.0, 0.01, hC.y );
+		uvOffsetA += velocity * u_moltenVelocityScalar;
+		uvOffsetB += velocity * u_moltenVelocityScalar;
 		
 		uvOffsetDataC = vec4( uvOffsetA, uvOffsetB );
 	}
@@ -625,8 +603,6 @@ void main(void)
 		float ratio = (dp + 1.0) * 0.5;
 		smudgeDataC.xy += velocity * u_smudgeChangeRate;
 	}
-	
-	
 	
 	////////////////////////////////////////////////////////////////
 	// Input

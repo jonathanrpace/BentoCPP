@@ -103,16 +103,16 @@ namespace godBox
 		float m_mouseHeatStrength;
 
 		// Molten
-		float m_moltenViscosity;
+		float m_moltenViscosityMin;
+		float m_moltenViscosityMax;
 		float m_rockMeltingPoint;
-		float m_heatAdvectSpeed;
+		float m_heatViscosityScalar;
 		float m_meltCondenseSpeed;
 		float m_tempChangeSpeed;
 		float m_moltenVelocityScalar;
 		float m_smudgeChangeRate;
 		float m_moltenSlopeStrength;
 		float m_moltenDiffusionStrength;
-		float m_moltenVelocityDamping;
 		float m_moltenPressureStrength;
 
 		// Dirt

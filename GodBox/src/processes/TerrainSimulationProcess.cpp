@@ -44,18 +44,18 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("mouseRadius",			0.1f,		&m_mouseRadius);
 	SerializableMember("mouseVolumeStrength",	0.002f,		&m_mouseVolumeStrength);
 	SerializableMember("mouseHeatStrength",		0.08f,		&m_mouseHeatStrength);
-	SerializableMember("moltenViscosity",		0.5f,		&m_moltenViscosity);
-	SerializableMember("rockMeltingPoint",		0.3f,		&m_rockMeltingPoint);
-	SerializableMember("heatAdvectSpeed",		0.5f,		&m_heatAdvectSpeed);
+	SerializableMember("moltenViscosityMin",	0.5f,		&m_moltenViscosityMin);
+	SerializableMember("moltenViscosityMax",	0.5f,		&m_moltenViscosityMax);
+	SerializableMember("rockMeltingPoint",		0.1f,		&m_rockMeltingPoint);
+	SerializableMember("heatViscosityScalar",	10.0f,		&m_heatViscosityScalar);
 	SerializableMember("meltSpeedCondenseSpeed",0.01f,		&m_meltCondenseSpeed);
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
 	SerializableMember("moltenVelocityScalar",	1.0f,		&m_moltenVelocityScalar);
 	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
 	SerializableMember("moltenSlopeStrength",	0.3f,		&m_moltenSlopeStrength);
 	SerializableMember("moltenDiffusionStrength",1.0f,		&m_moltenDiffusionStrength);
-	SerializableMember("moltenVelocityDamping",0.99f,		&m_moltenVelocityDamping);
 	SerializableMember("moltenPressureStrength",1.0,		&m_moltenPressureStrength);
-
+	
 	// Water
 	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
 	SerializableMember("waterViscosity",		0.25f,		&m_waterViscosity);
@@ -139,16 +139,16 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Text("Molten");
-	ImGui::SliderFloat("MoltenViscosity", &m_moltenViscosity, 0.01f, 10.0f);
+	ImGui::SliderFloat("Viscosity Min#molten", &m_moltenViscosityMin, 0.9f, 1.0f);
+	ImGui::SliderFloat("Viscosity Max#molten", &m_moltenViscosityMax, 0.9f, 1.0f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
-	ImGui::SliderFloat("HeatAdvectSpeed", &m_heatAdvectSpeed, 0.0f, 50.0f);
+	ImGui::SliderFloat("Heat Viscosity Scalar", &m_heatViscosityScalar, 1.0f, 50.0f);
 	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::SliderFloat("Melt/Condense Speed", &m_meltCondenseSpeed, 0.0f, 0.25f, "%.4f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
 	ImGui::SliderFloat("Slope Strength#molten", &m_moltenSlopeStrength, 0.0f, 10.0f, "%.4f");
 	ImGui::SliderFloat("Diffusion Strength#molten", &m_moltenDiffusionStrength, 0.0f, 4.0f, "%.4f");
-	ImGui::SliderFloat("Velocity Damping#molten", &m_moltenVelocityDamping, 0.9f, 1.0f, "%.4f");
 	ImGui::SliderFloat("Pressure Strength#molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.4f");
 	ImGui::Spacing();
 
@@ -333,17 +333,16 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform( "u_moltenPressureScale",			m_moltenPressureStrength );
 
 		// Molten
-		fragShader.SetUniform("u_heatAdvectSpeed",				m_heatAdvectSpeed);
-		fragShader.SetUniform("u_moltenViscosity",				m_moltenViscosity);
+		fragShader.SetUniform("u_moltenViscosity",				vec2(m_moltenViscosityMin, m_moltenViscosityMax));
 		fragShader.SetUniform("u_rockMeltingPoint",				m_rockMeltingPoint);
+		fragShader.SetUniform("u_heatViscosityScalar",			m_heatViscosityScalar);
 		fragShader.SetUniform("u_tempChangeSpeed",				m_tempChangeSpeed);
 		fragShader.SetUniform("u_meltCondenseSpeed",			m_meltCondenseSpeed);
 		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
 		fragShader.SetUniform("u_mapHeightOffset",				_material.heightOffset);
 		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);
 		fragShader.SetUniform("u_moltenSlopeStrength",			m_moltenSlopeStrength);
-		fragShader.SetUniform("u_moltenVelocityDamping",		m_moltenVelocityDamping);
-
+		
 		// Water
 		fragShader.SetUniform("u_waterViscosity",				m_waterViscosity);
 		fragShader.SetUniform("u_waterVelocityScalar",			m_waterVelocityScalar);
