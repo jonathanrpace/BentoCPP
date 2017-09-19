@@ -112,6 +112,7 @@ float getDensityBase( vec3 p )
 	float v = s.r - (1.0-s.g) * 0.5 - (1.0-s.b) * 0.25;
 	
 	v = (v-u_densityOffset) * u_densityScalar;
+
 	v = max( 0, v );
 	v *= layerScalar;
 	
@@ -150,7 +151,7 @@ float getDensityLOD( vec3 p, bool doDetail )
 void main(void)
 {
 	vec3 rayDir = normalize(in_worldPosition.xyz-u_cameraPos);
-	
+
 	vec3 lightDir = vec3(0.0,0.0,1.0) * u_coneMatrix;
 	
 	float thetaRatio = dot(-rayDir, lightDir);
@@ -224,8 +225,6 @@ void main(void)
 				// Stop when extinction is high
 				if ( extinction < 0.004 )
 					break;
-					
-				
 				
 				float accumulatedLightSampleDensity = 0.0;
 				for ( int j = 0; j < numLightSamples; j++ )
@@ -241,7 +240,7 @@ void main(void)
 				accumulatedLightSampleDensity /= numLightSamples;
 				float lightTransmitRatio = Beers( accumulatedLightSampleDensity, u_absorbtion );
 				lightTransmitRatio *= HG(theta, u_scatteringParam);
-				float powderedLightTransmitRatio = lightTransmitRatio * Powder( accumulatedLightSampleDensity );
+				float powderedLightTransmitRatio = lightTransmitRatio * Powder( accumulatedLightSampleDensity ) * Powder( accumulatedDensity );
 				float powderedRatio = mix( 0.4, 1.0, 1.0-pow( thetaRatio, 4.0 ) );
 				lightTransmitRatio = mix( lightTransmitRatio, powderedLightTransmitRatio, powderedRatio );
 				
