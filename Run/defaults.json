@@ -1,7 +1,39 @@
 {
+    "CloudMaterial": {
+        "absorbtion": 1.0,
+        "baseDensityOffset": 0.220000013709068,
+        "baseDensityScalar": 35.3000030517578,
+        "baseScale": 0.230000004172325,
+        "coarseStepsPerUnit": 49,
+        "courseStepLength": 0.00999999977648258,
+        "densityOffset": 0.0600000023841858,
+        "densityScalar": 168.800003051758,
+        "detailDensityOffset": 0.160000011324883,
+        "detailDensityScalar": 7.00000047683716,
+        "detailMaxDensity": 0.230000004172325,
+        "detailScale": 1.58000004291534,
+        "detailStepsPerUnit": 220,
+        "falloffBottom": 0.0,
+        "falloffTop": 0.570000052452087,
+        "height": 0.350000023841858,
+        "lightAltitude": -0.174532935023308,
+        "lightAzimuth": 1.16937065124512,
+        "lightColor": {
+            "x": 0.952941179275513,
+            "y": 0.835158944129944,
+            "z": 0.777301073074341
+        },
+        "lightConeMaxLength": 0.0130000002682209,
+        "lightIntensity": 1.0,
+        "maxRayLength": 1.53000009059906,
+        "numCourseSteps": 64,
+        "position": -0.300000011920929,
+        "powderSharpness": 2000.0,
+        "scatteringParam": 0.200000002980232
+    },
     "CubeMapSkyMaterial": {
-        "intensity": 0.5,
-        "mipLevel": 4.25699996948242
+        "intensity": 0.576000034809113,
+        "mipLevel": 0.833000063896179
     },
     "Renderer": {
         "m_bloomPower": 1.10500001907349,
@@ -177,7 +209,7 @@
             "z": 0.125490203499794
         },
         "rockDetailBumpSlopePower": 14.7560005187988,
-        "rockDetailBumpStrength": 1.20200002193451,
+        "rockDetailBumpStrength": 0.417000025510788,
         "rockDetailDiffuseStrength": 0.0,
         "rockFresnelA": 1.0,
         "rockFresnelB": 0.108000002801418,
@@ -254,7 +286,7 @@
     "TerrainSimulationProcess": {
         "ambientTemperature": 0.0,
         "boilSpeed": 9.99999974737875e-05,
-        "condenseSpeed": 0.000329999980749562,
+        "condenseSpeed": 0.000109999993583187,
         "dirtDensity": 0.730799973011017,
         "dirtDepositSpeed": 0.0470588020980358,
         "dirtDiffuseStrength": 0.00588000006973743,

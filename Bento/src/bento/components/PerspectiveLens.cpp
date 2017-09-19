@@ -11,7 +11,7 @@ namespace bento
 		, m_aspectRatio(1.0f)
 		, m_near(0.1f)
 		, m_far(10.0f)
-		, m_verticalFOV(40.0f * 0.0174f)
+		, m_verticalFOV(45.0f * 0.0174f)
 		, m_matrix()
 		, m_matrixIsInvalid(true)
 	{

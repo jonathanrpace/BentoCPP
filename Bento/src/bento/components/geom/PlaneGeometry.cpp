@@ -64,12 +64,12 @@ namespace bento
 				int float4Index = (i * numVerticesY + j) * 4;
 
 				positions[float3Index] = (xRatio * m_width) - m_width * 0.5f;
-				positions[float3Index + 1] = (yRatio * m_height) - m_height * 0.5f;
-				positions[float3Index + 2] = 0.0f;
+				positions[float3Index + 1] = 0.0f;
+				positions[float3Index + 2] = (yRatio * m_height) - m_height * 0.5f;
 
-				normals[float3Index] = 0;
-				normals[float3Index + 1] = 0;
-				normals[float3Index + 2] = -1;
+				normals[float3Index] = 0.0f;
+				normals[float3Index + 1] = 1.0f;
+				normals[float3Index + 2] = 0.0f;
 
 				uvs[float2Index] = xRatio;
 				uvs[float2Index + 1] = 1 - yRatio;

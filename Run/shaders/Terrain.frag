@@ -331,6 +331,7 @@ void main(void)
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	float roughness = materialParams.r;
+	roughness *= 2.0;
 	float textureAO = mix( 1.0, materialParams.g, 0.5 ) * mix( 1.0, creaseValue, 0.6 );
 
 	// Make albedo/specular darker when hot
@@ -338,7 +339,7 @@ void main(void)
 	specularColor *= moltenRatio;
 	albedo *= moltenRatio;
 
-	albedo *= vec3( sin( in_miscData.y * PI * 2.0 ) * 0.5 + 1.0 );
+	//albedo *= vec3( sin( in_miscData.y * PI * 2.0 ) * 0.5 + 1.0 );
 	
 	//albedo *= in_miscData.y;
 	

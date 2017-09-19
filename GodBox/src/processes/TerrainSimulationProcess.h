@@ -107,6 +107,8 @@ namespace godBox
 		float m_moltenViscosityMax;
 		float m_rockMeltingPoint;
 		float m_heatViscosityScalar;
+		float m_meltSpeed;
+		float m_condenseSpeed;
 		float m_meltCondenseSpeed;
 		float m_tempChangeSpeed;
 		float m_moltenVelocityScalar;

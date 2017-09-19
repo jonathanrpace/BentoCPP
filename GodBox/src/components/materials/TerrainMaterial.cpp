@@ -17,8 +17,8 @@ namespace godBox
 		//, lavaLatAlb("textures/LavaLat_Albedo.dds")
 		//, lavaLatNrm("textures/LavaLat_Normal.dds")
 		//, lavaLatMat("textures/LavaLat_Material.dds")
-		, envMap("textures/EnvMap2.dds")
-		, irrMap("textures/IrrMap2.dds")
+		, envMap("textures/EnvMap.dds")
+		, irrMap("textures/IrrMap.dds")
 		, moltenGradient("textures/MoltenGradient.dds", GL_LINEAR, GL_LINEAR, GL_CLAMP, GL_CLAMP)
 		, albedoFluidGradient("textures/AlbedoFluidGradient.dds", GL_LINEAR, GL_LINEAR)
 	{

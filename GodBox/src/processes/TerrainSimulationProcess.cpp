@@ -49,6 +49,9 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("rockMeltingPoint",		0.1f,		&m_rockMeltingPoint);
 	SerializableMember("heatViscosityScalar",	10.0f,		&m_heatViscosityScalar);
 	SerializableMember("meltSpeedCondenseSpeed",0.01f,		&m_meltCondenseSpeed);
+	SerializableMember("meltSpeed",				0.01f,		&m_meltSpeed);
+	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
+	SerializableMember("meltSpeedCondenseSpeed",0.01f,		&m_meltCondenseSpeed);
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
 	SerializableMember("moltenVelocityScalar",	1.0f,		&m_moltenVelocityScalar);
 	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
@@ -146,6 +149,8 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::SliderFloat("Melt/Condense Speed", &m_meltCondenseSpeed, 0.0f, 0.25f, "%.4f");
+	ImGui::SliderFloat("Melt Speed", &m_meltSpeed, 0.0f, 0.001f, "%.5f");
+	ImGui::SliderFloat("Condense Speed", &m_condenseSpeed, 0.0f, 0.001f, "%.5f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
 	ImGui::SliderFloat("Slope Strength#molten", &m_moltenSlopeStrength, 0.0f, 10.0f, "%.4f");
 	ImGui::SliderFloat("Diffusion Strength#molten", &m_moltenDiffusionStrength, 0.0f, 4.0f, "%.4f");
@@ -338,6 +343,8 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_heatViscosityScalar",			m_heatViscosityScalar);
 		fragShader.SetUniform("u_tempChangeSpeed",				m_tempChangeSpeed);
 		fragShader.SetUniform("u_meltCondenseSpeed",			m_meltCondenseSpeed);
+		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
+		fragShader.SetUniform("u_condenseSpeed",				m_condenseSpeed);
 		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
 		fragShader.SetUniform("u_mapHeightOffset",				_material.heightOffset);
 		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);

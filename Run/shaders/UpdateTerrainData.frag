@@ -52,6 +52,8 @@ uniform float u_rockMeltingPoint;
 uniform float u_heatViscosityScalar;
 uniform float u_tempChangeSpeed;
 uniform float u_meltCondenseSpeed;
+uniform float u_meltSpeed;
+uniform float u_condenseSpeed;
 uniform float u_moltenVelocityScalar;
 uniform float u_smudgeChangeRate;
 uniform float u_moltenSlopeStrength;
@@ -238,7 +240,7 @@ void main(void)
 
 		hC.y += totalFrom * 0.25;
 		hC.y -= totalTo * 0.25;
-		
+	
 		// Advect heat
 		float heatN = texelFetchOffset(s_miscData, T, 0, ivec2( 0, -1)).x;
 		float heatS = texelFetchOffset(s_miscData, T, 0, ivec2( 0,  1)).x;
@@ -530,8 +532,13 @@ void main(void)
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
 	{
-		float heat = mC.x;
+		float heatRatio = min( mC.x, 1.0 );
+		
+		float condensedAmount = min( hC.y, (1.0-heatRatio) * u_condenseSpeed );
 
+		hC.y -= condensedAmount;
+		hC.x += condensedAmount;
+		/*
 		float rockHeight = hC.x;
 		float moltenHeight = hC.y;
 		float combinedHeight = moltenHeight + rockHeight;
@@ -552,6 +559,7 @@ void main(void)
 		float dirtToMolten = min( dirtHeight, heat * u_meltCondenseSpeed * 0.1 );
 		hC.x += dirtToMolten * u_dirtDensity;
 		hC.z -= dirtToMolten;
+		*/
 	}
 	
 	

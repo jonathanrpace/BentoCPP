@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Run\shaders\Clouds.frag" />
+    <None Include="..\Run\shaders\Clouds.vert" />
     <None Include="..\Run\shaders\ComputeDivergence.frag" />
     <None Include="..\Run\shaders\CubeMapSkybox.frag" />
     <None Include="..\Run\shaders\DeriveTerrainData.frag" />

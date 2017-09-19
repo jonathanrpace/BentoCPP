@@ -1,11 +1,13 @@
 #include <windows.h>
 
+// std
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <memory>
 #include <typeinfo>
 #include <iostream>
 
+// libs
 #include <gl/glew.h>
 #include <glfw3.h>
 #include <imgui/imgui_impl_glfw_gl3.cpp>
@@ -24,25 +26,33 @@
 #include <bento/util/GLErrorUtil.h>
 #include <bento/render/passes/CubeMapSkyPass.h>
 
-// app 
+// App 
 #include <render/Renderer.h>
 
+// Render passes
 #include <render/passes/TerrainPass.h>
 #include <render/passes/TerrainSidesPass.h>
 #include <render/passes/WaterPass.h>
 #include <render/passes/FoamPass.h>
 #include <render/passes/SteamPass.h>
+#include <render/passes/CloudPass.h>
 #include <render/passes/IMGUIRenderPass.h>
 
+// Processes
 #include <processes/TerrainSimulationProcess.h>
 #include <processes/InspectorUIProcess.h>
+
+// Geometry
 #include <components/geom/TerrainGeometry.h>
 #include <components/geom/TerrainSidesGeometry.h>
 #include <components/geom/FoamParticleGeom.h>
 #include <components/geom/SteamParticleGeom.h>
+
+// Materials
 #include <components/materials/TerrainMaterial.h>
 #include <components/materials/WaterMaterial.h>
 #include <components/materials/SmokeParticleMaterial.h>
+#include <components/materials/CloudMaterial.h>
 
 using namespace bento;
 using namespace godBox;
@@ -93,6 +103,25 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(skyBoxMaterial, entity);
 	}
 
+	// Clouds
+	{
+		auto entity = bento::Entity::Create();
+		entity->Name("Clouds");
+		scene.AddEntity(entity);
+
+		auto geom = bento::PlaneGeometry::Create();
+		geom->SetWidth(2.0f);
+		geom->SetHeight(2.0f);
+		scene.AddComponentToEntity(geom, entity);
+
+		auto cloudsMaterial = godBox::CloudMaterial::Create();
+		scene.AddComponentToEntity(cloudsMaterial, entity);
+		
+		auto transform = Transform::Create();
+		transform->matrix = glm::translate(mat4(), vec3(0.0,0.1f,0.0));
+		scene.AddComponentToEntity(transform, entity);
+	}
+
 	// Processes
 	scene.AddProcess(OrbitCamera::Create());
 	scene.AddProcess(TerrainSimulationProcess::Create());
@@ -109,6 +138,7 @@ void mainLoop(GLFWwindow* window)
 		renderer->AddRenderPass(TerrainSidesPass::Create());
 		
 		renderer->AddRenderPass(WaterPass::Create());
+		renderer->AddRenderPass(CloudPass::Create());
 		//renderer->AddRenderPass(SteamPass::Create());
 		//renderer->AddRenderPass(TerrainFoamPass::Create());
 		
