@@ -19,7 +19,9 @@ uniform vec3 lightSamplePositions[] = vec3[](
 
 // Transform
 uniform float u_baseScale;
+uniform float u_baseScaleVertical;
 uniform float u_detailScale;
+uniform float u_detailScaleVertical;
 uniform float u_position;
 uniform float u_height;
 uniform float u_falloffTop;
@@ -33,7 +35,6 @@ uniform float u_lightConeMaxLength;
 uniform mat3 u_coneMatrix;
 
 // Lighting
-uniform vec3 u_lightDir;
 uniform float u_lightIntensity;
 uniform vec3 u_lightColor;
 
@@ -104,8 +105,13 @@ float getDensityBase( vec3 p )
 	if ( layerScalar == 0.0 )
 		return 0.0;
 	
-	vec4 s = texture( s_baseShapes, p.xzy * u_baseScale );
-	float v = (s.a-u_densityOffset) * u_densityScalar;
+	vec3 coord = p.xzy * u_baseScale;
+	coord.z *= u_baseScaleVertical;
+	vec4 s = texture( s_baseShapes, coord);
+	//float v = (s.r + s.g * 0.5 + s.b * 0.25) / 1.75;
+	float v = s.r - (1.0-s.g) * 0.5 - (1.0-s.b) * 0.25;
+	
+	v = (v-u_densityOffset) * u_densityScalar;
 	v = max( 0, v );
 	v *= layerScalar;
 	
@@ -114,7 +120,9 @@ float getDensityBase( vec3 p )
 
 float getDetailDensity( vec3 p )
 {
-	vec4 s = texture( s_detailMap, p.xzy * u_detailScale );
+	vec3 coord = p.xzy * u_detailScale;
+	coord.z *= u_detailScaleVertical;
+	vec4 s = texture( s_detailMap, coord );
 	float v = (s.a-u_detailDensityOffset) * u_detailDensityScalar;
 	v = max( 0, v );
 	
@@ -143,7 +151,9 @@ void main(void)
 {
 	vec3 rayDir = normalize(in_worldPosition.xyz-u_cameraPos);
 	
-	float thetaRatio = dot(-rayDir, u_lightDir);
+	vec3 lightDir = vec3(0.0,0.0,1.0) * u_coneMatrix;
+	
+	float thetaRatio = dot(-rayDir, lightDir);
 	float theta = acos(thetaRatio); // Angle between eye vector and light
 	thetaRatio = max(0.0, thetaRatio);
 	
@@ -221,7 +231,7 @@ void main(void)
 				for ( int j = 0; j < numLightSamples; j++ )
 				{
 					vec3 lightSamplePos = lightSamplePositions[j];
-					lightSamplePos = lightSamplePos * u_coneMatrix;
+					lightSamplePos = -lightSamplePos * u_coneMatrix;
 					lightSamplePos *= u_lightConeMaxLength;
 					lightSamplePos += rayPos;
 					
@@ -235,9 +245,7 @@ void main(void)
 				float powderedRatio = mix( 0.4, 1.0, 1.0-pow( thetaRatio, 4.0 ) );
 				lightTransmitRatio = mix( lightTransmitRatio, powderedLightTransmitRatio, powderedRatio );
 				
-				// TODO - Think about this problem like alpha blending multiple planes together
-				
-				accumulatedEnergy += lightTransmitRatio * extinction * stepSize;
+				accumulatedEnergy += lightTransmitRatio * (1.0-extinction) * stepSize;
 			}
 		}
 		
@@ -248,12 +256,12 @@ void main(void)
 	
 	
 	
-	vec3 skyColor = vec3(0.0, 0.2, 0.5);
+	vec3 skyColor = pow( vec3(0.5, 0.8, 0.9), vec3(2.2) );
 	
 	vec3 lightEnergy = u_lightColor * u_lightIntensity;
 	vec3 cloudColor = accumulatedEnergy * lightEnergy;
 	
-	vec3 backgroundColor = mix( skyColor, u_lightColor, pow( thetaRatio, 10.0 ) );
+	vec3 backgroundColor = mix( skyColor, u_lightColor * u_lightIntensity, pow( thetaRatio, 10.0 ) );
 	vec3 outColor = cloudColor + vec3(extinction) * backgroundColor;
 	
 	out_forward = vec4( outColor, 1.0 );

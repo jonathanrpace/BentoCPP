@@ -38,7 +38,9 @@ namespace godBox
 	{
 		// Transform
 		SetUniform( "u_baseScale", _material.baseScale );
+		SetUniform( "u_baseScaleVertical", _material.baseScaleVertical );
 		SetUniform( "u_detailScale", _material.detailScale );
+		SetUniform( "u_detailScaleVertical", _material.detailScaleVertical );
 		SetUniform( "u_position", _material.position);
 		SetUniform( "u_height", _material.height );
 		SetUniform( "u_falloffTop", _material.falloffTop );
@@ -61,7 +63,6 @@ namespace godBox
 		SetUniform( "u_detailDensityScalar", _material.detailDensityScalar );
 		SetUniform( "u_detailDensityOffset", _material.detailDensityOffset );
 
-		SetUniform("u_lightDir", -glm::euclidean(vec2(_material.lightAltitude, _material.lightAzimuth)));
 		SetUniform("u_lightIntensity", _material.lightIntensity);
 		SetUniform("u_lightColor", _material.lightColor);
 
