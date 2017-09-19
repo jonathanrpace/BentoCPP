@@ -19,6 +19,7 @@ uniform vec3 lightSamplePositions[] = vec3[](
 
 // Transform
 uniform float u_baseScale;
+uniform float u_baseScaleVertical;
 uniform float u_detailScale;
 uniform float u_position;
 uniform float u_height;
@@ -33,7 +34,6 @@ uniform float u_lightConeMaxLength;
 uniform mat3 u_coneMatrix;
 
 // Lighting
-uniform vec3 u_lightDir;
 uniform float u_lightIntensity;
 uniform vec3 u_lightColor;
 
@@ -104,7 +104,10 @@ float getDensityBase( vec3 p )
 	if ( layerScalar == 0.0 )
 		return 0.0;
 	
-	vec4 s = texture( s_baseShapes, p.xzy * u_baseScale );
+	vec3 coord = p.xzy * u_baseScale;
+	coord.z *= u_baseScaleVertical;
+
+	vec4 s = texture( s_baseShapes, coord );
 	float v = (s.a-u_densityOffset) * u_densityScalar;
 	v = max( 0, v );
 	v *= layerScalar;
@@ -142,8 +145,10 @@ float getDensityLOD( vec3 p, bool doDetail )
 void main(void)
 {
 	vec3 rayDir = normalize(in_worldPosition.xyz-u_cameraPos);
+
+	vec3 lightDir = vec3(0.0,0.0,1.0) * u_coneMatrix;
 	
-	float thetaRatio = dot(-rayDir, u_lightDir);
+	float thetaRatio = dot(-rayDir, lightDir);
 	float theta = acos(thetaRatio); // Angle between eye vector and light
 	thetaRatio = max(0.0, thetaRatio);
 	
@@ -214,14 +219,12 @@ void main(void)
 				// Stop when extinction is high
 				if ( extinction < 0.004 )
 					break;
-					
-				
 				
 				float accumulatedLightSampleDensity = 0.0;
 				for ( int j = 0; j < numLightSamples; j++ )
 				{
 					vec3 lightSamplePos = lightSamplePositions[j];
-					lightSamplePos = lightSamplePos * u_coneMatrix;
+					lightSamplePos = -lightSamplePos * u_coneMatrix;
 					lightSamplePos *= u_lightConeMaxLength;
 					lightSamplePos += rayPos;
 					
@@ -231,7 +234,7 @@ void main(void)
 				accumulatedLightSampleDensity /= numLightSamples;
 				float lightTransmitRatio = Beers( accumulatedLightSampleDensity, u_absorbtion );
 				lightTransmitRatio *= HG(theta, u_scatteringParam);
-				float powderedLightTransmitRatio = lightTransmitRatio * Powder( accumulatedLightSampleDensity );
+				float powderedLightTransmitRatio = lightTransmitRatio * Powder( accumulatedLightSampleDensity ) * Powder( accumulatedDensity );
 				float powderedRatio = mix( 0.4, 1.0, 1.0-pow( thetaRatio, 4.0 ) );
 				lightTransmitRatio = mix( lightTransmitRatio, powderedLightTransmitRatio, powderedRatio );
 				

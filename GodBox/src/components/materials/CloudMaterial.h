@@ -32,6 +32,7 @@ namespace godBox
 		TextureResource detailTexture3D;
 
 		float baseScale;
+		float baseScaleVertical;
 		float detailScale;
 		float detailMaxDensity;
 		

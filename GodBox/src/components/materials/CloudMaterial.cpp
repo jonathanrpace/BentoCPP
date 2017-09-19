@@ -16,6 +16,7 @@ namespace godBox
 		SERIALIZABLE(lightConeMaxLength, 0.1f);
 
 		SERIALIZABLE(baseScale, 1.0f);
+		SERIALIZABLE(baseScaleVertical, 1.0f);
 		SERIALIZABLE(detailScale, 4.0f);
 		SERIALIZABLE(detailMaxDensity, 0.2f);
 
@@ -48,6 +49,7 @@ namespace godBox
 		ImGui::Spacing();
 		ImGui::Text("Transform");
 		ImGui::DragFloat("Base scale", &baseScale, 0.01f, 0.0f );
+		ImGui::DragFloat("Base scale vertical", &baseScaleVertical, 0.01f, 0.0f );
 		ImGui::DragFloat("Detail scale", &detailScale, 0.01f, 0.0f );
 		ImGui::DragFloat("Position", &position, 0.01f );
 		ImGui::DragFloat("Height", &height, 0.01f, 0.0f );
