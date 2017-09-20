@@ -52,6 +52,7 @@ namespace godBox
 		float lightAzimuth;
 		float lightAltitude;
 		vec3 lightColor;
+		vec3 skyColor;
 		float lightIntensity;
 		float absorbtion;
 		float powderSharpness;

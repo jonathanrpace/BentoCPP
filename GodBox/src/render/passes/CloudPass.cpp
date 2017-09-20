@@ -65,6 +65,7 @@ namespace godBox
 
 		SetUniform("u_lightIntensity", _material.lightIntensity);
 		SetUniform("u_lightColor", _material.lightColor);
+		SetUniform("u_skyColor", _material.skyColor);
 
 		mat4 coneMatrix;
 		coneMatrix = glm::rotate(coneMatrix, _material.lightAltitude, vec3(1.0,0.0,0.0));

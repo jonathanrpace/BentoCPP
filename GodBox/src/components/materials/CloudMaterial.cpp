@@ -30,6 +30,7 @@ namespace godBox
 		SERIALIZABLE(lightAltitude, (float)-M_PI * 0.5f);
 		SERIALIZABLE(lightIntensity, 1.0f);
 		SERIALIZABLE(lightColor, vec3(1.0,1.0,1.0));
+		SERIALIZABLE(skyColor, vec3(1.0,1.0,1.0));
 
 		SERIALIZABLE(absorbtion, 1.0f);
 		SERIALIZABLE(powderSharpness, 1-.0f);
@@ -72,6 +73,7 @@ namespace godBox
 		ImGui::SliderAngle("Altitude", &lightAltitude, -180.0f, 180.0f);
 		ImGui::DragFloat("Intensity", &lightIntensity, 0.01f);
 		ImGui::ColorEdit3("Color", glm::value_ptr(lightColor));
+		ImGui::ColorEdit3("Sky Color", glm::value_ptr(skyColor));
 		ImGui::DragFloat("Light cone scale", &lightConeMaxLength, 0.001f, 0.0f);
 		ImGui::Spacing();
 

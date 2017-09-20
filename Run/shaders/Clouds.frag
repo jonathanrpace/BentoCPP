@@ -10,11 +10,11 @@
 
 uniform vec3 lightSamplePositions[] = vec3[](
 	vec3(0.0, 0.0, 0.1),
-	vec3(0.2, 0.0, 0.25),
-	vec3(0.0, 0.2, 0.25),
-	vec3(-0.3, 0.0, 0.4),
-	vec3(0.1, -0.3, 0.5),
-	vec3(0.0, 0.0, 10.0)
+	vec3(0.0, 0.0, 0.2),
+	vec3(0.0, 0.0, 0.35),
+	vec3(0.0, 0.0, 0.5),
+	vec3(0.1, 0.0, 0.7),
+	vec3(0.0, 0.0, 12.0)
 );
 
 // Transform
@@ -37,6 +37,7 @@ uniform mat3 u_coneMatrix;
 // Lighting
 uniform float u_lightIntensity;
 uniform vec3 u_lightColor;
+uniform vec3 u_skyColor;
 
 // Properties
 uniform float u_absorbtion;
@@ -182,7 +183,7 @@ void main(void)
 	while ( rayLength < u_maxRayLength )
 	{
 		// Get density - only do detail if making small steps, and if not too obscured already
-		bool extinctionLowEnoughForDetail = extinction > 0.8;
+		bool extinctionLowEnoughForDetail = extinction > 0.5;
 		float density = getDensityLOD(rayPos, detailMode);
 		
 		// Cheaply continue in empty regions
@@ -240,7 +241,7 @@ void main(void)
 				accumulatedLightSampleDensity /= numLightSamples;
 				float lightTransmitRatio = Beers( accumulatedLightSampleDensity, u_absorbtion );
 				lightTransmitRatio *= HG(theta, u_scatteringParam);
-				float powderedLightTransmitRatio = lightTransmitRatio * Powder( accumulatedLightSampleDensity ) * Powder( accumulatedDensity );
+				float powderedLightTransmitRatio = lightTransmitRatio * Powder( accumulatedLightSampleDensity );
 				float powderedRatio = mix( 0.4, 1.0, 1.0-pow( thetaRatio, 4.0 ) );
 				lightTransmitRatio = mix( lightTransmitRatio, powderedLightTransmitRatio, powderedRatio );
 				
@@ -255,12 +256,12 @@ void main(void)
 	
 	
 	
-	vec3 skyColor = pow( vec3(0.5, 0.8, 0.9), vec3(2.2) );
-	
 	vec3 lightEnergy = u_lightColor * u_lightIntensity;
 	vec3 cloudColor = accumulatedEnergy * lightEnergy;
 	
-	vec3 backgroundColor = mix( skyColor, u_lightColor * u_lightIntensity, pow( thetaRatio, 10.0 ) );
+	cloudColor += u_skyColor * u_lightIntensity * 0.05;
+	
+	vec3 backgroundColor = mix( u_skyColor, u_lightColor * u_lightIntensity, pow( thetaRatio, 10.0 ) );
 	vec3 outColor = cloudColor + vec3(extinction) * backgroundColor;
 	
 	out_forward = vec4( outColor, 1.0 );
