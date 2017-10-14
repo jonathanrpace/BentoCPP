@@ -42,10 +42,11 @@ namespace bento
 		static ivec2 BackBufferSize() { return ivec2( s_backBufferWidth, s_backBufferHeight ); }
 		static int BackBufferWidth() { return s_backBufferWidth; }
 		static int BackBufferHeight() { return s_backBufferHeight; }
+		static vec4 Viewport() { return s_viewport; }
 
 		static void SetViewMatrices(mat4 _viewMatrix, ILens& _lens)
 		{
-			s_prevInvViewProjectionMatrix = s_viewProjetionMatrix;
+			s_prevViewProjectionMatrix = s_viewProjetionMatrix;
 			s_prevInvViewProjectionMatrix = s_invViewProjetionMatrix;
 
 			s_viewMatrix = _viewMatrix;
@@ -57,6 +58,7 @@ namespace bento
 			s_invViewMatrix = inverse(s_viewMatrix);
 			s_invNormalViewMatrix = inverse(s_normalViewMatrix);
 			s_invProjectionMatrix = inverse(s_projectionMatrix);
+			s_invViewProjetionMatrix = inverse(s_viewProjetionMatrix);
 
 			s_cameraPos = vec3(s_invViewMatrix[3]);
 
@@ -75,12 +77,16 @@ namespace bento
 			s_normalModelViewMatrix = transpose(mat3(s_modelViewMatrix));
 
 			s_invNormalModelViewMatrix = inverse(s_normalModelViewMatrix);
+
+			s_invModelViewProjectionMatrix = inverse(s_modelViewProjectionMatrix);
 		}
 
 		static void SetBackBufferDimensions(int _width, int _height)
 		{
 			s_backBufferWidth = _width;
 			s_backBufferHeight = _height;
+
+			s_viewport = vec4(0.0f, 0.0f, (float)_width, (float)_height);
 		}
 
 		static void SetCameraTransform(std::shared_ptr<Transform> _cameraTransform)
@@ -91,6 +97,7 @@ namespace bento
 	private:
 		static int s_backBufferWidth;
 		static int s_backBufferHeight;
+		static vec4 s_viewport;
 
 		static mat4 s_modelMatrix;
 		static mat3 s_normalModelMatrix;

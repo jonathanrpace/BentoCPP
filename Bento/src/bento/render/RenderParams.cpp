@@ -4,6 +4,7 @@ namespace bento
 {
 	int RenderParams::s_backBufferWidth;
 	int RenderParams::s_backBufferHeight;
+	glm::vec4 RenderParams::s_viewport;
 	glm::mat4 RenderParams::s_modelMatrix;
 	glm::mat3 RenderParams::s_normalModelMatrix;
 	glm::mat4 RenderParams::s_viewMatrix;
