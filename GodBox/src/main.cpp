@@ -109,9 +109,7 @@ void mainLoop(GLFWwindow* window)
 		entity->Name("Clouds");
 		scene.AddEntity(entity);
 
-		auto geom = bento::PlaneGeometry::Create();
-		geom->SetWidth(2.0f);
-		geom->SetHeight(2.0f);
+		auto geom = bento::ScreenQuadGeometry::Create();
 		scene.AddComponentToEntity(geom, entity);
 
 		auto cloudsMaterial = godBox::CloudMaterial::Create();
@@ -134,11 +132,12 @@ void mainLoop(GLFWwindow* window)
 	// Render passes
 	{
 		renderer->AddRenderPass(CubeMapSkyPass::Create()); // TODO - How do I specify renderPhase through shared object construction?
+		renderer->AddRenderPass(CloudPass::Create());
 		renderer->AddRenderPass(TerrainPass::Create());
 		renderer->AddRenderPass(TerrainSidesPass::Create());
 		
 		renderer->AddRenderPass(WaterPass::Create());
-		renderer->AddRenderPass(CloudPass::Create());
+		
 		//renderer->AddRenderPass(SteamPass::Create());
 		//renderer->AddRenderPass(TerrainFoamPass::Create());
 		

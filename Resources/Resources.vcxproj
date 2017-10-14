@@ -22,7 +22,7 @@
     <None Include="..\Run\shaders\Resolve.frag" />
     <None Include="..\Run\shaders\ScreenQuad.vert" />
     <None Include="..\Run\shaders\Skybox.vert" />
-    <None Include="..\Run\shaders\StandardLib.glsl" />
+    <None Include="..\Run\shaders\StandardLib.frag" />
     <None Include="..\Run\shaders\SteamParticle.frag" />
     <None Include="..\Run\shaders\SteamParticle.vert" />
     <None Include="..\Run\shaders\SteamParticleUpdate.vert" />

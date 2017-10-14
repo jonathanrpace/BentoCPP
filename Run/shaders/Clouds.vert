@@ -5,12 +5,11 @@
 ////////////////////////////////////////////////////////////////
 
 // Attributes
-layout(location = 0) in vec3 in_position;
+layout(location = 0) in vec2 in_position;
+layout(location = 1) in vec2 in_uv;
 
 // Uniforms
-uniform mat4 u_viewMatrix;
-uniform mat4 u_mvpMatrix;
-uniform mat4 u_modelViewMatrix;
+uniform mat4 u_invViewProjMatrix;
 
 
 ////////////////////////////////////////////////////////////////
@@ -20,8 +19,8 @@ uniform mat4 u_modelViewMatrix;
 // Varying
 out Varying
 {
-	vec4 out_worldPosition;
-	vec4 out_viewPosition;
+	vec4 out_rayNear;
+	vec4 out_rayFar;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -29,14 +28,19 @@ out Varying
 ////////////////////////////////////////////////////////////////
 void main(void)
 {
-	vec4 worldPos = vec4(in_position, 1.0f);
-	vec4 viewPos = u_modelViewMatrix * worldPos;
-	vec4 screenPos = u_mvpMatrix * worldPos;
+	vec2 modifiedUV = (in_uv * 2.0) - 1.0;
 	
-	// Output
-	{
-		out_worldPosition = worldPos;
-		out_viewPosition = viewPos;
-		gl_Position = screenPos;
-	}
+	vec4 rayNear = vec4( modifiedUV, -1.0, 1.0 );
+	vec4 rayFar = vec4( modifiedUV, 1.0, 1.0 );
+	
+	rayNear = u_invViewProjMatrix * rayNear;
+	rayFar = u_invViewProjMatrix * rayFar;
+	
+	rayNear.xyz /= rayNear.w;
+	rayFar.xyz /= rayFar.w;
+	
+	out_rayNear = rayNear;
+	out_rayFar = rayFar;
+	
+	gl_Position = vec4( in_position, 0.0, 1.0 );
 } 

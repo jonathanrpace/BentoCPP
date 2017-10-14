@@ -17,6 +17,7 @@ uniform vec3 lightSamplePositions[] = vec3[](
 	vec3(0.0, 0.0, 12.0)
 );
 
+
 // Transform
 uniform float u_baseScale;
 uniform float u_baseScaleVertical;
@@ -26,6 +27,9 @@ uniform float u_position;
 uniform float u_height;
 uniform float u_falloffTop;
 uniform float u_falloffBottom;
+
+// Vortex
+uniform float u_numVortexTurns;
 
 // Quality
 uniform float u_maxRayLength;
@@ -60,8 +64,8 @@ uniform sampler3D s_detailMap;
 // Varying
 in Varying
 {
-	vec4 in_worldPosition;		// Use object pos instead?
-	vec4 in_viewPosition;
+	vec4 in_rayNear;
+	vec4 in_rayFar;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -69,6 +73,16 @@ in Varying
 ////////////////////////////////////////////////////////////////
 
 layout( location = 0 ) out vec4 out_forward;
+
+////////////////////////////////////////////////////////////////
+// Lib Functions
+////////////////////////////////////////////////////////////////
+vec2 rotateVec2(vec2 vec, float radians);
+vec3 screenSpaceToEyeSpace( vec4 viewport, mat4 invPersMatrix );
+
+////////////////////////////////////////////////////////////////
+// Functions
+////////////////////////////////////////////////////////////////
 
 float Beers(float density, float absorbtion) 
 {
@@ -131,8 +145,27 @@ float getDetailDensity( vec3 p )
 	return v;
 }
 
+vec3 warpPosition( vec3 p )
+{
+	return p;
+	
+	vec2 origin = vec2(0.0);
+	vec2 delta = vec2(p.x, p.z) - origin;
+	float r = length(delta);
+	
+	float radians = u_numVortexTurns * M_PI * 2.0 / (1.0+r);
+	
+	vec2 rotatedDelta = rotateVec2(delta, radians);
+	
+	vec2 warpedPos = origin + rotatedDelta / (1.0+r);
+	
+	return vec3(warpedPos.x, p.y - r*0.25, warpedPos.y);
+}
+
 float getDensityLOD( vec3 p, bool doDetail )
 {
+	p = warpPosition(p);
+
 	float density = getDensityBase(p);
 	
 	if ( density > 0.0 && doDetail && density < u_detailMaxDensity )
@@ -147,20 +180,19 @@ float getDensityLOD( vec3 p, bool doDetail )
 }
 
 ////////////////////////////////////////////////////////////////
-// Functions
+// Main
 ////////////////////////////////////////////////////////////////
 void main(void)
 {
-	vec3 rayDir = normalize(in_worldPosition.xyz-u_cameraPos);
-
+	vec3 rayDir = normalize(in_rayFar.xyz - in_rayNear.xyz);
 	vec3 lightDir = vec3(0.0,0.0,1.0) * u_coneMatrix;
+	
 	
 	float thetaRatio = dot(-rayDir, lightDir);
 	float theta = acos(thetaRatio); // Angle between eye vector and light
 	thetaRatio = max(0.0, thetaRatio);
 	
-	
-	int detailToCoarseMultiplier = 2;
+	int detailToCoarseMultiplier = 3;
 	
 	int numCoarseSteps = int(u_maxRayLength * u_coarseStepsPerUnit);
 	float coarseStepLength = u_maxRayLength / numCoarseSteps;
@@ -169,21 +201,22 @@ void main(void)
 	float detailStepLength = u_maxRayLength / numDetailSteps;
 	
 	int numLightSamples = lightSamplePositions.length();
+	vec3 lightEnergy = u_lightColor * u_lightIntensity;
 	
 	// TODO Consider renaming to 'primary' and 'seconday' rays. Instead of 'density' and 'energy'
 	
-	vec3 rayPos = in_worldPosition.xyz;
+	vec3 rayPos = u_cameraPos;
 	float rayLength = 0.0;
 	float extinction = 1.0f;
 	float accumulatedDensity = 0.0;
-	float accumulatedEnergy = 0.0;
+	vec3 accumulatedEnergy = vec3(0.0);
 	float stepSize = coarseStepLength;
 	bool detailMode = false;
 	int numZeroDetailSteps = 0;
 	while ( rayLength < u_maxRayLength )
 	{
 		// Get density - only do detail if making small steps, and if not too obscured already
-		bool extinctionLowEnoughForDetail = extinction > 0.5;
+		bool extinctionLowEnoughForDetail = extinction > 0.8;
 		float density = getDensityLOD(rayPos, detailMode);
 		
 		// Cheaply continue in empty regions
@@ -224,7 +257,7 @@ void main(void)
 				extinction *= Beers( accumulatedDensity, u_absorbtion );
 				
 				// Stop when extinction is high
-				if ( extinction < 0.004 )
+				if ( extinction < 0.02 )
 					break;
 				
 				float accumulatedLightSampleDensity = 0.0;
@@ -235,17 +268,20 @@ void main(void)
 					lightSamplePos *= u_lightConeMaxLength;
 					lightSamplePos += rayPos;
 					
-					float lightSampleDensity = getDensityLOD(lightSamplePos, extinctionLowEnoughForDetail) * u_lightConeMaxLength;
+					float lightSampleDensity = getDensityLOD(lightSamplePos, extinctionLowEnoughForDetail);// * u_lightConeMaxLength;
 					accumulatedLightSampleDensity += lightSampleDensity;
 				}
 				accumulatedLightSampleDensity /= numLightSamples;
 				float lightTransmitRatio = Beers( accumulatedLightSampleDensity, u_absorbtion );
-				lightTransmitRatio *= HG(theta, u_scatteringParam);
+				lightTransmitRatio += HG(theta, u_scatteringParam);
 				float powderedLightTransmitRatio = lightTransmitRatio * Powder( accumulatedLightSampleDensity );
 				float powderedRatio = mix( 0.4, 1.0, 1.0-pow( thetaRatio, 4.0 ) );
 				lightTransmitRatio = mix( lightTransmitRatio, powderedLightTransmitRatio, powderedRatio );
 				
-				accumulatedEnergy += lightTransmitRatio * (1.0-extinction) * stepSize;
+				//accumulatedEnergy += lightTransmitRatio * (1.0-extinction) * stepSize;
+				
+				vec3 col = vec3( lightEnergy * lightTransmitRatio ) * extinction * stepSize;
+				accumulatedEnergy += col*(1.0-extinction);
 			}
 		}
 		
@@ -253,16 +289,13 @@ void main(void)
 		rayLength += stepSize;
 	}
 	
+	//vec3 cloudColor = accumulatedEnergy * lightEnergy;
 	
+	accumulatedEnergy += u_skyColor * u_lightIntensity * 0.1;
+	vec3 backgroundColor = mix( u_skyColor, lightEnergy, pow( thetaRatio, 10.0 ) );
+	vec3 outColor = mix( accumulatedEnergy, backgroundColor, extinction );
 	
+	//vec3 outColor = accumulatedEnergy + vec3(extinction) * backgroundColor;
 	
-	vec3 lightEnergy = u_lightColor * u_lightIntensity;
-	vec3 cloudColor = accumulatedEnergy * lightEnergy;
-	
-	cloudColor += u_skyColor * u_lightIntensity * 0.05;
-	
-	vec3 backgroundColor = mix( u_skyColor, u_lightColor * u_lightIntensity, pow( thetaRatio, 10.0 ) );
-	vec3 outColor = cloudColor + vec3(extinction) * backgroundColor;
-	
-	out_forward = vec4( outColor, 1.0 );
+	out_forward = vec4( accumulatedEnergy, 1.0-extinction );
 }

@@ -23,9 +23,7 @@ namespace godBox
 	void CloudPass::VertShader::BindPerModel(CloudMaterial& _material)
 	{
 		// Matrices
-		SetUniform("u_mvpMatrix", RenderParams::ModelViewProjectionMatrix());
-		SetUniform("u_modelViewMatrix", RenderParams::ModelViewMatrix());
-		SetUniform("u_viewMatrix", RenderParams::ViewMatrix() );
+		SetUniform( "u_invViewProjMatrix", RenderParams::InvViewProjetionMatrix() );
 	}
 
 	////////////////////////////////////////////
@@ -45,6 +43,9 @@ namespace godBox
 		SetUniform( "u_height", _material.height );
 		SetUniform( "u_falloffTop", _material.falloffTop );
 		SetUniform( "u_falloffBottom", _material.falloffBottom );
+
+		// Vortex
+		SetUniform( "u_numVortexTurns", _material.vortexTurns );
 
 		// Quality
 		SetUniform( "u_maxRayLength", _material.maxRayLength );
@@ -83,15 +84,17 @@ namespace godBox
 
 	CloudPass::CloudPass(std::string _name)
 		: NodeGroupProcess(_name, typeid(CloudPass))
-		, RenderPass("CloudPass", eRenderPhase_Transparent)
+		, RenderPass("CloudPass", eRenderPhase_Forward)
 	{
 	}
 
 	void CloudPass::Advance(double _dt)
 	{
-		//glEnable(GL_BLEND);
-		//glBlendEquation(GL_FUNC_ADD);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glDepthMask(false);
 
 		m_shader.BindPerPass();
 		for (auto node : m_nodeGroup.Nodes())
@@ -105,6 +108,7 @@ namespace godBox
 			node->geom->Draw();
 		}
 
-		//glDisable(GL_BLEND);
+		glDepthMask(true);
+		glDisable(GL_BLEND);
 	}
 }

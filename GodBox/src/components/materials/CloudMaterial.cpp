@@ -15,6 +15,8 @@ namespace godBox
 		SERIALIZABLE(detailStepsPerUnit, 32);
 		SERIALIZABLE(lightConeMaxLength, 0.1f);
 
+		SERIALIZABLE(vortexTurns, 0.0f);
+
 		SERIALIZABLE(baseScale, 1.0f);
 		SERIALIZABLE(baseScaleVertical, 1.0f);
 		SERIALIZABLE(detailScale, 4.0f);
@@ -58,6 +60,11 @@ namespace godBox
 		ImGui::DragFloat("Height", &height, 0.01f, 0.0f );
 		ImGui::DragFloat("Falloff top", &falloffTop, 0.01f, 0.0f );
 		ImGui::DragFloat("Falloff bottom", &falloffBottom, 0.01f, 0.0f );
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::Text("Vortex");
+		ImGui::DragFloat("Num turns", &vortexTurns, 0.01f );
 		ImGui::Spacing();
 
 		ImGui::Spacing();

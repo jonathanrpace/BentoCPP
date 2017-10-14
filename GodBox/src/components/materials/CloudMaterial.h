@@ -37,7 +37,7 @@ namespace godBox
 		float detailScaleVertical;
 		float detailMaxDensity;
 		
-		
+		float vortexTurns;
 
 		float position;
 		float height;

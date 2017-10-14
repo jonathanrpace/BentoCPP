@@ -7,7 +7,7 @@
 #include <bento/core/ShaderBase.h>
 #include <bento/core/ShaderStageBase.h>
 #include <bento/components/Transform.h>
-#include <bento/components/geom/Geometry.h>
+#include <bento/components/geom/ScreenQuadGeometry.h>
 
 // app
 #include <components/materials/CloudMaterial.h>
@@ -19,7 +19,7 @@ namespace godBox
 	DEFINE_NODE_3
 	(
 		CloudPassNode,
-		Geometry, geom,
+		ScreenQuadGeometry, geom,
 		Transform, transform,
 		CloudMaterial, material
 	)
