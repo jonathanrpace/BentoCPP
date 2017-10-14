@@ -19,18 +19,21 @@ namespace bento
 		s_standardLibShaderNameVert = glCreateShader(GL_VERTEX_SHADER);
 		s_standardLibShaderNameFrag = glCreateShader(GL_FRAGMENT_SHADER);
 
-		char* shaderSourcePtr;
-		unsigned long shaderSourceLength;
-		std::string resolvedFilename = bento::Config::ResourcePath() + std::string("shaders/StandardLib.glsl");
-		fileUtil::LoadFile(resolvedFilename.c_str(), &shaderSourcePtr, &shaderSourceLength);
-
-		glShaderSource(s_standardLibShaderNameVert, 1, &shaderSourcePtr, NULL);
-		glShaderSource(s_standardLibShaderNameFrag, 1, &shaderSourcePtr, NULL);
-
+		char* shaderSourceVertPtr;
+		unsigned long shaderSourceVertLength;
+		std::string resolvedFilenameVert = bento::Config::ResourcePath() + std::string("shaders/StandardLib.vert");
+		fileUtil::LoadFile(resolvedFilenameVert.c_str(), &shaderSourceVertPtr, &shaderSourceVertLength);
+		glShaderSource(s_standardLibShaderNameVert, 1, &shaderSourceVertPtr, NULL);
 		glCompileShader(s_standardLibShaderNameVert);
-		glCompileShader(s_standardLibShaderNameFrag);
+		delete[] shaderSourceVertPtr;
 
-		delete[] shaderSourcePtr;
+		char* shaderSourceFragPtr;
+		unsigned long shaderSourceFragLength;
+		std::string resolvedFilenameFrag = bento::Config::ResourcePath() + std::string("shaders/StandardLib.frag");
+		fileUtil::LoadFile(resolvedFilenameFrag.c_str(), &shaderSourceFragPtr, &shaderSourceFragLength);
+		glShaderSource(s_standardLibShaderNameFrag, 1, &shaderSourceFragPtr, NULL);
+		glCompileShader(s_standardLibShaderNameFrag);
+		delete[] shaderSourceFragPtr;
 	}
 
 	void ShaderStageBase::StaticShutdown()

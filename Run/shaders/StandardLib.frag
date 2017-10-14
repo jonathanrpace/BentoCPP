@@ -390,3 +390,30 @@ vec3 IBLContribution
 
 	return result;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TRANSFORMATIONS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+vec2 rotateVec2(vec2 vec, float radians)
+{
+	vec2 result = vec;
+	float cosine = cos( radians );
+	float sine = sin( radians );
+    result.x = vec.x * cosine - vec.y * sine;
+    result.y = vec.x * sine + vec.y * cosine;
+    return result;
+}
+
+vec3 screenSpaceToEyeSpace( vec4 viewport, mat4 invPersMatrix )
+{
+	vec4 ndcPos;
+	ndcPos.xy = ((2.0 * gl_FragCoord.xy) - (2.0 * viewport.xy)) / (viewport.zw) - 1;
+	ndcPos.z = (2.0 * gl_FragCoord.z - gl_DepthRange.near - gl_DepthRange.far) /
+		(gl_DepthRange.far - gl_DepthRange.near);
+	ndcPos.w = 1.0;
+
+	vec4 clipPos = ndcPos / gl_FragCoord.w;
+	vec4 eyePos = invPersMatrix * clipPos;
+	
+	return eyePos.xyz;
+}
