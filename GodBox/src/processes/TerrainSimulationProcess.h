@@ -111,11 +111,12 @@ namespace godBox
 		float m_condenseSpeed;
 		float m_meltCondenseSpeed;
 		float m_tempChangeSpeed;
-		float m_moltenVelocityScalar;
 		float m_smudgeChangeRate;
 		float m_moltenSlopeStrength;
+		float m_moltenSlopePower;
 		float m_moltenDiffusionStrength;
 		float m_moltenPressureStrength;
+		float m_moltenFluxDamping;
 
 		// Dirt
 		float m_dirtViscosity;

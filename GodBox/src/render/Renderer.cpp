@@ -28,6 +28,7 @@ namespace godBox
 		, SerializableBase("Renderer")
 		, m_blurredRenderTargetA(256, 256, true, false)
 		, m_blurredRenderTargetB(256, 256, true, false)
+		, m_cloudRenderTarget(256, 256, true, false)
 		, m_dirtyLensTexture("textures/DirtyLens.dds")
 	{
 		AddRenderPhase(eRenderPhase_Forward);

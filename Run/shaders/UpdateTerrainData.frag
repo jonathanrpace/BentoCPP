@@ -24,6 +24,7 @@ uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_grungeMap;
 uniform sampler2D s_fluidVelocityData;
 uniform sampler2D s_pressureData;
+uniform sampler2D s_derivedData;
 
 // Mouse
 uniform float u_mouseRadius;
@@ -54,10 +55,11 @@ uniform float u_tempChangeSpeed;
 uniform float u_meltCondenseSpeed;
 uniform float u_meltSpeed;
 uniform float u_condenseSpeed;
-uniform float u_moltenVelocityScalar;
 uniform float u_smudgeChangeRate;
 uniform float u_moltenSlopeStrength;
-uniform float u_moltenVelocityDamping;
+uniform float u_moltenSlopePower;
+uniform float u_moltenFluxDamping;
+uniform float u_moltenDiffuseStrength;
 
 // Water
 uniform float u_waterViscosity;
@@ -204,6 +206,7 @@ void main(void)
 	vec4 fW = texelFetchL(s_fluidVelocityData);
 
 	vec4 mC = texelFetchC(s_miscData);
+	vec4 mCOld = mC;
 	vec4 mL = texelFetchL(s_miscData);
 	vec4 mR = texelFetchR(s_miscData);
 	vec4 mU = texelFetchU(s_miscData);
@@ -212,101 +215,158 @@ void main(void)
 	vec4 uvOffsetDataC = texelFetchC(s_uvOffsetData);
 	vec4 smudgeDataC = texelFetchC(s_smudgeData);
 
+	
 	////////////////////////////////////////////////////////////////
-	// Cooling
+	// Diffuse volume and heat between cells
 	////////////////////////////////////////////////////////////////
 	{
-		mC.x += (u_ambientTemp - mC.x) * u_tempChangeSpeed;
-	}
+		float averageMolten = (hE.y + hW.y + hN.y + hS.y + hCOld.y) * 0.2;
+		hC.y = mix( hC.y, averageMolten, u_moltenDiffuseStrength );
 	
+		float averageHeat = (mR.x + mL.x + mU.x + mD.x + mC.x ) * 0.2;
+		mC.x = mix( mC.x, averageHeat, u_moltenDiffuseStrength );
+	}
 	
 	////////////////////////////////////////////////////////////////
 	// Exchange molten volume and heat
 	// Important to do this before modify fC locally
 	////////////////////////////////////////////////////////////////
 	{
-		float toN = min( fC.z * hC.y, hC.y * 0.15 );
-		float toS = min( fC.w * hC.y, hC.y * 0.15 );
-		float toE = min( fC.y * hC.y, hC.y * 0.15 );
-		float toW = min( fC.x * hC.y, hC.y * 0.15 );
+		float toN = min( fC.z, hC.y * 0.1 );// * 0.2;
+		float toS = min( fC.w, hC.y * 0.1 );// * 0.2;
+		float toE = min( fC.y, hC.y * 0.1 );// * 0.2;
+		float toW = min( fC.x, hC.y * 0.1 );// * 0.2;
 		float totalTo = (toN + toS + toE + toW);
 
-		float fromN = min( fN.w * hN.y, hN.y * 0.15 );
-		float fromS = min( fS.z * hS.y, hS.y * 0.15 );
-		float fromE = min( fE.x * hE.y, hE.y * 0.15 );
-		float fromW = min( fW.y * hW.y, hW.y * 0.15 );
+		float fromN = min( fN.w, hN.y * 0.1 );// * 0.2;
+		float fromS = min( fS.z, hS.y * 0.1 );// * 0.2;
+		float fromE = min( fE.x, hE.y * 0.1 );// * 0.2;
+		float fromW = min( fW.y, hW.y * 0.1 );// * 0.2;
 
 		float totalFrom = fromN + fromS + fromE + fromW;
-
-		hC.y += totalFrom * 0.25;
-		hC.y -= totalTo * 0.25;
+		
+		hC.y += totalFrom;// * 0.2;
+		hC.y -= totalTo;// * 0.2;
 	
 		// Advect heat
+		float heatC = mC.x;
 		float heatN = texelFetchOffset(s_miscData, T, 0, ivec2( 0, -1)).x;
 		float heatS = texelFetchOffset(s_miscData, T, 0, ivec2( 0,  1)).x;
 		float heatE = texelFetchOffset(s_miscData, T, 0, ivec2( 1,  0)).x;
 		float heatW = texelFetchOffset(s_miscData, T, 0, ivec2(-1,  0)).x;
 		
-		float toProp = totalTo / max( hC.y, EPSILON.x );
-		float toHeat = toProp * mC.x;
-		
-		vec4 fromProp = vec4(fromN, fromS, fromE, fromW) / max( vec4( hN.y, hS.y, hE.y, hW.y ), EPSILON );
-		float fromheat = dot( vec4( heatN, heatS, heatE, heatW ) * fromProp, vec4(1.0) );
-		
-		mC.x -= toHeat;
-		mC.x += fromheat;
-	}
-		
-	////////////////////////////////////////////////////////////////
-	// Advect
-	////////////////////////////////////////////////////////////////
-	{
-		// Flux
-		vec2 velocity = vec2(fC.y - fC.x, fC.w - fC.z);
-		vec2 coord = in_uv - velocity * u_dt * u_cellSize;
-		fC = texture(s_fluidVelocityData, coord);
-		fC = max( fC, vec4(0.0) );
-		
-		// Molten param scalar
-		float fetchedScalar = texture(s_miscData, coord).y;
-		mC.y = fetchedScalar;
-		mC.y += mix(0.1, 0.8, rand()) * length(velocity);
-		mC.y = mod( mC.y, 10.0 );
+		if ( hC.y > 0 )
+		{
+			float propC = min( 1.0, max( 0.0, hCOld.y - totalTo ) / hC.y );
+			float propN = min( 1.0, fromN / hC.y );
+			float propS = min( 1.0, fromS / hC.y );
+			float propE = min( 1.0, fromE / hC.y );
+			float propW = min( 1.0, fromW / hC.y );
+			
+			// New heat is the average of all the incoming heat, weighted by the proportion of the volume incoming from each direction
+			mC.x = (propC * heatC) + (propN * heatN) + (propS * heatS) + (propE * heatE) + (propW * heatW);
+		}
 	}
 	
 	////////////////////////////////////////////////////////////////
-	// Subtract pressure gradient
+	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
 	{
-		float pC = texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  0)).x;
-		float pN = texelFetchOffset(s_pressureData, T, 0, ivec2( 0, -1)).x;
-		float pS = texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  1)).x;
-		float pE = texelFetchOffset(s_pressureData, T, 0, ivec2( 1,  0)).x;
-		float pW = texelFetchOffset(s_pressureData, T, 0, ivec2(-1,  0)).x;
-	
-		fC.x += (pC - pW) * u_moltenPressureScale * 100.0;
-		fC.y += (pC - pE) * u_moltenPressureScale * 100.0;
-		fC.z += (pC - pN) * u_moltenPressureScale * 100.0;
-		fC.w += (pC - pS) * u_moltenPressureScale * 100.0;
-
-		fC = clamp( fC, vec4(0.0), vec4(1.0));
-	}
-	
-	////////////////////////////////////////////////////////////////
-	// Add slope to molten flux
-	////////////////////////////////////////////////////////////////
-	{
-		float mhC = hCOld.x + hCOld.y;
-		float mhN = hN.x + hN.y;
-		float mhS = hS.x + hS.y;
-		float mhE = hE.x + hE.y;
-		float mhW = hW.x + hW.y;
+		float condensedAmount = u_condenseSpeed * hC.y * 0.01;
+		hC.y -= condensedAmount;
+		hC.x += condensedAmount;
 		
-		fC.x += (mhC - mhW) * u_moltenSlopeStrength;
-		fC.y += (mhC - mhE) * u_moltenSlopeStrength;
-		fC.z += (mhC - mhN) * u_moltenSlopeStrength;
-		fC.w += (mhC - mhS) * u_moltenSlopeStrength;
+		float heatRatio = min( mCOld.x, 1.0 );
+		float meltAmount = heatRatio * u_meltSpeed * hC.x * 0.01;
+		hC.y += meltAmount;
+		hC.x -= meltAmount;
 	}
+	
+	////////////////////////////////////////////////////////////////
+	// Modifications to fC (flux) allowed after this point
+	// (Prior to this point we were using the same values our
+	// neightbours will be accessing)
+	////////////////////////////////////////////////////////////////
+	{
+		////////////////////////////////////////////////////////////////
+		// Subtract pressure gradient
+		////////////////////////////////////////////////////////////////
+		{
+			float pC = texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  0)).x;
+			float pN = texelFetchOffset(s_pressureData, T, 0, ivec2( 0, -1)).x;
+			float pS = texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  1)).x;
+			float pE = texelFetchOffset(s_pressureData, T, 0, ivec2( 1,  0)).x;
+			float pW = texelFetchOffset(s_pressureData, T, 0, ivec2(-1,  0)).x;
+			
+			pC = max( 0.0, pC );
+			pN = max( 0.0, pN );
+			pS = max( 0.0, pS );
+			pE = max( 0.0, pE );
+			pW = max( 0.0, pW );
+		
+			fC.x += (pC - pW) * u_moltenPressureScale;
+			fC.y += (pC - pE) * u_moltenPressureScale;
+			fC.z += (pC - pN) * u_moltenPressureScale;
+			fC.w += (pC - pS) * u_moltenPressureScale;
+			
+			fC = clamp( fC, vec4(0.0), vec4(hC.y) );
+		}
+		
+		
+		////////////////////////////////////////////////////////////////
+		// Add slope to molten flux
+		////////////////////////////////////////////////////////////////
+		{
+			float mhC = hCOld.x + hCOld.y;
+			float mhN = hN.x + hN.y;
+			float mhS = hS.x + hS.y;
+			float mhE = hE.x + hE.y;
+			float mhW = hW.x + hW.y;
+			
+			fC.x += (mhC - mhW) * u_moltenSlopeStrength * 0.001 * pow( min( 1.0, abs( mhC - mhW ) * 1000.0 ), u_moltenSlopePower );
+			fC.y += (mhC - mhE) * u_moltenSlopeStrength * 0.001 * pow( min( 1.0, abs( mhC - mhE ) * 1000.0 ), u_moltenSlopePower );
+			fC.z += (mhC - mhN) * u_moltenSlopeStrength * 0.001 * pow( min( 1.0, abs( mhC - mhN ) * 1000.0 ), u_moltenSlopePower );
+			fC.w += (mhC - mhS) * u_moltenSlopeStrength * 0.001 * pow( min( 1.0, abs( mhC - mhS ) * 1000.0 ), u_moltenSlopePower );
+			
+			fC = clamp( fC, vec4(0.0), vec4(hC.y) );
+		}
+		
+		////////////////////////////////////////////////////////////////
+		// Damping
+		////////////////////////////////////////////////////////////////
+		{
+			// Global damping
+			fC -= fC * u_moltenFluxDamping;
+			
+			// Dampen  based on volume
+			float volumeRatio = min( 1.0, hC.y / 0.001 );
+			fC *= volumeRatio;
+			
+			// Dampen based on heat
+			float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, min( 1.0, mC.x * 0.5 ) );
+			fC *= moltenViscosity;
+			
+			float heatRatio = min( 1.0, mC.x / 0.05 );
+			fC *= heatRatio;
+		}
+		
+		
+	}
+	
+	////////////////////////////////////////////////////////////////
+	// Cooling
+	////////////////////////////////////////////////////////////////
+	{
+		float coolingRatio = 1.0 - mix( 0.0, 0.9, texelFetch(s_derivedData, T, 1).x );
+		mC.x += (u_ambientTemp - mC.x) * u_tempChangeSpeed * coolingRatio;
+		
+		if ( hC.y < 0.001 )
+		{
+			mC.x *= 0.999f;
+		}
+	}
+	
+	
 	
 	////////////////////////////////////////////////////////////////
 	// Update dirt
@@ -528,53 +588,6 @@ void main(void)
 	}
 	*/
 	
-	////////////////////////////////////////////////////////////////
-	// Melt/condense rock
-	////////////////////////////////////////////////////////////////
-	{
-		float heatRatio = min( mC.x, 1.0 );
-		
-		float condensedAmount = min( hC.y, (1.0-heatRatio) * u_condenseSpeed );
-
-		hC.y -= condensedAmount;
-		hC.x += condensedAmount;
-		/*
-		float rockHeight = hC.x;
-		float moltenHeight = hC.y;
-		float combinedHeight = moltenHeight + rockHeight;
-
-		float targetRatio = clamp( heat, 0.0, 1.0 );
-		float targetMoltenHeight = targetRatio * combinedHeight;
-
-		float meltCondenseSpeed = (1.0-clamp(heat, 0.0, 1.0)) * u_meltCondenseSpeed;
-
-		float newMolten = min( moltenHeight, moltenHeight + (targetMoltenHeight - moltenHeight) * meltCondenseSpeed );
-		float newRock = combinedHeight - newMolten;
-
-		hC.x = newRock;
-		hC.y = newMolten;
-
-
-		float dirtHeight = hC.z;
-		float dirtToMolten = min( dirtHeight, heat * u_meltCondenseSpeed * 0.1 );
-		hC.x += dirtToMolten * u_dirtDensity;
-		hC.z -= dirtToMolten;
-		*/
-	}
-	
-	
-	////////////////////////////////////////////////////////////////
-	// Dampen and limit flux
-	////////////////////////////////////////////////////////////////
-	{
-		float moltenScalar = sin(mC.y * 2.0 * PI) * 0.5 + 1.0;
-		float heatRatio = clamp( (mC.x - u_rockMeltingPoint) * u_heatViscosityScalar, 0.0, 1.0 );
-		
-		float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, moltenScalar ) * heatRatio;
-	
-		fC *= moltenViscosity;
-	}
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	// UV OFFSETS
 	//////////////////////////////////////////////////////////////////////////////////
@@ -592,8 +605,14 @@ void main(void)
 			uvOffsetB *= 0.0;
 		}
 		
-		uvOffsetA += velocity * u_moltenVelocityScalar;
-		uvOffsetB += velocity * u_moltenVelocityScalar;
+		uvOffsetA += velocity * 1000.0;
+		uvOffsetB += velocity * 1000.0;
+		
+		if ( hC.y < 0.001 )
+		{
+			uvOffsetA *= 0.0;
+			uvOffsetB *= 0.0;
+		}
 		
 		uvOffsetDataC = vec4( uvOffsetA, uvOffsetB );
 	}
@@ -601,6 +620,7 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	// SMUDGE MAP
 	//////////////////////////////////////////////////////////////////////////////////
+	/*
 	{
 		vec2 velocity = vec2(fC.y-fC.x, fC.w-fC.z);
 		
@@ -611,6 +631,7 @@ void main(void)
 		float ratio = (dp + 1.0) * 0.5;
 		smudgeDataC.xy += velocity * u_smudgeChangeRate;
 	}
+	*/
 	
 	////////////////////////////////////////////////////////////////
 	// Input
@@ -620,7 +641,7 @@ void main(void)
 		float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
 		float mouseScalar = pow(mouseRatio, 2.0);
 		float volumeStrength = mouseScalar * u_mouseMoltenVolumeStrength;
-		mC.x += mouseScalar * u_mouseMoltenHeatStrength * mix( 0.5, 1.0, rand() ) * 0.1;
+		mC.x += mouseScalar * u_mouseMoltenHeatStrength * mix( 0.5, 1.0, rand() ) * 0.4;
 		hC.y += mouseScalar * u_mouseMoltenVolumeStrength * 0.5;
 		
 		// Molten scalar

@@ -335,12 +335,11 @@ void main(void)
 	float textureAO = mix( 1.0, materialParams.g, 0.5 ) * mix( 1.0, creaseValue, 0.6 );
 
 	// Make albedo/specular darker when hot
-	float moltenRatio = 1.0 - ( min( in_miscData.x * 2.0, 1.0 ) );
+	float moltenRatio = 1.0 - ( min( in_miscData.x / 0.1, 1.0 ) );
 	specularColor *= moltenRatio;
-	albedo *= moltenRatio;
+	//albedo *= moltenRatio;
 
 	//albedo *= vec3( sin( in_miscData.y * PI * 2.0 ) * 0.5 + 1.0 );
-	
 	//albedo *= in_miscData.y;
 	
 	// Direct light
@@ -380,7 +379,8 @@ void main(void)
 
 	// Add emissve elements
 	float moltenMap = rockMaterialParams.b;
-	float heat = pow(clamp(in_miscData.x, 0.0, 1.0), 0.5);
+	float heat = pow(clamp(in_miscData.x * 0.5, 0.0, 2.0), 0.2) * in_miscData.x * 0.1;
+	heat = min(1.0, heat);
 	float moltenAlphaA = pow( moltenMap, mix( 1.5, 0.4, heat ) ) * heat;
 	float moltenAlphaB = pow( moltenMap, 2.5 ) * (1.0 - heat) * heat * 6;
 	float moltenAlpha = clamp( moltenAlphaA + moltenAlphaB, 0.0, 1.0 );
@@ -401,10 +401,11 @@ void main(void)
 	divergenceSample *= 1.0;
 	divergenceSample += 0.5;
 	
-	float pressureSample = texture( s_pressureData, in_uv ).g;
-	pressureSample *= 1000.0;
+	float pressureSample = texture( s_pressureData, in_uv ).r;
+	pressureSample *= 2000.0;
 	pressureSample += 0.5;
 	
+	//out_forward = vec4( pressureSample, pressureSample, pressureSample, 0.0 );
 	//out_forward = pow( vec4( velocitySample, pressureSample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );
 	
 }

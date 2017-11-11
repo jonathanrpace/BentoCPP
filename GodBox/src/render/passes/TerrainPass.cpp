@@ -91,7 +91,7 @@ namespace godBox
 		SetUniform( "u_phaseA", phaseA );
 		SetUniform( "u_phaseB", phaseB );
 		SetUniform( "u_phaseAlpha", alphaB );
-		SetUniform( "u_flowOffset", _material.moltenFlowOffset );
+		SetUniform( "u_flowOffset", _material.moltenFlowOffset / (float)_geometry.NumVerticesPerDimension() );
 
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());

@@ -44,6 +44,7 @@ namespace godBox
 
 	private:
 		RenderTarget m_renderTarget;
+		RenderTargetBase m_cloudRenderTarget;
 		RectTextureToScreenShader m_rectTextureToScreenShader;
 		RectBlurTap5Shader m_blurShader;
 		ResolveShader m_resolveShader;

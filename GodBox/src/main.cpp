@@ -132,7 +132,7 @@ void mainLoop(GLFWwindow* window)
 	// Render passes
 	{
 		renderer->AddRenderPass(CubeMapSkyPass::Create()); // TODO - How do I specify renderPhase through shared object construction?
-		renderer->AddRenderPass(CloudPass::Create());
+		//renderer->AddRenderPass(CloudPass::Create());
 		renderer->AddRenderPass(TerrainPass::Create());
 		renderer->AddRenderPass(TerrainSidesPass::Create());
 		

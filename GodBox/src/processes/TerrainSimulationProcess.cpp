@@ -53,11 +53,12 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
 	SerializableMember("meltSpeedCondenseSpeed",0.01f,		&m_meltCondenseSpeed);
 	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
-	SerializableMember("moltenVelocityScalar",	1.0f,		&m_moltenVelocityScalar);
 	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
 	SerializableMember("moltenSlopeStrength",	0.3f,		&m_moltenSlopeStrength);
+	SerializableMember("moltenSlopePower",		1.0f,		&m_moltenSlopePower);
 	SerializableMember("moltenDiffusionStrength",1.0f,		&m_moltenDiffusionStrength);
 	SerializableMember("moltenPressureStrength",1.0,		&m_moltenPressureStrength);
+	SerializableMember("moltenFluxDamping",		0.0,		&m_moltenFluxDamping);
 	
 	// Water
 	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
@@ -123,6 +124,9 @@ void TerrainSimulationProcess::Advance(double _dt)
 	{
 		RenderTargetBase* renderTarget = m_renderTargetByNodeMap[node];
 		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
+		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
+		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
+		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
 	}
 }
 
@@ -142,19 +146,19 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Text("Molten");
-	ImGui::SliderFloat("Viscosity Min#molten", &m_moltenViscosityMin, 0.9f, 1.0f);
-	ImGui::SliderFloat("Viscosity Max#molten", &m_moltenViscosityMax, 0.9f, 1.0f);
+	ImGui::SliderFloat("Viscosity Min##molten", &m_moltenViscosityMin, 0.9f, 1.0f);
+	ImGui::SliderFloat("Viscosity Max##molten", &m_moltenViscosityMax, 0.9f, 1.0f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
 	ImGui::SliderFloat("Heat Viscosity Scalar", &m_heatViscosityScalar, 1.0f, 50.0f);
-	ImGui::SliderFloat("VelocityScalar##molten", &m_moltenVelocityScalar, 0.0f, 4.0f);
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
-	ImGui::SliderFloat("Melt/Condense Speed", &m_meltCondenseSpeed, 0.0f, 0.25f, "%.4f");
-	ImGui::SliderFloat("Melt Speed", &m_meltSpeed, 0.0f, 0.001f, "%.5f");
-	ImGui::SliderFloat("Condense Speed", &m_condenseSpeed, 0.0f, 0.001f, "%.5f");
+	ImGui::DragFloat("Melt Speed", &m_meltSpeed, 0.0001f, 0.0f, 0.0f, "%.5f");
+	ImGui::DragFloat("Condense Speed", &m_condenseSpeed, 0.0001f, 0.0f, 0.0f, "%.5f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
-	ImGui::SliderFloat("Slope Strength#molten", &m_moltenSlopeStrength, 0.0f, 10.0f, "%.4f");
-	ImGui::SliderFloat("Diffusion Strength#molten", &m_moltenDiffusionStrength, 0.0f, 4.0f, "%.4f");
-	ImGui::SliderFloat("Pressure Strength#molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.4f");
+	ImGui::SliderFloat("Slope Strength##molten", &m_moltenSlopeStrength, 0.0f, 50.0f, "%.4f");
+	ImGui::DragFloat("Slope Power##molten", &m_moltenSlopePower, 0.001f);
+	ImGui::SliderFloat("Diffusion##molten", &m_moltenDiffusionStrength, 0.0f, 0.5f, "%.4f");
+	ImGui::DragFloat("Pressure Strength##molten", &m_moltenPressureStrength, 1.0f, 0.0f, 0.0f, "%.3f");
+	ImGui::DragFloat("Damping##molten", &m_moltenFluxDamping, 0.0001f, 0.0, 0.1f, "%.4f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -227,7 +231,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	float waterScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_CONTROL) ? 1.0f : 0.0f && dirtScalar == 0.0f;
 	float moltenScalar = (dirtScalar == 0.0f && waterScalar == 0.0f) ? 1.0f : 0.0f;
 	float mouseIsDown = inputManager.IsMouseDown(1) ? 1.0f : 0.0f;
-
+	
 	float moltenVolumeAmount = mouseIsDown * m_mouseVolumeStrength * moltenScalar;
 	float dirtVolumeAmount = mouseIsDown * m_mouseVolumeStrength * dirtScalar;
 	float waterVolumeAmount = mouseIsDown * m_mouseVolumeStrength * waterScalar;
@@ -249,14 +253,15 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 	glDepthMask(true);
 	glDepthFunc(GL_ALWAYS);
 
-	// Update fluid simulation
+	
 	{
-		// Divergence
+		// Given the fluid's current motion, calculate how much the velocity arrows are pointing towards or away from each other.
+		// A so-called 'divergence' field.
 		{
 			m_computeDivergenceShader.BindPerPass();
 
 			m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
-			m_computeDivergenceShader.FragmentShader().SetTexture( "s_velocityData", _geom.MoltenFluxData().GetRead() );
+			m_computeDivergenceShader.FragmentShader().SetTexture( "s_fluxData", _geom.MoltenFluxData().GetRead() );
 			m_computeDivergenceShader.FragmentShader().SetTexture( "s_heightData", _geom.HeightData().GetRead() );
 
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.DivergenceData());
@@ -267,15 +272,18 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		}
 
+		// This output is then consumed by a 'jacobi' iterative pass that progressively calculates the pressure created
+		// by the divergence. This pressure gradient is then used to affect velocity during update data
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
-		for (int i = 0; i < 40; ++i) 
+		for (int i = 0; i < 10; ++i) 
 		{
 			Jacobi(_renderTarget, _geom.PressureData().GetRead(), _geom.DivergenceData(), cellSize, _geom.PressureData().GetWrite());
 			_geom.PressureData().Swap();
 		}
 	}
 
-	// Derive data
+	// Calculate derived values like normals and occclusion
+	// This is done in a seperate step as it can be calculated in parallel to the update below.
 	{
 		m_deriveDataShader.BindPerPass();
 		DeriveTerrainDataFrag& fragShader = m_deriveDataShader.FragmentShader();
@@ -319,6 +327,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetTexture("s_albedoFluidGradient",			_material.albedoFluidGradient);
 		fragShader.SetTexture("s_grungeMap",					_material.grungeTexture);
 		fragShader.SetTexture( "s_pressureData",				_geom.PressureData().GetRead() );
+		fragShader.SetTexture( "s_derivedData",					_geom.DerivedData() );
 		
 		// Mouse
 		fragShader.SetUniform("u_mouseRadius",					m_mouseRadius);
@@ -345,10 +354,12 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		fragShader.SetUniform("u_meltCondenseSpeed",			m_meltCondenseSpeed);
 		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
 		fragShader.SetUniform("u_condenseSpeed",				m_condenseSpeed);
-		fragShader.SetUniform("u_moltenVelocityScalar",			m_moltenVelocityScalar);
 		fragShader.SetUniform("u_mapHeightOffset",				_material.heightOffset);
 		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);
 		fragShader.SetUniform("u_moltenSlopeStrength",			m_moltenSlopeStrength);
+		fragShader.SetUniform("u_moltenSlopePower",				m_moltenSlopePower);
+		fragShader.SetUniform("u_moltenDiffuseStrength",		m_moltenDiffusionStrength);
+		fragShader.SetUniform("u_moltenFluxDamping",			m_moltenFluxDamping);
 		
 		// Water
 		fragShader.SetUniform("u_waterViscosity",				m_waterViscosity);
@@ -396,6 +407,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.HeightData().GetWrite().GenerateMipMaps();
 		_geom.MiscData().GetWrite().GenerateMipMaps();
 		_geom.SmudgeData().GetWrite().GenerateMipMaps();
+		_geom.DerivedData().GenerateMipMaps();
 
 		_geom.HeightData().Swap();
 		_geom.MiscData().Swap();
