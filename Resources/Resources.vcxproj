@@ -26,7 +26,6 @@
     <None Include="..\Run\shaders\SteamParticle.frag" />
     <None Include="..\Run\shaders\SteamParticle.vert" />
     <None Include="..\Run\shaders\SteamParticleUpdate.vert" />
-    <None Include="..\Run\shaders\SubtractGradient.frag" />
     <None Include="..\Run\shaders\Terrain.frag" />
     <None Include="..\Run\shaders\Terrain.vert" />
     <None Include="..\Run\shaders\TerrainSides.frag" />

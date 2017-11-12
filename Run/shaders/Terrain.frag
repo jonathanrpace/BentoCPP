@@ -387,6 +387,15 @@ void main(void)
 	
 	vec3 moltenColor = degamma( texture(s_moltenGradient, vec2(moltenAlpha * 0.96, 0.5)).rgb );
 	moltenColor *= 1.0 + max(in_miscData.x, 0.0);
+	
+	/*
+	float pressureSample = texture( s_pressureData, in_uv ).r;
+	pressureSample *= 10000.0;
+	pressureSample += 0.5;
+	moltenColor *= 0.1;
+	moltenColor.rgb += pressureSample;
+	*/
+	
 	outColor += moltenColor;
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
@@ -401,9 +410,7 @@ void main(void)
 	divergenceSample *= 1.0;
 	divergenceSample += 0.5;
 	
-	float pressureSample = texture( s_pressureData, in_uv ).r;
-	pressureSample *= 2000.0;
-	pressureSample += 0.5;
+	
 	
 	//out_forward = vec4( pressureSample, pressureSample, pressureSample, 0.0 );
 	//out_forward = pow( vec4( velocitySample, pressureSample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );

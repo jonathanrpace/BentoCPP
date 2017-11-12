@@ -125,8 +125,8 @@ void TerrainSimulationProcess::Advance(double _dt)
 		RenderTargetBase* renderTarget = m_renderTargetByNodeMap[node];
 		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
 		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
-		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
-		AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
+		//AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
+		//AdvanceTerrainSim(*(node->geom), *(node->material), *renderTarget, *(node->moltenParticleGeom));
 	}
 }
 
@@ -146,18 +146,18 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Text("Molten");
-	ImGui::SliderFloat("Viscosity Min##molten", &m_moltenViscosityMin, 0.9f, 1.0f);
-	ImGui::SliderFloat("Viscosity Max##molten", &m_moltenViscosityMax, 0.9f, 1.0f);
+	ImGui::SliderFloat("Viscosity Min##molten", &m_moltenViscosityMin, 0.2f, 1.0f);
+	ImGui::SliderFloat("Viscosity Max##molten", &m_moltenViscosityMax, 0.2f, 1.0f);
 	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
 	ImGui::SliderFloat("Heat Viscosity Scalar", &m_heatViscosityScalar, 1.0f, 50.0f);
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::DragFloat("Melt Speed", &m_meltSpeed, 0.0001f, 0.0f, 0.0f, "%.5f");
 	ImGui::DragFloat("Condense Speed", &m_condenseSpeed, 0.0001f, 0.0f, 0.0f, "%.5f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
-	ImGui::SliderFloat("Slope Strength##molten", &m_moltenSlopeStrength, 0.0f, 50.0f, "%.4f");
+	ImGui::SliderFloat("Slope Strength##molten", &m_moltenSlopeStrength, 0.0f, 2.0f, "%.4f");
 	ImGui::DragFloat("Slope Power##molten", &m_moltenSlopePower, 0.001f);
-	ImGui::SliderFloat("Diffusion##molten", &m_moltenDiffusionStrength, 0.0f, 0.5f, "%.4f");
-	ImGui::DragFloat("Pressure Strength##molten", &m_moltenPressureStrength, 1.0f, 0.0f, 0.0f, "%.3f");
+	ImGui::SliderFloat("Diffusion##molten", &m_moltenDiffusionStrength, 0.0f, 1.0f, "%.4f");
+	ImGui::SliderFloat("Pressure Strength##molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.3f");
 	ImGui::DragFloat("Damping##molten", &m_moltenFluxDamping, 0.0001f, 0.0, 0.1f, "%.4f");
 	ImGui::Spacing();
 
@@ -263,7 +263,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 			m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
 			m_computeDivergenceShader.FragmentShader().SetTexture( "s_fluxData", _geom.MoltenFluxData().GetRead() );
 			m_computeDivergenceShader.FragmentShader().SetTexture( "s_heightData", _geom.HeightData().GetRead() );
-
+			
 			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.DivergenceData());
 			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
@@ -275,7 +275,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		// This output is then consumed by a 'jacobi' iterative pass that progressively calculates the pressure created
 		// by the divergence. This pressure gradient is then used to affect velocity during update data
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
-		for (int i = 0; i < 10; ++i) 
+		for (int i = 0; i < 20; ++i) 
 		{
 			Jacobi(_renderTarget, _geom.PressureData().GetRead(), _geom.DivergenceData(), cellSize, _geom.PressureData().GetWrite());
 			_geom.PressureData().Swap();
