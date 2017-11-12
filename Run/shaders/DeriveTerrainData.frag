@@ -78,21 +78,20 @@ void main(void)
 		
 		vec3 va = normalize(vec3(u_cellSize.x*2.0, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y*2.0));
+		
 		vec3 rockNormal = -cross(va,vb);
-
 		out_normalData.zw = rockNormal.xz;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// Water normal
 	//////////////////////////////////////////////////////////////////////////////////
-	/*
 	{
-		float heightC = heightDataC.x + heightDataC.y + heightDataC.z + heightDataC.w;
-		float heightL = heightDataL.x + heightDataL.y + heightDataL.z + heightDataL.w;
-		float heightR = heightDataR.x + heightDataR.y + heightDataR.z + heightDataR.w;
-		float heightU = heightDataU.x + heightDataU.y + heightDataU.z + heightDataU.w;
-		float heightD = heightDataD.x + heightDataD.y + heightDataD.z + heightDataD.w;
+		float heightC = hC.x + hC.y + hC.z + hC.w;
+		float heightL = hW.x + hW.y + hW.z + hW.w;
+		float heightR = hE.x + hE.y + hE.z + hE.w;
+		float heightU = hN.x + hN.y + hN.z + hN.w;
+		float heightD = hS.x + hS.y + hS.z + hS.w;
 
 		vec3 va = normalize(vec3(u_cellSize.x*2.0, heightR-heightL, 0.0f));
 		vec3 vb = normalize(vec3(0.0f, heightD-heightU, u_cellSize.y*2.0));
@@ -100,7 +99,6 @@ void main(void)
 		vec3 waterNormal = -cross(va,vb);
 		out_normalData.xy = waterNormal.xz;
 	}
-	*/
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Occlusion

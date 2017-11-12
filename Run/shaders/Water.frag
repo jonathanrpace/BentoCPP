@@ -285,7 +285,8 @@ void main(void)
 	// Reflections
 	////////////////////////////////////////////////////////////////
 	{
-		vec3 reflections = IBLContribution(normal, eye, vec3(0.0), vec3(u_reflectivity), 0.0, s_envMap, s_irrMap, u_ambientLightIntensity, in_specularOcclusion * in_reflectAlpha);
+		float roughness = 0.4;
+		vec3 reflections = IBLContribution(normal, eye, vec3(0.0), vec3(u_reflectivity), roughness, s_envMap, s_irrMap, u_ambientLightIntensity, in_specularOcclusion * in_reflectAlpha);
 		outColor += reflections;
 	}
 

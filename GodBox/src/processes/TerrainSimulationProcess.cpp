@@ -40,25 +40,22 @@ TerrainSimulationProcess::TerrainSimulationProcess(std::string _name)
 	m_nodeGroup.NodeAdded += OnNodeAddedDelegate;
 	m_nodeGroup.NodeRemoved += OnNodeRemovedDelegate;
 	
-	// Molten
+	// Input
 	SerializableMember("mouseRadius",			0.1f,		&m_mouseRadius);
 	SerializableMember("mouseVolumeStrength",	0.002f,		&m_mouseVolumeStrength);
 	SerializableMember("mouseHeatStrength",		0.08f,		&m_mouseHeatStrength);
+
+	// Molten
 	SerializableMember("moltenViscosityMin",	0.5f,		&m_moltenViscosityMin);
 	SerializableMember("moltenViscosityMax",	0.5f,		&m_moltenViscosityMax);
-	SerializableMember("rockMeltingPoint",		0.1f,		&m_rockMeltingPoint);
-	SerializableMember("heatViscosityScalar",	10.0f,		&m_heatViscosityScalar);
-	SerializableMember("meltSpeedCondenseSpeed",0.01f,		&m_meltCondenseSpeed);
-	SerializableMember("meltSpeed",				0.01f,		&m_meltSpeed);
-	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
-	SerializableMember("meltSpeedCondenseSpeed",0.01f,		&m_meltCondenseSpeed);
-	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
-	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
 	SerializableMember("moltenSlopeStrength",	0.3f,		&m_moltenSlopeStrength);
-	SerializableMember("moltenSlopePower",		1.0f,		&m_moltenSlopePower);
 	SerializableMember("moltenDiffusionStrength",1.0f,		&m_moltenDiffusionStrength);
 	SerializableMember("moltenPressureStrength",1.0,		&m_moltenPressureStrength);
 	SerializableMember("moltenFluxDamping",		0.0,		&m_moltenFluxDamping);
+	SerializableMember("meltSpeed",				0.01f,		&m_meltSpeed);
+	SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
+	SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
+	SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
 	
 	// Water
 	SerializableMember("waterFluxDamping",		0.99f,		&m_waterFluxDamping);
@@ -148,17 +145,14 @@ void TerrainSimulationProcess::AddUIElements()
 	ImGui::Text("Molten");
 	ImGui::SliderFloat("Viscosity Min##molten", &m_moltenViscosityMin, 0.2f, 1.0f);
 	ImGui::SliderFloat("Viscosity Max##molten", &m_moltenViscosityMax, 0.2f, 1.0f);
-	ImGui::SliderFloat("MeltingPoint", &m_rockMeltingPoint, 0.0f, 2.0f);
-	ImGui::SliderFloat("Heat Viscosity Scalar", &m_heatViscosityScalar, 1.0f, 50.0f);
+	ImGui::SliderFloat("Slope Strength##molten", &m_moltenSlopeStrength, 0.0f, 2.0f, "%.4f");
+	ImGui::SliderFloat("Diffusion##molten", &m_moltenDiffusionStrength, 0.0f, 1.0f, "%.4f");
+	ImGui::DragFloat("Damping##molten", &m_moltenFluxDamping, 0.0001f, 0.0, 0.1f, "%.4f");
+	ImGui::SliderFloat("Pressure Strength##molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.3f");
 	ImGui::SliderFloat("TempChangeSpeed", &m_tempChangeSpeed, 0.0f, 0.01f, "%.5f");
 	ImGui::DragFloat("Melt Speed", &m_meltSpeed, 0.0001f, 0.0f, 0.0f, "%.5f");
 	ImGui::DragFloat("Condense Speed", &m_condenseSpeed, 0.0001f, 0.0f, 0.0f, "%.5f");
 	ImGui::SliderFloat("SmudgeChangeRate", &m_smudgeChangeRate, 0.0f, 10.0f, "%.5f");
-	ImGui::SliderFloat("Slope Strength##molten", &m_moltenSlopeStrength, 0.0f, 2.0f, "%.4f");
-	ImGui::DragFloat("Slope Power##molten", &m_moltenSlopePower, 0.001f);
-	ImGui::SliderFloat("Diffusion##molten", &m_moltenDiffusionStrength, 0.0f, 1.0f, "%.4f");
-	ImGui::SliderFloat("Pressure Strength##molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.3f");
-	ImGui::DragFloat("Damping##molten", &m_moltenFluxDamping, 0.0001f, 0.0, 0.1f, "%.4f");
 	ImGui::Spacing();
 
 	ImGui::Spacing();
@@ -309,21 +303,23 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		UpdateTerrainDataFrag& fragShader = m_updateDataShader.FragmentShader();
 
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.SmudgeData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.UVOffsetData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.MoltenFluxData().GetWrite());
-
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4 };
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MoltenFluxData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.WaterFluxData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.MiscData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT4, _geom.SmudgeData().GetWrite());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT5, _geom.UVOffsetData().GetWrite());
+		
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3, GL_COLOR_ATTACHMENT4, GL_COLOR_ATTACHMENT5 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 			
 		// Samplers
 		fragShader.SetTexture("s_heightData",					_geom.HeightData().GetRead());
+		fragShader.SetTexture("s_moltenFluxData",				_geom.MoltenFluxData().GetRead());
+		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxData().GetRead());
 		fragShader.SetTexture("s_miscData",						_geom.MiscData().GetRead());
 		fragShader.SetTexture("s_smudgeData",					_geom.SmudgeData().GetRead());
-		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxData().GetRead());
 		fragShader.SetTexture("s_uvOffsetData",					_geom.UVOffsetData().GetRead());
-		fragShader.SetTexture("s_fluidVelocityData",			_geom.MoltenFluxData().GetRead());
+		
 		fragShader.SetTexture("s_albedoFluidGradient",			_material.albedoFluidGradient);
 		fragShader.SetTexture("s_grungeMap",					_material.grungeTexture);
 		fragShader.SetTexture( "s_pressureData",				_geom.PressureData().GetRead() );
@@ -348,16 +344,12 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 
 		// Molten
 		fragShader.SetUniform("u_moltenViscosity",				vec2(m_moltenViscosityMin, m_moltenViscosityMax));
-		fragShader.SetUniform("u_rockMeltingPoint",				m_rockMeltingPoint);
-		fragShader.SetUniform("u_heatViscosityScalar",			m_heatViscosityScalar);
 		fragShader.SetUniform("u_tempChangeSpeed",				m_tempChangeSpeed);
-		fragShader.SetUniform("u_meltCondenseSpeed",			m_meltCondenseSpeed);
 		fragShader.SetUniform("u_meltSpeed",					m_meltSpeed);
 		fragShader.SetUniform("u_condenseSpeed",				m_condenseSpeed);
 		fragShader.SetUniform("u_mapHeightOffset",				_material.heightOffset);
 		fragShader.SetUniform("u_smudgeChangeRate",				m_smudgeChangeRate);
 		fragShader.SetUniform("u_moltenSlopeStrength",			m_moltenSlopeStrength);
-		fragShader.SetUniform("u_moltenSlopePower",				m_moltenSlopePower);
 		fragShader.SetUniform("u_moltenDiffuseStrength",		m_moltenDiffusionStrength);
 		fragShader.SetUniform("u_moltenFluxDamping",			m_moltenFluxDamping);
 		
@@ -414,6 +406,7 @@ void TerrainSimulationProcess::AdvanceTerrainSim
 		_geom.SmudgeData().Swap();
 		_geom.UVOffsetData().Swap();
 		_geom.MoltenFluxData().Swap();
+		_geom.WaterFluxData().Swap();
 	}
 
 
