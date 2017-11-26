@@ -25,6 +25,16 @@ using namespace bento;
 
 namespace godBox
 {
+	struct UpdateFluxFrag : ShaderStageBase
+	{
+		UpdateFluxFrag();
+	};
+
+	struct ApplyFluxFrag : ShaderStageBase
+	{
+		ApplyFluxFrag();
+	};
+
 	struct UpdateTerrainDataFrag : ShaderStageBase
 	{
 		UpdateTerrainDataFrag();
@@ -45,6 +55,8 @@ namespace godBox
 		ComputeDivergenceFrag();
 	};
 
+	struct UpdateFluxShader				: ShaderBase<ScreenQuadVert, UpdateFluxFrag> {};
+	struct ApplyFluxShader				: ShaderBase<ScreenQuadVert, ApplyFluxFrag> {};
 	struct UpdateTerrainDataShader		: ShaderBase<ScreenQuadVert, UpdateTerrainDataFrag> {};
 	struct DeriveTerrainDataShader		: ShaderBase<ScreenQuadVert, DeriveTerrainDataFrag> {};
 	struct JacobiShader					: ShaderBase<ScreenQuadVert, JacobiFrag> {};
@@ -77,14 +89,22 @@ namespace godBox
 		void AdvanceTerrainSim(TerrainGeometry& _geom, TerrainMaterial& _material, RenderTargetBase& _renderTarget, MoltenParticleGeom & _moltenParticleGeom);
 
 		void ClearSurface(RenderTargetBase & renderTarget,TextureSquare & dest,float v);
-		void Jacobi(RenderTargetBase& renderTarget, TextureSquare& pressure, TextureSquare& divergence, vec2 cellSize, TextureSquare& dest);
-		void SubtractGradient(RenderTargetBase& renderTarget, TextureSquare& velocity, TextureSquare& pressure, TextureSquare& dest);
+		
+
+		void ApplyFlux			(RenderTargetBase& _renderTarget, TerrainGeometry& _geom, TerrainMaterial& _material);
+		void UpdateFlux			(RenderTargetBase& _renderTarget, TerrainGeometry& _geom, TerrainMaterial& _material);
+		void UpdateTerrainData	(RenderTargetBase& _renderTarget, TerrainGeometry& _geom, TerrainMaterial& _material);
+		void DeriveTerrainData	(RenderTargetBase& _renderTarget, TerrainGeometry& _geom, TerrainMaterial& _material);
+		void UpdatePressure		(RenderTargetBase& _renderTarget, TerrainGeometry& _geom, TerrainMaterial& _material);
+		void Jacobi				(RenderTargetBase& _renderTarget, TextureSquare& _pressure, TextureSquare& _divergence, vec2 _cellSize, TextureSquare& _dest);
 		
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeAdded, const TerrainSimPassNode&, node);
 		DEFINE_EVENT_HANDLER_1(TerrainSimulationProcess, OnNodeRemoved, const TerrainSimPassNode&, node);
 
 		// Shaders
 		ScreenQuadGeometry m_screenQuadGeom;
+		UpdateFluxShader m_updateFluxShader;
+		ApplyFluxShader m_applyFluxShader;
 		UpdateTerrainDataShader m_updateDataShader;
 		DeriveTerrainDataShader m_deriveDataShader;
 		JacobiShader m_jacobiShader;
@@ -108,7 +128,6 @@ namespace godBox
 		float m_moltenSlopeStrength;
 		float m_moltenDiffusionStrength;
 		float m_moltenPressureStrength;
-		float m_moltenFluxDamping;
 		float m_meltSpeed;
 		float m_condenseSpeed;
 		float m_tempChangeSpeed;
@@ -120,14 +139,12 @@ namespace godBox
 		float m_dirtDensity;
 
 		// Water
-		float m_waterFluxDamping;
 		float m_waterViscosity;
+		float m_waterSlopeStrength;
 		float m_waterBoilingPoint;
 		float m_waterFreezingPoint;
 		float m_evapourationRate;
 		float m_rainRate;
-		float m_waterVelocityScalar;
-		float m_waterVelocityDamping;
 		float m_boilSpeed;
 		float m_drainRate;
 		float m_drainMaxDepth;

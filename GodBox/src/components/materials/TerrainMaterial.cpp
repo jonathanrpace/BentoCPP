@@ -93,7 +93,7 @@ namespace godBox
 		ImGui::Spacing();
 		ImGui::Text("Molten");
 		ImGui::SliderFloat("Flow Speed##molten", &moltenFlowSpeed, 0.0f, 0.5f);
-		ImGui::SliderFloat("Flow Offset##molten", &moltenFlowOffset, 0.0f, 1.0f);
+		ImGui::SliderFloat("Flow Offset##molten", &moltenFlowOffset, 0.0f, 1000.0f);
 
 		ImGui::Spacing();
 		ImGui::Text("Glow");

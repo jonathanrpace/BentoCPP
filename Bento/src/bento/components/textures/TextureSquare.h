@@ -11,7 +11,9 @@ namespace bento
 		TextureSquare
 		(
 			int _size = 256
-			, GLenum _format = GL_RGBA8
+			, GLenum _internalFormat = GL_RGBA8
+			, GLenum _format = GL_RGBA
+			, GLenum _type = GL_FLOAT
 			, GLenum _magFilter = GL_LINEAR
 			, GLenum _minFilter = GL_LINEAR
 			, GLenum _wrapModeS = GL_REPEAT
@@ -21,7 +23,7 @@ namespace bento
 
 		virtual void GenerateMipMaps();
 		int GetNumMipMaps();
-		void TexImage2D(GLenum _format, GLenum _type, const GLvoid * _data, int _level = 0);
+		void TexImage2D(const GLvoid * _data, int _level = 0);
 
 		void Size(int _size);
 		inline int Size() { return m_size; }
@@ -31,5 +33,7 @@ namespace bento
 		virtual void Validate() override;
 
 		int m_size;
+		GLenum m_format;
+		GLenum m_type;
 	};
 }

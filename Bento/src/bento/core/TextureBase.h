@@ -15,7 +15,7 @@ namespace bento
 		TextureBase
 		(
 			GLenum _target = -1,
-			GLenum _format = GL_RGBA8,
+			GLenum _internalFormat = GL_RGBA8,
 			GLenum _magFilter = GL_LINEAR,
 			GLenum _minFilter = GL_LINEAR_MIPMAP_LINEAR,
 			GLenum _wrapModeS = GL_REPEAT,
@@ -38,11 +38,11 @@ namespace bento
 		virtual void WrapModeS(GLenum _value) override;
 		virtual GLenum WrapModeT() override;
 		virtual void WrapModeT(GLenum _value) override;
-		virtual GLenum Format() override;
+		virtual GLenum InternalFormat() override;
 
 	protected:
 		GLenum m_target;
-		GLenum m_format;
+		GLenum m_internalFormat;
 		GLuint m_texture;
 		GLenum m_minFilter;
 		GLenum m_magFilter;

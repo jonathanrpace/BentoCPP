@@ -17,18 +17,18 @@ namespace godBox
 		, m_terrainMousePos()
 
 		// PingPong data
-		, m_heightData			(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_miscData			(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_smudgeData			(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_uvOffsetData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_moltenFluxData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_waterFluxData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_pressureData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_heightData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_miscData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_smudgeData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_uvOffsetData		(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_moltenFluxData		(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_waterFluxData		(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_pressureData		(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 
 		// Derived
-		, m_normalData			(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_derivedData			(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_divergenceData		(m_numVerticesPerDimension, GL_RGBA32F, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_normalData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_derivedData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_divergenceData		(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 	
 	{
 		glGenBuffers(1, &m_mousePositionBuffer);
@@ -142,30 +142,30 @@ namespace godBox
 			}
 		}
 
-		m_heightData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_heightData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_heightData.GetRead().TexImage2D(&heightData[0]);
+		m_heightData.GetWrite().TexImage2D(&heightData[0]);
 
-		m_miscData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_miscData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_uvOffsetData.GetRead().TexImage2D(&heightData[0]);
+		m_uvOffsetData.GetWrite().TexImage2D(&heightData[0]);
+
+		m_miscData.GetRead().TexImage2D(&heightData[0]);
+		m_miscData.GetWrite().TexImage2D(&heightData[0]);
 		
-		m_smudgeData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_smudgeData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_smudgeData.GetRead().TexImage2D(&heightData[0]);
+		m_smudgeData.GetWrite().TexImage2D(&heightData[0]);
 		
-		m_uvOffsetData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_uvOffsetData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_pressureData.GetRead().TexImage2D(&heightData[0]);
+		m_pressureData.GetWrite().TexImage2D(&heightData[0]);
 
-		m_pressureData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_pressureData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_waterFluxData.GetRead().TexImage2D(&heightData[0]);
+		m_waterFluxData.GetWrite().TexImage2D(&heightData[0]);
 
-		m_waterFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_waterFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_moltenFluxData.GetRead().TexImage2D(&heightData[0]);
+		m_moltenFluxData.GetWrite().TexImage2D(&heightData[0]);
 
-		m_moltenFluxData.GetRead().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_moltenFluxData.GetWrite().TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-
-		m_normalData.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_divergenceData.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
-		m_derivedData.TexImage2D(GL_RGBA, GL_FLOAT, &heightData[0]);
+		m_normalData.TexImage2D(&heightData[0]);
+		m_divergenceData.TexImage2D(&heightData[0]);
+		m_derivedData.TexImage2D(&heightData[0]);
 
 		BufferVertexData(0, &positions[0], (int)positions.size());
 		BufferVertexData(1, &uvs[0], (int)uvs.size());

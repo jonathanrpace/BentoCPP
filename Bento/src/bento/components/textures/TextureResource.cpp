@@ -47,7 +47,7 @@ namespace bento
 		gli::gl::format const Format = GL.translate(Texture.format(), Texture.swizzles());
 		GLenum Target = GL.translate(Texture.target());
 		m_target = GL.translate(Texture.target());
-		m_format = Format.Internal;
+		m_internalFormat = Format.Internal;
 		
 		Invalidate();
 		ValidateNow();

@@ -45,6 +45,7 @@ uniform float u_lightDistance;
 // Textures
 uniform sampler2D s_heightData;
 uniform sampler2D s_miscData;
+uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_normalData;
 uniform sampler2D s_derivedData;
@@ -66,6 +67,7 @@ out Varying
 	vec3 out_worldPosition;
 	vec4 out_viewPosition;
 	vec2 out_uv;
+	vec4 out_moltenUVOffsets;
 	float out_dirtAlpha;
 	vec3 out_rockNormal;
 	float out_occlusion;
@@ -102,6 +104,9 @@ void main(void)
 	vec4 miscDataC = textureLod(s_miscData, in_uv, 0);
 	vec4 derivedDataC = textureLod(s_derivedData, in_uv, 0);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
+	vec4 uvOffsetSample = texture(s_uvOffsetData, in_uv);
+	vec4 moltenUVOffsets = uvOffsetSample;
+	
 	
 	out_albedoFluidColor = unpackUnorm4x8f( smudgeDataC.z ).rgb;
 	
@@ -192,6 +197,7 @@ void main(void)
 		out_worldPosition = position.xyz;
 		out_viewPosition = viewPosition;
 		out_uv = in_uv;
+		out_moltenUVOffsets = moltenUVOffsets;
 		out_dirtAlpha = dirtAlpha;
 		out_rockNormal = rockNormal;
 		out_occlusion = occlusion;

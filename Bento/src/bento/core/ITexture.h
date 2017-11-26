@@ -8,7 +8,7 @@ namespace bento
 	{
 		virtual GLuint TextureName() = 0;
 		virtual GLenum Target() = 0;
-		virtual GLenum Format() = 0;
+		virtual GLenum InternalFormat() = 0;
 		virtual GLenum MinFilter() = 0;
 		virtual void MinFilter(GLenum) = 0;
 		virtual GLenum MagFilter() = 0;

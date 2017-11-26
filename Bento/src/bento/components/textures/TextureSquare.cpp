@@ -9,15 +9,19 @@ namespace bento
 {
 	TextureSquare::TextureSquare
 	( 
-		int _size /* = 256  */, 
-		GLenum _format /* = GL_RGBA8  */, 
-		GLenum _magFilter /* = GL_LINEAR  */, 
-		GLenum _minFilter /* = GL_LINEAR  */, 
-		GLenum _wrapModeS /* = GL_REPEAT  */, 
-		GLenum _wrapModeT /* = GL_REPEAT */ 
+		 int _size				/* = 256 */
+		,GLenum _internalFormat	/* = GL_RGBA8 */
+		,GLenum _format			/* = GL_RGBA */
+		,GLenum _type			/* = GL_FLOAT */
+		,GLenum _magFilter		/* = GL_LINEAR */
+		,GLenum _minFilter		/* = GL_LINEAR */
+		,GLenum _wrapModeS		/* = GL_REPEAT */
+		,GLenum _wrapModeT		/* = GL_REPEAT */ 
 	)
-		: TextureBase(GL_TEXTURE_2D, _format, _magFilter, _minFilter, _wrapModeS, _wrapModeT)
+		: TextureBase(GL_TEXTURE_2D, _internalFormat, _magFilter, _minFilter, _wrapModeS, _wrapModeT)
 		, m_size(_size)
+		, m_format(_format)
+		, m_type(_type)
 	{
 	}
 
@@ -25,11 +29,11 @@ namespace bento
 	{
 	}
 
-	void TextureSquare::TexImage2D(GLenum _format, GLenum _type, const GLvoid * _data, int _level)
+	void TextureSquare::TexImage2D(const GLvoid * _data, int _level)
 	{
 		ValidateNow();
 		GL_CHECK(glBindTexture(m_target, m_texture));
-		GL_CHECK(glTexImage2D(m_target, _level, m_format, m_size, m_size, 0, _format, _type, _data));
+		GL_CHECK(glTexImage2D(m_target, _level, m_internalFormat, m_size, m_size, 0, m_format, m_type, _data));
 	}
 
 	void TextureSquare::Size(int _size)
@@ -69,7 +73,7 @@ namespace bento
 		for (int i = 0; i < numMipMaps; i++)
 		{
 			GL_CHECK(
-				glTexImage2D(m_target, i, m_format, d, d, 0, GL_RGBA, GL_FLOAT, NULL)
+				glTexImage2D(m_target, i, m_internalFormat, d, d, 0, m_format, m_type, NULL)
 			);
 			d >>= 1;
 		}

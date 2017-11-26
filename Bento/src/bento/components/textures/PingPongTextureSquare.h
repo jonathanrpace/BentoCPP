@@ -11,7 +11,9 @@ namespace bento
 	public:
 		PingPongTextureSquare( 
 			int _size = 256
-			, GLenum _format = GL_RGBA8
+			, GLenum _internalFormat = GL_RGBA8
+			, GLenum _format = GL_RGBA
+			, GLenum _type = GL_FLOAT
 			, GLenum _magFilter = GL_LINEAR
 			, GLenum _minFilter = GL_LINEAR
 			, GLenum _wrapModeS = GL_REPEAT

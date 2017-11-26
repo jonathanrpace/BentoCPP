@@ -29,7 +29,8 @@ namespace godBox
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
-
+		SetTexture("s_uvOffsetData", _geometry.UVOffsetData().GetRead());
+		
 		SetTexture("s_normalData", _geometry.NormalData());
 		SetTexture("s_derivedData", _geometry.DerivedData());
 
@@ -85,12 +86,11 @@ namespace godBox
 		float phase = fmodf( (float)glfwGetTime() * _material.moltenFlowSpeed, 1.0f );
 		float phaseA = fmodf( phase + 0.0f, 1.0f );
 		float phaseB = fmodf( phase + 0.5f, 1.0f );
-		float alphaB = fabs( 0.5f - phase ) * 2.0f;
-		float alphaA = 1.0f - alphaB;
+		float phaseAlpha = fabs( fmodf( phase, 1.0f ) - 0.5f ) * 2.0f;	// Sawtooth
 
 		SetUniform( "u_phaseA", phaseA );
 		SetUniform( "u_phaseB", phaseB );
-		SetUniform( "u_phaseAlpha", alphaB );
+		SetUniform( "u_phaseAlpha", phaseAlpha );
 		SetUniform( "u_flowOffset", _material.moltenFlowOffset / (float)_geometry.NumVerticesPerDimension() );
 
 		// Uniforms
@@ -119,7 +119,6 @@ namespace godBox
 		SetTexture("s_smudgeData", _geometry.SmudgeData().GetRead());
 		SetTexture("s_miscData", _geometry.MiscData().GetRead());
 		SetTexture("s_heightData", _geometry.HeightData().GetRead());
-		SetTexture("s_uvOffsetData", _geometry.UVOffsetData().GetRead());
 		
 		SetTexture("s_fluidVelocityData", _geometry.MoltenFluxData().GetRead());
 		SetTexture("s_divergenceData", _geometry.DivergenceData());

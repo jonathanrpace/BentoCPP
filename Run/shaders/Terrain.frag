@@ -12,6 +12,7 @@ in Varying
 	vec3 in_worldPosition;
 	vec4 in_viewPosition;
 	vec2 in_uv;
+	vec4 in_moltenUVOffsets;
 	float in_dirtAlpha;
 	vec3 in_rockNormal;
 	float in_occlusion;
@@ -68,7 +69,6 @@ uniform float u_glowDistance = 0.1;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_heightData;
-uniform sampler2D s_uvOffsetData;
 
 uniform sampler2D s_fluidVelocityData;
 uniform sampler2D s_divergenceData;
@@ -287,14 +287,15 @@ void main(void)
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
-	vec4 uvOffsetSample = texture( s_uvOffsetData, in_uv );
+	
+	
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	
 	// Rock material
-	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgb;
+	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 ).rgb;
 		
 	vec3 rockNormal = in_rockNormal;
-	vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 );
+	vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 );
 	rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockNormalStrength ); 
 	rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockNormalStrength ); 
 
@@ -308,7 +309,7 @@ void main(void)
 	rockNormal = rotateZ( rockNormal, -creaseTangent.x * u_creaseNormalStrength ); 
 	rockNormal = normalize(rockNormal);
 
-	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, uvOffsetSample, 0.0 ).rgba;
+	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 ).rgba;
 	rockMaterialParams.r = 0.4;
 	vec3 rockSpecularColor = degamma( vec3(u_rockReflectivity) );
 
@@ -331,7 +332,7 @@ void main(void)
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	float roughness = materialParams.r;
-	roughness *= 2.0;
+	roughness *= 1.0;
 	float textureAO = mix( 1.0, materialParams.g, 0.5 ) * mix( 1.0, creaseValue, 0.6 );
 
 	// Make albedo/specular darker when hot

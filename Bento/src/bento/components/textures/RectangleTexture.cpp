@@ -22,7 +22,7 @@ namespace bento
 	{
 		ValidateNow();
 		GL_CHECK(glBindTexture(m_target, m_texture));
-		GL_CHECK(glTexImage2D(m_target, 0, m_format, m_width, m_height, 0, _format, _type, _data));
+		GL_CHECK(glTexImage2D(m_target, 0, m_internalFormat, m_width, m_height, 0, _format, _type, _data));
 	}
 
 	void RectangleTexture::Width(int _width)
@@ -45,7 +45,7 @@ namespace bento
 	{
 		GL_CHECK(glGenTextures(1, &m_texture));
 		GL_CHECK(glBindTexture(m_target, m_texture));
-		GL_CHECK(glTexImage2D(m_target, 0, m_format, m_width, m_height, 0, GL_RGBA, GL_FLOAT, nullptr));
+		GL_CHECK(glTexImage2D(m_target, 0, m_internalFormat, m_width, m_height, 0, GL_RGBA, GL_FLOAT, nullptr));
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MAG_FILTER, m_magFilter));
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_MIN_FILTER, m_minFilter));
 		GL_CHECK(glTexParameteri(m_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));

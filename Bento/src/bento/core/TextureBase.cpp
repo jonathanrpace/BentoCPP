@@ -13,14 +13,14 @@ namespace bento
 	TextureBase::TextureBase
 	( 
 		GLenum _target /* = -1 */,
-		GLenum _format /* = GL_RGBA8 */, 
+		GLenum _internalFormat /* = GL_RGBA8 */, 
 		GLenum _magFilter /* = GL_LINEAR */, 
 		GLenum _minFilter /* = GL_LINEAR */, 
 		GLenum _wrapModeS /* = GL_REPEAT */, 
 		GLenum _wrapModeT /* = GL_REPEAT */ 
 	)
 		: m_target(_target)
-		, m_format(_format)
+		, m_internalFormat(_internalFormat)
 		, m_texture(-1)
 		, m_magFilter(_magFilter)
 		, m_minFilter(_minFilter)
@@ -119,8 +119,8 @@ namespace bento
 		return m_target;
 	}
 
-	GLenum TextureBase::Format()
+	GLenum TextureBase::InternalFormat()
 	{
-		return m_format;
+		return m_internalFormat;
 	}
 }
