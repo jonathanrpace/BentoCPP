@@ -77,7 +77,6 @@ out Varying
 	vec4 out_smudgeData;
 	vec3 out_albedoFluidColor;
 	vec4 out_miscData;
-	vec4 out_derivedData;
 };
 
 ////////////////////////////////////////////////////////////////
@@ -102,7 +101,7 @@ void main(void)
 	// Pluck some values out of the texture data
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 miscDataC = textureLod(s_miscData, in_uv, 0);
-	vec4 derivedDataC = textureLod(s_derivedData, in_uv, 0);
+	vec4 derivedDataC = texture(s_derivedData, in_uv);
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	vec4 uvOffsetSample = texture(s_uvOffsetData, in_uv);
 	vec4 moltenUVOffsets = uvOffsetSample;
@@ -119,7 +118,7 @@ void main(void)
 	float moltenHeight = heightDataC.y;
 	float dirtHeight = heightDataC.z;
 	float waterHeight = heightDataC.w;
-	float occlusion = max(1.0f - derivedDataC.x * 1.4f, 0.0);
+	float occlusion = max(1.0f - derivedDataC.x * 1.3f, 0.0);
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
 
@@ -205,6 +204,5 @@ void main(void)
 		gl_Position = u_mvpMatrix * position;
 		out_heightData = heightDataC;
 		out_miscData = miscDataC;
-		out_derivedData = derivedDataC;
 	}
 } 

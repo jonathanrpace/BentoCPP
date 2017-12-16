@@ -33,8 +33,8 @@ namespace godBox
 		PingPongTextureSquare& WaterFluxData() { return m_waterFluxData; }
 		PingPongTextureSquare& UVOffsetData() { return m_uvOffsetData; }
 		PingPongTextureSquare& PressureData() { return m_pressureData; }
+		PingPongTextureSquare& DerivedData() { return m_derivedData; }
 
-		TextureSquare& DerivedData() { return m_derivedData; }
 		TextureSquare& NormalData() { return m_normalData; }
 		TextureSquare& DivergenceData() { return m_divergenceData; }
 		
@@ -83,10 +83,10 @@ namespace godBox
 		PingPongTextureSquare m_moltenFluxData;
 		PingPongTextureSquare m_waterFluxData;
 		PingPongTextureSquare m_pressureData;
+		PingPongTextureSquare m_derivedData;
 
 		// Derived
 		TextureSquare m_normalData;
-		TextureSquare m_derivedData;
 		TextureSquare m_divergenceData;
 	};
 }

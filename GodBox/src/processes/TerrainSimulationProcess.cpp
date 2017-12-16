@@ -339,7 +339,7 @@ namespace godBox
 		fragShader.SetTexture("s_miscData",						_geom.MiscData().GetRead());
 		fragShader.SetTexture("s_smudgeData",					_geom.SmudgeData().GetRead());
 		fragShader.SetTexture("s_uvOffsetData",					_geom.UVOffsetData().GetRead());
-		fragShader.SetTexture( "s_derivedData",					_geom.DerivedData() );
+		fragShader.SetTexture("s_derivedData",					_geom.DerivedData().GetRead() );
 
 		// Mouse
 		fragShader.SetUniform("u_mouseRadius",					m_mouseRadius);
@@ -416,7 +416,7 @@ namespace godBox
 	)
 	{
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.NormalData());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.DerivedData());
+		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.DerivedData().GetWrite());
 		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
 
@@ -432,6 +432,8 @@ namespace godBox
 		fragShader.SetUniform("u_numHeightMips",				_geom.HeightData().GetRead().GetNumMipMaps());
 
 		m_screenQuadGeom.Draw();
+
+		_geom.DerivedData().Swap();
 	}
 
 	void TerrainSimulationProcess::UpdatePressure(RenderTargetBase & _renderTarget,TerrainGeometry & _geom,TerrainMaterial & _material)

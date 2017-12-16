@@ -27,7 +27,7 @@ namespace godBox
 
 		// Derived
 		, m_normalData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
-		, m_derivedData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
+		, m_derivedData			(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 		, m_divergenceData		(m_numVerticesPerDimension, GL_RGBA32F, GL_RGBA, GL_FLOAT, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE)
 	
 	{
@@ -165,7 +165,8 @@ namespace godBox
 
 		m_normalData.TexImage2D(&heightData[0]);
 		m_divergenceData.TexImage2D(&heightData[0]);
-		m_derivedData.TexImage2D(&heightData[0]);
+		m_derivedData.GetRead().TexImage2D(&heightData[0]);
+		m_derivedData.GetWrite().TexImage2D(&heightData[0]);
 
 		BufferVertexData(0, &positions[0], (int)positions.size());
 		BufferVertexData(1, &uvs[0], (int)uvs.size());

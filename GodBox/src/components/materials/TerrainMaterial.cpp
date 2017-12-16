@@ -10,7 +10,7 @@ namespace godBox
 		, grungeTexture("textures/Lava_Material.dds", GL_LINEAR, GL_LINEAR)
 		, lavaAlb("textures/Lava_Albedo.dds")
 		, lavaNrm("textures/Lava_Normal.dds", GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR)
-		, lavaMat("textures/Lava_Material.dds")
+		, lavaMat("textures/Lava_Material.dds", GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR)
 		//, lavaLongAlb("textures/LavaLong_Albedo.dds")
 		//, lavaLongNrm("textures/LavaLong_Normal.dds")
 		//, lavaLongMat("textures/LavaLong_Material.dds")

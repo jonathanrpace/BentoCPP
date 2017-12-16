@@ -1,4 +1,4 @@
-#version 430 core
+#version 450 core
 
 const float PI = 3.14159265359;
 
@@ -22,7 +22,6 @@ in Varying
 	vec4 in_smudgeData;
 	vec3 in_albedoFluidColor;
 	vec4 in_miscData;
-	vec4 in_derivedData;
 };
 
 // Uniforms
@@ -119,6 +118,34 @@ vec4 unpackUnorm4x8f( float );
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
+
+// Project the surface gradient (dhdx, dhdy) onto the surface (n, dpdx, dpdy)
+vec3 CalculateSurfaceGradient(vec3 n, vec3 dpdx, vec3 dpdy, float dhdx, float dhdy)
+{
+    vec3 r1 = cross(dpdy, n);
+    vec3 r2 = cross(n, dpdx);
+ 
+    return (r1 * dhdx + r2 * dhdy) / dot(dpdx, r1);
+}
+ 
+// Move the normal away from the surface normal in the opposite surface gradient direction
+vec3 PerturbNormal(vec3 n, vec3 dpdx, vec3 dpdy, float dhdx, float dhdy)
+{
+    return normalize(n - CalculateSurfaceGradient(n, dpdx, dpdy, dhdx, dhdy));
+}
+
+// Calculate the surface normal using screen-space partial derivatives of the height field
+vec3 CalculateSurfaceNormal(vec3 position, vec3 normal, float height)
+{
+    vec3 dpdx = dFdxFine(position);
+    vec3 dpdy = dFdyFine(position);
+ 
+    float dhdx = dFdxFine(height);
+    float dhdy = dFdyFine(height);
+ 
+    return PerturbNormal(normal, dpdx, dpdy, dhdx, dhdy);
+}
+
 void UpdateMousePosition()
 {
 	int fragViewZ = int(-in_viewPosition.z * 256.0f);
@@ -295,22 +322,26 @@ void main(void)
 	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 ).rgb;
 		
 	vec3 rockNormal = in_rockNormal;
-	vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 );
-	rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockNormalStrength ); 
-	rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockNormalStrength ); 
+	//vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 );
+	//rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockNormalStrength ); 
+	//rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockNormalStrength ); 
 
 	// Smudge
-	float creaseValue = min( getCreaseValue(in_uv + rockNormalTangent.xy * u_creaseDistortStrength ), 1.0 );
-	vec3 creaseTangent = getCreaseTangent(in_uv + rockNormalTangent.xy * u_creaseDistortStrength, 0.005);
+	//float creaseValue = min( getCreaseValue(in_uv + rockNormalTangent.xy * u_creaseDistortStrength ), 1.0 );
+	//vec3 creaseTangent = getCreaseTangent(in_uv + rockNormalTangent.xy * u_creaseDistortStrength, 0.005);
 
 	rockAlbedo = mix( rockAlbedo, in_albedoFluidColor, 0.7 );
 	
-	rockNormal = rotateX( rockNormal, creaseTangent.y * u_creaseNormalStrength ); 
-	rockNormal = rotateZ( rockNormal, -creaseTangent.x * u_creaseNormalStrength ); 
-	rockNormal = normalize(rockNormal);
+	//rockNormal = rotateX( rockNormal, creaseTangent.y * u_creaseNormalStrength ); 
+	//rockNormal = rotateZ( rockNormal, -creaseTangent.x * u_creaseNormalStrength ); 
+	//rockNormal = normalize(rockNormal);
 
 	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 ).rgba;
-	rockMaterialParams.r = 0.4;
+	
+	float rockHeight = rockMaterialParams.a * u_rockNormalStrength * 0.01;
+	rockNormal = CalculateSurfaceNormal( in_worldPosition, rockNormal, rockHeight );
+
+
 	vec3 rockSpecularColor = degamma( vec3(u_rockReflectivity) );
 
 	// Dirt material
@@ -332,8 +363,8 @@ void main(void)
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	float roughness = materialParams.r;
-	roughness *= 1.0;
-	float textureAO = mix( 1.0, materialParams.g, 0.5 ) * mix( 1.0, creaseValue, 0.6 );
+	roughness *= 0.5;
+	float textureAO = materialParams.g;//mix( 1.0, materialParams.g, 0.5 );// * mix( 1.0, creaseValue, 0.6 );
 
 	// Make albedo/specular darker when hot
 	float moltenRatio = 1.0 - ( min( in_miscData.x / 0.1, 1.0 ) );
@@ -401,7 +432,8 @@ void main(void)
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
-	
+
+	/*
 	vec2 velocitySample = texture( s_fluidVelocityData, in_uv ).xy;
 	
 	velocitySample *= 1.0;
@@ -415,5 +447,5 @@ void main(void)
 	
 	//out_forward = vec4( pressureSample, pressureSample, pressureSample, 0.0 );
 	//out_forward = pow( vec4( velocitySample, pressureSample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );
-	
+	*/
 }

@@ -1,5 +1,5 @@
 nvdxt -file Lava_Albedo.tga -outdir   ../../Run/textures/ -quality_highest -dxt5   -timestamp -sharpenMethod SharpenMedium
-nvdxt -file Lava_Material.tga -outdir ../../Run/textures/ -quality_highest -dxt5   -timestamp -sharpenMethod SharpenMedium
+nvdxt -file Lava_Material.tiff -outdir ../../Run/textures/ -quality_highest -dxt5 -timestamp -nmips 6
 nvdxt -file Lava_Normal.tga -outdir   ../../Run/textures/ -quality_highest -dxt5nm -timestamp
 
 nvdxt -file LavaLat_Albedo.tga -outdir   ../../Run/textures/ -quality_highest -dxt5   -timestamp -sharpenMethod SharpenMedium

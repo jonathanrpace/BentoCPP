@@ -32,7 +32,7 @@ namespace godBox
 		SetTexture("s_uvOffsetData", _geometry.UVOffsetData().GetRead());
 		
 		SetTexture("s_normalData", _geometry.NormalData());
-		SetTexture("s_derivedData", _geometry.DerivedData());
+		SetTexture("s_derivedData", _geometry.DerivedData().GetRead());
 
 		SetTexture("s_lavaMaterial", _material.lavaMat);
 
@@ -88,10 +88,10 @@ namespace godBox
 		float phaseB = fmodf( phase + 0.5f, 1.0f );
 		float phaseAlpha = fabs( fmodf( phase, 1.0f ) - 0.5f ) * 2.0f;	// Sawtooth
 
-		SetUniform( "u_phaseA", phaseA );
-		SetUniform( "u_phaseB", phaseB );
-		SetUniform( "u_phaseAlpha", phaseAlpha );
-		SetUniform( "u_flowOffset", _material.moltenFlowOffset / (float)_geometry.NumVerticesPerDimension() );
+		SetUniform("u_phaseA", phaseA );
+		SetUniform("u_phaseB", phaseB );
+		SetUniform("u_phaseAlpha", phaseAlpha );
+		SetUniform("u_flowOffset", _material.moltenFlowOffset / (float)_geometry.NumVerticesPerDimension() );
 
 		// Uniforms
 		SetUniform("u_cameraPos", RenderParams::CameraPosition());
