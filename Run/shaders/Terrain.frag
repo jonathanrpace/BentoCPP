@@ -1,4 +1,4 @@
-#version 450 core
+#version 440 core
 
 const float PI = 3.14159265359;
 
@@ -112,8 +112,6 @@ vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float rough
 vec3 decodeNormalDXT( vec4 _sample );
 
 vec3 degamma( vec3 );
-float packUnorm4x8f( vec4 );
-vec4 unpackUnorm4x8f( float );
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -137,11 +135,11 @@ vec3 PerturbNormal(vec3 n, vec3 dpdx, vec3 dpdy, float dhdx, float dhdy)
 // Calculate the surface normal using screen-space partial derivatives of the height field
 vec3 CalculateSurfaceNormal(vec3 position, vec3 normal, float height)
 {
-    vec3 dpdx = dFdxFine(position);
-    vec3 dpdy = dFdyFine(position);
+    vec3 dpdx = dFdx(position);
+    vec3 dpdy = dFdy(position);
  
-    float dhdx = dFdxFine(height);
-    float dhdy = dFdyFine(height);
+    float dhdx = dFdx(height);
+    float dhdy = dFdy(height);
  
     return PerturbNormal(normal, dpdx, dpdy, dhdx, dhdy);
 }
@@ -197,22 +195,6 @@ vec3 rotateZ( vec3 _dir, float _angle )
 	);
 }
 
-vec2 rotateBy( vec2 _pt, float _angle )
-{
-	float cosValue = cos(_angle);
-	float sinValue = sin(_angle);
-	return vec2( _pt.x * cosValue - _pt.y * sinValue, _pt.x * sinValue + _pt.y * cosValue );
-}
-
-vec2 rotateAroundBy( vec2 _pt, float _angle, vec2 _offset )
-{
-	_pt -= _offset;
-	_pt = rotateBy( _pt, _angle );
-	_pt += _offset;
-
-	return _pt;
-}
-
 vec4 heightMix( vec4 _valueA, vec4 _valueB, float _alpha, float _heightA, float _heightB )
 {
 	return mix( _valueB, _valueA, smoothstep( -u_heightBlendWidth, u_heightBlendWidth, (1.0-_heightA) - _alpha ) );
@@ -223,88 +205,23 @@ vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float 
 	return mix( _valueB, _valueA, smoothstep( -u_heightBlendWidth, u_heightBlendWidth, (1.0-_heightA) - _alpha ) );
 }
 
-vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec4 _uvOffset, float _angle )
+vec4 sampleSplatMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec2 _uvOffset )
 {
-	_uvOffset.xy = rotateBy( _uvOffset.xy, _angle );
-	_uvOffset.zw = rotateBy( _uvOffset.zw, _angle );
+	return vec4(0.0);
+}
 
+vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec4 _uvOffset )
+{
 	vec2 uvA = (_uv ) - _uvOffset.xy * u_flowOffset;
 	vec2 uvB = (_uv ) - _uvOffset.zw * u_flowOffset;
 
 	vec4 sampleA = texture( _sampler, uvA, u_textureBias );
 	vec4 sampleB = texture( _sampler, uvB, u_textureBias );
 
-	float heightSampleA = texture( _heightSampler, uvA, u_textureBias ).y;
-	float heightSampleB = texture( _heightSampler, uvB, u_textureBias ).y;
+	float heightSampleA = texture( _heightSampler, uvA, u_textureBias ).a;
+	float heightSampleB = texture( _heightSampler, uvB, u_textureBias ).a;
 
 	return heightMix( sampleA, sampleB, u_phaseAlpha, heightSampleA, heightSampleB );
-}
-
-vec3 samplePhasedMapNormalDXT( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec4 _uvOffset, float _angle )
-{
-	_uvOffset.xy = rotateBy( _uvOffset.xy, _angle );
-	_uvOffset.zw = rotateBy( _uvOffset.zw, _angle );
-
-	vec2 uvA = (_uv ) - _uvOffset.xy * u_flowOffset;
-	vec2 uvB = (_uv ) - _uvOffset.zw * u_flowOffset;
-
-	vec3 sampleA = decodeNormalDXT( texture( _sampler, uvA, u_textureBias ) );
-	vec3 sampleB = decodeNormalDXT( texture( _sampler, uvB, u_textureBias ) );
-
-	float heightSampleA = texture( _heightSampler, uvA, u_textureBias ).y;
-	float heightSampleB = texture( _heightSampler, uvB, u_textureBias ).y;
-
-	return normalize( heightMix( sampleA, sampleB, u_phaseAlpha, heightSampleA, heightSampleB ) );
-}
-
-float getCreaseValue( vec2 _uv )
-{
-	vec4 smudgeData = texture(s_smudgeData, _uv);
-
-	vec2 ray = vec2(smudgeData.y, -smudgeData.x);
-	//vec2 ray = vec2(smudgeData.x, smudgeData.y);
-	float rayLength = length(ray);
-	ray /= rayLength;
-
-	vec2 E = _uv;
-	vec2 L = _uv + ray * 40;
-	vec2 C = vec2(0.5);
-	float r = 20;
-	vec2 d = L-E;
-	vec2 f = E-C;
-
-	float a = dot(d,d);
-	float b = 2.0 * dot(f, d);
-	float c = dot(f, f) - r*r;
-	float discriminant = sqrt( b*b-4*a*c );
-	float t = (-b + discriminant) / (2.0*a);
-	float delta = length( t * d );
-
-	float value = (sin(delta*u_creaseFrequency) + 1.0) * 0.5;
-	value = pow( abs(value), 0.4 );
-	//float value = fract(delta*u_creaseFrequency);
-
-	if ( isnan(value) )
-		return 0.0;
-
-	return value * rayLength;
-}
-
-vec3 getCreaseTangent( vec2 _uv, float _width )
-{
-	float creaseValueL = getCreaseValue( _uv - vec2( _width, 0.0 ) );
-	float creaseValueR = getCreaseValue( _uv + vec2( _width, 0.0 ) );
-	float creaseValueT = getCreaseValue( _uv - vec2( 0.0, _width ) );
-	float creaseValueB = getCreaseValue( _uv + vec2( 0.0, _width ) );
-
-	vec3 normal = vec3(0.0,0.0,100.0);
-
-	normal.x = creaseValueR - creaseValueL;
-	normal.y = creaseValueT - creaseValueB;
-
-	normal = normalize(normal);
-
-	return normal;
 }
 
 void main(void)
@@ -315,34 +232,16 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 	
-	
 	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	
 	// Rock material
-	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 ).rgb;
-		
+	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgb;
+	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgba;
+	vec3 rockSpecularColor = degamma( vec3(u_rockReflectivity) );
+
 	vec3 rockNormal = in_rockNormal;
-	//vec3 rockNormalTangent = samplePhasedMapNormalDXT( s_lavaNormal, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 );
-	//rockNormal = rotateX( rockNormal, rockNormalTangent.y * u_rockNormalStrength ); 
-	//rockNormal = rotateZ( rockNormal, -rockNormalTangent.x * u_rockNormalStrength ); 
-
-	// Smudge
-	//float creaseValue = min( getCreaseValue(in_uv + rockNormalTangent.xy * u_creaseDistortStrength ), 1.0 );
-	//vec3 creaseTangent = getCreaseTangent(in_uv + rockNormalTangent.xy * u_creaseDistortStrength, 0.005);
-
-	rockAlbedo = mix( rockAlbedo, in_albedoFluidColor, 0.7 );
-	
-	//rockNormal = rotateX( rockNormal, creaseTangent.y * u_creaseNormalStrength ); 
-	//rockNormal = rotateZ( rockNormal, -creaseTangent.x * u_creaseNormalStrength ); 
-	//rockNormal = normalize(rockNormal);
-
-	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets, 0.0 ).rgba;
-	
 	float rockHeight = rockMaterialParams.a * u_rockNormalStrength * 0.01;
 	rockNormal = CalculateSurfaceNormal( in_worldPosition, rockNormal, rockHeight );
-
-
-	vec3 rockSpecularColor = degamma( vec3(u_rockReflectivity) );
 
 	// Dirt material
 	vec3 dirtAlbedo = u_dirtColor;															// TODO: Sample from dirt map
