@@ -340,6 +340,7 @@ namespace godBox
 		fragShader.SetTexture("s_smudgeData",					_geom.SmudgeData().GetRead());
 		fragShader.SetTexture("s_uvOffsetData",					_geom.UVOffsetData().GetRead());
 		fragShader.SetTexture("s_derivedData",					_geom.DerivedData().GetRead() );
+		fragShader.SetTexture("s_pressureData",					_geom.PressureData().GetRead() );
 
 		// Mouse
 		fragShader.SetUniform("u_mouseRadius",					m_mouseRadius);

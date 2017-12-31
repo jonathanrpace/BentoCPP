@@ -56,10 +56,6 @@ namespace godBox
 		SetUniform("u_moltenAlphaScalar", _material.moltenAlphaScalar);
 		SetUniform("u_moltenAlphaPower", _material.moltenAlphaPower);
 
-		SetUniform("u_smudgeUVStrength", _material.smudgeUVStrength);
-		SetUniform("u_smudgeSampleOffset", _material.creaseSampleOffset);
-		SetUniform("u_smudgeSampleMip", _material.creaseSampleMip);
-
 		SetUniform("u_dirtHeightToOpaque", _material.dirtHeightToOpaque);
 		
 		SetUniform("u_heightOffset", _material.heightOffset);
@@ -84,12 +80,8 @@ namespace godBox
 		//PRINTF("viewPosition %2f, %2f, %2f\n", RenderParams::CameraPosition().x, RenderParams::CameraPosition().y, RenderParams::CameraPosition().z);
 
 		float phase = fmodf( (float)glfwGetTime() * _material.moltenFlowSpeed, 1.0f );
-		float phaseA = fmodf( phase + 0.0f, 1.0f );
-		float phaseB = fmodf( phase + 0.5f, 1.0f );
-		float phaseAlpha = fabs( fmodf( phase, 1.0f ) - 0.5f ) * 2.0f;	// Sawtooth
+		float phaseAlpha = fabs( phase - 0.5f ) * 2.0f;	// Sawtooth
 
-		SetUniform("u_phaseA", phaseA );
-		SetUniform("u_phaseB", phaseB );
 		SetUniform("u_phaseAlpha", phaseAlpha );
 		SetUniform("u_flowOffset", _material.moltenFlowOffset / (float)_geometry.NumVerticesPerDimension() );
 
@@ -99,6 +91,11 @@ namespace godBox
 		SetUniform("u_rockReflectivity", _material.rockReflectivity);
 		SetUniform("u_rockNormalStrength", _material.rockNormalStrength);
 		SetUniform("u_rockDetailBumpSlopePower", _material.rockDetailBumpSlopePower);
+		SetUniform("u_uvRepeat", _material.uvRepeat);
+		SetUniform("u_splatGridSize", _material.splatGridSize);
+
+		SetUniform("u_smudgeUVStrength", _material.smudgeUVStrength);
+		SetUniform("u_stretchCompressBias", _material.stretchCompressBias);
 
 		SetUniform("u_creaseFrequency", _material.creaseFrequency);
 		SetUniform("u_creaseNormalStrength", _material.creaseNormalStrength);

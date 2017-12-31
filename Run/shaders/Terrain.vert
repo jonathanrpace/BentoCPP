@@ -27,11 +27,6 @@ uniform float u_moltenColorScalar;
 uniform float u_moltenAlphaScalar;
 uniform float u_moltenAlphaPower;
 
-
-uniform float u_smudgeUVStrength;
-uniform float u_smudgeSampleOffset;
-uniform float u_smudgeSampleMip;
-
 uniform float u_dirtHeightToOpaque;
 
 uniform mat4 u_mvpMatrix;
@@ -102,11 +97,11 @@ void main(void)
 	vec4 heightDataC = texture(s_heightData, in_uv);
 	vec4 miscDataC = textureLod(s_miscData, in_uv, 0);
 	vec4 derivedDataC = texture(s_derivedData, in_uv);
-	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
+	vec4 smudgeDataC = textureLod(s_smudgeData, in_uv, 1);
 	vec4 uvOffsetSample = texture(s_uvOffsetData, in_uv);
 	vec4 moltenUVOffsets = uvOffsetSample;
 	
-	
+	out_scaledUV = in_uv * u_uvRepeat;
 	out_albedoFluidColor = unpackUnorm4x8f( smudgeDataC.z ).rgb;
 	
 	vec2 rockNormalPacked = sampleCombinedMip(s_normalData, in_uv, 0, 1, 0.5).zw;
@@ -122,18 +117,7 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos);
 	float steamStrength = smudgeDataC.z;
 
-	{
-		vec2 outScaledUV = vec2(0.0);
-		out_smudgeData = texture(s_smudgeData, in_uv);
-		vec2 smudgeVec = textureLod( s_smudgeData, in_uv, u_smudgeSampleMip ).xy;
-		vec2 smudgeDir = normalize(smudgeVec);
-
-		vec2 uvOffset = smudgeVec * u_smudgeUVStrength;
-		outScaledUV -= uvOffset;
-
-		outScaledUV += in_uv;
-		out_scaledUV = outScaledUV * u_uvRepeat;
-	}
+	out_smudgeData = smudgeDataC;
 
 	vec4 materialSample = texture(s_lavaMaterial, out_scaledUV);
 	float materialHeight = materialSample.a;

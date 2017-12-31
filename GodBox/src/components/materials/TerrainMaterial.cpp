@@ -25,6 +25,8 @@ namespace godBox
 		// Global
 		SerializableMember("heightScalar", 0.0f, &heightOffset);
 		SerializableMember("uvRepeat", 1.0f, &uvRepeat);
+		SerializableMember("splatGridSize", 1.0f, &splatGridSize);
+		SerializableMember("stretchCompressBias", 1.0f, &stretchCompressBias);
 
 		// Rock
 		SerializableMember("rockReflectivity", 0.1f, &rockReflectivity);
@@ -71,6 +73,7 @@ namespace godBox
 		ImGui::Text("Global");
 		ImGui::SliderFloat("Height Offset", &heightOffset, 0.0f, 0.05f);
 		ImGui::SliderFloat("UV Repeat", &uvRepeat, 0.0f, 4.0f);
+		ImGui::SliderFloat("Splat Grid Size", &splatGridSize, 0.0f, 1.0f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -82,7 +85,8 @@ namespace godBox
 
 		ImGui::Spacing();
 		ImGui::Text("Creases");
-		ImGui::SliderFloat("Smudge UV Strength", &smudgeUVStrength, 0.0f, 0.0004f, "%.6f");
+		ImGui::SliderFloat("Smudge UV Strength", &smudgeUVStrength, 0.0f, 1.0f);
+		ImGui::SliderFloat("Stretch / Compress Bias", &stretchCompressBias, -1.0f, 1.0f);
 		ImGui::SliderFloat("Sample Offset##creases", &creaseSampleOffset, 0.0f, 10.0f);
 		ImGui::SliderFloat("Sample Mip##creases", &creaseSampleMip, 0.0f, 8.0f);
 		ImGui::SliderFloat("Crease Frequency", &creaseFrequency, 0.0f, 1500.0f);

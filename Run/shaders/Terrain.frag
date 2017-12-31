@@ -36,8 +36,6 @@ uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
 // Motion / Flow
-uniform float u_phaseA;
-uniform float u_phaseB;
 uniform float u_phaseAlpha;
 uniform float u_flowOffset;
 
@@ -65,6 +63,12 @@ uniform float u_glowMipLevel = 4;
 uniform float u_glowDistance = 0.1;
 
 // Textures
+uniform float u_uvRepeat;
+uniform float u_splatGridSize = 0.1;
+
+uniform float u_smudgeUVStrength;
+uniform float u_stretchCompressBias;
+
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_miscData;
 uniform sampler2D s_heightData;
@@ -82,7 +86,7 @@ uniform samplerCube s_irrMap;
 
 uniform sampler2D s_moltenGradient;
 
-uniform float u_textureBias = -1.0;
+uniform float u_textureBias = -0.5;
 
 ////////////////////////////////////////////////////////////////
 // Outputs
@@ -108,10 +112,12 @@ layout( std430, binding = 0 ) buffer MousePositionBuffer
 ////////////////////////////////////////////////////////////////
 vec3 pointLightContribution(vec3 N,	vec3 L,	vec3 V,	vec3 diffColor,	vec3 specColor,	float roughness, vec3 lightColor, float lightIntensity );
 vec3 IBLContribution(vec3 N, vec3 V, vec3 diffColor, vec3 specColor, float roughness, samplerCube envMap, samplerCube irrMap, float lightIntensity, float ambientOcclusion);
-
 vec3 decodeNormalDXT( vec4 _sample );
-
 vec3 degamma( vec3 );
+void srand(float seed);
+float rand();
+float angleBetween( vec2 vec );
+vec2 rotateVec2(vec2 vec, float radians);
 
 ////////////////////////////////////////////////////////////////
 // Functions
@@ -197,17 +203,108 @@ vec3 rotateZ( vec3 _dir, float _angle )
 
 vec4 heightMix( vec4 _valueA, vec4 _valueB, float _alpha, float _heightA, float _heightB )
 {
+	float heightA = mix( _heightA * 0.65, _heightA, (1.0-_alpha) );
+	float heightB = mix( _heightB * 0.65, _heightB, _alpha );
+	
+	return heightA > heightB ? _valueA : _valueB;
+
+	return mix( _valueA, _valueB, _alpha );
+
+
 	return mix( _valueB, _valueA, smoothstep( -u_heightBlendWidth, u_heightBlendWidth, (1.0-_heightA) - _alpha ) );
 }
 
-vec3 heightMix( vec3 _valueA, vec3 _valueB, float _alpha, float _heightA, float _heightB )
+vec4 sampleSplatMap( sampler2D _sampler, vec2 _uv, float _gridSize )
 {
-	return mix( _valueB, _valueA, smoothstep( -u_heightBlendWidth, u_heightBlendWidth, (1.0-_heightA) - _alpha ) );
-}
+	int numColumns = int( 1.0/_gridSize );
 
-vec4 sampleSplatMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec2 _uvOffset )
-{
-	return vec4(0.0);
+	float pressure = in_smudgeData.w + u_stretchCompressBias;
+	float compressionRatio = max(0.0, pressure);
+	float stretchRatio = min(0.0, pressure) * 0.5;
+
+	float smudgeAngle = angleBetween( in_smudgeData.xy );
+	float smudgeLength = length(in_smudgeData.xy);
+
+	vec2 gridCoordTL = _uv / vec2(_gridSize);
+	vec2 gridCoordFractTL = fract(gridCoordTL);
+
+	ivec2 igridCoordTL = ivec2(gridCoordTL);
+	ivec2 igridCoordTR = igridCoordTL + ivec2( 1, 0 );
+	ivec2 igridCoordBL = igridCoordTL + ivec2( 0, 1 );
+	ivec2 igridCoordBR = igridCoordTL + ivec2( 1, 1 );
+
+	rotate from corners, not fragment
+
+	vec2 uvTL = gridCoordFractTL * _gridSize * u_uvRepeat;
+	uvTL = rotateVec2( uvTL, smudgeAngle );
+	uvTL.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
+	uvTL.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvTL.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvTL = rotateVec2( uvTL, -smudgeAngle );
+	srand( igridCoordTL.y * numColumns + igridCoordTL.x );
+	uvTL += vec2( rand(), rand() );
+
+	vec2 uvTR = vec2( -(1.0-gridCoordFractTL.x), gridCoordFractTL.y ) * _gridSize * u_uvRepeat;
+	uvTR = rotateVec2( uvTR, smudgeAngle );
+	uvTR.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
+	uvTR.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvTR.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvTR = rotateVec2( uvTR, -smudgeAngle );
+	srand( igridCoordTR.y * numColumns + igridCoordTR.x );
+	uvTR += vec2( rand(), rand() );
+
+	vec2 uvBL = vec2( gridCoordFractTL.x, -(1.0-gridCoordFractTL.y) ) * _gridSize * u_uvRepeat;
+	uvBL = rotateVec2( uvBL, smudgeAngle );
+	uvBL.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
+	uvBL.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvBL.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvBL = rotateVec2( uvBL, -smudgeAngle );
+	srand( igridCoordBL.y * numColumns + igridCoordBL.x );
+	uvBL += vec2( rand(), rand() );
+
+	vec2 uvBR = -vec2( 1.0-gridCoordFractTL.x, 1.0-gridCoordFractTL.y ) * _gridSize * u_uvRepeat;
+	uvBR = rotateVec2( uvBR, smudgeAngle );
+	uvBR.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
+	uvBR.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvBR.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uvBR = rotateVec2( uvBR, -smudgeAngle );
+	srand( igridCoordBR.y * numColumns + igridCoordBR.x );
+	uvBR += vec2( rand(), rand() );
+
+	vec4 sampleTL = texture( _sampler, uvTL, u_textureBias );
+	vec4 sampleTR = texture( _sampler, uvTR, u_textureBias );
+	vec4 sampleBL = texture( _sampler, uvBL, u_textureBias );
+	vec4 sampleBR = texture( _sampler, uvBR, u_textureBias );
+
+	// Mixing
+	vec4 sampleMixed;
+
+	// Height based mixing
+	{
+		float heightTL = sampleTL.a * max( 1.0-gridCoordFractTL.x, 1.0-gridCoordFractTL.y );
+		float heightTR = sampleTR.a * max(     gridCoordFractTL.x, 1.0-gridCoordFractTL.y );
+		float heightBL = sampleBL.a * max( 1.0-gridCoordFractTL.x,     gridCoordFractTL.y );
+		float heightBR = sampleBR.a * max(     gridCoordFractTL.x,     gridCoordFractTL.y );
+
+		vec4 sampleMixedT = heightTL > heightTR ? sampleTL : sampleTR;
+		vec4 sampleMixedB = heightBL > heightBR ? sampleBL : sampleBR;
+		float heightT = max( heightTL, heightTR );
+		float heightB = max( heightBL, heightBR );
+
+		sampleMixed = heightT > heightB ? sampleMixedT : sampleMixedB;
+	}
+
+	// Bi-linear mixing
+	/*
+	{
+		vec4 sampleMixedT = mix( sampleTL, sampleTR, gridCoordFractTL.x );
+		vec4 sampleMixedB = mix( sampleBL, sampleBR, gridCoordFractTL.x );
+
+		sampleMixed = mix( sampleMixedT, sampleMixedB, gridCoordFractTL.y );
+	}
+	*/
+
+	return sampleMixed;
 }
 
 vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec4 _uvOffset )
@@ -215,13 +312,15 @@ vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, ve
 	vec2 uvA = (_uv ) - _uvOffset.xy * u_flowOffset;
 	vec2 uvB = (_uv ) - _uvOffset.zw * u_flowOffset;
 
-	vec4 sampleA = texture( _sampler, uvA, u_textureBias );
-	vec4 sampleB = texture( _sampler, uvB, u_textureBias );
+	vec4 sampleA = sampleSplatMap( _sampler, uvA, u_splatGridSize );
+	vec4 sampleB = sampleSplatMap( _sampler, uvB, u_splatGridSize );
 
-	float heightSampleA = texture( _heightSampler, uvA, u_textureBias ).a;
-	float heightSampleB = texture( _heightSampler, uvB, u_textureBias ).a;
+	//float phase = pow(u_phaseAlpha, 2.0);
+	//float heightA = sampleA.a * (1.0-phase);
+	//float heightB = sampleB.a * (phase);
+	//return heightA > heightB ? sampleA : sampleB;
 
-	return heightMix( sampleA, sampleB, u_phaseAlpha, heightSampleA, heightSampleB );
+	return heightMix( sampleA, sampleB, u_phaseAlpha, sampleA.a, sampleB.a );
 }
 
 void main(void)
@@ -231,8 +330,6 @@ void main(void)
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
-	
-	vec4 smudgeDataC = texture(s_smudgeData, in_uv);
 	
 	// Rock material
 	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgb;
@@ -262,7 +359,7 @@ void main(void)
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	float roughness = materialParams.r;
-	roughness *= 0.5;
+	//roughness *= 0.5;
 	float textureAO = materialParams.g;//mix( 1.0, materialParams.g, 0.5 );// * mix( 1.0, creaseValue, 0.6 );
 
 	// Make albedo/specular darker when hot
@@ -319,32 +416,33 @@ void main(void)
 	vec3 moltenColor = degamma( texture(s_moltenGradient, vec2(moltenAlpha * 0.96, 0.5)).rgb );
 	moltenColor *= 1.0 + max(in_miscData.x, 0.0);
 	
-	/*
-	float pressureSample = texture( s_pressureData, in_uv ).r;
-	pressureSample *= 10000.0;
-	pressureSample += 0.5;
-	moltenColor *= 0.1;
-	moltenColor.rgb += pressureSample;
-	*/
+	
 	
 	outColor += moltenColor;
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
 
+	//out_forward = ( smudgeDataC + 1.0 )* 0.5;
+
+	/*
+	float divergenceSample = texture( s_divergenceData, in_uv ).r;
+	divergenceSample += 0.5;
+	divergenceSample *= 10.0;
+	out_forward = vec4( divergenceSample );
+	*/
+
+	/*
+	//vec4 pressureSample = texture( s_pressureData, in_uv ) * 10000.0;
+	vec4 pressureSample = in_smudgeData.wwww;
+	pressureSample += 0.5;
+	out_forward = pow( vec4( pressureSample ), vec4(2.2) );
+	*/
+
 	/*
 	vec2 velocitySample = texture( s_fluidVelocityData, in_uv ).xy;
-	
 	velocitySample *= 1.0;
 	velocitySample += 0.5;
-	
-	float divergenceSample = texture( s_divergenceData, in_uv ).r;
-	divergenceSample *= 1.0;
-	divergenceSample += 0.5;
-	
-	
-	
-	//out_forward = vec4( pressureSample, pressureSample, pressureSample, 0.0 );
 	//out_forward = pow( vec4( velocitySample, pressureSample, 0.0 ), vec4(2.2));//densitySample.x, 0.0 );
 	*/
 }

@@ -44,6 +44,7 @@ namespace godBox
 		// Global
 		float heightOffset;
 		float uvRepeat;
+		float splatGridSize;
 
 		// Rock
 		float rockReflectivity;
@@ -52,6 +53,7 @@ namespace godBox
 
 		// Smudge
 		float smudgeUVStrength;
+		float stretchCompressBias;
 
 		// Creases
 		float creaseSampleOffset;
