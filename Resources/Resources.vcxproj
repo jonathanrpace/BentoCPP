@@ -30,6 +30,7 @@
     <None Include="..\Run\shaders\Terrain.vert" />
     <None Include="..\Run\shaders\TerrainSides.frag" />
     <None Include="..\Run\shaders\TerrainSides.vert" />
+    <None Include="..\Run\shaders\UpdateFlux.frag" />
     <None Include="..\Run\shaders\UpdateTerrainData.frag" />
     <None Include="..\Run\shaders\Water.frag" />
     <None Include="..\Run\shaders\Water.vert" />
