@@ -23,6 +23,7 @@ uniform sampler2D s_miscData;
 uniform sampler2D s_smudgeData;
 uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_derivedData;
+uniform sampler2D s_pressureData;
 
 // Mouse
 uniform float u_mouseRadius;
@@ -361,9 +362,9 @@ void main(void)
 	//////////////////////////////////////////////////////////////////////////////////
 	// SMUDGE MAP
 	//////////////////////////////////////////////////////////////////////////////////
-	/*
 	{
-		vec2 velocity = vec2(fC.y-fC.x, fC.w-fC.z);
+		vec4 flux = texelFetch(s_moltenFluxData, T, 0);
+		vec2 velocity = vec2(flux.y-flux.x, flux.w-flux.z);
 		
 		float dp = dot( normalize(velocity), normalize(smudgeDataC.xy) );
 		if ( isnan(dp) )
@@ -371,8 +372,20 @@ void main(void)
 
 		float ratio = (dp + 1.0) * 0.5;
 		smudgeDataC.xy += velocity * u_smudgeChangeRate;
+
+
+		float pressure = texelFetch(s_pressureData, T, 0).x * 1000;
+		
+		if ( pressure < 0.0 )
+		{
+			smudgeDataC.w += pressure * 0.02;
+		}
+		else
+		{
+			smudgeDataC.w += pressure * 0.5;
+		}
+		smudgeDataC.w = clamp( smudgeDataC.w, -1.0, 1.0 );
 	}
-	*/
 	
 	////////////////////////////////////////////////////////////////
 	// Input
