@@ -99,7 +99,7 @@ void main(void)
 		// Damping
 		{
 			// Dampen to zero when no volume
-			float volumeRatio = min( 1.0, hC.y / 0.001 );
+			float volumeRatio = min( 1.0, hC.y / 0.0005 );
 			moltenFluxC *= volumeRatio;
 			
 			// Damping based on heat/viscosity

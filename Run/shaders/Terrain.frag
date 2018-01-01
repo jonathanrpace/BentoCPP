@@ -36,6 +36,7 @@ uniform float u_lightIntensity;
 uniform float u_ambientLightIntensity;
 
 // Motion / Flow
+uniform float u_phase;
 uniform float u_phaseAlpha;
 uniform float u_flowOffset;
 
@@ -47,12 +48,7 @@ uniform float u_rockDetailBumpSlopePower;
 // Molten
 uniform vec3 u_moltenColor;
 uniform float u_moltenColorScalar;
-uniform float u_heightBlendWidth = 0.2;
-
-// Creases
-uniform float u_creaseFrequency;
-uniform float u_creaseNormalStrength;
-uniform float u_creaseDistortStrength;
+uniform float u_heightBlendWidth = 1.0;
 
 // Dirt
 uniform vec3 u_dirtColor;
@@ -64,7 +60,9 @@ uniform float u_glowDistance = 0.1;
 
 // Textures
 uniform float u_uvRepeat;
-uniform float u_splatGridSize = 0.1;
+uniform float u_splatGridSize;
+uniform float u_smudgeMipLevel = 4.0;
+uniform vec2 u_splatGridScale = vec2(1.0, 3.0);
 
 uniform float u_smudgeUVStrength;
 uniform float u_stretchCompressBias;
@@ -201,75 +199,53 @@ vec3 rotateZ( vec3 _dir, float _angle )
 	);
 }
 
-vec4 heightMix( vec4 _valueA, vec4 _valueB, float _alpha, float _heightA, float _heightB )
+
+
+vec2 getSplatUV( ivec2 _igridCoord, vec2 _offset, float _gridSize )
 {
-	float heightA = mix( _heightA * 0.65, _heightA, (1.0-_alpha) );
-	float heightB = mix( _heightB * 0.65, _heightB, _alpha );
-	
-	return heightA > heightB ? _valueA : _valueB;
+	vec4 smudgeSample = textureLod( s_smudgeData, _igridCoord * _gridSize / u_uvRepeat, u_smudgeMipLevel );
+	float smudgeAngle = angleBetween(smudgeSample.xy);
+	float smudgeLength = length(smudgeSample.xy);
+	float pressure = smudgeSample.w + u_stretchCompressBias;
+	float compressionRatio = max(0.0, pressure);
+	float stretchRatio = -min(0.0, pressure);
 
-	return mix( _valueA, _valueB, _alpha );
+	vec2 uv = _offset * _gridSize * u_uvRepeat;
 
+	// Rotate, squeeze then rotate back
+	uv = rotateVec2( uv, smudgeAngle );
+	uv.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
+	uv.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	//uv.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uv = rotateVec2( uv, -smudgeAngle );
 
-	return mix( _valueB, _valueA, smoothstep( -u_heightBlendWidth, u_heightBlendWidth, (1.0-_heightA) - _alpha ) );
+	// Offset
+	int numColumns = int( 1.0/_gridSize );
+	srand( _igridCoord.y * numColumns + _igridCoord.x );
+	uv *= mix( u_splatGridScale.x, u_splatGridScale.y, rand() );
+	uv += vec2( rand(), rand() );
+
+	return uv;
+}
+
+vec4 bilinearMix( vec4 _valueTL, vec4 _valueTR, vec4 _valueBL, vec4 _valueBR, vec2 _mixRatios )
+{
+	return mix( mix( _valueTL, _valueTR, _mixRatios.x ),  mix( _valueBL, _valueBR, _mixRatios.x ), _mixRatios.y );
 }
 
 vec4 sampleSplatMap( sampler2D _sampler, vec2 _uv, float _gridSize )
 {
-	int numColumns = int( 1.0/_gridSize );
-
-	float pressure = in_smudgeData.w + u_stretchCompressBias;
-	float compressionRatio = max(0.0, pressure);
-	float stretchRatio = min(0.0, pressure) * 0.5;
-
-	float smudgeAngle = angleBetween( in_smudgeData.xy );
-	float smudgeLength = length(in_smudgeData.xy);
-
 	vec2 gridCoordTL = _uv / vec2(_gridSize);
-	vec2 gridCoordFractTL = fract(gridCoordTL);
-
 	ivec2 igridCoordTL = ivec2(gridCoordTL);
 	ivec2 igridCoordTR = igridCoordTL + ivec2( 1, 0 );
 	ivec2 igridCoordBL = igridCoordTL + ivec2( 0, 1 );
 	ivec2 igridCoordBR = igridCoordTL + ivec2( 1, 1 );
+	vec2 gridRatio = fract(gridCoordTL);
 
-	rotate from corners, not fragment
-
-	vec2 uvTL = gridCoordFractTL * _gridSize * u_uvRepeat;
-	uvTL = rotateVec2( uvTL, smudgeAngle );
-	uvTL.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
-	uvTL.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvTL.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvTL = rotateVec2( uvTL, -smudgeAngle );
-	srand( igridCoordTL.y * numColumns + igridCoordTL.x );
-	uvTL += vec2( rand(), rand() );
-
-	vec2 uvTR = vec2( -(1.0-gridCoordFractTL.x), gridCoordFractTL.y ) * _gridSize * u_uvRepeat;
-	uvTR = rotateVec2( uvTR, smudgeAngle );
-	uvTR.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
-	uvTR.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvTR.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvTR = rotateVec2( uvTR, -smudgeAngle );
-	srand( igridCoordTR.y * numColumns + igridCoordTR.x );
-	uvTR += vec2( rand(), rand() );
-
-	vec2 uvBL = vec2( gridCoordFractTL.x, -(1.0-gridCoordFractTL.y) ) * _gridSize * u_uvRepeat;
-	uvBL = rotateVec2( uvBL, smudgeAngle );
-	uvBL.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
-	uvBL.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvBL.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvBL = rotateVec2( uvBL, -smudgeAngle );
-	srand( igridCoordBL.y * numColumns + igridCoordBL.x );
-	uvBL += vec2( rand(), rand() );
-
-	vec2 uvBR = -vec2( 1.0-gridCoordFractTL.x, 1.0-gridCoordFractTL.y ) * _gridSize * u_uvRepeat;
-	uvBR = rotateVec2( uvBR, smudgeAngle );
-	uvBR.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
-	uvBR.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvBR.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uvBR = rotateVec2( uvBR, -smudgeAngle );
-	srand( igridCoordBR.y * numColumns + igridCoordBR.x );
-	uvBR += vec2( rand(), rand() );
+	vec2 uvTL = getSplatUV( igridCoordTL,              gridRatio,							      _gridSize );
+	vec2 uvTR = getSplatUV( igridCoordTR,  vec2( -(1.0-gridRatio.x),       gridRatio.y )  , _gridSize );
+	vec2 uvBL = getSplatUV( igridCoordBL,  vec2(       gridRatio.x , -(1.0-gridRatio.y ) ), _gridSize );
+	vec2 uvBR = getSplatUV( igridCoordBR, -vec2(   1.0-gridRatio.x ,   1.0-gridRatio.y )  , _gridSize );
 
 	vec4 sampleTL = texture( _sampler, uvTL, u_textureBias );
 	vec4 sampleTR = texture( _sampler, uvTR, u_textureBias );
@@ -277,33 +253,8 @@ vec4 sampleSplatMap( sampler2D _sampler, vec2 _uv, float _gridSize )
 	vec4 sampleBR = texture( _sampler, uvBR, u_textureBias );
 
 	// Mixing
-	vec4 sampleMixed;
-
-	// Height based mixing
-	{
-		float heightTL = sampleTL.a * max( 1.0-gridCoordFractTL.x, 1.0-gridCoordFractTL.y );
-		float heightTR = sampleTR.a * max(     gridCoordFractTL.x, 1.0-gridCoordFractTL.y );
-		float heightBL = sampleBL.a * max( 1.0-gridCoordFractTL.x,     gridCoordFractTL.y );
-		float heightBR = sampleBR.a * max(     gridCoordFractTL.x,     gridCoordFractTL.y );
-
-		vec4 sampleMixedT = heightTL > heightTR ? sampleTL : sampleTR;
-		vec4 sampleMixedB = heightBL > heightBR ? sampleBL : sampleBR;
-		float heightT = max( heightTL, heightTR );
-		float heightB = max( heightBL, heightBR );
-
-		sampleMixed = heightT > heightB ? sampleMixedT : sampleMixedB;
-	}
-
-	// Bi-linear mixing
-	/*
-	{
-		vec4 sampleMixedT = mix( sampleTL, sampleTR, gridCoordFractTL.x );
-		vec4 sampleMixedB = mix( sampleBL, sampleBR, gridCoordFractTL.x );
-
-		sampleMixed = mix( sampleMixedT, sampleMixedB, gridCoordFractTL.y );
-	}
-	*/
-
+	vec4 sampleMixed = bilinearMix( sampleTL, sampleTR, sampleBL, sampleBR, gridRatio );
+	
 	return sampleMixed;
 }
 
@@ -315,12 +266,7 @@ vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, ve
 	vec4 sampleA = sampleSplatMap( _sampler, uvA, u_splatGridSize );
 	vec4 sampleB = sampleSplatMap( _sampler, uvB, u_splatGridSize );
 
-	//float phase = pow(u_phaseAlpha, 2.0);
-	//float heightA = sampleA.a * (1.0-phase);
-	//float heightB = sampleB.a * (phase);
-	//return heightA > heightB ? sampleA : sampleB;
-
-	return heightMix( sampleA, sampleB, u_phaseAlpha, sampleA.a, sampleB.a );
+	return mix( sampleA, sampleB, u_phaseAlpha );
 }
 
 void main(void)
@@ -330,14 +276,15 @@ void main(void)
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
-	
+	float moltenRatio = 1.0 - ( min( in_miscData.x / 0.5, 1.0 ) );
+
 	// Rock material
-	vec3 rockAlbedo = samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgb;
+	vec3 rockAlbedo = degamma( samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgb ) * (1.0+u_rockReflectivity*10.0);
 	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgba;
-	vec3 rockSpecularColor = degamma( vec3(u_rockReflectivity) );
+	vec3 rockSpecularColor = vec3(0.0);
 
 	vec3 rockNormal = in_rockNormal;
-	float rockHeight = rockMaterialParams.a * u_rockNormalStrength * 0.01;
+	float rockHeight = rockMaterialParams.a * u_rockNormalStrength * mix( 0.015, 0.01, moltenRatio );
 	rockNormal = CalculateSurfaceNormal( in_worldPosition, rockNormal, rockHeight );
 
 	// Dirt material
@@ -358,19 +305,14 @@ void main(void)
 	vec3 specularColor = mix( rockSpecularColor, dirtSpecularColor, dirtBlendAlpha );
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
-	float roughness = materialParams.r;
-	//roughness *= 0.5;
-	float textureAO = materialParams.g;//mix( 1.0, materialParams.g, 0.5 );// * mix( 1.0, creaseValue, 0.6 );
-
 	// Make albedo/specular darker when hot
-	float moltenRatio = 1.0 - ( min( in_miscData.x / 0.1, 1.0 ) );
 	specularColor *= moltenRatio;
-	//albedo *= moltenRatio;
+	albedo *= moltenRatio;
+		
+	// Lighting
+	float roughness = mix( 0.3, 1.0, moltenRatio ); // * materialParams.r;
+	float textureAO = materialParams.g;
 
-	//albedo *= vec3( sin( in_miscData.y * PI * 2.0 ) * 0.5 + 1.0 );
-	//albedo *= in_miscData.y;
-	
-	// Direct light
 	//vec3 lightColor = vec3(1.0,1.0,1.0);
 	vec3 directLight = vec3(0.0);//pointLightContribution( normal, lightDir, viewDir, albedo, specularColor, roughness, lightColor, u_lightIntensity ) * (1.0-in_shadowing);
 

@@ -373,7 +373,7 @@ vec3 IBLContribution
 	float dotLH = max( 1e-8, abs(dot( L, H )) );
 	float dotVH = max( 1e-8, abs(dot( V, H )) );
 	
-	float maxLod = 5.0; // TODO calculate from texture size
+	float maxLod = 8.0; // TODO calculate from texture size
 
 	float lodS = roughness < 0.01 ? 0.0 : 
 		computeLOD

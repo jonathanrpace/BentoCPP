@@ -157,9 +157,9 @@ void main(void)
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed * coolingRatio;
 		
 		// Cool more when no volume
-		if ( moltenHeight < 0.001 )
+		if ( moltenHeight < 0.0005 )
 		{
-			heatC *= 0.999f;
+			heatC *= 0.995f;
 		}
 	}
 	
@@ -247,7 +247,7 @@ void main(void)
 		waterHeight -= waterToBoilOff;
 		
 		// Cool molten based on water boiling
-		heatC -= min( heatC, (waterToBoilOff / (1.0+moltenHeight)) * 50.0 );
+		heatC -= min( heatC, (waterToBoilOff / (1.0+moltenHeight)) * 5000.0 );
 	}	
 	
 	////////////////////////////////////////////////////////////////
@@ -378,11 +378,11 @@ void main(void)
 		
 		if ( pressure < 0.0 )
 		{
-			smudgeDataC.w += pressure * 0.02;
+			smudgeDataC.w += pressure * 0.04;
 		}
 		else
 		{
-			smudgeDataC.w += pressure * 0.5;
+			smudgeDataC.w += pressure * 0.2;
 		}
 		smudgeDataC.w = clamp( smudgeDataC.w, -1.0, 1.0 );
 	}

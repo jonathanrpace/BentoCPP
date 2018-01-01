@@ -312,9 +312,8 @@ namespace godBox
 		float waterVolumeAmount = mouseIsDown * m_mouseVolumeStrength * waterScalar;
 		float heatChangeAmount = mouseIsDown * m_mouseHeatStrength * moltenScalar;
 
-		float phase = fmodf( (float)glfwGetTime() * _material.moltenFlowSpeed, 1.0f );
-		float phaseA = fmodf( phase + 0.0f, 1.0f );
-		float phaseB = fmodf( phase + 0.5f, 1.0f );
+		float phaseA = fmodf( (float)glfwGetTime() * _material.moltenFlowSpeed, 1.0f );
+		float phaseB = fmodf( phaseA + 0.5f, 1.0f );
 
 		bool m_phaseALatch = m_prevPhaseA > phaseA;
 		bool m_phaseBLatch = m_prevPhaseB > phaseB;
