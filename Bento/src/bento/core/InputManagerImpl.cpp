@@ -19,12 +19,15 @@ bento::InputManagerImpl::InputManagerImpl(GLFWwindow* _window) :
 	glfwSetMouseButtonCallback(m_window, MouseButtonCallback);
 	glfwSetCursorPosCallback(m_window, MouseMoveCallback);
 	glfwSetKeyCallback(m_window, KeyCallback);
+	glfwSetScrollCallback(m_window, ScrollCallback);
 }
 
 bento::InputManagerImpl::~InputManagerImpl()
 {
 	glfwSetMouseButtonCallback(m_window, nullptr);
 	glfwSetCursorPosCallback(m_window, nullptr);
+	glfwSetKeyCallback(m_window, nullptr);
+	glfwSetScrollCallback(m_window, nullptr);
 }
 
 vec2 bento::InputManagerImpl::GetMousePosition()
@@ -75,4 +78,9 @@ void bento::InputManagerImpl::KeyCallback(GLFWwindow * window, int _key, int _sc
 	{
 		TRIGGER_EVENT(s_instance->OnKeyRelease, _key);
 	}
+}
+
+void bento::InputManagerImpl::ScrollCallback(GLFWwindow * window, double x, double y)
+{
+	TRIGGER_EVENT(s_instance->OnScroll, x, y);
 }

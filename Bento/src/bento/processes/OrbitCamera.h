@@ -80,5 +80,6 @@ namespace bento
 
 		DEFINE_EVENT_HANDLER_1(OrbitCamera, OnMouseButtonPress, int, _button);
 		DEFINE_EVENT_HANDLER_1(OrbitCamera, OnMouseButtonRelease, int, _button);
+		DEFINE_EVENT_HANDLER_2(OrbitCamera, OnScroll, double, _x, double, _y);
 	};
 }

@@ -19,7 +19,7 @@ namespace bento
 		, m_mouseIsDown(false)
 		, m_dolly(1.0f)
 		, m_dollyTarget(1.0f)
-		, m_dollySpeed(0.1f)
+		, m_dollySpeed(0.05f)
 		, m_dollyEase(0.1f)
 		, m_dollyMin(0.1f)
 		, m_dollyMax(5.0f)
@@ -41,6 +41,7 @@ namespace bento
 		IInputManager& inputManager = _scene.GetInputManager();
 		inputManager.OnMouseButtonPress += OnMouseButtonPressDelegate;
 		inputManager.OnMouseButtonRelease += OnMouseButtonReleaseDelegate;
+		inputManager.OnScroll += OnScrollDelegate;
 	}
 
 	void OrbitCamera::UnbindFromScene(Scene& _scene)
@@ -50,6 +51,7 @@ namespace bento
 		IInputManager& inputManager = _scene.GetInputManager();
 		inputManager.OnMouseButtonPress -= OnMouseButtonPressDelegate;
 		inputManager.OnMouseButtonRelease -= OnMouseButtonReleaseDelegate;
+		inputManager.OnScroll -= OnScrollDelegate;
 	}
 
 	void OrbitCamera::Advance(double dt)
@@ -115,5 +117,10 @@ namespace bento
 		{
 			m_mouseIsDown = false;
 		}
+	}
+
+	void OrbitCamera::OnScroll(double _x, double _y)
+	{
+		m_dollyTarget -= _y * m_dollySpeed;
 	}
 }

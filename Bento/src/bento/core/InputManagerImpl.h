@@ -25,5 +25,6 @@ namespace bento
 		static void MouseButtonCallback(GLFWwindow* _window, int _button, int _action, int _mods);
 		static void MouseMoveCallback(GLFWwindow* window, double _x, double _y);
 		static void KeyCallback(GLFWwindow* window, int _key, int _scanCode, int _action, int _mods);
+		static void ScrollCallback(GLFWwindow* window, double _xoffset, double _yoffset);
 	};
 }

@@ -17,6 +17,8 @@ namespace bento
 		DECLARE_EVENT(void, vec2 _pos) OnMouseMove;
 
 		DECLARE_EVENT(void, int _key) OnKeyPress;
-		DECLARE_EVENT(void, int _jey) OnKeyRelease;
+		DECLARE_EVENT(void, int _key) OnKeyRelease;
+
+		DECLARE_EVENT(void, double _x, double _y) OnScroll;
 	};
 }
