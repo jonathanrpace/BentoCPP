@@ -73,7 +73,7 @@ namespace godBox
 		ImGui::Text("Global");
 		ImGui::SliderFloat("Height Offset", &heightOffset, 0.0f, 0.05f);
 		ImGui::SliderFloat("UV Repeat", &uvRepeat, 0.0f, 4.0f);
-		ImGui::SliderFloat("Splat Grid Size", &splatGridSize, 0.0f, 1.0f);
+		ImGui::SliderFloat("Splat Grid Size", &splatGridSize, 0.0f, 0.1f);
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -85,7 +85,7 @@ namespace godBox
 
 		ImGui::Spacing();
 		ImGui::Text("Creases");
-		ImGui::SliderFloat("Smudge UV Strength", &smudgeUVStrength, 0.0f, 1.0f);
+		ImGui::SliderFloat("Smudge UV Strength", &smudgeUVStrength, 0.0f, 5.0f);
 		ImGui::SliderFloat("Stretch / Compress Bias", &stretchCompressBias, -1.0f, 1.0f);
 		ImGui::SliderFloat("Sample Offset##creases", &creaseSampleOffset, 0.0f, 10.0f);
 		ImGui::SliderFloat("Sample Mip##creases", &creaseSampleMip, 0.0f, 8.0f);
@@ -97,7 +97,7 @@ namespace godBox
 		ImGui::Spacing();
 		ImGui::Text("Molten");
 		ImGui::SliderFloat("Flow Speed##molten", &moltenFlowSpeed, 0.0f, 0.5f);
-		ImGui::SliderFloat("Flow Offset##molten", &moltenFlowOffset, 0.0f, 1000.0f);
+		ImGui::SliderFloat("Flow Offset##molten", &moltenFlowOffset, 0.0f, 100.0f);
 
 		ImGui::Spacing();
 		ImGui::Text("Glow");

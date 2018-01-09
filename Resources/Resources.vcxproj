@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Run\shaders\ApplyFlux.frag" />
     <None Include="..\Run\shaders\Clouds.frag" />
     <None Include="..\Run\shaders\Clouds.vert" />
     <None Include="..\Run\shaders\ComputeDivergence.frag" />

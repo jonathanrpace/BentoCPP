@@ -43,7 +43,6 @@ void main(void)
 	vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1, 0));
 	vec4 miscC = texelFetch(s_miscData, T, 0);
 	
-	float heatC = miscC.x;
 	float solidHeight = hC.x;
 	float moltenHeight = hC.y;
 	float dirtHeight = hC.z;
@@ -88,20 +87,23 @@ void main(void)
 	
 		if ( moltenHeight > 0 )
 		{
-			// Advect heat
-			float heatN = texelFetchOffset(s_miscData, T, 0, ivec2( 0,-1)).x;
-			float heatS = texelFetchOffset(s_miscData, T, 0, ivec2( 0, 1)).x;
-			float heatE = texelFetchOffset(s_miscData, T, 0, ivec2( 1, 0)).x;
-			float heatW = texelFetchOffset(s_miscData, T, 0, ivec2(-1, 0)).x;
+			// Advect heat and molten scalar
+			vec2 heatC = miscC.xy;
+			vec2 heatN = texelFetchOffset(s_miscData, T, 0, ivec2( 0,-1)).xy;
+			vec2 heatS = texelFetchOffset(s_miscData, T, 0, ivec2( 0, 1)).xy;
+			vec2 heatE = texelFetchOffset(s_miscData, T, 0, ivec2( 1, 0)).xy;
+			vec2 heatW = texelFetchOffset(s_miscData, T, 0, ivec2(-1, 0)).xy;
 		
+			float advectSpeed = 1.0;
+
 			float propC = min( 1.0, max( 0.0, hC.y - totalTo ) / moltenHeight );
 			float propN = min( 1.0, fromN / moltenHeight );
 			float propS = min( 1.0, fromS / moltenHeight );
 			float propE = min( 1.0, fromE / moltenHeight );
 			float propW = min( 1.0, fromW / moltenHeight );
-			
+
 			// New heat is the average of all the incoming heat, weighted by the proportion of the volume incoming from each direction
-			heatC = (propC * heatC) + (propN * heatN) + (propS * heatS) + (propE * heatE) + (propW * heatW);
+			miscC.xy =  mix( miscC.xy, (propC * heatC) + (propN * heatN) + (propS * heatS) + (propE * heatE) + (propW * heatW), 0.8 );
 		}
 	}
 	
@@ -131,7 +133,5 @@ void main(void)
 	}
 	
 	out_heightData = max( vec4(0.0), vec4( solidHeight, moltenHeight, dirtHeight, waterHeight ) );
-	
-	miscC.x = heatC;
 	out_miscData = miscC;
 }

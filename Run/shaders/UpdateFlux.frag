@@ -61,6 +61,15 @@ void main(void)
 	
 	// Update molten flux
 	{
+		vec4 miscData = texelFetch(s_miscData, T, 0);
+		float heat = min( miscData.x, 1.0 );
+		float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, pow( heat, 2.0 ) );
+
+		// Advect flux along itself
+		vec2 advectVector = vec2(moltenFluxC.y-moltenFluxC.x, moltenFluxC.w-moltenFluxC.z);
+		moltenFluxC = texture( s_moltenFluxData, in_uv - advectVector * 0.1 );
+
+
 		// Add slope
 		float mhC = hC.x + hC.y;
 		float mhN = hN.x + hN.y;
@@ -89,8 +98,10 @@ void main(void)
 			diffs.z += (pC - pN) * u_moltenPressureScale;
 			diffs.w += (pC - pS) * u_moltenPressureScale;
 		}
+
 		
-		moltenFluxC = max( vec4(0.0), moltenFluxC + diffs * DT );
+
+		moltenFluxC = max( vec4(0.0), moltenFluxC + diffs * DT * moltenViscosity );
 		
 		// Limit the change so we're not draining more fluid than we have
 		float scalingFactor = min( 1.0, mhC / (moltenFluxC.x + moltenFluxC.y + moltenFluxC.z + moltenFluxC.w) );
@@ -98,14 +109,12 @@ void main(void)
 		
 		// Damping
 		{
+			float damping = mix( 0.99, 1.0, heat );
+			moltenFluxC *= damping;
+
 			// Dampen to zero when no volume
-			float volumeRatio = min( 1.0, hC.y / 0.0005 );
+			float volumeRatio = min( 1.0, hC.y / 0.0001 );
 			moltenFluxC *= volumeRatio;
-			
-			// Damping based on heat/viscosity
-			float heat = texelFetch(s_miscData, T, 0).x;
-			float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, min( 1.0, heat * 0.5 ) );
-			moltenFluxC *= moltenViscosity;
 		}
 	}
 	

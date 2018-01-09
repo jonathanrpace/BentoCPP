@@ -47,7 +47,7 @@ namespace godBox
 		SerializableMember("mouseHeatStrength",		0.08f,		&m_mouseHeatStrength);
 
 		// Molten
-		SerializableMember("moltenViscosityMin",	0.5f,		&m_moltenViscosityMin);
+		SerializableMember("moltenViscosityMin",	0.0f,		&m_moltenViscosityMin);
 		SerializableMember("moltenViscosityMax",	0.5f,		&m_moltenViscosityMax);
 		SerializableMember("moltenSlopeStrength",	0.3f,		&m_moltenSlopeStrength);
 		SerializableMember("moltenDiffusionStrength",1.0f,		&m_moltenDiffusionStrength);
@@ -131,7 +131,7 @@ namespace godBox
 		ImGui::Text("Input");
 		ImGui::SliderFloat("MouseRadius", &m_mouseRadius, 0.01f, 0.5f);
 		ImGui::SliderFloat("MouseVolumeStrength", &m_mouseVolumeStrength, 0.00f, 0.01f, "%.5f");
-		ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 1.0f, "%.2f");
+		ImGui::SliderFloat("MouseHeatStrength", &m_mouseHeatStrength, 0.00f, 0.5f, "%.2f");
 		ImGui::Spacing();
 
 		ImGui::Spacing();
@@ -141,8 +141,8 @@ namespace godBox
 		ImGui::Spacing();
 
 		ImGui::Text("Molten");
-		ImGui::SliderFloat("Viscosity Min##molten", &m_moltenViscosityMin, 0.2f, 1.0f);
-		ImGui::SliderFloat("Viscosity Max##molten", &m_moltenViscosityMax, 0.2f, 1.0f);
+		ImGui::SliderFloat("Viscosity Min##molten", &m_moltenViscosityMin, 0.0f, 1.0f);
+		ImGui::SliderFloat("Viscosity Max##molten", &m_moltenViscosityMax, 0.0f, 1.0f);
 		ImGui::SliderFloat("Slope Strength##molten", &m_moltenSlopeStrength, 0.0f, 2.0f, "%.4f");
 		ImGui::SliderFloat("Diffusion##molten", &m_moltenDiffusionStrength, 0.0f, 1.0f, "%.4f");
 		ImGui::SliderFloat("Pressure Strength##molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.3f");
@@ -313,6 +313,7 @@ namespace godBox
 		float heatChangeAmount = mouseIsDown * m_mouseHeatStrength * moltenScalar;
 
 		float phaseA = fmodf( (float)glfwGetTime() * _material.moltenFlowSpeed, 1.0f );
+		float phaseAlpha = fabs( phaseA - 0.5f ) * 2.0f;	// Sawtooth
 		float phaseB = fmodf( phaseA + 0.5f, 1.0f );
 
 		bool m_phaseALatch = m_prevPhaseA > phaseA;
@@ -340,6 +341,7 @@ namespace godBox
 		fragShader.SetTexture("s_uvOffsetData",					_geom.UVOffsetData().GetRead());
 		fragShader.SetTexture("s_derivedData",					_geom.DerivedData().GetRead() );
 		fragShader.SetTexture("s_pressureData",					_geom.PressureData().GetRead() );
+		fragShader.SetTexture("s_noiseMap",						_material.lavaMat );
 
 		// Mouse
 		fragShader.SetUniform("u_mouseRadius",					m_mouseRadius);
@@ -350,6 +352,7 @@ namespace godBox
 		
 		// Environment
 		fragShader.SetUniform("u_ambientTemp",					m_ambientTemperature);
+		fragShader.SetUniform("u_phase",						phaseAlpha);
 		fragShader.SetUniform("u_phaseALatch",					m_phaseALatch);
 		fragShader.SetUniform("u_phaseBLatch",					m_phaseBLatch);
 

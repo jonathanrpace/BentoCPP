@@ -24,6 +24,7 @@ uniform sampler2D s_smudgeData;
 uniform sampler2D s_uvOffsetData;
 uniform sampler2D s_derivedData;
 uniform sampler2D s_pressureData;
+uniform sampler2D s_noiseMap;
 
 // Mouse
 uniform float u_mouseRadius;
@@ -36,6 +37,7 @@ uniform float u_mouseDirtVolumeStrength;
 uniform float u_ambientTemp;
 
 // Global
+uniform float u_phase;
 uniform bool u_phaseALatch;
 uniform bool u_phaseBLatch;
 
@@ -98,6 +100,8 @@ layout( location = 3 ) out vec4 out_uvOffsetData;
 ////////////////////////////////////////////////////////////////
 // Functions
 ////////////////////////////////////////////////////////////////
+void srand(float seed);
+float rand();
 
 ////////////////////////////////////////////////////////////////
 //
@@ -122,7 +126,9 @@ float exchangeDirt( vec4 _heightDataC, vec4 _heightDataN, float _scalar )
 ////////////////////////////////////////////////////////////////
 void main(void)
 { 
+	ivec2 S = textureSize(s_heightData, 0);
 	ivec2 T = ivec2(gl_FragCoord.xy);
+	srand( T.y * S.x + T.x );
 	
 	vec4 hC = texelFetch(s_heightData, T, 0);
 	
@@ -134,17 +140,20 @@ void main(void)
 	vec4 miscC = texelFetch(s_miscData, T, 0);
 	float heatC = miscC.x;
 	vec4 smudgeDataC = texelFetch(s_smudgeData, T, 0);
-	
+	vec4 moltenFlux = texelFetch(s_moltenFluxData, T, 0);
+	vec2 moltenVelocity = vec2(moltenFlux.y-moltenFlux.x, moltenFlux.w-moltenFlux.z);
+
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
 	{
-		float condensedAmount = u_condenseSpeed * hC.y * 0.01;
+		float condenseSpeed = mix( 1.0, u_condenseSpeed * 0.00001, pow( min(heatC, 1.0), 0.1 ) );
+		float condensedAmount = condenseSpeed * hC.y;
 		moltenHeight -= condensedAmount;
 		solidHeight += condensedAmount;
 		
 		float heatRatio = min( miscC.x, 1.0 );
-		float meltAmount = heatRatio * u_meltSpeed * hC.x * 0.01;
+		float meltAmount = heatRatio * u_meltSpeed * hC.x * 0.00001;
 		moltenHeight += meltAmount;
 		solidHeight -= meltAmount;
 	}
@@ -156,10 +165,10 @@ void main(void)
 		float coolingRatio = 1.0 - mix( 0.0, 0.9, texelFetch(s_derivedData, T, 1).x );
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed * coolingRatio;
 		
-		// Cool more when no volume
-		if ( moltenHeight < 0.0005 )
+		// Cool more when no volume // TODO MAKE THIS FLUX DEPENDANT TOO.
+		if ( moltenHeight < 0.0001 )
 		{
-			heatC *= 0.995f;
+			heatC *= 0.99f;
 		}
 	}
 	
@@ -182,10 +191,8 @@ void main(void)
 				uvOffsetB *= 0.0;
 			}
 			
-			vec4 flux = texelFetch(s_moltenFluxData, T, 0);
-			vec2 velocity = vec2(flux.y-flux.x, flux.w-flux.z);
-			uvOffsetA += velocity;// * 0.01;
-			uvOffsetB += velocity;// * 0.01;
+			uvOffsetA += moltenVelocity;
+			uvOffsetB += moltenVelocity;
 			
 			uvOffsetDataC = vec4( uvOffsetA, uvOffsetB );
 		}
@@ -193,7 +200,6 @@ void main(void)
 		out_uvOffsetData = uvOffsetDataC;
 	}
 
-	
 	////////////////////////////////////////////////////////////////
 	// Update dirt
 	////////////////////////////////////////////////////////////////
@@ -358,7 +364,7 @@ void main(void)
 		out_miscData.z = dissolvedDirt;
 	}
 	*/
-	
+
 	//////////////////////////////////////////////////////////////////////////////////
 	// SMUDGE MAP
 	//////////////////////////////////////////////////////////////////////////////////
@@ -371,7 +377,7 @@ void main(void)
 			dp = -1.0;
 
 		float ratio = (dp + 1.0) * 0.5;
-		smudgeDataC.xy += velocity * u_smudgeChangeRate;
+		smudgeDataC.xy += velocity * u_smudgeChangeRate * 10.0;
 
 
 		float pressure = texelFetch(s_pressureData, T, 0).x * 1000;
@@ -391,15 +397,29 @@ void main(void)
 	// Input
 	////////////////////////////////////////////////////////////////
 	{
+		vec4 noiseSample = texture( s_noiseMap, (in_uv / u_mouseRadius) * 0.1 + u_phase * vec2(0.01,0.0) );
+		float noise = noiseSample.a;
+
 		vec2 mousePos = GetMousePos();
-		float mouseRatio = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
-		float mouseScalar = pow(mouseRatio, 1.0);
-		float volumeStrength = mouseScalar * u_mouseMoltenVolumeStrength;
-		heatC += mouseScalar * u_mouseMoltenHeatStrength * 0.4; //* mix( 0.5, 1.0, rand() );
-		moltenHeight += mouseScalar * u_mouseMoltenVolumeStrength * 0.5;
-		solidHeight += mouseScalar * u_mouseDirtVolumeStrength * 0.5;
-		waterHeight += mouseScalar * u_mouseWaterVolumeStrength * 0.5;
+		float mouseScalar = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
+		mouseScalar *= 0.5;
 		
+
+		heatC += pow( mouseScalar, 0.2 ) * u_mouseMoltenHeatStrength * mix( 0.01, 1.0, pow( noise, 4.0 ) );
+
+		float moltenAddition = mouseScalar * u_mouseMoltenVolumeStrength * mix( 0.01, 1.0, pow( noise, 4.0 ) );
+		moltenHeight += moltenAddition;
+		solidHeight += mouseScalar * u_mouseMoltenVolumeStrength * mix( 0.1, 0.0, noise );
+
+
+
+		waterHeight += mouseScalar * u_mouseWaterVolumeStrength;
+		solidHeight += mouseScalar * u_mouseDirtVolumeStrength;
+
+		
+		//float moltenScalar = mix( 0.0, 1.0, rand() );
+		//moltenScalar = pow( moltenScalar, mix( 8.0, 32.0, u_phase ) );
+		//miscC.y = mix( miscC.y, moltenScalar, pow( mouseScalar * u_mouseMoltenHeatStrength * u_mouseMoltenVolumeStrength, 0.5 ) );
 		/*
 		{
 			float dirtHeight = out_heightData.z;

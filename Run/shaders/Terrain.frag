@@ -215,8 +215,8 @@ vec2 getSplatUV( ivec2 _igridCoord, vec2 _offset, float _gridSize )
 	// Rotate, squeeze then rotate back
 	uv = rotateVec2( uv, smudgeAngle );
 	uv.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
-	uv.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	//uv.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	//uv.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
+	uv.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio*0.2);
 	uv = rotateVec2( uv, -smudgeAngle );
 
 	// Offset
@@ -276,7 +276,7 @@ void main(void)
 	// Common values
 	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
-	float moltenRatio = 1.0 - ( min( in_miscData.x / 0.5, 1.0 ) );
+	float moltenRatio = ( min( in_miscData.x / 1.5, 1.0 ) );
 
 	// Rock material
 	vec3 rockAlbedo = degamma( samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgb ) * (1.0+u_rockReflectivity*10.0);
@@ -284,7 +284,7 @@ void main(void)
 	vec3 rockSpecularColor = vec3(0.0);
 
 	vec3 rockNormal = in_rockNormal;
-	float rockHeight = rockMaterialParams.a * u_rockNormalStrength * mix( 0.015, 0.01, moltenRatio );
+	float rockHeight = rockMaterialParams.a * u_rockNormalStrength * mix( 0.01, 0.015, moltenRatio );
 	rockNormal = CalculateSurfaceNormal( in_worldPosition, rockNormal, rockHeight );
 
 	// Dirt material
@@ -306,11 +306,11 @@ void main(void)
 	vec4 materialParams = mix( rockMaterialParams, dirtMaterialParams, dirtBlendAlpha );
 
 	// Make albedo/specular darker when hot
-	specularColor *= moltenRatio;
-	albedo *= moltenRatio;
-		
+	specularColor *= 1.0-moltenRatio;
+	albedo *= 1.0-moltenRatio;
+
 	// Lighting
-	float roughness = mix( 0.3, 1.0, moltenRatio ); // * materialParams.r;
+	float roughness = mix( mix(1.0, 0.0, in_miscData.y * 2.0), 0.4, moltenRatio ); // * materialParams.r;
 	float textureAO = materialParams.g;
 
 	//vec3 lightColor = vec3(1.0,1.0,1.0);
@@ -349,18 +349,22 @@ void main(void)
 
 	// Add emissve elements
 	float moltenMap = rockMaterialParams.b;
-	float heat = pow(clamp(in_miscData.x * 0.5, 0.0, 2.0), 0.2) * in_miscData.x * 0.1;
+	float heatRatio = in_miscData.x;
+	float heat = pow(clamp(heatRatio * 0.5, 0.0, 2.0), 0.2) * heatRatio * 0.1;
 	heat = min(1.0, heat);
 	float moltenAlphaA = pow( moltenMap, mix( 1.5, 0.4, heat ) ) * heat;
 	float moltenAlphaB = pow( moltenMap, 2.5 ) * (1.0 - heat) * heat * 6;
 	float moltenAlpha = clamp( moltenAlphaA + moltenAlphaB, 0.0, 1.0 );
 	
 	vec3 moltenColor = degamma( texture(s_moltenGradient, vec2(moltenAlpha * 0.96, 0.5)).rgb );
-	moltenColor *= 1.0 + max(in_miscData.x, 0.0);
-	
-	
-	
+	moltenColor *= 1.0 + max(heatRatio, 0.0);
+
+	//moltenColor *= mix( 0.5, 1.0, in_miscData.y);
+
 	outColor += moltenColor;
+
+	//outColor = vec3( in_miscData.y );
+
 	out_worldNormal = vec4(normal, 0.0);
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
