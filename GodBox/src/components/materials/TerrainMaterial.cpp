@@ -85,7 +85,7 @@ namespace godBox
 
 		ImGui::Spacing();
 		ImGui::Text("Creases");
-		ImGui::SliderFloat("Smudge UV Strength", &smudgeUVStrength, 0.0f, 5.0f);
+		ImGui::SliderFloat("Smudge UV Strength", &smudgeUVStrength, 0.0f, 25.0f);
 		ImGui::SliderFloat("Stretch / Compress Bias", &stretchCompressBias, -1.0f, 1.0f);
 		ImGui::SliderFloat("Sample Offset##creases", &creaseSampleOffset, 0.0f, 10.0f);
 		ImGui::SliderFloat("Sample Mip##creases", &creaseSampleMip, 0.0f, 8.0f);

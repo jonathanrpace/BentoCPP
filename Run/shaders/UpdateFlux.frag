@@ -25,9 +25,10 @@ uniform sampler2D s_pressureData;
 
 // Molten
 uniform vec2 u_moltenViscosity;
+uniform vec2 u_moltenDamping;
 uniform float u_moltenSlopeStrength;
 uniform float u_moltenPressureScale;
-//uniform float u_moltenFluxDamping;
+uniform float u_moltenLimit = 0.9;		// This value controls the shape of waves.
 
 // Water
 uniform float u_waterViscosity;
@@ -62,13 +63,8 @@ void main(void)
 	// Update molten flux
 	{
 		vec4 miscData = texelFetch(s_miscData, T, 0);
-		float heat = min( miscData.x, 1.0 );
-		float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, pow( heat, 2.0 ) );
-
-		// Advect flux along itself
-		vec2 advectVector = vec2(moltenFluxC.y-moltenFluxC.x, moltenFluxC.w-moltenFluxC.z);
-		moltenFluxC = texture( s_moltenFluxData, in_uv - advectVector * 0.1 );
-
+		float heat = miscData.x;
+		float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, pow( heat, 0.5 ) );
 
 		// Add slope
 		float mhC = hC.x + hC.y;
@@ -99,17 +95,15 @@ void main(void)
 			diffs.w += (pC - pS) * u_moltenPressureScale;
 		}
 
-		
-
 		moltenFluxC = max( vec4(0.0), moltenFluxC + diffs * DT * moltenViscosity );
 		
 		// Limit the change so we're not draining more fluid than we have
-		float scalingFactor = min( 1.0, mhC / (moltenFluxC.x + moltenFluxC.y + moltenFluxC.z + moltenFluxC.w) );
+		float scalingFactor = min( 1.0, mhC / (moltenFluxC.x + moltenFluxC.y + moltenFluxC.z + moltenFluxC.w) * u_moltenLimit );
 		moltenFluxC *= scalingFactor;
 		
 		// Damping
 		{
-			float damping = mix( 0.99, 1.0, heat );
+			float damping = mix( u_moltenDamping.x, u_moltenDamping.y, pow( heat, 0.5 ) );
 			moltenFluxC *= damping;
 
 			// Dampen to zero when no volume

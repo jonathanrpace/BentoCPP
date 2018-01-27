@@ -123,8 +123,8 @@ namespace godBox
 		float m_mouseHeatStrength;
 
 		// Molten
-		float m_moltenViscosityMin;
-		float m_moltenViscosityMax;
+		vec2 m_moltenViscosity;
+		vec2 m_moltenDamping;
 		float m_moltenSlopeStrength;
 		float m_moltenDiffusionStrength;
 		float m_moltenPressureStrength;

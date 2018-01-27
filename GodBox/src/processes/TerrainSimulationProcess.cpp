@@ -42,58 +42,58 @@ namespace godBox
 		m_nodeGroup.NodeRemoved += OnNodeRemovedDelegate;
 	
 		// Input
-		SerializableMember("mouseRadius",			0.1f,		&m_mouseRadius);
-		SerializableMember("mouseVolumeStrength",	0.002f,		&m_mouseVolumeStrength);
-		SerializableMember("mouseHeatStrength",		0.08f,		&m_mouseHeatStrength);
+		SerializableMember("mouseRadius",			0.1f,			&m_mouseRadius);
+		SerializableMember("mouseVolumeStrength",	0.002f,			&m_mouseVolumeStrength);
+		SerializableMember("mouseHeatStrength",		0.08f,			&m_mouseHeatStrength);
 
 		// Molten
-		SerializableMember("moltenViscosityMin",	0.0f,		&m_moltenViscosityMin);
-		SerializableMember("moltenViscosityMax",	0.5f,		&m_moltenViscosityMax);
-		SerializableMember("moltenSlopeStrength",	0.3f,		&m_moltenSlopeStrength);
-		SerializableMember("moltenDiffusionStrength",1.0f,		&m_moltenDiffusionStrength);
-		SerializableMember("moltenPressureStrength",1.0,		&m_moltenPressureStrength);
-		SerializableMember("meltSpeed",				0.01f,		&m_meltSpeed);
-		SerializableMember("condenseSpeed",			0.01f,		&m_condenseSpeed);
-		SerializableMember("tempChangeSpeed",		0.002f,		&m_tempChangeSpeed);
-		SerializableMember("smudgeChangeRate",		0.01f,		&m_smudgeChangeRate);
+		SerializableMember("moltenViscosity",		vec2(0.5,0.5),	&m_moltenViscosity);
+		SerializableMember("moltenDamping",			vec2(1.0,1.0),	&m_moltenDamping);
+		SerializableMember("moltenSlopeStrength",	0.3f,			&m_moltenSlopeStrength);
+		SerializableMember("moltenDiffusionStrength",1.0f,			&m_moltenDiffusionStrength);
+		SerializableMember("moltenPressureStrength",1.0,			&m_moltenPressureStrength);
+		SerializableMember("meltSpeed",				0.01f,			&m_meltSpeed);
+		SerializableMember("condenseSpeed",			0.01f,			&m_condenseSpeed);
+		SerializableMember("tempChangeSpeed",		0.002f,			&m_tempChangeSpeed);
+		SerializableMember("smudgeChangeRate",		0.01f,			&m_smudgeChangeRate);
 	
 		// Water
-		SerializableMember("waterViscosity",		0.25f,		&m_waterViscosity);
-		SerializableMember("waterSlopeStrength",	0.3f,		&m_waterSlopeStrength);
-		SerializableMember("waterBoilingPoint",		0.1f,		&m_waterBoilingPoint);
-		SerializableMember("waterFreezingPoint",	0.0f,		&m_waterFreezingPoint);
-		SerializableMember("evapourationRate",		0.0f,		&m_evapourationRate);
-		SerializableMember("rainRate",				0.0f,		&m_rainRate);
-		SerializableMember("boilSpeed",				0.001f,		&m_boilSpeed);
-		SerializableMember("drainRate",				0.0f,		&m_drainRate);
-		SerializableMember("drainMaxDepth",			0.01f,		&m_drainMaxDepth);
+		SerializableMember("waterViscosity",		0.25f,			&m_waterViscosity);
+		SerializableMember("waterSlopeStrength",	0.3f,			&m_waterSlopeStrength);
+		SerializableMember("waterBoilingPoint",		0.1f,			&m_waterBoilingPoint);
+		SerializableMember("waterFreezingPoint",	0.0f,			&m_waterFreezingPoint);
+		SerializableMember("evapourationRate",		0.0f,			&m_evapourationRate);
+		SerializableMember("rainRate",				0.0f,			&m_rainRate);
+		SerializableMember("boilSpeed",				0.001f,			&m_boilSpeed);
+		SerializableMember("drainRate",				0.0f,			&m_drainRate);
+		SerializableMember("drainMaxDepth",			0.01f,			&m_drainMaxDepth);
 
 		// Dirt
-		SerializableMember("dirtViscosity",			0.2f,		&m_dirtViscosity);
-		SerializableMember("dirtMaxAngle",			0.2f,		&m_dirtMaxSlope);
-		SerializableMember("dirtDensity",			0.5f,		&m_dirtDensity);
+		SerializableMember("dirtViscosity",			0.2f,			&m_dirtViscosity);
+		SerializableMember("dirtMaxAngle",			0.2f,			&m_dirtMaxSlope);
+		SerializableMember("dirtDensity",			0.5f,			&m_dirtDensity);
 
 		// Foam
-		SerializableMember("foamSpawnStrength",		1.0f,		&m_foamSpawnStrength);
-		SerializableMember("foamDecayRate",			0.95f,		&m_foamDecayRate);
+		SerializableMember("foamSpawnStrength",		1.0f,			&m_foamSpawnStrength);
+		SerializableMember("foamDecayRate",			0.95f,			&m_foamDecayRate);
 
 		// Erosion
-		SerializableMember("erosionStrength",		0.0f,		&m_erosionStrength);
-		SerializableMember("erosionDirtDepthMax",	0.01f,		&m_erosionDirtDepthMax);
-		SerializableMember("erosionWaterDepthMin",	0.01f,		&m_erosionWaterDepthMin);
-		SerializableMember("erosionWaterDepthMax",	0.01f,		&m_erosionWaterDepthMax);
-		SerializableMember("erosionWaterSpeedMax",	0.01f,		&m_erosionWaterSpeedMax);
+		SerializableMember("erosionStrength",		0.0f,			&m_erosionStrength);
+		SerializableMember("erosionDirtDepthMax",	0.01f,			&m_erosionDirtDepthMax);
+		SerializableMember("erosionWaterDepthMin",	0.01f,			&m_erosionWaterDepthMin);
+		SerializableMember("erosionWaterDepthMax",	0.01f,			&m_erosionWaterDepthMax);
+		SerializableMember("erosionWaterSpeedMax",	0.01f,			&m_erosionWaterSpeedMax);
 	
 		// Dirt transport
-		SerializableMember("dirtTransportSpeed",	0.0f,		&m_dirtTransportSpeed);
-		SerializableMember("dirtPickupRate",		0.0f,		&m_dirtPickupRate);
-		SerializableMember("dirtPickupMinWaterSpeed",1.0f,		&m_dirtPickupMinWaterSpeed);
-		SerializableMember("dirtDepositSpeed",		0.0f,		&m_dirtDepositSpeed);
-		SerializableMember("waterDiffuseStrength",	0.00f,		&m_dissolvedDirtSmoothing);
+		SerializableMember("dirtTransportSpeed",	0.0f,			&m_dirtTransportSpeed);
+		SerializableMember("dirtPickupRate",		0.0f,			&m_dirtPickupRate);
+		SerializableMember("dirtPickupMinWaterSpeed",1.0f,			&m_dirtPickupMinWaterSpeed);
+		SerializableMember("dirtDepositSpeed",		0.0f,			&m_dirtDepositSpeed);
+		SerializableMember("waterDiffuseStrength",	0.00f,			&m_dissolvedDirtSmoothing);
 	
 		// Global
-		SerializableMember("ambientTemperature",	0.05f,		&m_ambientTemperature);
-		SerializableMember("timeStep",				1.0f,		&m_timeStep);
+		SerializableMember("ambientTemperature",	0.05f,			&m_ambientTemperature);
+		SerializableMember("timeStep",				1.0f,			&m_timeStep);
 
 		ResetToDefaults();
 	}
@@ -141,8 +141,8 @@ namespace godBox
 		ImGui::Spacing();
 
 		ImGui::Text("Molten");
-		ImGui::SliderFloat("Viscosity Min##molten", &m_moltenViscosityMin, 0.0f, 1.0f);
-		ImGui::SliderFloat("Viscosity Max##molten", &m_moltenViscosityMax, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Viscosity##molten", &m_moltenViscosity.x, 0.0f, 1.0f);
+		ImGui::SliderFloat2("Damping##molten", &m_moltenDamping.x, 0.9f, 1.0f);
 		ImGui::SliderFloat("Slope Strength##molten", &m_moltenSlopeStrength, 0.0f, 2.0f, "%.4f");
 		ImGui::SliderFloat("Diffusion##molten", &m_moltenDiffusionStrength, 0.0f, 1.0f, "%.4f");
 		ImGui::SliderFloat("Pressure Strength##molten", &m_moltenPressureStrength, 0.0f, 1.0f, "%.3f");
@@ -279,7 +279,8 @@ namespace godBox
 		fragShader.SetTexture( "s_pressureData",				_geom.PressureData().GetRead() );
 	
 		// Molten
-		fragShader.SetUniform("u_moltenViscosity",				vec2(m_moltenViscosityMin, m_moltenViscosityMax));
+		fragShader.SetUniform("u_moltenViscosity",				m_moltenViscosity);
+		fragShader.SetUniform("u_moltenDamping",				m_moltenDamping);
 		fragShader.SetUniform("u_moltenSlopeStrength",			m_moltenSlopeStrength);
 		fragShader.SetUniform("u_moltenPressureScale",			m_moltenPressureStrength );
 		
@@ -321,6 +322,8 @@ namespace godBox
 		m_prevPhaseA = phaseA;
 		m_prevPhaseB = phaseB;
 
+		float cellSize = _geom.Size() / (float)_geom.NumVerticesPerDimension();
+		
 
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
 		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
@@ -331,6 +334,8 @@ namespace godBox
 
 		m_updateDataShader.BindPerPass();
 		UpdateTerrainDataFrag& fragShader = m_updateDataShader.FragmentShader();
+
+		fragShader.SetUniform("u_cellSize",						cellSize);
 
 		// Samplers
 		fragShader.SetTexture("s_heightData",					_geom.HeightData().GetRead());

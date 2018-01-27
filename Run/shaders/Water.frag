@@ -176,6 +176,7 @@ void main(void)
 	vec3 bitangent = -cross(normal, tangent);
 	
 	// Peturb normal by wave map
+	if ( false )
 	{
 		vec2 uvA = in_uv - u_phaseA * in_waterVelocity * u_waterFlowOffset;
 		vec2 uvB = in_uv - u_phaseB * in_waterVelocity * u_waterFlowOffset;
@@ -293,6 +294,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Local glow
 	////////////////////////////////////////////////////////////////
+	/*
 	vec3 heatLight = vec3(0.0);
 	{
 		vec3 sampleOffset = normalize( vec3( normal.x, 0.0, normal.z ) );
@@ -315,6 +317,7 @@ void main(void)
 		heatLight += sampleHeatLight;
 	}
 	outColor += heatLight;
+	*/
 
 	////////////////////////////////////////////////////////////////
 	// Debug

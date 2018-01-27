@@ -49,7 +49,6 @@ void main(void)
 	float waterHeight = hC.w;
 	
 	// Diffuse molten volume between cells using a volume preserving blur
-	/*
 	{
 		vec4 heightC = vec4( solidHeight + moltenHeight );
 		vec4 heightN = vec4( hW.x + hW.y, hE.x + hE.y, hN.x + hN.y, hS.x + hS.y );
@@ -59,7 +58,6 @@ void main(void)
 		moltenHeight += (clampedDiffs.x + clampedDiffs.y + clampedDiffs.z + clampedDiffs.w) * DT;
 		moltenHeight = max(0.0, moltenHeight);
 	}
-	*/
 	
 	// Update molten heights and heat based on flux
 	{
@@ -85,6 +83,7 @@ void main(void)
 		moltenHeight += totalFrom;
 		moltenHeight -= totalTo;
 	
+		float advectSpeed = 0.2;
 		if ( moltenHeight > 0 )
 		{
 			// Advect heat and molten scalar
@@ -94,16 +93,15 @@ void main(void)
 			vec2 heatE = texelFetchOffset(s_miscData, T, 0, ivec2( 1, 0)).xy;
 			vec2 heatW = texelFetchOffset(s_miscData, T, 0, ivec2(-1, 0)).xy;
 		
-			float advectSpeed = 1.0;
+			float propC = hC.y > 0.002 ? min( 1.0, totalTo / hC.y ) : 0.0;
+			miscC.xy -= propC * heatC * advectSpeed;
+			
+			float propN = hN.y > 0.002 ? min( 1.0, fromN / hN.y ) : 0.0;
+			float propS = hS.y > 0.002 ? min( 1.0, fromS / hS.y ) : 0.0;
+			float propE = hE.y > 0.002 ? min( 1.0, fromE / hE.y ) : 0.0;
+			float propW = hW.y > 0.002 ? min( 1.0, fromW / hW.y ) : 0.0;
 
-			float propC = min( 1.0, max( 0.0, hC.y - totalTo ) / moltenHeight );
-			float propN = min( 1.0, fromN / moltenHeight );
-			float propS = min( 1.0, fromS / moltenHeight );
-			float propE = min( 1.0, fromE / moltenHeight );
-			float propW = min( 1.0, fromW / moltenHeight );
-
-			// New heat is the average of all the incoming heat, weighted by the proportion of the volume incoming from each direction
-			miscC.xy =  mix( miscC.xy, (propC * heatC) + (propN * heatN) + (propS * heatS) + (propE * heatE) + (propW * heatW), 0.8 );
+			miscC.xy += ((propN * heatN) + (propS * heatS) + (propE * heatE) + (propW * heatW)) * advectSpeed;
 		}
 	}
 	
