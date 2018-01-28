@@ -121,6 +121,6 @@ namespace bento
 
 	void OrbitCamera::OnScroll(double _x, double _y)
 	{
-		m_dollyTarget -= _y * m_dollySpeed;
+		m_dollyTarget -= (float)_y * m_dollySpeed;
 	}
 }

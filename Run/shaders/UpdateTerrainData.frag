@@ -43,6 +43,7 @@ uniform bool u_phaseALatch;
 uniform bool u_phaseBLatch;
 
 // Molten
+uniform float u_moltenMinHeat;
 uniform float u_tempChangeSpeed;
 uniform float u_meltSpeed;
 uniform float u_condenseSpeed;
@@ -129,6 +130,9 @@ float exchangeDirt( vec4 _heightDataC, vec4 _heightDataN, float _scalar )
 void main(void)
 { 
 	ivec2 S = textureSize(s_heightData, 0);
+
+	float cellSize = 1.0 / float(S.x);
+
 	ivec2 T = ivec2(gl_FragCoord.xy);
 	srand( T.y * S.x + T.x );
 	
@@ -141,19 +145,21 @@ void main(void)
 	
 	vec4 miscC = texelFetch(s_miscData, T, 0);
 	float heatC = miscC.x;
+
 	vec4 smudgeDataC = texelFetch(s_smudgeData, T, 0);
 	vec4 moltenFlux = texelFetch(s_moltenFluxData, T, 0);
-	vec2 moltenVelocity = vec2(moltenFlux.y-moltenFlux.x, moltenFlux.w-moltenFlux.z);
-	moltenVelocity /= max( moltenHeight * 0.1, 0.001 );
-	moltenVelocity *= 0.0005;
+	vec2 moltenVelocity = vec2(moltenFlux.y-moltenFlux.x, moltenFlux.w-moltenFlux.z) * 50.0;
+	moltenVelocity *= cellSize;
 	float moltenVelocityLength = length(moltenVelocity);
-	moltenVelocity *=  min( 1.0, (u_cellSize * 1.0) / max( moltenVelocityLength, 0.0001 ) );
+	moltenVelocity *=  min( 1.0, cellSize / max( moltenVelocityLength, 0.0001 ) );
 
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
 	////////////////////////////////////////////////////////////////
 	{
-		float condenseSpeed = mix( u_condenseSpeed, 0.0, min(heatC, 1.0) );
+		float condenseRatio = 1.0 - min( heatC / u_moltenMinHeat, 1.0 );
+		float condenseSpeed = condenseRatio * u_condenseSpeed;
+		
 		float condensedAmount = condenseSpeed * hC.y;
 		moltenHeight -= condensedAmount;
 		solidHeight += condensedAmount;
@@ -185,6 +191,10 @@ void main(void)
 	{
 		float coolingRatio = 1.0 - mix( 0.0, 0.9, texelFetch(s_derivedData, T, 1).x );
 		heatC += (u_ambientTemp - heatC) * u_tempChangeSpeed * coolingRatio;
+
+		// Cool to zero when no molten
+		float volumeRatio = min( 1.0, hC.y / 0.0001 );
+		heatC -= (1.0-volumeRatio) * heatC * 0.01;
 	}
 	
 

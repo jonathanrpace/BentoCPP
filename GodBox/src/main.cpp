@@ -54,6 +54,9 @@
 #include <components/materials/SmokeParticleMaterial.h>
 #include <components/materials/CloudMaterial.h>
 
+// Sim
+#include <components/simulation/TerrainSimulation.h>
+
 using namespace bento;
 using namespace godBox;
 
@@ -83,6 +86,9 @@ void mainLoop(GLFWwindow* window)
 		scene.AddComponentToEntity(waterMaterial, entity);
 		auto steamMaterial = SmokeParticleMaterial::Create();
 		scene.AddComponentToEntity(steamMaterial, entity);
+
+		auto terrainSim = TerrainSimulation::Create();
+		scene.AddComponentToEntity(terrainSim, entity);
 
 		//auto foamParticleGeom = FoamParticleGeom::Create();
 		//scene.AddComponentToEntity(foamParticleGeom, entity);

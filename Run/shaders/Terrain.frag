@@ -260,8 +260,8 @@ vec4 sampleSplatMap( sampler2D _sampler, vec2 _uv, float _gridSize )
 
 vec4 samplePhasedMap( sampler2D _sampler, sampler2D _heightSampler, vec2 _uv, vec4 _uvOffset )
 {
-	vec2 uvA = (_uv ) - _uvOffset.xy * u_flowOffset;
-	vec2 uvB = (_uv ) - _uvOffset.zw * u_flowOffset;
+	vec2 uvA = (_uv ) - _uvOffset.xy;
+	vec2 uvB = (_uv ) - _uvOffset.zw;
 
 	vec4 sampleA = sampleSplatMap( _sampler, uvA, u_splatGridSize );
 	vec4 sampleB = sampleSplatMap( _sampler, uvB, u_splatGridSize );
