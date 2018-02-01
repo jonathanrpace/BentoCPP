@@ -292,7 +292,7 @@
             "x": 0.999000072479248,
             "y": 0.999000072479248
         },
-        "moltenDiffusionStrength": 0.045499999076128,
+        "moltenDiffusionStrength": 0.0,
         "moltenPressureStrength": 0.0,
         "moltenSlopeStrength": 0.300000011920929,
         "moltenViscosity": {
@@ -300,14 +300,14 @@
             "y": 1.0
         },
         "mouseHeatStrength": 0.239999994635582,
-        "mouseRadius": 0.0670000016689301,
-        "mouseVolumeStrength": 0.00027999997837469,
+        "mouseRadius": 0.0400000028312206,
+        "mouseVolumeStrength": 0.00338999996893108,
         "rainRate": 0.0,
         "smudgeChangeRate": 5.28225994110107,
         "tempChangeSpeed": 0.0,
         "waterBoilingPoint": 0.100000001490116,
         "waterFreezingPoint": 0.0,
-        "waterSlopeStrength": 0.300000011920929,
+        "waterSlopeStrength": 0.991899967193604,
         "waterViscosity": 1.0
     },
     "TerrainSimulationProcess": {

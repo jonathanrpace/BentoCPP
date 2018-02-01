@@ -390,8 +390,7 @@ void main(void)
 	*/
 
 	/*
-	//vec4 pressureSample = texture( s_pressureData, in_uv ) * 10000.0;
-	vec4 pressureSample = in_smudgeData.wwww;
+	vec4 pressureSample = texture( s_pressureData, in_uv ) * 10000.0;
 	pressureSample += 0.5;
 	out_forward = pow( vec4( pressureSample ), vec4(2.2) );
 	*/

@@ -341,7 +341,7 @@ namespace godBox
 		// This output is then consumed by a 'jacobi' iterative pass that progressively calculates the pressure created
 		// by the divergence. This pressure gradient is then used to affect velocity during update data
 		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
-		for (int i = 0; i < 40; ++i) 
+		for (int i = 0; i < 2; ++i) 
 		{
 			Jacobi(_renderTarget, _geom.PressureData().GetRead(), _geom.DivergenceData(), cellSize, _geom.PressureData().GetWrite());
 			_geom.PressureData().Swap();

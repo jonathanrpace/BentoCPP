@@ -56,7 +56,8 @@ void main(void)
 	vec4 hS = texelFetchOffset(s_heightData, T, 0, ivec2( 0, 1));
 	vec4 hE = texelFetchOffset(s_heightData, T, 0, ivec2( 1, 0));
 	vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1, 0));
-	
+	float pressureRatioC = clamp( texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  0)).x * 10000.0, 0.0, 1.0 );
+
 	vec4 moltenFluxC = texelFetch(s_moltenFluxData, T, 0);
 	vec4 waterFluxC = texelFetch(s_waterFluxData, T, 0);
 	
@@ -64,7 +65,7 @@ void main(void)
 	{
 		vec4 miscData = texelFetch(s_miscData, T, 0);
 
-		float heatRatio = max( miscData.x - u_moltenMinHeat, 0.0 ) / ( 1.0 - u_moltenMinHeat );
+		float heatRatio = max( (miscData.x + pressureRatioC) - u_moltenMinHeat, 0.0 ) / ( 1.0 - u_moltenMinHeat );
 
 		float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, heatRatio );
 
@@ -78,6 +79,7 @@ void main(void)
 		diffs *= u_moltenSlopeStrength;
 		
 		// Add pressure gradient
+		/*
 		{
 			float pC = texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  0)).x * 10000.0;
 			float pN = texelFetchOffset(s_pressureData, T, 0, ivec2( 0, -1)).x * 10000.0;
@@ -96,11 +98,12 @@ void main(void)
 			diffs.z += (pC - pN) * u_moltenPressureScale;
 			diffs.w += (pC - pS) * u_moltenPressureScale;
 		}
+		*/
 
 		moltenFluxC = max( vec4(0.0), moltenFluxC + diffs * DT * moltenViscosity );
 		
 		// Limit the change so we're not draining more fluid than we have
-		float scalingFactor = min( 1.0, mhC / (moltenFluxC.x + moltenFluxC.y + moltenFluxC.z + moltenFluxC.w) );
+		float scalingFactor = min( 1.0, mhC / (moltenFluxC.x + moltenFluxC.y + moltenFluxC.z + moltenFluxC.w) * 0.5 );
 		moltenFluxC *= scalingFactor;
 		
 		// Damping
