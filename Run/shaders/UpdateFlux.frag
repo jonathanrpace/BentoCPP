@@ -77,6 +77,42 @@ void main(void)
 		float mhW = hW.x + hW.y;
 		vec4 diffs = vec4( mhC - mhW, mhC - mhE, mhC - mhN, mhC - mhS );
 		diffs *= u_moltenSlopeStrength;
+
+		/* Advect neighbour flux to this cell */
+		{
+			vec4 fluxC = texelFetch(s_moltenFluxData, T, 0);
+			vec4 fluxN = texelFetchOffset(s_moltenFluxData, T, 0, ivec2( 0,-1));
+			vec4 fluxS = texelFetchOffset(s_moltenFluxData, T, 0, ivec2( 0, 1));
+			vec4 fluxE = texelFetchOffset(s_moltenFluxData, T, 0, ivec2( 1, 0));
+			vec4 fluxW = texelFetchOffset(s_moltenFluxData, T, 0, ivec2(-1, 0));
+		
+			float toN = min( fluxC.z, hC.y ) * DT;
+			float toS = min( fluxC.w, hC.y ) * DT;
+			float toE = min( fluxC.y, hC.y ) * DT;
+			float toW = min( fluxC.x, hC.y ) * DT;
+			float totalTo = (toN + toS + toE + toW);
+
+			float propC = hC.y > 0.002 ? min( 1.0, totalTo / hC.y ) : 0.0;
+
+			float advectSpeed = 0.99;
+			moltenFluxC -= propC * moltenFluxC * advectSpeed;
+
+			float fromN = min( fluxN.w, hN.y ) * DT;
+			float fromS = min( fluxS.z, hS.y ) * DT;
+			float fromE = min( fluxE.x, hE.y ) * DT;
+			float fromW = min( fluxW.y, hW.y ) * DT;
+
+			float propN = hN.y > 0.002 ? min( 1.0, fromN / hN.y ) : 0.0;
+			float propS = hS.y > 0.002 ? min( 1.0, fromS / hS.y ) : 0.0;
+			float propE = hE.y > 0.002 ? min( 1.0, fromE / hE.y ) : 0.0;
+			float propW = hW.y > 0.002 ? min( 1.0, fromW / hW.y ) : 0.0;
+
+			moltenFluxC += (propN * fluxN) * advectSpeed;
+			moltenFluxC += (propS * fluxS) * advectSpeed;
+			moltenFluxC += (propE * fluxE) * advectSpeed;
+			moltenFluxC += (propW * fluxW) * advectSpeed;
+		}
+		
 		
 		// Add pressure gradient
 		/*
@@ -103,7 +139,7 @@ void main(void)
 		moltenFluxC = max( vec4(0.0), moltenFluxC + diffs * DT * moltenViscosity );
 		
 		// Limit the change so we're not draining more fluid than we have
-		float scalingFactor = min( 1.0, mhC / (moltenFluxC.x + moltenFluxC.y + moltenFluxC.z + moltenFluxC.w) * 0.5 );
+		float scalingFactor = min( 1.0, mhC / (moltenFluxC.x + moltenFluxC.y + moltenFluxC.z + moltenFluxC.w) * 1.0 );
 		moltenFluxC *= scalingFactor;
 		
 		// Damping

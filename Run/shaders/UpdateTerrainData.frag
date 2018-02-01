@@ -148,10 +148,10 @@ void main(void)
 
 	vec4 smudgeDataC = texelFetch(s_smudgeData, T, 0);
 	vec4 moltenFlux = texelFetch(s_moltenFluxData, T, 0);
-	vec2 moltenVelocity = vec2(moltenFlux.y-moltenFlux.x, moltenFlux.w-moltenFlux.z) * 50.0;
+	vec2 moltenVelocity = vec2(moltenFlux.y-moltenFlux.x, moltenFlux.w-moltenFlux.z) * 100.0;
 	moltenVelocity *= cellSize;
-	float moltenVelocityLength = length(moltenVelocity);
-	moltenVelocity *=  min( 1.0, cellSize / max( moltenVelocityLength, 0.0001 ) );
+	//float moltenVelocityLength = length(moltenVelocity);
+	//moltenVelocity *=  min( 1.0, cellSize * 2.0 / max( moltenVelocityLength, 0.0001 ) );
 
 	////////////////////////////////////////////////////////////////
 	// Melt/condense rock
@@ -164,8 +164,9 @@ void main(void)
 		moltenHeight -= condensedAmount;
 		solidHeight += condensedAmount;
 		
-		float heatRatio = min( miscC.x, 1.0 );
-		float meltAmount = heatRatio * u_meltSpeed * hC.x * 0.00001;
+		float heatRatio = max( heatC  - u_moltenMinHeat, 0.0 ) / ( 1.0 - u_moltenMinHeat );
+
+		float meltAmount = min( heatRatio * u_meltSpeed * 0.01, hC.x );
 		moltenHeight += meltAmount;
 		solidHeight -= meltAmount;
 	}
@@ -428,7 +429,7 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	{
 		vec4 noiseSample = texture( s_noiseMap, (in_uv / u_mouseRadius) * 0.1 + u_phase * vec2(0.01,0.0) );
-		float noise = noiseSample.a;
+		float noise = 1.0;//noiseSample.a;
 
 		vec2 mousePos = GetMousePos();
 		float mouseScalar = 1.0f - min(1.0f, length(in_uv-mousePos) / u_mouseRadius);
@@ -439,7 +440,7 @@ void main(void)
 
 		float moltenAddition = mouseScalar * u_mouseMoltenVolumeStrength * mix( 0.01, 1.0, pow( noise, 4.0 ) );
 		moltenHeight += moltenAddition;
-		solidHeight += mouseScalar * u_mouseMoltenVolumeStrength * mix( 0.1, 0.0, noise );
+		//solidHeight += mouseScalar * u_mouseMoltenVolumeStrength * mix( 0.1, 0.0, noise );
 
 		waterHeight += mouseScalar * u_mouseWaterVolumeStrength;
 		solidHeight += mouseScalar * u_mouseDirtVolumeStrength;

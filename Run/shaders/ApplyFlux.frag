@@ -83,7 +83,7 @@ void main(void)
 		moltenHeight += totalFrom;
 		moltenHeight -= totalTo;
 	
-		float advectSpeed = 0.9;
+		float advectSpeed = 0.99;
 		if ( moltenHeight > 0 )
 		{
 			// Advect heat and molten scalar
