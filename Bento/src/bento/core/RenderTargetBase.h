@@ -31,6 +31,16 @@ namespace bento
 		void AttachTexture(GLenum _attachment, RectangleTexture& _texture, int _level = 0);
 		void AttachTexture(GLenum _attachment, TextureSquare& _texture, int _level = 0);
 
+		void SetDrawTextures( TextureSquare& _texture0 );
+		void SetDrawTextures( TextureSquare& _texture0, TextureSquare& _texture1 );
+		void SetDrawTextures( TextureSquare& _texture0, TextureSquare& _texture1, TextureSquare& _texture2 );
+		void SetDrawTextures( TextureSquare& _texture0, TextureSquare& _texture1, TextureSquare& _texture2, TextureSquare& _texture3 );
+
+		void SetDrawTextures( RectangleTexture& _texture0 );
+		void SetDrawTextures( RectangleTexture& _texture0, RectangleTexture& _texture1 );
+		void SetDrawTextures( RectangleTexture& _texture0, RectangleTexture& _texture1, RectangleTexture& _texture2 );
+		void SetDrawTextures( RectangleTexture& _texture0, RectangleTexture& _texture1, RectangleTexture& _texture2, RectangleTexture& _texture3 );
+
 		void SetDrawBuffers(const GLenum* const _drawBuffers, GLsizei _size);
 
 		int Width() { return m_width; }

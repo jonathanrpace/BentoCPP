@@ -49,7 +49,7 @@ godBox::TerrainSimulation::TerrainSimulation(std::string _name)
 	// Dirt transport								 
 	SERIALIZABLE( dirtTransportSpeed,		0.0f );
 	SERIALIZABLE( dirtPickupRate,			0.0f );
-	SERIALIZABLE( dirtPickupMinWaterSpeed,	1.0f );
+	SERIALIZABLE( dirtPickupMaxWaterSpeed,	1.0f );
 	SERIALIZABLE( dirtDepositSpeed,			0.0f );
 
 	// Global										 
@@ -104,16 +104,14 @@ void godBox::TerrainSimulation::AddUIElements()
 	ImGui::Spacing();
 
 	ImGui::Text("Erosion");
-	ImGui::SliderFloat("Strength", &erosionStrength, 0.0f, 0.000001f, "%.9f");
+	ImGui::SliderFloat("Strength", &erosionStrength, 0.0f, 0.0001f, "%.9f");
 	ImGui::SliderFloat("DirtDepthMax", &erosionDirtDepthMax, 0.0f, 0.03f, "%.4f");
 	ImGui::SliderFloat("WaterSpeedMax##erode", &erosionWaterSpeedMax, 0.0f, 0.1f, "%.3f");
 
 	ImGui::Text("Dirt Transport");
-	ImGui::SliderFloat("WaterSpeedMax##pickup", &dirtPickupMinWaterSpeed, 0.0f, 0.1f, "%.7f");
-	ImGui::SliderFloat("PickupRate", &dirtPickupRate, 0.0f, 0.00001f, "%.7f");
-	ImGui::SliderFloat("TransportSpeed", &dirtTransportSpeed, 0.0f, 0.1f, "%.4f");
+	ImGui::SliderFloat("WaterSpeedMax##pickup", &dirtPickupMaxWaterSpeed, 0.0f, 0.1f, "%.7f");
+	ImGui::SliderFloat("PickupRate", &dirtPickupRate, 0.0f, 0.0001f, "%.7f");
 	ImGui::SliderFloat("DepositRate", &dirtDepositSpeed, 0.0f, 0.05f, "%.7f");
-	ImGui::SliderFloat("DissolvedDirtSmoothing", &dissolvedDirtSmoothing, 0.0f, 1.0f, "%.5f");
 	ImGui::Spacing();
 
 	if (ImGui::Button("Reset"))

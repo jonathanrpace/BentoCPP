@@ -71,7 +71,7 @@ namespace godBox
 		// Dirt transport
 		float dirtTransportSpeed;
 		float dirtPickupRate;
-		float dirtPickupMinWaterSpeed;
+		float dirtPickupMaxWaterSpeed;
 		float dirtDepositSpeed;
 		float dissolvedDirtSmoothing;
 

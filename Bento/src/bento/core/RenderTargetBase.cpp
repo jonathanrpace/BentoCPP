@@ -155,8 +155,78 @@ namespace bento
 		}
 	}
 
+	void RenderTargetBase::SetDrawTextures(TextureSquare & _texture0)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+		SetDrawBuffers(drawBuffers, 1);
+	}
 
+	void RenderTargetBase::SetDrawTextures(TextureSquare & _texture0, TextureSquare& _texture1)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		AttachTexture(GL_COLOR_ATTACHMENT1, _texture1);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		SetDrawBuffers(drawBuffers, 2);
+	}
 
+	void RenderTargetBase::SetDrawTextures(TextureSquare & _texture0, TextureSquare& _texture1, TextureSquare& _texture2)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		AttachTexture(GL_COLOR_ATTACHMENT1, _texture1);
+		AttachTexture(GL_COLOR_ATTACHMENT2, _texture2);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		SetDrawBuffers(drawBuffers, 3);
+	}
+
+	void RenderTargetBase::SetDrawTextures(TextureSquare & _texture0, TextureSquare& _texture1, TextureSquare& _texture2, TextureSquare& _texture3)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		AttachTexture(GL_COLOR_ATTACHMENT1, _texture1);
+		AttachTexture(GL_COLOR_ATTACHMENT2, _texture2);
+		AttachTexture(GL_COLOR_ATTACHMENT3, _texture3);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+		SetDrawBuffers(drawBuffers, 4);
+	}
+
+	void RenderTargetBase::SetDrawTextures(RectangleTexture & _texture0)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+		SetDrawBuffers(drawBuffers, 1);
+	}
+
+	void RenderTargetBase::SetDrawTextures(RectangleTexture & _texture0, RectangleTexture& _texture1)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		AttachTexture(GL_COLOR_ATTACHMENT1, _texture1);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+		SetDrawBuffers(drawBuffers, 2);
+	}
+
+	void RenderTargetBase::SetDrawTextures(RectangleTexture & _texture0, RectangleTexture& _texture1, RectangleTexture& _texture2)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		AttachTexture(GL_COLOR_ATTACHMENT1, _texture1);
+		AttachTexture(GL_COLOR_ATTACHMENT2, _texture2);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+		SetDrawBuffers(drawBuffers, 3);
+	}
+
+	void RenderTargetBase::SetDrawTextures(RectangleTexture & _texture0, RectangleTexture& _texture1, RectangleTexture& _texture2, RectangleTexture& _texture3)
+	{
+		AttachTexture(GL_COLOR_ATTACHMENT0, _texture0);
+		AttachTexture(GL_COLOR_ATTACHMENT1, _texture1);
+		AttachTexture(GL_COLOR_ATTACHMENT2, _texture2);
+		AttachTexture(GL_COLOR_ATTACHMENT3, _texture3);
+		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+		SetDrawBuffers(drawBuffers, 4);
+	}
+
+	/////////////////////////////////////////
+	// PROTECTED
+	/////////////////////////////////////////
+	
 	void RenderTargetBase::SetDrawBuffers(const GLenum * const _drawBuffers, GLsizei _size)
 	{
 		ValidateNow();

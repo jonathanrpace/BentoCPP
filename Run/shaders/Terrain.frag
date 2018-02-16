@@ -206,17 +206,17 @@ vec2 getSplatUV( ivec2 _igridCoord, vec2 _offset, float _gridSize )
 	vec4 smudgeSample = textureLod( s_smudgeData, _igridCoord * _gridSize / u_uvRepeat, u_smudgeMipLevel );
 	float smudgeAngle = angleBetween(smudgeSample.xy);
 	float smudgeLength = length(smudgeSample.xy);
-	float pressure = smudgeSample.w + u_stretchCompressBias;
-	float compressionRatio = max(0.0, pressure);
-	float stretchRatio = -min(0.0, pressure);
+	float pressure = smudgeSample.w;// + u_stretchCompressBias;
+	//float compressionRatio = max(0.0, pressure);
+	//float stretchRatio = -min(0.0, pressure);
 
 	vec2 uv = _offset * _gridSize * u_uvRepeat;
 
 	// Rotate, squeeze then rotate back
 	uv = rotateVec2( uv, smudgeAngle );
-	uv.x /= 1+(smudgeLength*u_smudgeUVStrength*stretchRatio);
-	//uv.y /= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio);
-	uv.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio*0.2);
+	uv.x /= 1+(smudgeLength*u_smudgeUVStrength);
+	uv.y /= 1+(u_smudgeUVStrength*pressure);
+	//uv.x *= 1+(smudgeLength*u_smudgeUVStrength*compressionRatio*0.2);
 	uv = rotateVec2( uv, -smudgeAngle );
 
 	// Offset
@@ -277,11 +277,11 @@ void main(void)
 	vec3 viewDir = normalize(u_cameraPos-in_worldPosition);
 	vec3 lightDir = normalize(u_lightDir * u_lightDistance - in_worldPosition);
 	float heat = in_miscData.x;
+	float moltenScalar = in_miscData.y;
+	//moltenScalar = min( 1.0, pow( moltenScalar, 0.7 ) * 3 );
+
 	float moltenRatio = min( heat / 0.3, 1.0 );
-	float moltenScalar = min( textureLod( s_miscData, in_uv, 2.5 ).y, 1.0 );
-
-	moltenScalar = pow( min( moltenScalar * 2.0, 1.0 ), 0.5 );
-
+	
 	// Rock material
 	vec3 rockAlbedo = degamma( samplePhasedMap( s_lavaAlbedo, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgb ) * (1.0+u_rockReflectivity*10.0);
 	vec4 rockMaterialParams = samplePhasedMap( s_lavaMaterial, s_lavaMaterial, in_scaledUV, in_moltenUVOffsets ).rgba;
@@ -300,8 +300,8 @@ void main(void)
 	// Blend rock/dirt
 	float dirtBlendAlpha = in_dirtAlpha;													// TODO: Scramble with height/grunge/normal map
 	//dirtBlendAlpha = mix( dirtBlendAlpha - (1.0-rockMaterialParams.b), 1.0, dirtBlendAlpha );
-	dirtBlendAlpha -= pow( abs(rockNormal.x), 2.0 );
-	dirtBlendAlpha -= pow( abs(rockNormal.z), 2.0 );
+	//dirtBlendAlpha -= pow( abs(rockNormal.x), 2.0 );
+	//dirtBlendAlpha -= pow( abs(rockNormal.z), 2.0 );
 	dirtBlendAlpha = max(0.0, dirtBlendAlpha);
 
 	vec3 albedo = mix( rockAlbedo, dirtAlbedo, dirtBlendAlpha );
@@ -313,12 +313,15 @@ void main(void)
 	specularColor *= (1.0-moltenRatio);
 	albedo *= (1.0-moltenRatio);
 
+	vec3 albedoTint = max( vec3(0.0), mix( vec3(0.05, 0.0, 1.0), vec3(5.0, 1.0, 0.0), moltenScalar ) );
+	albedo *= 1.0 + albedoTint;
+
 	//albedo *= moltenScalar;
 	//specularColor *= (1.0-moltenScalar);
 
 	// Lighting
 	float roughness = mix( 1.0, 0.5, moltenRatio ); // * materialParams.r;
-	roughness *= mix( roughness, roughness*0.5, moltenScalar);
+	//roughness *= mix( roughness, roughness*0.5, moltenScalar);
 	float textureAO = materialParams.g;
 
 	//vec3 lightColor = vec3(1.0,1.0,1.0);
@@ -378,7 +381,9 @@ void main(void)
 	out_viewPosition = in_viewPosition;
 	out_forward = vec4( outColor, 1.0 );
 
-	//out_forward = vec4( moltenScalar, moltenScalar, moltenScalar, 1.0 );
+	//out_forward = vec4(in_miscData.y);
+
+	//out_forward = vec4( moltenScalar );
 
 	//out_forward = ( smudgeDataC + 1.0 )* 0.5;
 

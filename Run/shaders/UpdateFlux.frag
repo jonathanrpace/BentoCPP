@@ -56,7 +56,7 @@ void main(void)
 	vec4 hS = texelFetchOffset(s_heightData, T, 0, ivec2( 0, 1));
 	vec4 hE = texelFetchOffset(s_heightData, T, 0, ivec2( 1, 0));
 	vec4 hW = texelFetchOffset(s_heightData, T, 0, ivec2(-1, 0));
-	float pressureRatioC = clamp( texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  0)).x * 10000.0, 0.0, 1.0 );
+	float pressureRatioC = 0.0;//clamp( texelFetchOffset(s_pressureData, T, 0, ivec2( 0,  0)).x * 10000.0, 0.0, 1.0 );
 
 	vec4 moltenFluxC = texelFetch(s_moltenFluxData, T, 0);
 	vec4 waterFluxC = texelFetch(s_waterFluxData, T, 0);
@@ -64,9 +64,8 @@ void main(void)
 	// Update molten flux
 	{
 		vec4 miscData = texelFetch(s_miscData, T, 0);
-
 		float heatRatio = max( (miscData.x + pressureRatioC) - u_moltenMinHeat, 0.0 ) / ( 1.0 - u_moltenMinHeat );
-
+		//heatRatio = pow(heatRatio, 0.1);
 		float moltenViscosity = mix( u_moltenViscosity.x, u_moltenViscosity.y, heatRatio );
 
 		// Add slope
@@ -78,42 +77,6 @@ void main(void)
 		vec4 diffs = vec4( mhC - mhW, mhC - mhE, mhC - mhN, mhC - mhS );
 		diffs *= u_moltenSlopeStrength;
 
-		/* Advect neighbour flux to this cell */
-		{
-			vec4 fluxC = texelFetch(s_moltenFluxData, T, 0);
-			vec4 fluxN = texelFetchOffset(s_moltenFluxData, T, 0, ivec2( 0,-1));
-			vec4 fluxS = texelFetchOffset(s_moltenFluxData, T, 0, ivec2( 0, 1));
-			vec4 fluxE = texelFetchOffset(s_moltenFluxData, T, 0, ivec2( 1, 0));
-			vec4 fluxW = texelFetchOffset(s_moltenFluxData, T, 0, ivec2(-1, 0));
-		
-			float toN = min( fluxC.z, hC.y ) * DT;
-			float toS = min( fluxC.w, hC.y ) * DT;
-			float toE = min( fluxC.y, hC.y ) * DT;
-			float toW = min( fluxC.x, hC.y ) * DT;
-			float totalTo = (toN + toS + toE + toW);
-
-			float propC = hC.y > 0.002 ? min( 1.0, totalTo / hC.y ) : 0.0;
-
-			float advectSpeed = 0.99;
-			moltenFluxC -= propC * moltenFluxC * advectSpeed;
-
-			float fromN = min( fluxN.w, hN.y ) * DT;
-			float fromS = min( fluxS.z, hS.y ) * DT;
-			float fromE = min( fluxE.x, hE.y ) * DT;
-			float fromW = min( fluxW.y, hW.y ) * DT;
-
-			float propN = hN.y > 0.002 ? min( 1.0, fromN / hN.y ) : 0.0;
-			float propS = hS.y > 0.002 ? min( 1.0, fromS / hS.y ) : 0.0;
-			float propE = hE.y > 0.002 ? min( 1.0, fromE / hE.y ) : 0.0;
-			float propW = hW.y > 0.002 ? min( 1.0, fromW / hW.y ) : 0.0;
-
-			moltenFluxC += (propN * fluxN) * advectSpeed;
-			moltenFluxC += (propS * fluxS) * advectSpeed;
-			moltenFluxC += (propE * fluxE) * advectSpeed;
-			moltenFluxC += (propW * fluxW) * advectSpeed;
-		}
-		
-		
 		// Add pressure gradient
 		/*
 		{
@@ -150,6 +113,9 @@ void main(void)
 			// Dampen to zero when no volume
 			float volumeRatio = min( 1.0, hC.y / 0.0001 );
 			moltenFluxC *= volumeRatio;
+
+			// Dampen to zero when no heat
+			moltenFluxC *= smoothstep( 0.0, 0.1, heatRatio );
 		}
 	}
 	

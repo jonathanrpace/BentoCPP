@@ -215,6 +215,9 @@ void main(void)
 	vec3 terrainNormal = texelFetch(s_normalBuffer, ivec2(gl_FragCoord.xy)).xyz;
 	normal = normalize( mix( terrainNormal, normal, in_reflectAlpha ) );
 
+
+	vec3 diffuseLighting = IBLContribution(normal, eye, vec3(0.0), vec3(1.0), 1.0, s_envMap, s_irrMap, u_ambientLightIntensity, 1.0);
+
 	////////////////////////////////////////////////////////////////
 	// Refraction
 	////////////////////////////////////////////////////////////////
@@ -253,13 +256,11 @@ void main(void)
 	////////////////////////////////////////////////////////////////
 	// Diffuse response - due to dissolved dirt
 	////////////////////////////////////////////////////////////////
-	/*
 	{
 		vec3 dissolvedDirtColor = pow( vec3(1.0,0.0,0.0), vec3(2.2) );
-		dissolvedDirtColor *= 0.25;
-		outColor = mix( outColor, dissolvedDirtColor * diffuseLighting, in_dissolvedDirtAlpha * diffuseAlpha );
+		//dissolvedDirtColor *= 0.25;
+		outColor = mix( outColor, dissolvedDirtColor * diffuseLighting, in_dissolvedDirtAlpha );
 	}
-	*/
 
 	////////////////////////////////////////////////////////////////
 	// Foam

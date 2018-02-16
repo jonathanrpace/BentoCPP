@@ -69,6 +69,9 @@ namespace godBox
 	// PRIVATE
 	//////////////////////////////////////////////////////////////////////////
 
+	/**
+	*
+	**/
 	void TerrainSimulationProcess::AdvanceTerrainSim
 	(
 		RenderTargetBase & _renderTarget,
@@ -89,41 +92,47 @@ namespace godBox
 		UpdateTerrainData(_renderTarget, _geom, _material, _terrainSim);
 		DeriveTerrainData(_renderTarget, _geom, _material, _terrainSim);
 	}
-
-	void TerrainSimulationProcess::ApplyFlux
+	
+	/**
+	*
+	**/
+	void TerrainSimulationProcess::UpdatePressure
 	(
-		RenderTargetBase& _renderTarget, 
-		TerrainGeometry& _geom, 
-		TerrainMaterial& _material,
+		RenderTargetBase & _renderTarget,
+		TerrainGeometry & _geom,
+		TerrainMaterial & _material,
 		TerrainSimulation& _terrainSim
 	)
 	{
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
+
+		// Given the fluid's current motion, calculate how much the velocity arrows are pointing towards or away from each other.
+		// A so-called 'divergence' field.
+		{
+			m_computeDivergenceShader.BindPerPass();
+
+			m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
+			m_computeDivergenceShader.FragmentShader().SetTexture( "s_fluxData", _geom.MoltenFluxData().GetRead() );
+			m_computeDivergenceShader.FragmentShader().SetTexture( "s_heightData", _geom.HeightData().GetRead() );
 			
-		m_applyFluxShader.BindPerPass();
-		ApplyFluxFrag& fragShader = m_applyFluxShader.FragmentShader();
+			_renderTarget.SetDrawTextures(_geom.DivergenceData());
 
-		// Samplers
-		fragShader.SetTexture("s_heightData",					_geom.HeightData().GetRead());
-		fragShader.SetTexture("s_moltenFluxData",				_geom.MoltenFluxData().GetRead());
-		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxData().GetRead());
-		fragShader.SetTexture("s_miscData",						_geom.MiscData().GetRead());
-	
-		// Molten
-		fragShader.SetUniform("u_moltenDiffuseStrength",		_terrainSim.moltenDiffusionStrength);
-	
-		m_screenQuadGeom.Draw();
+			m_screenQuadGeom.Draw();
+		}
 
-		_geom.HeightData().GetWrite().GenerateMipMaps();
-		_geom.MiscData().GetWrite().GenerateMipMaps();
-
-		_geom.HeightData().Swap();
-		_geom.MiscData().Swap();
+		// This output is then consumed by a 'jacobi' iterative pass that progressively calculates the pressure created
+		// by the divergence. This pressure gradient is then used to affect velocity during update data
+		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
+		for (int i = 0; i < 2; ++i) 
+		{
+			Jacobi(_renderTarget, _geom.PressureData().GetRead(), _geom.DivergenceData(), cellSize, _geom.PressureData().GetWrite());
+			_geom.PressureData().Swap();
+		}
 	}
 
+	/**
+	*
+	**/
 	void TerrainSimulationProcess::UpdateFlux
 	(
 		RenderTargetBase & _renderTarget,
@@ -132,10 +141,10 @@ namespace godBox
 		TerrainSimulation& _terrainSim
 	)
 	{
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.MoltenFluxData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.WaterFluxData().GetWrite());
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+		_renderTarget.SetDrawTextures(
+			_geom.MoltenFluxData().GetWrite(),
+			_geom.WaterFluxData().GetWrite()
+		);
 
 		m_updateFluxShader.BindPerPass();
 		UpdateFluxFrag& fragShader = m_updateFluxShader.FragmentShader();
@@ -164,6 +173,46 @@ namespace godBox
 		_geom.WaterFluxData().Swap();
 	}
 
+	/**
+	*
+	**/
+	void TerrainSimulationProcess::ApplyFlux
+	(
+		RenderTargetBase& _renderTarget, 
+		TerrainGeometry& _geom, 
+		TerrainMaterial& _material,
+		TerrainSimulation& _terrainSim
+	)
+	{
+		_renderTarget.SetDrawTextures(
+			_geom.HeightData().GetWrite(),
+			_geom.MiscData().GetWrite()
+		);
+
+		m_applyFluxShader.BindPerPass();
+		ApplyFluxFrag& fragShader = m_applyFluxShader.FragmentShader();
+
+		// Samplers
+		fragShader.SetTexture("s_heightData",					_geom.HeightData().GetRead());
+		fragShader.SetTexture("s_moltenFluxData",				_geom.MoltenFluxData().GetRead());
+		fragShader.SetTexture("s_waterFluxData",				_geom.WaterFluxData().GetRead());
+		fragShader.SetTexture("s_miscData",						_geom.MiscData().GetRead());
+	
+		// Molten
+		fragShader.SetUniform("u_moltenDiffuseStrength",		_terrainSim.moltenDiffusionStrength);
+	
+		m_screenQuadGeom.Draw();
+
+		_geom.HeightData().GetWrite().GenerateMipMaps();
+		_geom.MiscData().GetWrite().GenerateMipMaps();
+
+		_geom.HeightData().Swap();
+		_geom.MiscData().Swap();
+	}
+
+	/**
+	*
+	**/
 	void TerrainSimulationProcess::UpdateTerrainData
 	(
 		RenderTargetBase & _renderTarget,
@@ -172,6 +221,13 @@ namespace godBox
 		TerrainSimulation& _terrainSim
 	)
 	{
+		_renderTarget.SetDrawTextures(
+			_geom.HeightData().GetWrite(), 
+			_geom.MiscData().GetWrite(), 
+			_geom.SmudgeData().GetWrite(), 
+			_geom.UVOffsetData().GetWrite()
+		);
+
 		IInputManager& inputManager = m_scene->GetInputManager();
 
 		float dirtScalar = inputManager.IsKeyDown(GLFW_KEY_LEFT_ALT) ? 1.0f : 0.0f;
@@ -195,17 +251,10 @@ namespace godBox
 
 		float cellSize = _geom.Size() / (float)_geom.NumVerticesPerDimension();
 		
-
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.HeightData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.MiscData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT2, _geom.SmudgeData().GetWrite());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT3, _geom.UVOffsetData().GetWrite());
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
-		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
 		m_updateDataShader.BindPerPass();
 		UpdateTerrainDataFrag& fragShader = m_updateDataShader.FragmentShader();
 
+		// Global
 		fragShader.SetUniform("u_cellSize",						cellSize);
 
 		// Samplers
@@ -261,7 +310,7 @@ namespace godBox
 
 		// Dirt transport
 		fragShader.SetUniform("u_dirtTransportSpeed",			_terrainSim.dirtTransportSpeed);
-		fragShader.SetUniform("u_dirtPickupMinWaterSpeed",		_terrainSim.dirtPickupMinWaterSpeed);
+		fragShader.SetUniform("u_dirtPickupMinWaterSpeed",		_terrainSim.dirtPickupMaxWaterSpeed);
 		fragShader.SetUniform("u_dirtPickupRate",				_terrainSim.dirtPickupRate);
 		fragShader.SetUniform("u_dirtDepositSpeed",				_terrainSim.dirtDepositSpeed);
 		fragShader.SetUniform("u_dissolvedDirtSmoothing",		_terrainSim.dissolvedDirtSmoothing);
@@ -284,6 +333,9 @@ namespace godBox
 		_geom.UVOffsetData().Swap();
 	}
 
+	/**
+	*
+	**/
 	void TerrainSimulationProcess::DeriveTerrainData
 	(
 		RenderTargetBase & _renderTarget,
@@ -292,10 +344,10 @@ namespace godBox
 		TerrainSimulation& _terrainSim
 	)
 	{
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.NormalData());
-		_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT1, _geom.DerivedData().GetWrite());
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+		_renderTarget.SetDrawTextures( 
+			_geom.NormalData(),
+			_geom.DerivedData().GetWrite()
+		);
 
 		m_deriveDataShader.BindPerPass();
 		DeriveTerrainDataFrag& fragShader = m_deriveDataShader.FragmentShader();
@@ -313,46 +365,14 @@ namespace godBox
 		_geom.DerivedData().Swap();
 	}
 
-	void TerrainSimulationProcess::UpdatePressure(
-		RenderTargetBase & _renderTarget,
-		TerrainGeometry & _geom,
-		TerrainMaterial & _material,
-		TerrainSimulation& _terrainSim
-	)
+	/////////////////////////////////////////
+	// UTIL
+	/////////////////////////////////////////
+
+
+	void TerrainSimulationProcess::ClearSurface(RenderTargetBase& _renderTarget, TextureSquare& dest, float v)
 	{
-		vec2 cellSize = vec2(_geom.Size() / (float)_geom.NumVerticesPerDimension());
-
-		// Given the fluid's current motion, calculate how much the velocity arrows are pointing towards or away from each other.
-		// A so-called 'divergence' field.
-		{
-			m_computeDivergenceShader.BindPerPass();
-
-			m_computeDivergenceShader.FragmentShader().SetUniform( "u_halfInverseCellSize", 0.5f / cellSize.x );
-			m_computeDivergenceShader.FragmentShader().SetTexture( "s_fluxData", _geom.MoltenFluxData().GetRead() );
-			m_computeDivergenceShader.FragmentShader().SetTexture( "s_heightData", _geom.HeightData().GetRead() );
-			
-			_renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, _geom.DivergenceData());
-			static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-			_renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
-
-			m_screenQuadGeom.Draw();
-		}
-
-		// This output is then consumed by a 'jacobi' iterative pass that progressively calculates the pressure created
-		// by the divergence. This pressure gradient is then used to affect velocity during update data
-		ClearSurface(_renderTarget, _geom.PressureData().GetRead(), 0.0f);
-		for (int i = 0; i < 2; ++i) 
-		{
-			Jacobi(_renderTarget, _geom.PressureData().GetRead(), _geom.DivergenceData(), cellSize, _geom.PressureData().GetWrite());
-			_geom.PressureData().Swap();
-		}
-	}
-
-	void TerrainSimulationProcess::ClearSurface(RenderTargetBase& renderTarget, TextureSquare& dest, float v)
-	{
-		renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest);
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+		_renderTarget.SetDrawTextures(dest);
 
 		GL_CHECK( glClearColor(v, v, v, v) );
 		GL_CHECK( glClear(GL_COLOR_BUFFER_BIT) );
@@ -366,9 +386,7 @@ namespace godBox
 		m_jacobiShader.FragmentShader().SetTexture( "s_pressureData", pressure );
 		m_jacobiShader.FragmentShader().SetTexture( "s_divergenceData", divergence );
 
-		renderTarget.AttachTexture(GL_COLOR_ATTACHMENT0, dest);
-		static GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
-		renderTarget.SetDrawBuffers(drawBuffers, sizeof(drawBuffers) / sizeof(drawBuffers[0]));
+		renderTarget.SetDrawTextures(dest);
 
 		m_screenQuadGeom.Draw();
 	}
